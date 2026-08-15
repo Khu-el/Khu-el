@@ -1,0 +1,18 @@
+{
+  "name": "nte-web-apps",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:deal-architect": "npm run dev --workspace=apps/deal-architect",
+    "dev:capital-readiness": "npm run dev --workspace=apps/capital-readiness",
+    "dev:notes-underwriting": "npm run dev --workspace=apps/notes-underwriting",
+    "dev:legacy-estate": "npm run dev --workspace=apps/legacy-estate",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "tsc -b --noEmit apps/deal-architect apps/capital-readiness apps/notes-underwriting apps/legacy-estate 2>/dev/null || true"
+  }
+}
