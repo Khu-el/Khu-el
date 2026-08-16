@@ -1,6 +1,17 @@
 import { useState } from 'react';
-import { Button, NoAutonomousExecutionBanner, NotLegalOrFinancialAdviceFooter, Tabs, TextInput, useLocalStorage } from '@nte/governance-core';
-import type { Deal } from './types';
+import {
+  AttachmentsPanel,
+  AuthGate,
+  Button,
+  NoAutonomousExecutionBanner,
+  NotLegalOrFinancialAdviceFooter,
+  ROLE_LABELS,
+  SyncStatusIndicator,
+  Tabs,
+  TextInput,
+  useSyncedRecords,
+} from '@nte/governance-core';
+import type { Deal, DealData } from './types';
 import { createDeal } from './store';
 import { IntakeTab } from './components/IntakeTab';
 import { CalculatorsTab } from './components/CalculatorsTab';
@@ -17,42 +28,63 @@ const TABS = [
   { id: 'capital-stack', label: 'Capital Stack' },
   { id: 'exits', label: 'Exit Scenarios' },
   { id: 'diligence', label: 'Diligence' },
+  { id: 'attachments', label: 'Attachments' },
   { id: 'memo', label: 'Decision Memo' },
 ];
 
 export default function App() {
-  const [deals, setDeals] = useLocalStorage<Deal[]>('nte-deal-architect:deals', []);
-  const [selectedId, setSelectedId] = useLocalStorage<string | null>('nte-deal-architect:selected', null);
+  return (
+    <AuthGate appName="Deal Architect">
+      {({ user, logout }) => <DealArchitect userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} onLogout={logout} />}
+    </AuthGate>
+  );
+}
+
+function DealArchitect({ userLabel, onLogout }: { userLabel: string; onLogout: () => void }) {
+  const { records: deals, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<DealData>('deal-architect', 'nte-deal-architect:deals', true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState('intake');
   const [newAddress, setNewAddress] = useState('');
 
-  const selected = deals.find((d) => d.id === selectedId) ?? null;
+  const selected = deals.find((d) => d.id === selectedId) ?? deals[0] ?? null;
 
   const addDeal = () => {
     if (!newAddress.trim()) return;
     const deal = createDeal(newAddress.trim());
-    setDeals([deal, ...deals]);
+    addRecord(deal);
     setSelectedId(deal.id);
     setNewAddress('');
   };
 
-  const updateDeal = (updated: Deal) => setDeals(deals.map((d) => (d.id === updated.id ? updated : d)));
+  const updateDeal = (updated: Deal) => updateRecord(updated);
   const removeDeal = (id: string) => {
-    setDeals(deals.filter((d) => d.id !== id));
-    if (selectedId === id) setSelectedId(deals.find((d) => d.id !== id)?.id ?? null);
+    removeRecord(id);
+    if (selectedId === id) setSelectedId(null);
   };
 
   return (
     <div className="min-h-screen bg-neutral-50">
       <header className="border-b border-neutral-200 bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <h1 className="text-lg font-semibold text-neutral-900">Deal Architect</h1>
-          <p className="text-sm text-neutral-500">Real estate deal-intelligence: wholesaling, seller-finance, and hold analysis in one place.</p>
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-lg font-semibold text-neutral-900">Deal Architect</h1>
+            <p className="text-sm text-neutral-500">Real estate deal-intelligence: wholesaling, seller-finance, and hold analysis in one place.</p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-sm text-neutral-600">{userLabel}</p>
+            <div className="flex items-center gap-2 justify-end mt-1">
+              <SyncStatusIndicator status={status} error={syncError} />
+              <button onClick={onLogout} className="text-xs text-neutral-400 hover:text-neutral-800 underline">
+                Sign out
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-4">
         <NoAutonomousExecutionBanner />
+        {syncError && <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">{syncError}</p>}
 
         <div className="grid md:grid-cols-[260px_1fr] gap-4">
           <aside className="space-y-3">
@@ -69,7 +101,7 @@ export default function App() {
                 <button
                   key={d.id}
                   onClick={() => setSelectedId(d.id)}
-                  className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 ${selectedId === d.id ? 'bg-neutral-100 font-medium' : ''}`}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 ${selected?.id === d.id ? 'bg-neutral-100 font-medium' : ''}`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="truncate">{d.data.address || 'Unnamed'}</span>
@@ -104,6 +136,7 @@ export default function App() {
                 {tab === 'capital-stack' && <CapitalStackTab deal={selected} onChange={updateDeal} />}
                 {tab === 'exits' && <ExitScenariosTab deal={selected} />}
                 {tab === 'diligence' && <DiligenceTab deal={selected} onChange={updateDeal} />}
+                {tab === 'attachments' && <AttachmentsPanel recordId={selected.id} />}
                 {tab === 'memo' && <MemoTab deal={selected} />}
               </>
             )}

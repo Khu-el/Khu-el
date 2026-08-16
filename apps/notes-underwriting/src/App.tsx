@@ -1,6 +1,17 @@
 import { useState } from 'react';
-import { Button, NoAutonomousExecutionBanner, NotLegalOrFinancialAdviceFooter, Tabs, TextInput, useLocalStorage } from '@nte/governance-core';
-import type { Note } from './types';
+import {
+  AttachmentsPanel,
+  AuthGate,
+  Button,
+  NoAutonomousExecutionBanner,
+  NotLegalOrFinancialAdviceFooter,
+  ROLE_LABELS,
+  SyncStatusIndicator,
+  Tabs,
+  TextInput,
+  useSyncedRecords,
+} from '@nte/governance-core';
+import type { Note, NoteData } from './types';
 import { createNote } from './store';
 import { IntakeTab } from './components/IntakeTab';
 import { ValuationTab } from './components/ValuationTab';
@@ -13,37 +24,57 @@ const TABS = [
   { id: 'valuation', label: 'Valuation' },
   { id: 'scenarios', label: 'Recovery Scenarios' },
   { id: 'lien', label: 'Lien Checklist' },
+  { id: 'attachments', label: 'Attachments' },
   { id: 'memo', label: 'Decision Memo' },
 ];
 
 export default function App() {
-  const [notes, setNotes] = useLocalStorage<Note[]>('nte-notes-underwriting:notes', []);
-  const [selectedId, setSelectedId] = useLocalStorage<string | null>('nte-notes-underwriting:selected', null);
+  return (
+    <AuthGate appName="Notes Underwriting">
+      {({ user, logout }) => <NotesUnderwriting userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} onLogout={logout} />}
+    </AuthGate>
+  );
+}
+
+function NotesUnderwriting({ userLabel, onLogout }: { userLabel: string; onLogout: () => void }) {
+  const { records: notes, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<NoteData>('notes-underwriting', 'nte-notes-underwriting:notes', true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState('intake');
   const [newRef, setNewRef] = useState('');
 
-  const selected = notes.find((n) => n.id === selectedId) ?? null;
+  const selected = notes.find((n) => n.id === selectedId) ?? notes[0] ?? null;
 
   const addNote = () => {
     if (!newRef.trim()) return;
     const note = createNote(newRef.trim());
-    setNotes([note, ...notes]);
+    addRecord(note);
     setSelectedId(note.id);
     setNewRef('');
   };
 
-  const updateNote = (updated: Note) => setNotes(notes.map((n) => (n.id === updated.id ? updated : n)));
+  const updateNote = (updated: Note) => updateRecord(updated);
   const removeNote = (id: string) => {
-    setNotes(notes.filter((n) => n.id !== id));
-    if (selectedId === id) setSelectedId(notes.find((n) => n.id !== id)?.id ?? null);
+    removeRecord(id);
+    if (selectedId === id) setSelectedId(null);
   };
 
   return (
     <div className="min-h-screen bg-neutral-50">
       <header className="border-b border-neutral-200 bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <h1 className="text-lg font-semibold text-neutral-900">Notes Underwriting</h1>
-          <p className="text-sm text-neutral-500">Distressed-debt analysis: valuation, scenarios, and lien diligence — analysis only, no collections.</p>
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-lg font-semibold text-neutral-900">Notes Underwriting</h1>
+            <p className="text-sm text-neutral-500">Distressed-debt analysis: valuation, scenarios, and lien diligence — analysis only, no collections.</p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-sm text-neutral-600">{userLabel}</p>
+            <div className="flex items-center gap-2 justify-end mt-1">
+              <SyncStatusIndicator status={status} error={syncError} />
+              <button onClick={onLogout} className="text-xs text-neutral-400 hover:text-neutral-800 underline">
+                Sign out
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -51,6 +82,7 @@ export default function App() {
         <NoAutonomousExecutionBanner>
           <p className="mt-1">Specifically here: this app never contacts a borrower/obligor, initiates collection, or takes any foreclosure step.</p>
         </NoAutonomousExecutionBanner>
+        {syncError && <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">{syncError}</p>}
 
         <div className="grid md:grid-cols-[260px_1fr] gap-4">
           <aside className="space-y-3">
@@ -67,7 +99,7 @@ export default function App() {
                 <button
                   key={n.id}
                   onClick={() => setSelectedId(n.id)}
-                  className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 ${selectedId === n.id ? 'bg-neutral-100 font-medium' : ''}`}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 ${selected?.id === n.id ? 'bg-neutral-100 font-medium' : ''}`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="truncate">{n.data.obligorRef || 'Unreferenced'}</span>
@@ -100,6 +132,7 @@ export default function App() {
                 {tab === 'valuation' && <ValuationTab note={selected} onChange={updateNote} />}
                 {tab === 'scenarios' && <ScenariosTab note={selected} onChange={updateNote} />}
                 {tab === 'lien' && <LienChecklistTab note={selected} onChange={updateNote} />}
+                {tab === 'attachments' && <AttachmentsPanel recordId={selected.id} />}
                 {tab === 'memo' && <MemoTab note={selected} />}
               </>
             )}

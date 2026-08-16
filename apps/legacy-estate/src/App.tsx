@@ -1,6 +1,17 @@
 import { useState } from 'react';
-import { Button, NoAutonomousExecutionBanner, NotLegalOrFinancialAdviceFooter, Tabs, TextInput, useLocalStorage } from '@nte/governance-core';
-import type { Estate } from './types';
+import {
+  AttachmentsPanel,
+  AuthGate,
+  Button,
+  NoAutonomousExecutionBanner,
+  NotLegalOrFinancialAdviceFooter,
+  ROLE_LABELS,
+  SyncStatusIndicator,
+  Tabs,
+  TextInput,
+  useSyncedRecords,
+} from '@nte/governance-core';
+import type { Estate, EstateData } from './types';
 import { createEstate } from './store';
 import { OverviewTab } from './components/OverviewTab';
 import { AssetsTab } from './components/AssetsTab';
@@ -10,6 +21,7 @@ import { InsuranceTab } from './components/InsuranceTab';
 import { BusinessInterestsTab } from './components/BusinessInterestsTab';
 import { DistributionsTab } from './components/DistributionsTab';
 import { ContinuityArchiveTab } from './components/ContinuityArchiveTab';
+import { DigestTab } from './components/DigestTab';
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
@@ -20,46 +32,69 @@ const TABS = [
   { id: 'business', label: 'Business Interests' },
   { id: 'distributions', label: 'Distributions' },
   { id: 'continuity', label: 'Continuity & Archive' },
+  { id: 'attachments', label: 'Attachments' },
+  { id: 'digest', label: 'Needs Attention' },
 ];
 
 export default function App() {
-  const [estates, setEstates] = useLocalStorage<Estate[]>('ccrlt-legacy-estate:estates', []);
-  const [selectedId, setSelectedId] = useLocalStorage<string | null>('ccrlt-legacy-estate:selected', null);
+  return (
+    <AuthGate appName="Legacy & Estate Coordination">
+      {({ user, logout }) => <LegacyEstate userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} onLogout={logout} />}
+    </AuthGate>
+  );
+}
+
+function LegacyEstate({ userLabel, onLogout }: { userLabel: string; onLogout: () => void }) {
+  const { records: estates, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<EstateData>('legacy-estate', 'ccrlt-legacy-estate:estates', true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState('overview');
   const [newName, setNewName] = useState('');
 
-  const selected = estates.find((e) => e.id === selectedId) ?? null;
+  const selected = estates.find((e) => e.id === selectedId) ?? estates[0] ?? null;
 
   const addEstate = () => {
     if (!newName.trim()) return;
     const estate = createEstate(newName.trim());
-    setEstates([estate, ...estates]);
+    addRecord(estate);
     setSelectedId(estate.id);
     setNewName('');
   };
 
-  const updateEstate = (updated: Estate) => setEstates(estates.map((e) => (e.id === updated.id ? updated : e)));
+  const updateEstate = (updated: Estate) => updateRecord(updated);
   const removeEstate = (id: string) => {
-    setEstates(estates.filter((e) => e.id !== id));
-    if (selectedId === id) setSelectedId(estates.find((e) => e.id !== id)?.id ?? null);
+    removeRecord(id);
+    if (selectedId === id) setSelectedId(null);
   };
 
   return (
     <div className="min-h-screen bg-neutral-50">
       <header className="border-b border-neutral-200 bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <h1 className="text-lg font-semibold text-neutral-900">Legacy & Estate Coordination</h1>
-          <p className="text-sm text-neutral-500">Private family/estate workspace — CCRLT, House of Ransom, and related family records. Lane B only.</p>
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-lg font-semibold text-neutral-900">Legacy & Estate Coordination</h1>
+            <p className="text-sm text-neutral-500">Shared family workspace — CCRLT, House of Ransom, and related family records. Lane B only.</p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-sm text-neutral-600">{userLabel}</p>
+            <div className="flex items-center gap-2 justify-end mt-1">
+              <SyncStatusIndicator status={status} error={syncError} />
+              <button onClick={onLogout} className="text-xs text-neutral-400 hover:text-neutral-800 underline">
+                Sign out
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-4">
         <NoAutonomousExecutionBanner>
           <p className="mt-1">
-            Everything here stays in your browser's local storage. Nothing is uploaded, shared, or synced to any
-            enterprise (Lane A) system automatically.
+            Records here are stored on your backend and visible to every signed-in family member (this app's
+            workspace is shared, unlike the other three). Nothing is synced to any enterprise (Lane A) system
+            automatically.
           </p>
         </NoAutonomousExecutionBanner>
+        {syncError && <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">{syncError}</p>}
 
         <div className="grid md:grid-cols-[260px_1fr] gap-4">
           <aside className="space-y-3">
@@ -76,7 +111,7 @@ export default function App() {
                 <button
                   key={e.id}
                   onClick={() => setSelectedId(e.id)}
-                  className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 ${selectedId === e.id ? 'bg-neutral-100 font-medium' : ''}`}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 ${selected?.id === e.id ? 'bg-neutral-100 font-medium' : ''}`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="truncate">{e.data.familyName || 'Unnamed'}</span>
@@ -113,6 +148,8 @@ export default function App() {
                 {tab === 'business' && <BusinessInterestsTab estate={selected} onChange={updateEstate} />}
                 {tab === 'distributions' && <DistributionsTab estate={selected} onChange={updateEstate} />}
                 {tab === 'continuity' && <ContinuityArchiveTab estate={selected} onChange={updateEstate} />}
+                {tab === 'attachments' && <AttachmentsPanel recordId={selected.id} />}
+                {tab === 'digest' && <DigestTab />}
               </>
             )}
           </section>
