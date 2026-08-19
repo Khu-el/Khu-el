@@ -1,0 +1,14 @@
+node_modules
+dist
+*.log
+.DS_Store
+*.tsbuildinfo
+
+# Backend runtime data -- SQLite db, generated JWT secret, uploaded files.
+# Never commit real user data or secrets.
+server/data/
+server/uploads/*
+!server/uploads/.gitkeep
+.env
+.env.*
+!.env.example
