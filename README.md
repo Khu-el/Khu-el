@@ -88,6 +88,64 @@ Defaults to `http://localhost:4000`. Each app talks to that by default; override
 works, but "Email me this" and the digest email return a plain "not configured" message rather than
 pretending to send anything.
 
+### Deploying the backend (Fly.io)
+
+The backend needs somewhere to actually run for multi-device sync to mean anything. `server/Dockerfile`
++ `fly.toml` at the repo root are set up for [Fly.io](https://fly.io): Docker-native, has cheap
+persistent volumes (needed for the SQLite file and uploaded documents), and deploys with a handful of
+CLI commands. None of this can be done from here — `fly auth login` opens a browser, and creating an
+app/volume is billed to *your* account — so these are commands you run yourself.
+
+```bash
+# 1. Install the CLI (see https://fly.io/docs/flyctl/install/ for other OSes)
+curl -L https://fly.io/install.sh | sh
+
+# 2. Log in (opens a browser)
+fly auth login
+
+# 3. Edit fly.toml: change `app` to something globally unique, and
+#    `primary_region` to whichever Fly region is closest to you.
+
+# 4. Create the app entry and the persistent volume (same region as fly.toml)
+fly apps create your-chosen-app-name
+fly volumes create nte_data --region iad --size 1
+
+# 5. Set secrets -- never commit these, they don't belong in fly.toml
+fly secrets set JWT_SECRET=$(openssl rand -hex 48)
+# Add these once you know where the frontends will be hosted:
+# fly secrets set CORS_ORIGINS=https://your-frontend-domain.example
+# Optional, for "Email me this" / digest email to actually send:
+# fly secrets set SMTP_HOST=smtp.example.com SMTP_PORT=587 SMTP_USER=you@example.com SMTP_PASS=... SMTP_FROM=you@example.com
+
+# 6. Deploy, from the repo root (fly.toml points at server/Dockerfile)
+fly deploy
+```
+
+That gives you `https://your-chosen-app-name.fly.dev`. Set `VITE_API_BASE_URL` to that URL when you
+build each frontend app (see below), and add the frontends' final URL(s) to `CORS_ORIGINS` as a Fly
+secret so the browser is actually allowed to call the API.
+
+**Everything here is portable, not Fly-specific.** `server/Dockerfile` is a plain multi-stage Docker
+build with no Fly-only features, so the exact same image runs on a VPS (`docker build -f
+server/Dockerfile -t nte-server . && docker run -p 4000:4000 -v nte_data:/data --env-file server/.env
+nte-server`), Railway, Render, or a home server/Raspberry Pi — swap step 3-6 above for whatever that
+platform's deploy flow is and the app itself doesn't change. I rehearsed the exact
+install → build → prune → run sequence the Dockerfile performs (on a clean checkout, with only
+production dependencies present) to confirm it works; I could not run `docker build` itself inside
+this environment (no privilege to start a Docker daemon here), so treat the actual image build as
+verified-by-rehearsal, not verified-by-build, until you run it once yourself.
+
+### Deploying the four frontends
+
+Each app is a static build — deploy it anywhere that serves static files (GitHub Pages, Netlify,
+Vercel, Cloudflare Pages, S3 + CloudFront). Point it at your deployed backend at build time:
+
+```bash
+cd apps/deal-architect   # (repeat per app)
+VITE_API_BASE_URL=https://your-chosen-app-name.fly.dev npm run build
+# deploy the resulting dist/ folder
+```
+
 ## The shared governance model
 
 Every record in every app carries an `AuthorityContext` and an `AssertionStatus`

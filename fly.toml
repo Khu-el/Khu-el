@@ -1,0 +1,48 @@
+# Fly.io app config for the NTE backend.
+#
+# Before first deploy:
+#   1. Change `app` below to a globally-unique name (or delete this line and
+#      let `fly launch` fill it in).
+#   2. Pick a region close to you: https://fly.io/docs/reference/regions/
+#   3. Create the persistent volume ONCE, in the same region, before deploying:
+#        fly volumes create nte_data --region <region> --size 1
+#      (1GB is generous for a SQLite file + family documents; resize later
+#      with `fly volumes extend` if you ever need to.)
+#   4. Set secrets (never commit these):
+#        fly secrets set JWT_SECRET=$(openssl rand -hex 48)
+#        fly secrets set CORS_ORIGINS=https://your-frontend-domain.example
+#        fly secrets set SMTP_HOST=... SMTP_PORT=587 SMTP_USER=... SMTP_PASS=... SMTP_FROM=...
+#   5. Deploy from the repo root: fly deploy
+
+app = "nte-web-apps-backend"          # <-- change this to something unique
+primary_region = "iad"                 # <-- change this to your nearest Fly region
+
+[build]
+  dockerfile = "server/Dockerfile"
+
+[env]
+  PORT = "4000"
+  NTE_DATA_DIR = "/data"
+  NTE_UPLOADS_DIR = "/data/uploads"
+
+[[mounts]]
+  source = "nte_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 4000
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/api/health"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
