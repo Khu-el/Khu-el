@@ -26,20 +26,21 @@ function LoginScreen({
   appName: string;
   error: string | null;
   onLogin: (email: string, password: string) => Promise<boolean>;
-  onRegister: (email: string, password: string, displayName: string, role: Role) => Promise<boolean>;
+  onRegister: (email: string, password: string, displayName: string, role: Role, inviteCode: string) => Promise<boolean>;
 }) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [role, setRole] = useState<Role>('FAMILY_COUNCIL_MEMBER');
+  const [inviteCode, setInviteCode] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     if (mode === 'login') await onLogin(email, password);
-    else await onRegister(email, password, displayName, role);
+    else await onRegister(email, password, displayName, role, inviteCode);
     setSubmitting(false);
   };
 
@@ -65,6 +66,9 @@ function LoginScreen({
             </Field>
             <Field label="Role" hint="You can change this later">
               <Select value={role} onChange={(v) => setRole(v as Role)} options={ROLES.map((r) => ({ value: r, label: ROLE_LABELS[r] }))} />
+            </Field>
+            <Field label="Invite code" hint="Ask whoever runs this for the code">
+              <TextInput required value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} autoComplete="off" />
             </Field>
           </>
         )}

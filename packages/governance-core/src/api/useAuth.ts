@@ -46,10 +46,10 @@ export function useAuth() {
     }
   }, []);
 
-  const register = useCallback(async (email: string, password: string, displayName: string, role: Role) => {
+  const register = useCallback(async (email: string, password: string, displayName: string, role: Role, inviteCode: string) => {
     setError(null);
     try {
-      const res = await api.post<AuthResponse>('/api/auth/register', { email, password, displayName, role }, { auth: false });
+      const res = await api.post<AuthResponse>('/api/auth/register', { email, password, displayName, role, inviteCode }, { auth: false });
       setToken(res.token);
       setUser(res.user);
       return true;

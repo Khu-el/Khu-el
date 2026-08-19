@@ -1,8 +1,19 @@
+import { timingSafeEqual } from 'node:crypto';
 import { Router } from 'express';
 import { db } from '../lib/db.js';
 import { hashPassword, requireAuth, signToken, verifyPassword, type AuthedRequest } from '../lib/auth.js';
+import { env } from '../lib/env.js';
 import { newId, nowIso } from '../lib/id.js';
 import { ROLES, type Role } from '../lib/roles.js';
+
+/** Constant-time compare so a wrong guess can't be distinguished by response timing. */
+function isValidInviteCode(submitted: unknown): boolean {
+  if (typeof submitted !== 'string' || !submitted) return false;
+  const a = Buffer.from(submitted);
+  const b = Buffer.from(env.inviteCode);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
 
 export const authRouter = Router();
 
@@ -20,7 +31,8 @@ function toPublicUser(row: UserRow) {
 }
 
 authRouter.post('/register', async (req, res) => {
-  const { email, password, displayName, role } = req.body ?? {};
+  const { email, password, displayName, role, inviteCode } = req.body ?? {};
+  if (!isValidInviteCode(inviteCode)) return res.status(403).json({ error: 'Invalid or missing invite code' });
   if (typeof email !== 'string' || !email.includes('@')) return res.status(400).json({ error: 'A valid email is required' });
   if (typeof password !== 'string' || password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
   if (typeof displayName !== 'string' || !displayName.trim()) return res.status(400).json({ error: 'Display name is required' });

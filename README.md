@@ -66,6 +66,9 @@ One Node/Express server, shared by all four frontends, using SQLite (via Node's 
 
 ### Access rules
 
+- **Registration is invite-only and fail-closed.** Nobody — including you — can create an account
+  without the current `INVITE_CODE`. There's no bypass; if you lose the code, read it back out of
+  `server/data/.invite-code` on the machine running the server, or just set a new one.
 - **Deal Architect, Capital Readiness, Notes Underwriting**: records are private to the user who
   created them.
 - **Legacy & Estate Coordination**: records are a *shared* workspace — every signed-in user can see
@@ -80,6 +83,11 @@ cd server
 cp .env.example .env      # fill in JWT_SECRET before using this anywhere but your own machine
 npm run dev                # or: npm run build && npm start
 ```
+
+On first run without an `INVITE_CODE` set, the server generates one and prints it to the console —
+that's what you (and only you, since it's only in your terminal/logs) use to register the first
+account, and what you'd share with family members you want to let in. Set `INVITE_CODE` yourself in
+`.env` to choose or change it.
 
 Defaults to `http://localhost:4000`. Each app talks to that by default; override per-app with a
 `VITE_API_BASE_URL` env var if you deploy the backend somewhere else.
@@ -168,12 +176,9 @@ static file server, and loaded every page in a real browser — landing page plu
 404s, no console errors) but did not run the GitHub Actions workflow itself, since that requires
 Pages actually being enabled on the repository first.
 
-**Before you make this link easy to find:** registration on the backend is currently open to anyone
-who reaches it, and Legacy & Estate is a shared workspace visible to any signed-in account (not just
-approved family members). That's fine while the Fly.io URL is known only to you, but worth locking
-down — an invite code or admin-approval step before an account can log in — before treating this
-Pages link as something to hand out casually. Ask if you want that added; it's a small, contained
-change to the auth routes.
+**Registration is gated by an invite code** (see `INVITE_CODE` above) specifically so this Pages link
+is safe to hand out without opening the shared Legacy & Estate workspace to strangers — share the
+code only with people who should actually see family records.
 
 ## The shared governance model
 
