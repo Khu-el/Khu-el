@@ -1,0 +1,80 @@
+name: Deploy web apps to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Set this as a repository Variable (Settings > Secrets and variables >
+      # Actions > Variables) once the backend is deployed, e.g.
+      # https://your-chosen-app-name.fly.dev -- until then the built apps
+      # fall back to http://localhost:4000 and will just show "offline".
+      VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build deal-architect
+        run: npm run build --workspace=apps/deal-architect
+        env:
+          VITE_BASE_PATH: /deal-architect/
+
+      - name: Build capital-readiness
+        run: npm run build --workspace=apps/capital-readiness
+        env:
+          VITE_BASE_PATH: /capital-readiness/
+
+      - name: Build notes-underwriting
+        run: npm run build --workspace=apps/notes-underwriting
+        env:
+          VITE_BASE_PATH: /notes-underwriting/
+
+      - name: Build legacy-estate
+        run: npm run build --workspace=apps/legacy-estate
+        env:
+          VITE_BASE_PATH: /legacy-estate/
+
+      - name: Assemble _site
+        run: |
+          set -e
+          mkdir -p _site
+          cp web/landing/index.html _site/index.html
+          cp -r apps/deal-architect/dist _site/deal-architect
+          cp -r apps/capital-readiness/dist _site/capital-readiness
+          cp -r apps/notes-underwriting/dist _site/notes-underwriting
+          cp -r apps/legacy-estate/dist _site/legacy-estate
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

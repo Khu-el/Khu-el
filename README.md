@@ -135,16 +135,45 @@ production dependencies present) to confirm it works; I could not run `docker bu
 this environment (no privilege to start a Docker daemon here), so treat the actual image build as
 verified-by-rehearsal, not verified-by-build, until you run it once yourself.
 
-### Deploying the four frontends
+### Deploying the four frontends (GitHub Pages)
 
-Each app is a static build — deploy it anywhere that serves static files (GitHub Pages, Netlify,
-Vercel, Cloudflare Pages, S3 + CloudFront). Point it at your deployed backend at build time:
+`.github/workflows/deploy-pages.yml` builds all four apps and a small landing page
+(`web/landing/index.html`) linking to them, and publishes the result to GitHub Pages in one shot.
+Because this repo is `Khu-el/Khu-el` (named exactly like the account), Pages serves it at the root
+of `https://khu-el.github.io/` rather than under a `/Khu-el/` prefix — the workflow and each app's
+`vite.config.ts` (`base: process.env.VITE_BASE_PATH`) are already set up for that:
 
-```bash
-cd apps/deal-architect   # (repeat per app)
-VITE_API_BASE_URL=https://your-chosen-app-name.fly.dev npm run build
-# deploy the resulting dist/ folder
-```
+- `https://khu-el.github.io/` — the landing page
+- `https://khu-el.github.io/deal-architect/`
+- `https://khu-el.github.io/capital-readiness/`
+- `https://khu-el.github.io/notes-underwriting/`
+- `https://khu-el.github.io/legacy-estate/`
+
+One-time setup, both in the repo's GitHub settings (not something I can click through for you):
+
+1. **Settings → Pages → Source → GitHub Actions.** (Pages is off by default; the workflow can't
+   publish anything until this is set.)
+2. **Settings → Secrets and variables → Actions → Variables → New repository variable** named
+   `VITE_API_BASE_URL`, set to your deployed backend URL (`https://your-chosen-app-name.fly.dev`).
+   Without this, the deployed apps fall back to `http://localhost:4000` and just show "offline."
+3. Once you know the Pages URL is live, go back and run `fly secrets set
+   CORS_ORIGINS=https://khu-el.github.io` (one origin covers all four apps + the landing page, since
+   they share a domain) and `fly deploy` again so the backend actually accepts requests from it.
+
+The workflow runs on every push to `main`, and can also be triggered by hand from the repo's Actions
+tab (`Deploy web apps to GitHub Pages` → Run workflow) — including from this branch, before merging,
+if you want to preview it first. I built and rehearsed this (`npm run build` with each app's
+`VITE_BASE_PATH` set, assembled the same `_site/` structure the workflow assembles, served it with a
+static file server, and loaded every page in a real browser — landing page plus all four apps, no
+404s, no console errors) but did not run the GitHub Actions workflow itself, since that requires
+Pages actually being enabled on the repository first.
+
+**Before you make this link easy to find:** registration on the backend is currently open to anyone
+who reaches it, and Legacy & Estate is a shared workspace visible to any signed-in account (not just
+approved family members). That's fine while the Fly.io URL is known only to you, but worth locking
+down — an invite code or admin-approval step before an account can log in — before treating this
+Pages link as something to hand out casually. Ask if you want that added; it's a small, contained
+change to the auth routes.
 
 ## The shared governance model
 
