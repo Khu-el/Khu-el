@@ -15,6 +15,11 @@
     "dev:notes-underwriting": "npm run dev --workspace=apps/notes-underwriting",
     "dev:legacy-estate": "npm run dev --workspace=apps/legacy-estate",
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "tsc -b --noEmit apps/deal-architect apps/capital-readiness apps/notes-underwriting apps/legacy-estate 2>/dev/null || true"
+    "typecheck": "tsc -b --noEmit apps/deal-architect apps/capital-readiness apps/notes-underwriting apps/legacy-estate server && tsc -p server/tsconfig.test.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.9"
   }
 }
