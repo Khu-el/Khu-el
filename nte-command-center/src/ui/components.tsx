@@ -1,6 +1,7 @@
 import React from 'react'
 import {
   GATE_POINTS,
+  gateNoteConflict,
   isAttested,
   isAttestedRecord,
   type ControlledRecord,
@@ -109,6 +110,19 @@ export function RecordRow({
         )}
         <div className="record__title">{record.title}</div>
         {record.notes && <div className="flag">{record.notes}</div>}
+        {/* Every register in the console gets this check, not just the one
+            where the conflict was first found. */}
+        {(() => {
+          const conflict = gateNoteConflict(record)
+          return conflict ? (
+            <p className="flag flag--alert" data-gate-conflict="true">
+              This note claims {conflict.claimed} of nine. The strip records{' '}
+              {conflict.actual}. One of the two is wrong, and the note is the
+              one people quote — until it is resolved, treat neither as the
+              gate position.
+            </p>
+          ) : null
+        })()}
         {isAttestedRecord(record) && <ProofLine proof={record.proof} />}
         {children}
       </div>

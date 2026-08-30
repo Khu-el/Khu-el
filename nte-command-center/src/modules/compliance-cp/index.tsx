@@ -16,7 +16,7 @@ import type {
   Proof,
   Surface,
 } from '../../core/types'
-import { canClear } from '../../core/types'
+import { canClear, gateNoteConflict } from '../../core/types'
 import { Panel, RecordRow, Meter, Flag, ProofForm } from '../../ui/components'
 import { load, save } from '../../core/storage'
 import seed from '../../../seed/compliance.json'
@@ -96,6 +96,26 @@ function ComplianceModule({ surface }: { surface: Surface }) {
     data.criticalSet.resolution.map((r) => r.resolvesTo),
   )
   const flaggedCritical = data.conditions.filter((c) => c.critical)
+
+  // How many documents sit at each gate position, and which notes disagree
+  // with their own strip.
+  const positions = useMemo(() => {
+    const byPosition = new Map<number, string[]>()
+    for (const d of data.documents) {
+      const passed = d.gate.filter(Boolean).length
+      byPosition.set(passed, [...(byPosition.get(passed) ?? []), d.docCode])
+    }
+    return [...byPosition.entries()].sort((a, b) => b[0] - a[0])
+  }, [data.documents])
+
+  const conflicts = useMemo(
+    () =>
+      data.documents.flatMap((d) => {
+        const conflict = gateNoteConflict(d)
+        return conflict ? [{ id: d.docCode, ...conflict }] : []
+      }),
+    [data.documents],
+  )
 
   return (
     <>
@@ -263,6 +283,33 @@ function ComplianceModule({ surface }: { surface: Surface }) {
           unit={`of ${data.documents.length} drafts blocked on point 8 only`}
           caption="A document at eight of nine is an administrative step from release, not a build."
         />
+        {/* Without the distribution, a zero here reads as "nothing to see".
+            It is a finding: no document is one step from release. */}
+        <Flag tone="permanent">
+          Distribution:{' '}
+          {positions
+            .map(
+              ([passed, ids]) =>
+                `${passed} of 9 — ${ids.length} document${ids.length === 1 ? '' : 's'}`,
+            )
+            .join(' · ')}
+          .
+        </Flag>
+        {/* The documents themselves, which the meter counts. A gauge computed
+            over rows nobody can see is a number to be taken on trust. */}
+        {data.documents.map((d) => (
+          <RecordRow key={d.id} record={d} />
+        ))}
+        {conflicts.length > 0 && (
+          <Flag tone="alert">
+            {conflicts.length} document{conflicts.length === 1 ? '' : 's'} carry
+            a note claiming a gate position the strip does not record:{' '}
+            {conflicts
+              .map((c) => `${c.id} (note says ${c.claimed}, strip says ${c.actual})`)
+              .join('; ')}
+            . Not reconciled here — the answer is with whoever ran the gate.
+          </Flag>
+        )}
       </Panel>
     </>
   )

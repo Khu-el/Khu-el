@@ -25,7 +25,7 @@ npm run check            # everything below, in order
 npm run check:types
 npm run check:lanes      # firewall scan, source
 npm run check:network    # zero-external-origin scan, source
-npm test                 # 143 checks
+npm test                 # 152 checks
 npm run build            # ends with check:bundle — the same scan on the output
 npm run single           # one-file outputs, for looking without a toolchain
 ```
@@ -89,6 +89,9 @@ sums to 51, the course distribution to 83, the deliverable gap to 152 + 96 =
   freeze is hard-coded with no override.
 - **Mix lanes.** Three surfaces, separate storage namespaces, separate
   vocabularies, enforced at render and at build.
+- **Let a note outrank its own gate strip.** A record whose note claims "eight
+  of nine" while its strip records seven renders the conflict on the row. One
+  document in the delivered seed does exactly that.
 - **Claim an external event without proof.** `EXECUTED`, `FILED`, `SERVED`,
   `PAID`, `DEPLOYED` and `RELEASED` are not constructible in the type system
   without a proof object.

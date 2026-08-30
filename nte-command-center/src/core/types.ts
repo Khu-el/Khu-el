@@ -196,3 +196,57 @@ export function isAttestedRecord(
 ): record is AttestedRecord {
   return isAttested(record.status)
 }
+
+// ── A note that claims a gate position must agree with the strip ──────────
+
+const NUMBER_WORDS: Record<string, number> = {
+  zero: 0, one: 1, two: 2, three: 3, four: 4,
+  five: 5, six: 6, seven: 7, eight: 8, nine: 9,
+}
+
+/**
+ * The gate position a note claims, if it claims one.
+ *
+ * Matches "Eight of nine", "8 of 9", "eight of 9" — a count of passed points
+ * against the nine. Returns null when the note makes no such claim, which is
+ * most notes.
+ */
+export function claimedGatePosition(note: string | undefined): number | null {
+  if (!note) return null
+  const match = note
+    .toLowerCase()
+    .match(/\b(zero|one|two|three|four|five|six|seven|eight|nine|[0-9])\s+of\s+(nine|9)\b/)
+  if (!match) return null
+  const word = match[1]!
+  const value = word in NUMBER_WORDS ? NUMBER_WORDS[word]! : Number(word)
+  return Number.isFinite(value) ? value : null
+}
+
+export interface GateConflict {
+  /** What the note says. */
+  claimed: number
+  /** What the strip records. */
+  actual: number
+}
+
+/**
+ * Does a record's note assert a gate position its own strip does not support?
+ *
+ * This is the evidence boundary turned on the gate strip itself. A note is
+ * prose and nobody diffs it; the strip is data. When they disagree the note is
+ * what gets read and quoted — "one administrative step from release" — while
+ * the strip quietly says otherwise. That gap is how a document arrives at a
+ * signing as cleared.
+ *
+ * The console does not decide which of the two is right. It cannot: the answer
+ * lives in whoever ran the gate. It renders the conflict and leaves it open.
+ */
+export function gateNoteConflict(record: {
+  gate: GateStrip
+  notes?: string
+}): GateConflict | null {
+  const claimed = claimedGatePosition(record.notes)
+  if (claimed === null) return null
+  const actual = record.gate.filter(Boolean).length
+  return claimed === actual ? null : { claimed, actual }
+}
