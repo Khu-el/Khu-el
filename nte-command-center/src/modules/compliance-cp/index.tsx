@@ -29,7 +29,24 @@ interface ChangeEntry {
   carriedBy: string
 }
 
+interface CriticalSet {
+  declared: string[]
+  declaredCount: number
+  declaredSplit: Record<string, number>
+  resolution: {
+    name: string
+    resolvesTo: string
+    type: string
+    collision?: string
+  }[]
+  discrepancies: string[]
+  note: string
+  buildWorkCount: number
+  buildWorkNote: string
+}
+
 interface ComplianceData {
+  criticalSet: CriticalSet
   conditions: ConditionPrecedent[]
   remediation: ControlledRecord[]
   documents: ControlledRecord[]
@@ -75,8 +92,57 @@ function ComplianceModule({ surface }: { surface: Surface }) {
     [data.documents],
   )
 
+  const declaredResolved = new Set(
+    data.criticalSet.resolution.map((r) => r.resolvesTo),
+  )
+  const flaggedCritical = data.conditions.filter((c) => c.critical)
+
   return (
     <>
+      <Panel
+        kind="gate"
+        title="The critical set, reconciled"
+        purpose={data.criticalSet.note}
+        alert
+      >
+        {data.criticalSet.resolution.map((r) => (
+          <article className="record" key={r.name}>
+            <div>
+              <span className="record__code">{r.name}</span>
+              <span className="record__rev">resolves to {r.resolvesTo}</span>
+              <div className="record__title">{r.type}</div>
+              {r.collision && <Flag tone="alert">{r.collision}</Flag>}
+            </div>
+            <div className="record__meta">
+              <span className="status status--conditional">
+                {r.type.toUpperCase()}
+              </span>
+            </div>
+          </article>
+        ))}
+        <Flag tone="permanent">
+          {data.criticalSet.buildWorkNote} Build-work conditions in the critical
+          set: {data.criticalSet.buildWorkCount}.
+        </Flag>
+        {data.criticalSet.discrepancies.map((d) => (
+          <Flag key={d} tone="alert">
+            {d}
+          </Flag>
+        ))}
+        <article className="record">
+          <div>
+            <div className="record__title">
+              {data.criticalSet.declaredCount} declared names ·{' '}
+              {declaredResolved.size} distinct conditions ·{' '}
+              {flaggedCritical.length} flagged critical in the register
+            </div>
+          </div>
+          <div className="record__meta">
+            <span className="status status--conditional">OPEN</span>
+          </div>
+        </article>
+      </Panel>
+
       <Panel
         kind="gate"
         title="Critical conditions"
@@ -87,11 +153,11 @@ function ComplianceModule({ surface }: { surface: Surface }) {
           <article className="record" key={c.id}>
             <div>
               <span className="record__code">{c.id}</span>
-              {c.aliases.length > 0 && (
-                <span className="record__rev">
-                  also {c.aliases.join(' · ')}
-                </span>
-              )}
+              <span className="record__rev">
+                {c.aliases.length > 0
+                  ? `also ${c.aliases.join(' · ')}`
+                  : 'no alias in the other three systems'}
+              </span>
               <div className="record__title">{c.title}</div>
               <div className="panel__purpose" style={{ margin: 0 }}>
                 {c.type} · blocks {c.blocks.length || 'nothing recorded'}
@@ -133,9 +199,11 @@ function ComplianceModule({ surface }: { surface: Surface }) {
           <article className="record" key={c.id}>
             <div>
               <span className="record__code">{c.id}</span>
-              {c.aliases.length > 0 && (
-                <span className="record__rev">also {c.aliases.join(' · ')}</span>
-              )}
+              <span className="record__rev">
+                {c.aliases.length > 0
+                  ? `also ${c.aliases.join(' · ')}`
+                  : 'no alias in the other three systems'}
+              </span>
               <div className="record__title">{c.title}</div>
             </div>
             <div className="record__meta">
@@ -208,7 +276,8 @@ const definition: ModuleDefinition = {
   surfaces: ['lane-a'],
   buildWork: false,
   panels: [
-    { id: 'critical', kind: 'gate', title: 'Critical conditions', purpose: 'The seven.' },
+    { id: 'critical-set', kind: 'gate', title: 'The critical set', purpose: 'Seven names, six conditions.' },
+    { id: 'critical', kind: 'gate', title: 'Critical conditions', purpose: 'Open and blocking.' },
     { id: 'all', kind: 'gate', title: 'All conditions', purpose: 'Reconciled register.' },
     { id: 'remediation', kind: 'register', title: 'Remediation', purpose: 'R-01..R-06.' },
     { id: 'changes', kind: 'ledger', title: 'Changes ledger', purpose: 'CL-001 onward.' },

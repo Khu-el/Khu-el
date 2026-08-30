@@ -12,14 +12,21 @@ assigned · 9-Point Release Gate not run.
 2. `docs/ARCHITECTURE.md` — the three surfaces and the module contract.
 3. `docs/MODULE-SPECS.md` — one spec per section, with acceptance criteria.
 4. `docs/BUILD-ORDER.md` — the sequenced prompts to run in Claude Code.
+5. `docs/SPEC-CHANGES.md` — every place the build diverged from the spec, and why.
+6. `docs/RELEASE-NOTE.md` — what is built, what is empty, and every acceptance
+   box with the check that proves it.
 
 ## Run it
 
 ```
 npm install
 npm run dev
-npm run check:lanes      # firewall scan
-npm run check:network    # zero-external-origin scan
+npm run check            # everything below, in order
+npm run check:types
+npm run check:lanes      # firewall scan, source
+npm run check:network    # zero-external-origin scan, source
+npm test                 # 143 checks
+npm run build            # ends with check:bundle — the same scan on the output
 ```
 
 ## What is built
@@ -27,21 +34,33 @@ npm run check:network    # zero-external-origin scan
 | # | Module | Surface | State |
 |---|---|---|---|
 | 01 | Governance & Infrastructure | Enterprise | Built — reference implementation |
-| 02 | Ventures & Revenue | Enterprise | Spec + stub |
-| 03 | Education | Enterprise | Spec + stub |
-| 04 | Marketing & Content | Enterprise + Practice | Spec + stub |
-| 05 | Tech Stack | Enterprise | Spec + stub |
-| 06 | Practice Desk | Practice | Spec + stub |
-| 07 | Household & Estate | Household | Spec + stub |
-| 08 | Operating System | Enterprise + Household | Spec + stub |
-| 09 | Capability & Services | Enterprise | Spec + stub |
-| 10 | Compliance & Conditions | Enterprise | Built — proof-gate pattern |
-| 11 | Knowledge & Canon | Enterprise | Spec + stub |
+| 02 | Ventures & Revenue | Enterprise | Built |
+| 03 | Education | Enterprise | Built |
+| 04 | Marketing & Content | Enterprise + Practice | Built — dual-hosted, two seeds |
+| 05 | Tech Stack | Enterprise | Built — carries the security hold |
+| 06 | Practice Desk | Practice | Built |
+| 07 | Household & Estate | Household | Built |
+| 08 | Operating System | Enterprise + Household | Built — dual-hosted, two seeds |
+| 09 | Capability & Services | Enterprise | Built |
+| 10 | Compliance & Conditions | Enterprise | Built — proof-gate pattern, plus the changes ledger |
+| 11 | Knowledge & Canon | Enterprise | Built |
 
-Two modules are built rather than eleven because they are the two shapes
-everything else copies: module 01 is the register-and-ledger shape, module 10
-is the shape where a control stays disabled until proof exists. Build the rest
-from those, in the order in `docs/BUILD-ORDER.md`.
+All eleven are implemented. Modules 01 and 10 arrived built and are the two
+shapes the other nine copy: 01 is the register-and-ledger shape, 10 is the
+shape where a control stays disabled until proof exists.
+
+## What is empty, and why
+
+Structure is built everywhere. A lot of the content is deliberately absent,
+because it is not in this workspace and inventing it would produce something
+that reads as real: 51 venture titles, 83 course titles, the desk roster, the
+seven recruiting stage labels, 19 standing task rows, 18 file identifiers.
+Those render as slots that say "awaiting source" rather than as plausible
+values. `docs/RELEASE-NOTE.md` § 2 lists every one.
+
+Sourced counts are asserted rather than transcribed — the class distribution
+sums to 51, the course distribution to 83, the deliverable gap to 152 + 96 =
+248, the capital tranches to the 28,500 ask.
 
 ## Three things this repo will not let you do
 
@@ -52,3 +71,15 @@ from those, in the order in `docs/BUILD-ORDER.md`.
 - **Claim an external event without proof.** `EXECUTED`, `FILED`, `SERVED`,
   `PAID`, `DEPLOYED` and `RELEASED` are not constructible in the type system
   without a proof object.
+
+## Three things it will not let itself do
+
+- **Reach an outside origin.** `check:network` scans the source and
+  `check:bundle` scans the built output for request-capable calls. There are
+  none, and the page's own CSP sets `connect-src 'none'` behind that.
+- **Open quarantined material.** The rows in module 11 carry no control, link,
+  embed, `href`, `src`, `download`, `tabindex` or `title` attribute, and the
+  seed holds no field that could carry the content.
+- **Export a youth record.** Module 07 disables the control and the export
+  function throws, so a panel that forgot to disable its button still cannot
+  produce a file.
