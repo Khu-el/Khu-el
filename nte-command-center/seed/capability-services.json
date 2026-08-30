@@ -1,0 +1,169 @@
+{
+  "_note": "The separation protocol's seven clauses, the ten stage gates and the four forecast criteria are sourced. The service products behind the capability statement are not in this workspace, so they are slots. Products are unclassified against the separation protocol, and unclassified counts as blocked — a product that has not been checked is not a product that has been cleared.",
+  "capabilityStatement": {
+    "status": "UNKNOWN",
+    "note": "The outward-facing capability statement is not in this workspace. Nothing outward-facing is drafted from this console."
+  },
+  "products": [
+    {
+      "id": "SP-01",
+      "name": null,
+      "ladderPosition": null,
+      "price": null,
+      "entityRouting": null,
+      "adjacency": "UNKNOWN",
+      "scopeReviewed": false,
+      "exclusionsReached": []
+    },
+    {
+      "id": "SP-02",
+      "name": null,
+      "ladderPosition": null,
+      "price": null,
+      "entityRouting": null,
+      "adjacency": "UNKNOWN",
+      "scopeReviewed": false,
+      "exclusionsReached": []
+    },
+    {
+      "id": "SP-03",
+      "name": null,
+      "ladderPosition": null,
+      "price": null,
+      "entityRouting": null,
+      "adjacency": "UNKNOWN",
+      "scopeReviewed": false,
+      "exclusionsReached": []
+    },
+    {
+      "id": "SP-04",
+      "name": null,
+      "ladderPosition": null,
+      "price": null,
+      "entityRouting": null,
+      "adjacency": "UNKNOWN",
+      "scopeReviewed": false,
+      "exclusionsReached": []
+    },
+    {
+      "id": "SP-05",
+      "name": null,
+      "ladderPosition": null,
+      "price": null,
+      "entityRouting": null,
+      "adjacency": "UNKNOWN",
+      "scopeReviewed": false,
+      "exclusionsReached": []
+    },
+    {
+      "id": "SP-06",
+      "name": null,
+      "ladderPosition": null,
+      "price": null,
+      "entityRouting": null,
+      "adjacency": "UNKNOWN",
+      "scopeReviewed": false,
+      "exclusionsReached": []
+    }
+  ],
+  "productsNote": "Six slots. Names, ladder position, price and entity routing are not in this workspace. None is classified against the separation protocol and none has had its scope checked against the excluded register, so none renders available. That is the correct state, not a missing feature.",
+  "protocol": {
+    "id": "CP-8",
+    "alias": "Q-04",
+    "title": "Separation protocol — estate education and the insurance licence",
+    "why": "The adjacency between teaching estate structure and holding an insurance licence is the one that produces a trust mill. The protocol is what keeps the two apart in writing, and until it is signed every product that touches either side is blocked.",
+    "signed": false,
+    "proof": null,
+    "clauses": [
+      {
+        "n": 1,
+        "text": "Education is education. No asset teaches that a structure is a product this practice sells."
+      },
+      {
+        "n": 2,
+        "text": "No instrument is drafted, reviewed, or administered for a third party from any part of this portfolio."
+      },
+      {
+        "n": 3,
+        "text": "No licensed product is presented as the mechanism a taught structure requires."
+      },
+      {
+        "n": 4,
+        "text": "No referral moves in either direction on a contingent basis."
+      },
+      {
+        "n": 5,
+        "text": "The licence is disclosed on every asset that touches either side."
+      },
+      {
+        "n": 6,
+        "text": "A prospect who arrives through education is not solicited for a licensed product in the same engagement."
+      },
+      {
+        "n": 7,
+        "text": "Where the two would meet, the engagement stops and an independent party is named."
+      }
+    ],
+    "clausesNote": "Seven clauses, signable as a set. Signing requires a proof source: a signed instrument, not a decision to sign one."
+  },
+  "exclusion": {
+    "id": "X-05",
+    "title": "Third-party trust drafting and administration",
+    "rule": "Any service product whose scope drifts toward drafting or administering an instrument for a third party renders blocked with this exclusion cited. It is not a gate that can be cleared — it is a closed line."
+  },
+  "stages": [
+    {
+      "n": 1,
+      "name": null
+    },
+    {
+      "n": 2,
+      "name": null
+    },
+    {
+      "n": 3,
+      "name": null
+    },
+    {
+      "n": 4,
+      "name": null
+    },
+    {
+      "n": 5,
+      "name": "Forecast gate",
+      "note": "Real problem, real consequence, identified stakeholder, scheduled next step. All four, or the deal does not enter the forecast."
+    },
+    {
+      "n": 6,
+      "name": null
+    },
+    {
+      "n": 7,
+      "name": null
+    },
+    {
+      "n": 8,
+      "name": null
+    },
+    {
+      "n": 9,
+      "name": null
+    },
+    {
+      "n": 10,
+      "name": null
+    }
+  ],
+  "stagesNote": "Ten stage gates from the field edition. Stage five is named because the specification names it and its four criteria. The other nine names are not in this workspace and are not invented — a stage board with made-up stage names teaches the wrong sequence.",
+  "deals": [],
+  "dealsNote": "No deals are seeded. Deals are the one thing in this console that is genuinely the operator's to enter, and a seeded pipeline of invented deals would put fictional revenue in front of a forecast gate.",
+  "playbooks": [
+    {
+      "id": "PB-01",
+      "title": "Reference playbook",
+      "status": "UNKNOWN",
+      "note": "Reference only. A playbook is not a service product and does not enter the ladder or the pipeline."
+    }
+  ],
+  "playbooksNote": "Marked reference-only. Nothing here is sold, quoted or delivered from this console."
+}

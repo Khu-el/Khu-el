@@ -6,9 +6,10 @@
  * module is not in this array it does not exist to the app, which keeps the
  * firewall auditable from a single file.
  *
- * Modules 01 and 10 are built. The other nine are declared in
- * docs/MODULE-SPECS.md and stubbed below so the nav renders honestly: an
- * unbuilt module shows an empty state naming what it needs, not a blank panel.
+ * All eleven modules are built. `src/modules/stub.tsx` stays in the tree for
+ * the next one: a module with a spec and no implementation renders what it
+ * needs rather than a blank panel, because an empty screen is
+ * indistinguishable from a broken one.
  */
 
 import type { ModuleDefinition, Surface } from './types'
@@ -21,7 +22,8 @@ import techStack from '../modules/tech-stack'
 import practiceDesk from '../modules/practice-desk'
 import familyOffice from '../modules/family-office'
 import lifeops from '../modules/lifeops'
-import { makeStub } from '../modules/stub'
+import capability from '../modules/capability-services'
+import knowledge from '../modules/knowledge-canon'
 
 export const SURFACES: Record<Surface, { label: string; seal: string }> = {
   'lane-a': { label: 'Enterprise', seal: 'Lane A' },
@@ -38,33 +40,9 @@ export const MODULES: ModuleDefinition[] = [
   practiceDesk,
   familyOffice,
   lifeops,
-  makeStub({
-    id: 'capability-services',
-    ordinal: '09',
-    title: 'Capability & Services',
-    eyebrow: 'Client-facing work',
-    surfaces: ['lane-a'],
-    buildWork: true,
-    needs: [
-      'Service products with ladder position and entity routing',
-      'The separation protocol gate, computed across every product it touches',
-      'A pipeline board where stage five needs all four criteria',
-    ],
-  }),
+  capability,
   compliance,
-  makeStub({
-    id: 'knowledge-canon',
-    ordinal: '11',
-    title: 'Knowledge & Canon',
-    eyebrow: 'Source of record',
-    surfaces: ['lane-a'],
-    buildWork: false,
-    needs: [
-      'Canon manifest rows with file references',
-      'The quarantine list, with no preview or copy affordance',
-      'A three-step doctrine pass attached to every recovery action',
-    ],
-  }),
+  knowledge,
 ]
 
 export function modulesFor(surface: Surface): ModuleDefinition[] {
