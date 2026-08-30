@@ -5,6 +5,7 @@ import {
   isAttestedRecord,
   type ControlledRecord,
   type GateStrip,
+  type Proof,
   type PanelKind,
   type RecordStatus,
 } from '../core/types'
@@ -108,12 +109,7 @@ export function RecordRow({
         )}
         <div className="record__title">{record.title}</div>
         {record.notes && <div className="flag">{record.notes}</div>}
-        {isAttestedRecord(record) && (
-          <div className="flag flag--permanent">
-            Proof: {record.proof.source} · {record.proof.reference} · verified{' '}
-            {record.proof.obtained} by {record.proof.verifiedBy}
-          </div>
-        )}
+        {isAttestedRecord(record) && <ProofLine proof={record.proof} />}
         {children}
       </div>
       <div className="record__meta">
@@ -212,4 +208,83 @@ export function Flag({
         ? 'flag flag--permanent'
         : 'flag flag--alert'
   return <p className={cls}>{children}</p>
+}
+
+// ── Proof form ────────────────────────────────────────────────────────────
+
+/**
+ * The evidence boundary, made into a control.
+ *
+ * Every place the console lets someone assert that something happened in the
+ * world — a condition cleared, a hold remediated, an export taken — routes
+ * through this form, and the submit is disabled until a source, a reference
+ * and a verifier are present. Authoring is not evidence, so there is no path
+ * that records an outcome without one.
+ */
+export function ProofForm({
+  label,
+  onSubmit,
+}: {
+  label: string
+  onSubmit: (p: Proof) => void
+}) {
+  const [source, setSource] = React.useState('')
+  const [reference, setReference] = React.useState('')
+  const [verifiedBy, setVerifiedBy] = React.useState('')
+  const complete = Boolean(source && reference && verifiedBy)
+
+  return (
+    <div style={{ display: 'grid', gap: 'var(--s2)', marginTop: 'var(--s2)' }}>
+      <input
+        className="nav__item"
+        placeholder="Source — letter, receipt, docket, confirmation"
+        aria-label="Proof source"
+        value={source}
+        onChange={(e) => setSource(e.target.value)}
+      />
+      <input
+        className="nav__item"
+        placeholder="Reference — file ID, number, URL"
+        aria-label="Proof reference"
+        value={reference}
+        onChange={(e) => setReference(e.target.value)}
+      />
+      <input
+        className="nav__item"
+        placeholder="Verified by"
+        aria-label="Verified by"
+        value={verifiedBy}
+        onChange={(e) => setVerifiedBy(e.target.value)}
+      />
+      <button
+        className="nav__item"
+        disabled={!complete}
+        title={
+          complete
+            ? label
+            : 'A source, a reference and a verifier are all required. Authoring is not evidence.'
+        }
+        onClick={() =>
+          onSubmit({
+            source,
+            reference,
+            verifiedBy,
+            obtained: new Date().toISOString().slice(0, 10),
+          })
+        }
+      >
+        {label}
+      </button>
+    </div>
+  )
+}
+
+/** A recorded proof, rendered the same way everywhere it appears. */
+export function ProofLine({ proof }: { proof: Proof }) {
+  return (
+    <div className="flag flag--permanent">
+      Proof: {proof.source} · {proof.reference} · verified {proof.obtained} by{' '}
+      {proof.verifiedBy}
+    </div>
+  )
 }

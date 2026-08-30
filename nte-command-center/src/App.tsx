@@ -106,15 +106,19 @@ export function ModuleBody({
   assertSurface(module.id, module.surfaces, surface)
 
   if (isModuleLocked(module.buildWork, status)) {
+    const Exempt = module.FreezeExempt
     return (
-      <Panel
-        kind="gate"
-        title={module.title}
-        purpose="This module is build work."
-        alert
-      >
-        <FreezeStamp status={status} />
-      </Panel>
+      <>
+        {Exempt && <Exempt surface={surface} />}
+        <Panel
+          kind="gate"
+          title={module.title}
+          purpose="This module is build work."
+          alert
+        >
+          <FreezeStamp status={status} />
+        </Panel>
+      </>
     )
   }
 

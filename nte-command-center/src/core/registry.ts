@@ -14,6 +14,7 @@
 import type { ModuleDefinition, Surface } from './types'
 import governance from '../modules/gov-infrastructure'
 import compliance from '../modules/compliance-cp'
+import techStack from '../modules/tech-stack'
 import { makeStub } from '../modules/stub'
 
 export const SURFACES: Record<Surface, { label: string; seal: string }> = {
@@ -63,19 +64,7 @@ export const MODULES: ModuleDefinition[] = [
       'A contact meter reading the same count as the build freeze',
     ],
   }),
-  makeStub({
-    id: 'tech-stack',
-    ordinal: '05',
-    title: 'Tech Stack',
-    eyebrow: 'Repositories and health',
-    surfaces: ['lane-a'],
-    buildWork: true,
-    needs: [
-      'The security hold record, rendered first and non-collapsible',
-      'A two-step gate for the unified OS: export and hash before deploy',
-      'A computed external-request count, not a typed one',
-    ],
-  }),
+  techStack,
   makeStub({
     id: 'practice-desk',
     ordinal: '06',

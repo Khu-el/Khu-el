@@ -11,7 +11,9 @@
     "check:lanes": "node scripts/check-lanes.mjs",
     "check:network": "node scripts/check-network.mjs",
     "test": "vitest run",
-    "check": "npm run check:types && npm run check:lanes && npm run check:network && npm test"
+    "check": "npm run check:types && npm run check:lanes && npm run check:network && npm test",
+    "predev": "npm run check:network",
+    "pretest": "npm run check:network"
   },
   "dependencies": {
     "react": "^18.3.1",

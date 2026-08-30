@@ -80,7 +80,8 @@ plan and model disagree, the model governs; the panel says so.
       excluded from totals.
 - [ ] Class A count discrepancy is surfaced as an open item, not resolved.
 - [ ] Whole module locks under the build freeze except the plans board, which
-      stays readable (reading a plan is not build work).
+      stays readable (reading a plan is not build work) — declared through
+      `FreezeExempt`, see `docs/SPEC-CHANGES.md` SC-01.
 
 ---
 
@@ -183,10 +184,15 @@ determinations.
 
 **Rules** The SECURITY HOLD renders at the top of the module, above everything,
 in the alert treatment, until it carries a `proof` of remediation. It outranks
-the whole board. Do not let it be collapsed or dismissed.
+the whole board. Do not let it be collapsed or dismissed. Because it outranks
+the board it also outranks the freeze: the hold is declared `FreezeExempt` and
+renders above the freeze stamp when the rest of the module is locked. A hold
+that disappears below 40 contacts reads as resolved, which is the failure this
+panel exists to prevent. See `docs/SPEC-CHANGES.md` SC-01.
 
 **Acceptance**
-- [ ] SECURITY HOLD is the first focusable element in the module.
+- [ ] SECURITY HOLD is the first focusable element in the module, frozen or
+      not.
 - [ ] Unified OS V2 deployment step is unreachable until export+hash is proven.
 - [ ] External-request count is computed, not typed — a build step scans for
       `fetch(`, `XMLHttpRequest`, `<link rel` to remote origins and fails on any.

@@ -54,8 +54,17 @@ export default {
   seed: () => import('../../../seed/governance.json'),
   panels: [ ... ],             // PanelDefinition[]
   Component: GovernanceModule, // React component
+  FreezeExempt: undefined,     // optional — see below
 } satisfies ModuleDefinition
 ```
+
+`FreezeExempt` is an optional second component. When the build freeze locks a
+module, this is what renders above the freeze stamp; everything else in the
+module stays closed. It exists because two things in the spec are not build
+work and must not vanish below 40 contacts: a standing security hold (§ 05)
+and a finished plan someone needs to read (§ 02). It is not an override — a
+module cannot exempt itself in full, only name a specific part, in code. See
+`docs/SPEC-CHANGES.md` SC-01.
 
 `src/core/registry.ts` collects them. A surface renders only the modules whose
 `surfaces` array includes it. Nothing else routes.

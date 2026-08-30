@@ -17,7 +17,7 @@ import type {
   Surface,
 } from '../../core/types'
 import { canClear } from '../../core/types'
-import { Panel, RecordRow, Meter, Flag } from '../../ui/components'
+import { Panel, RecordRow, Meter, Flag, ProofForm } from '../../ui/components'
 import { load, save } from '../../core/storage'
 import seed from '../../../seed/compliance.json'
 
@@ -28,55 +28,6 @@ interface ComplianceData {
 }
 
 const KEY = 'compliance-cp'
-
-function ProofForm({ onSubmit }: { onSubmit: (p: Proof) => void }) {
-  const [source, setSource] = useState('')
-  const [reference, setReference] = useState('')
-  const [verifiedBy, setVerifiedBy] = useState('')
-  const complete = source && reference && verifiedBy
-
-  return (
-    <div style={{ display: 'grid', gap: 'var(--s2)', marginTop: 'var(--s2)' }}>
-      <input
-        className="nav__item"
-        placeholder="Source — letter, receipt, docket, confirmation"
-        value={source}
-        onChange={(e) => setSource(e.target.value)}
-      />
-      <input
-        className="nav__item"
-        placeholder="Reference — file ID, number, URL"
-        value={reference}
-        onChange={(e) => setReference(e.target.value)}
-      />
-      <input
-        className="nav__item"
-        placeholder="Verified by"
-        value={verifiedBy}
-        onChange={(e) => setVerifiedBy(e.target.value)}
-      />
-      <button
-        className="nav__item"
-        disabled={!complete}
-        title={
-          complete
-            ? 'Clear this condition'
-            : 'A condition cannot be cleared without a proof source'
-        }
-        onClick={() =>
-          onSubmit({
-            source,
-            reference,
-            verifiedBy,
-            obtained: new Date().toISOString().slice(0, 10),
-          })
-        }
-      >
-        Clear condition
-      </button>
-    </div>
-  )
-}
 
 function ComplianceModule({ surface }: { surface: Surface }) {
   const [data, setData] = useState<ComplianceData>(() =>
@@ -145,7 +96,10 @@ function ComplianceModule({ surface }: { surface: Surface }) {
                 </Flag>
               )}
               {open === c.id && (
-                <ProofForm onSubmit={(p) => clearCondition(c.id, p)} />
+                <ProofForm
+                  label="Clear condition"
+                  onSubmit={(p) => clearCondition(c.id, p)}
+                />
               )}
             </div>
             <div className="record__meta">

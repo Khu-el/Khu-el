@@ -174,6 +174,16 @@ export interface ModuleDefinition {
   buildWork: boolean
   panels: PanelDefinition[]
   Component: React.ComponentType<{ surface: Surface }>
+  /**
+   * Rendered above the freeze stamp when the module is locked.
+   *
+   * The freeze closes build work. It does not close a standing security hold
+   * or a finished plan someone needs to read — neither is build work, and a
+   * hold that vanishes below 40 contacts is worse than no hold at all. A
+   * module that needs part of itself to stay readable declares that part
+   * here; everything else still locks.
+   */
+  FreezeExempt?: React.ComponentType<{ surface: Surface }>
 }
 
 /**

@@ -45,7 +45,7 @@ export function click(node: Element): void {
 }
 
 /** Set a controlled input's value the way a person typing would. */
-export function type(input: HTMLInputElement, value: string): void {
+export function typeInto(input: HTMLInputElement, value: string): void {
   const setter = Object.getOwnPropertyDescriptor(
     window.HTMLInputElement.prototype,
     'value',
