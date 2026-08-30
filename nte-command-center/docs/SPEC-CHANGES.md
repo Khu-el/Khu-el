@@ -131,3 +131,25 @@ apply. `isPracticePath` is exported and asserted directly in
 
 The spec's filenames were kept; the detector was the thing that was wrong.
 Nothing was added to either `EXEMPT` list.
+
+---
+
+## SC-06 · `network-scan.json` no longer carries the pattern names
+
+**Changed** `scripts/check-network.mjs`.
+
+**The conflict.** The generated scan result listed the patterns it searched
+for — `fetch()`, `XMLHttpRequest`, `sendBeacon` and the rest — as data. Module
+05 imports that file, so those strings were inlined into the single-file
+build, and `check:bundle` correctly flagged the shipped output as containing
+three request-capable calls.
+
+It was a false positive, but the check was not wrong to fire: a scanner that
+learns to ignore the literal string `fetch(` in a bundle is a scanner that will
+one day ignore a real one. Adding the file to an allowlist would have traded a
+real guarantee for a cosmetic one.
+
+**The change.** The field is gone. Nothing in the app ever read it, and data
+nothing reads should not be in the bundle. The scan result now carries
+`patternsDefinedIn: 'scripts/check-network.mjs'` — a path rather than a list of
+API names. The patterns still live in the script, which is where they are used.

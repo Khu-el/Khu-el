@@ -27,7 +27,28 @@ npm run check:lanes      # firewall scan, source
 npm run check:network    # zero-external-origin scan, source
 npm test                 # 143 checks
 npm run build            # ends with check:bundle — the same scan on the output
+npm run single           # one-file outputs, for looking without a toolchain
 ```
+
+## Looking at it without installing anything
+
+`npm run single` (also run as part of `npm run build`) writes three generated
+artifacts into `dist/`:
+
+| File | What it is |
+|---|---|
+| `command-center.html` | The whole console as one self-contained page. No server, no install, no network — open it in a browser. |
+| `command-center.jsx` | The whole console as one readable JSX file, types stripped and every seed inlined. React stays external. |
+| `command-center.css` | The stylesheet `command-center.jsx` expects beside it. |
+
+All three are **generated from `src/` and `seed/`** by
+`scripts/bundle-single.mjs`, and are not committed. Do not edit them — a
+hand-written preview of eleven modules is a second implementation, it drifts
+from the real one, and someone clicks it and believes what they saw.
+Regenerate instead.
+
+The standalone page is the real app, not a demo: the build freeze, the surface
+firewall, the storage namespacing and the proof gates all run in it.
 
 ## What is built
 

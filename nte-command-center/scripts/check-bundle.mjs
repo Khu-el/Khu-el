@@ -66,7 +66,7 @@ const failures = []
 const accounted = new Map()
 
 for (const file of walk(DIST)) {
-  if (!['.js', '.css', '.html'].includes(extname(file))) continue
+  if (!['.js', '.jsx', '.css', '.html'].includes(extname(file))) continue
   const text = readFileSync(file, 'utf8')
 
   for (const p of REQUESTING) {

@@ -41,7 +41,11 @@ Also added:
 - `seed/network-scan.json`, written by `check:network` on every build, dev
   start and test run, so module 05's external-request count is measured rather
   than typed.
-- `docs/SPEC-CHANGES.md` — five recorded amendments, below.
+- `docs/SPEC-CHANGES.md` — six recorded amendments, below.
+- `scripts/bundle-single.mjs` and `npm run single` — generated single-file
+  outputs (`dist/command-center.html`, `.jsx`, `.css`) so the console can be
+  opened and clicked without a toolchain. Artifacts, not sources; not
+  committed.
 
 `npm run check` runs types, both firewall scans, the tests and the production
 build with its bundle scan. All pass as of this note.
@@ -217,7 +221,7 @@ register is typed `build`.
 
 ## 4 · Spec amendments
 
-Five, all recorded in `docs/SPEC-CHANGES.md` with the conflict that forced
+Six, all recorded in `docs/SPEC-CHANGES.md` with the conflict that forced
 each. **Neither guard script's `EXEMPT` list was touched; both are identical to
 the delivered scaffold.**
 
@@ -228,6 +232,7 @@ the delivered scaffold.**
 | SC-03 | The contact counter is held across surfaces | One rule, one number. A counter that resets on a surface switch is a bypass, and § 04 requires both instances to read the same count |
 | SC-04 | Blocked terms match on word boundaries | Substring matching fired on *interface*, *documented*, *content* and *plane*. The same change tightened the scan to include comments on the practice surface |
 | SC-05 | "Under practice" means any path component that names it | The delivered detector left `seed/marketing-practice.json` outside every firewall check |
+| SC-06 | `network-scan.json` no longer carries the pattern names | They were inlined into the single-file build, making the shipped output look like it called the very APIs it proves it does not. Nothing read the field |
 
 ---
 
@@ -252,17 +257,24 @@ Stated because they are true, not because they block anything.
    those two families concerns vendored library code; nothing about our own
    source was relaxed.
 
-3. **`seed/network-scan.json` is generated.** It is committed so the module
+3. **The single-file outputs are artifacts.** `dist/command-center.html` is the
+   real app — the freeze, the firewall, the storage namespacing and the proof
+   gates all run in it — and it was verified from `file://` in a browser with
+   zero external requests and zero console errors. It is generated, not
+   committed, and must not be hand-edited: a hand-maintained preview of eleven
+   modules is a second implementation that drifts.
+
+4. **`seed/network-scan.json` is generated.** It is committed so the module
    renders without a build step, and regenerated on every build, dev start and
    test run. Do not hand-edit it — the point of the file is that nobody typed
    the number in it.
 
-4. **EVOP-201's status is this console's assumption.** The register does not
+5. **EVOP-201's status is this console's assumption.** The register does not
    say which of the 83 entries is the single PARTIAL. Assigning it to EVOP-201
    is a reading, and the row says so on its face rather than letting an
    inference sit inside a sourced distribution.
 
-5. **Provisional document codes.** Where a register row needed a code this
+6. **Provisional document codes.** Where a register row needed a code this
    console did not carry from a source, the code is flagged
    `docCodeProvisional` and rendered "code provisional". Modules 05 and 02
    contain these.
