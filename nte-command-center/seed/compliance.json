@@ -1,0 +1,317 @@
+{
+  "_note": "Four numbering systems reconcile to the Q-series here. Every row carries its aliases inline. Two rows with different numbers and the same substance is exactly how a false 'cleared' happens, so the aliases are not optional metadata — they are the point of this file.",
+
+  "conditions": [
+    {
+      "id": "Q-01",
+      "aliases": ["CP-2", "G0.2", "R-02"],
+      "title": "Outside business activity determination — submit and obtain a written response",
+      "critical": true,
+      "type": "administrative",
+      "blocks": ["Q-05", "Q-11", "Q-14"],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-11"
+    },
+    {
+      "id": "Q-02",
+      "aliases": ["A-1", "CP-A1"],
+      "title": "Licence chain — head licence plus seven field-of-use sublicences drafted and executed",
+      "critical": true,
+      "type": "drafting",
+      "blocks": ["Q-06", "Q-07"],
+      "dependsOn": ["Q-03"],
+      "cleared": false,
+      "opened": "2026-08-12"
+    },
+    {
+      "id": "Q-03",
+      "aliases": ["G0.1-A"],
+      "title": "Confirm the four provisional entity names before any instrument uses them",
+      "critical": true,
+      "type": "administrative",
+      "blocks": ["Q-02"],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-12"
+    },
+    {
+      "id": "Q-04",
+      "aliases": ["CP-8"],
+      "title": "Separation protocol — seven clauses covering the education and licensed-practice adjacency",
+      "critical": true,
+      "type": "administrative",
+      "blocks": ["Q-12"],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-11"
+    },
+    {
+      "id": "Q-05",
+      "aliases": ["S-1"],
+      "title": "Securities gate — any return-expecting money is an offer of securities and raises a licensing matter",
+      "critical": true,
+      "type": "review",
+      "blocks": [],
+      "dependsOn": ["Q-01"],
+      "cleared": false,
+      "opened": "2026-08-11"
+    },
+    {
+      "id": "Q-06",
+      "aliases": ["CP-L1"],
+      "title": "Land desk — flat-fee agreement with no transaction-contingent compensation",
+      "critical": true,
+      "type": "drafting",
+      "blocks": ["Q-15", "Q-16"],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-11"
+    },
+    {
+      "id": "Q-07",
+      "aliases": ["R-02-b"],
+      "title": "Practice disclosure recorded across every asset that touches the licensed practice",
+      "critical": true,
+      "type": "administrative",
+      "blocks": [],
+      "dependsOn": ["Q-01"],
+      "cleared": false,
+      "opened": "2026-08-08"
+    },
+    {
+      "id": "Q-08",
+      "aliases": ["CP-3"],
+      "title": "Georgia attorney review of certificate texts — styling as well as wording",
+      "critical": false,
+      "type": "review",
+      "blocks": [],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-11"
+    },
+    {
+      "id": "Q-09",
+      "aliases": ["CP-4"],
+      "title": "Licensing and securities review of the terms course before release",
+      "critical": false,
+      "type": "review",
+      "blocks": [],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-11"
+    },
+    {
+      "id": "Q-10",
+      "aliases": ["CP-5"],
+      "title": "Due-on-sale acceleration disclosure verified",
+      "critical": false,
+      "type": "review",
+      "blocks": [],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-11"
+    },
+    {
+      "id": "Q-11",
+      "aliases": ["CP-6", "CP-9"],
+      "title": "Georgia tax attorney review of the trust course modules",
+      "critical": false,
+      "type": "review",
+      "blocks": [],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-11",
+      "_alias_note": "Two systems used CP-6 for different things. The naming condition kept CP-6; the tax review was renumbered CP-9. Both resolve here."
+    },
+    {
+      "id": "Q-12",
+      "aliases": ["CP-7"],
+      "title": "Public naming under the state education statute — 'University' is not usable publicly",
+      "critical": false,
+      "type": "administrative",
+      "blocks": [],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-11"
+    },
+    {
+      "id": "Q-13",
+      "aliases": [],
+      "title": "Credit-services licensing analysis before any fee version of the credit venture",
+      "critical": false,
+      "type": "review",
+      "blocks": [],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-12"
+    },
+    {
+      "id": "Q-14",
+      "aliases": ["CP-L2"],
+      "title": "Land desk agreement executed with a first subscriber",
+      "critical": false,
+      "type": "administrative",
+      "blocks": [],
+      "dependsOn": ["Q-06"],
+      "cleared": false,
+      "opened": "2026-08-11"
+    },
+    {
+      "id": "Q-15",
+      "aliases": ["CP-L5"],
+      "title": "Disposition price verified against an independent source",
+      "critical": false,
+      "type": "review",
+      "blocks": [],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-11"
+    },
+    {
+      "id": "Q-16",
+      "aliases": [],
+      "title": "Security hold — plaintext credential file in the synced vault, rotate and remove",
+      "critical": true,
+      "type": "administrative",
+      "blocks": [],
+      "dependsOn": [],
+      "cleared": false,
+      "opened": "2026-08-12"
+    }
+  ],
+
+  "remediation": [
+    {
+      "id": "R-01",
+      "docCode": "NTE-CTRL-2026-CORPUS-REM-001-R01",
+      "title": "Sales corpus image replacement",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [true, true, true, true, false, true, false, false, false],
+      "updated": "2026-08-08"
+    },
+    {
+      "id": "R-02",
+      "docCode": "NTE-CTRL-2026-CORPUS-REM-001-R02",
+      "title": "Practice disclosure across the corpus",
+      "lane": "A",
+      "status": "CONDITIONAL",
+      "eventId": null,
+      "gate": [true, true, true, true, false, true, false, false, false],
+      "updated": "2026-08-08",
+      "notes": "Blocked on Q-01. This is the single highest-leverage unblock in the portfolio and it is a letter, not a build."
+    },
+    {
+      "id": "R-03",
+      "docCode": "NTE-CTRL-2026-CORPUS-REM-001-R03",
+      "title": "Derivative scoping of the private law material",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [true, true, true, false, false, true, false, false, false],
+      "updated": "2026-08-08"
+    },
+    {
+      "id": "R-04",
+      "docCode": "NTE-CTRL-2026-CORPUS-REM-001-R04",
+      "title": "Copyright registration",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [true, true, true, true, true, true, false, false, false],
+      "updated": "2026-08-08"
+    },
+    {
+      "id": "R-05",
+      "docCode": "NTE-CTRL-2026-CORPUS-REM-001-R05",
+      "title": "Advisory bench assembled",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [true, true, true, true, false, true, false, false, false],
+      "updated": "2026-08-08"
+    },
+    {
+      "id": "R-06",
+      "docCode": "NTE-CTRL-2026-CORPUS-REM-001-R06",
+      "title": "Lane firewall verification across the corpus",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [true, true, true, true, true, true, true, false, false],
+      "updated": "2026-08-08"
+    }
+  ],
+
+  "documents": [
+    {
+      "id": "d-masterplay",
+      "docCode": "NTE-GOV-2026-MASTERPLAY-001",
+      "title": "Master Enterprise Playbook",
+      "revision": "B",
+      "lane": "A",
+      "status": "CONDITIONAL",
+      "eventId": null,
+      "gate": [false, false, false, false, false, false, false, false, false],
+      "updated": "2026-08-12"
+    },
+    {
+      "id": "d-bizplan-hope",
+      "docCode": "HOPE-GOV-2026-BIZPLAN-001",
+      "title": "Licensed practice plan and proposal",
+      "revision": "B",
+      "lane": "PRACTICE",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [true, true, true, true, false, true, true, false, false],
+      "updated": "2026-08-11"
+    },
+    {
+      "id": "d-bizplan-land",
+      "docCode": "NTE-GOV-2026-BIZPLAN-LAND-001",
+      "title": "Land desk plan and proposal",
+      "revision": "B",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [true, true, true, true, false, true, true, false, false],
+      "updated": "2026-08-11"
+    },
+    {
+      "id": "d-sched",
+      "docCode": "NTE-GOV-2026-SCHED-001",
+      "title": "Entity and capacity control schedule",
+      "revision": "A",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [true, true, true, true, true, true, true, false, false],
+      "updated": "2026-08-12",
+      "notes": "Eight of nine. The only thing between this and release is an event ID."
+    },
+    {
+      "id": "d-canon",
+      "docCode": "NTE-GOV-2026-CANON-001",
+      "title": "Canon and recovery determination",
+      "revision": "A",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [true, true, true, true, true, true, true, false, false],
+      "updated": "2026-08-12"
+    },
+    {
+      "id": "d-field",
+      "docCode": "NTE-SLS-2026-FIELD-001",
+      "title": "Sales field edition and coaching system",
+      "revision": "A",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [true, true, true, true, true, true, true, false, false],
+      "updated": "2026-08-12"
+    }
+  ]
+}
