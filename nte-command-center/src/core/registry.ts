@@ -14,6 +14,7 @@
 import type { ModuleDefinition, Surface } from './types'
 import governance from '../modules/gov-infrastructure'
 import ventures from '../modules/ventures-revenue'
+import education from '../modules/education-nvu'
 import compliance from '../modules/compliance-cp'
 import techStack from '../modules/tech-stack'
 import practiceDesk from '../modules/practice-desk'
@@ -28,19 +29,7 @@ export const SURFACES: Record<Surface, { label: string; seal: string }> = {
 export const MODULES: ModuleDefinition[] = [
   governance,
   ventures,
-  makeStub({
-    id: 'education-nvu',
-    ordinal: '03',
-    title: 'Education',
-    eyebrow: 'Catalog and production',
-    surfaces: ['lane-a'],
-    buildWork: true,
-    needs: [
-      'seed/education.json — 83 course rows with house, level, price, status',
-      'Deliverable gap counts by type and wave assignment',
-      'The six AUTHORED provenance flags, non-dismissible',
-    ],
-  }),
+  education,
   makeStub({
     id: 'marketing-content',
     ordinal: '04',
