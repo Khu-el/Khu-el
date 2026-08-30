@@ -19,6 +19,8 @@ import marketing from '../modules/marketing-content'
 import compliance from '../modules/compliance-cp'
 import techStack from '../modules/tech-stack'
 import practiceDesk from '../modules/practice-desk'
+import familyOffice from '../modules/family-office'
+import lifeops from '../modules/lifeops'
 import { makeStub } from '../modules/stub'
 
 export const SURFACES: Record<Surface, { label: string; seal: string }> = {
@@ -34,32 +36,8 @@ export const MODULES: ModuleDefinition[] = [
   marketing,
   techStack,
   practiceDesk,
-  makeStub({
-    id: 'family-office',
-    ordinal: '07',
-    title: 'Household & Estate',
-    eyebrow: 'Sunday rhythm',
-    surfaces: ['lane-b'],
-    buildWork: false,
-    needs: [
-      'The commands ledger with the two-carry limit enforced',
-      'Instrument binder rows',
-      'Youth records with export disabled at the component level',
-    ],
-  }),
-  makeStub({
-    id: 'lifeops',
-    ordinal: '08',
-    title: 'Operating System',
-    eyebrow: 'Domains and cadence',
-    surfaces: ['lane-a', 'lane-b'],
-    buildWork: false,
-    needs: [
-      'Eight domains with their tool assignment',
-      'A slot meter computing against 10, counting dual-run tasks as two',
-      'Task rows left empty and labelled awaiting source, not reconstructed',
-    ],
-  }),
+  familyOffice,
+  lifeops,
   makeStub({
     id: 'capability-services',
     ordinal: '09',

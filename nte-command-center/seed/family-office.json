@@ -1,0 +1,115 @@
+{
+  "_note": "Household surface. No enterprise entity name, seal or document code appears in this file — the binder carries household codes only. There is no revenue field anywhere in this module and there is not meant to be: value reaches this side as an approved distribution, never as revenue. Youth entries carry no location, no schedule, no image and no exportable detail.",
+  "sundayRhythm": [
+    {
+      "id": "SR-1",
+      "title": "Pre-bulletin prep",
+      "what": "Gather what the week actually produced before anybody writes about it. Nothing goes in the bulletin that was not checked first.",
+      "cadence": "Sunday morning",
+      "state": "STANDING"
+    },
+    {
+      "id": "SR-2",
+      "title": "Bulletin",
+      "what": "One page. What happened, what is next, what is asked of whom. Youth entries carry no location, no schedule and no image.",
+      "cadence": "Sunday",
+      "state": "STANDING"
+    },
+    {
+      "id": "SR-3",
+      "title": "Council",
+      "what": "The commands ledger is read, and each carried command is closed, carried once more, or dropped on purpose. Two carried at most.",
+      "cadence": "Sunday",
+      "state": "STANDING"
+    }
+  ],
+  "commands": [
+    {
+      "id": "FC-001",
+      "title": "Command awaiting source",
+      "state": "open",
+      "carries": 0,
+      "opened": "UNKNOWN"
+    },
+    {
+      "id": "FC-002",
+      "title": "Command awaiting source",
+      "state": "open",
+      "carries": 0,
+      "opened": "UNKNOWN"
+    },
+    {
+      "id": "FC-003",
+      "title": "Command awaiting source",
+      "state": "open",
+      "carries": 0,
+      "opened": "UNKNOWN"
+    },
+    {
+      "id": "FC-004",
+      "title": "Command awaiting source",
+      "state": "open",
+      "carries": 0,
+      "opened": "UNKNOWN"
+    }
+  ],
+  "commandsNote": "The council's actual commands are not in this workspace. Four empty rows carry the mechanism so the limit can be exercised; their titles are not invented.",
+  "binder": [
+    {
+      "id": "B-01",
+      "docCode": "CCRLT-2026-TRUST-001",
+      "title": "The trust instrument",
+      "revision": "UNKNOWN",
+      "status": "UNKNOWN",
+      "note": "Revision and status are not observable from this workspace."
+    },
+    {
+      "id": "B-02",
+      "docCode": "CCRLT-2026-LEGACY-002",
+      "title": "Legacy Plan V2",
+      "revision": "2",
+      "status": "UNKNOWN",
+      "note": "Version two is sourced. Its status is not."
+    },
+    {
+      "id": "B-03",
+      "docCode": "CCRLT-2026-BULLETIN-001",
+      "title": "Bulletin format, including the youth-protection rules",
+      "revision": "UNKNOWN",
+      "status": "UNKNOWN",
+      "note": "The rules in it govern every view in this module that names a minor."
+    }
+  ],
+  "distribution": {
+    "rule": "Value reaches this side only as a distribution the trustee has approved. It does not arrive as revenue, it is not routed here from an operating entity, and this console holds no field for an amount.",
+    "why": "Modelling amounts here would make this a place where distributions are decided. They are not decided here; they are recorded here after the fact, and only their approval state.",
+    "approvalState": "NONE ON FILE",
+    "proof": null
+  },
+  "youth": [
+    {
+      "id": "Y-01",
+      "safeguard": "No location",
+      "detail": "No address, venue, route or place name in any view, bulletin or export.",
+      "youth": true
+    },
+    {
+      "id": "Y-02",
+      "safeguard": "No schedule",
+      "detail": "No time, day, recurring pattern or absence that lets someone predict where a minor will be.",
+      "youth": true
+    },
+    {
+      "id": "Y-03",
+      "safeguard": "No image",
+      "detail": "No photograph, likeness or identifying description.",
+      "youth": true
+    },
+    {
+      "id": "Y-04",
+      "safeguard": "No third-party-shareable export",
+      "detail": "Nothing containing a youth record leaves this console in any form. The export control is disabled at the component, and the export function refuses as well.",
+      "youth": true
+    }
+  ]
+}
