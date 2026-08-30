@@ -12,6 +12,22 @@ import type { Surface } from './types'
 const PREFIX = 'ccenter'
 let activeSurface: Surface | null = null
 
+/**
+ * Keys that are deliberately NOT namespaced by surface.
+ *
+ * There is exactly one, and it is the contact counter behind the build freeze.
+ * The freeze is a single rule across the whole portfolio; a counter per
+ * surface would mean switching surfaces resets it, which is a bypass, and a
+ * gate with a bypass is not a gate. It is also required by § 04, whose two
+ * instances must read the same underlying count.
+ *
+ * What crosses is a week date and an integer. No record, no name, no
+ * vocabulary, nothing a surface could read the other's content from. Adding a
+ * second entry to this set is a firewall change and needs the same scrutiny as
+ * one — see docs/SPEC-CHANGES.md SC-03.
+ */
+const CROSS_SURFACE: ReadonlySet<string> = new Set(['build-freeze'])
+
 const memory = new Map<string, string>()
 
 let backing: Storage | null = null
@@ -29,6 +45,7 @@ export function setSurface(surface: Surface): void {
 }
 
 function namespaced(key: string): string {
+  if (CROSS_SURFACE.has(key)) return `${PREFIX}:shared:${key}`
   if (!activeSurface) {
     throw new Error(
       'storage used before setSurface(). A surface must be established ' +

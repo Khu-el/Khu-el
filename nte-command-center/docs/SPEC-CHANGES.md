@@ -49,3 +49,62 @@ Module 10 carried a local `ProofForm`. Modules 05, 09 and 11 need the same
 control, and four copies of an evidence gate is four places for one of them to
 drift into accepting an empty source. It now lives in `src/ui/components.tsx`
 alongside `ProofLine`, and module 10 imports it like everyone else.
+
+---
+
+## SC-03 · The contact counter is held across surfaces, not per surface
+
+**Changed** `docs/ARCHITECTURE.md` (data flow), `CLAUDE.md` § 4 and § 7.
+
+**The conflict.** Storage namespaces every key by surface, and the comment on
+`src/core/storage.ts` says so as a firewall guarantee. But the Build Freeze
+Rule is one rule across the whole portfolio, and § 04 acceptance requires that
+"the contact meter on both instances reads the same underlying count." Under
+strict per-surface namespacing, a week at 12 contacts on Lane A is a week at 0
+on the practice surface and a fresh 40 to log on each — and switching surfaces
+resets the counter. That is a bypass, and a gate with a bypass is not a gate.
+
+**The change.** `src/core/storage.ts` holds a `CROSS_SURFACE` set with exactly
+one member, `build-freeze`, written under `ccenter:shared:` rather than
+`ccenter:<surface>:`. Everything else is still namespaced and still opaque
+across surfaces — the enforcement test proving a Lane A key is unreadable from
+Lane B is unchanged and still passes.
+
+What crosses is a Monday date and an integer. No record, no name, no
+vocabulary, nothing either surface could read the other's content from. Adding
+a second member to that set is a firewall change and gets the same scrutiny.
+
+---
+
+## SC-04 · Blocked terms match on word boundaries
+
+**Changed** `scripts/check-lanes.mjs` and `src/core/lane-guard.ts`, which now
+apply the same rule.
+
+**The conflict.** Both halves of the firewall matched blocked terms as
+case-insensitive substrings. "NTE" is a substring of *interface*, *documented*,
+*content*, *counted* and *intention*; "lane" is a substring of *plane* and
+*planetary*. Module 06 could not declare a TypeScript `interface` or say
+"documented contact" without tripping the scan.
+
+That is not a tighter firewall. It is a scanner that pushes authors into worse
+copy or into suppressing the check — and the build order is explicit that a
+failing check means the code is wrong, so an over-firing check corrupts the one
+signal that is supposed to be trustworthy.
+
+**The change.** Terms match with an alphanumeric boundary on each side:
+`(?<![A-Za-z0-9])term(?![A-Za-z0-9])`, case-insensitive. Alphanumeric rather
+than `\b` so a document code still matches on its hyphen
+(`NTE-GOV-2026-MASTERPLAY-001` fires) and a term carrying dots still matches at
+all (`H.O.P.E. Dealers` fires).
+
+**This is not an exemption.** Nothing was added to either script's `EXEMPT`
+list; both lists are byte-identical to the delivered scaffold. Every term still
+fires wherever it is used as a term, and `tests/practice-desk.test.tsx` asserts
+both directions — every blocked term fires on a real use, and none fires on the
+ordinary English words that contain it.
+
+The same commit **tightens** the scan in the other direction: comments were
+exempt everywhere, and are now scanned on the practice surface, because
+comments reach the bundle and the rule for that surface is that the vocabulary
+does not appear in the file at all.

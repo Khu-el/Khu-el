@@ -15,6 +15,7 @@ import type { ModuleDefinition, Surface } from './types'
 import governance from '../modules/gov-infrastructure'
 import compliance from '../modules/compliance-cp'
 import techStack from '../modules/tech-stack'
+import practiceDesk from '../modules/practice-desk'
 import { makeStub } from '../modules/stub'
 
 export const SURFACES: Record<Surface, { label: string; seal: string }> = {
@@ -65,19 +66,7 @@ export const MODULES: ModuleDefinition[] = [
     ],
   }),
   techStack,
-  makeStub({
-    id: 'practice-desk',
-    ordinal: '06',
-    title: 'Practice Desk',
-    eyebrow: 'Team and pipeline',
-    surfaces: ['practice'],
-    buildWork: false,
-    needs: [
-      'Roster, production and blockers for the weekly standup',
-      'The seven-stage recruiting funnel',
-      'The outside business activity gate with its drafted letter attached',
-    ],
-  }),
+  practiceDesk,
   makeStub({
     id: 'family-office',
     ordinal: '07',

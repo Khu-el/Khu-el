@@ -53,9 +53,24 @@ export interface GuardResult {
   blocked: string[]
 }
 
+/**
+ * Terms are names and acronyms, so they match on word boundaries rather than
+ * as bare substrings — otherwise "NTE" fires inside "interface" and
+ * "documented", and "lane" fires inside "plane". The boundary is alphanumeric
+ * rather than \b so a document code like NTE-GOV-2026-001 still matches on
+ * the hyphen, and a term carrying dots still matches at all.
+ *
+ * This is the same rule scripts/check-lanes.mjs applies. The two have to
+ * agree, or the build-time scan and the runtime guard disagree about what a
+ * breach is. See docs/SPEC-CHANGES.md SC-04.
+ */
+export function termPattern(term: string): RegExp {
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`(?<![A-Za-z0-9])${escaped}(?![A-Za-z0-9])`, 'gi')
+}
+
 function findTerms(text: string, terms: readonly string[]): string[] {
-  const hay = text.toLowerCase()
-  return terms.filter((t) => hay.includes(t.toLowerCase()))
+  return terms.filter((t) => termPattern(t).test(text))
 }
 
 /**
@@ -105,7 +120,7 @@ export function assertLane(
 
   let redacted = text
   for (const term of result.blocked) {
-    redacted = redacted.replace(new RegExp(term, 'gi'), '[redacted]')
+    redacted = redacted.replace(termPattern(term), '[redacted]')
   }
   return redacted
 }
@@ -157,7 +172,7 @@ export function scanSource(
     if (file.endsWith('lane-guard.ts')) return
 
     for (const term of terms) {
-      if (text.toLowerCase().includes(term.toLowerCase())) {
+      if (termPattern(term).test(text)) {
         violations.push({ file, line: i + 1, term, text: text.trim() })
       }
     }

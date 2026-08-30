@@ -53,20 +53,49 @@ function SurfacePicker({ onPick }: { onPick: (s: Surface) => void }) {
   )
 }
 
+/**
+ * One counter, worded for whoever is reading it.
+ *
+ * The number is the same on every surface — it is held outside the per-surface
+ * namespace precisely so it cannot be reset by switching. Only the words
+ * change, because the practice desk does not borrow the enterprise's language
+ * for its own discipline.
+ */
+const METER_COPY: Record<Surface, { title: string; purpose: string }> = {
+  'lane-a': {
+    title: 'Outbound contacts this week',
+    purpose:
+      'Forty documented contacts opens build work. Below that, selling, signatures, conditions and register review stay open — those are never build work.',
+  },
+  'lane-b': {
+    title: 'Outbound contacts this week',
+    purpose:
+      'The same count the enterprise surface reads. Nothing on this surface is gated on it.',
+  },
+  practice: {
+    title: 'Calls and conversations this week',
+    purpose:
+      'Forty documented outreach contacts a week is the standard. Everything on this desk stays open whatever the number says — the count is here to be looked at, not to lock anything.',
+  },
+}
+
 function ContactMeter({
   state,
+  surface,
   onLog,
 }: {
   state: FreezeState
+  surface: Surface
   onLog: (n: number) => void
 }) {
   const status = freezeStatus(state)
+  const copy = METER_COPY[surface]
   return (
     <Panel
       kind="meter"
-      title="Outbound contacts this week"
-      purpose="Forty documented contacts opens build work. Below that, selling, signatures, conditions and register review stay open — those are never build work."
-      alert={status.frozen}
+      title={copy.title}
+      purpose={copy.purpose}
+      alert={status.frozen && surface === 'lane-a'}
     >
       <Meter
         value={status.count}
@@ -183,7 +212,9 @@ export default function App() {
         </nav>
       </header>
 
-      {surface !== 'lane-b' && <ContactMeter state={freeze} onLog={onLog} />}
+      {surface !== 'lane-b' && (
+        <ContactMeter state={freeze} surface={surface} onLog={onLog} />
+      )}
 
       {active && (
         <ModuleBody module={active} surface={surface} status={status} />

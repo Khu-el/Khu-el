@@ -74,6 +74,11 @@ Hard-coded, not a setting. `src/core/build-freeze.ts`.
 
 > No build work in any week that missed 40 documented outbound contacts.
 
+The counter behind it is the one piece of state held across all three surfaces
+rather than namespaced per surface — one rule means one number, and a counter
+that resets when you switch surfaces is a bypass. See `docs/SPEC-CHANGES.md`
+SC-03; it is a week date and an integer, and nothing else crosses.
+
 The Lane A surface opens with the contact meter. Below 40, the modules flagged
 `buildWork: true` render locked with a freeze stamp. Selling, signatures,
 conditions precedent, and register review stay open at all counts — those are

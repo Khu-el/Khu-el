@@ -28,14 +28,18 @@ export interface FreezeState {
   weeks: ContactWeek[]
 }
 
-const KEY = 'build-freeze'
+/**
+ * Held across every surface on purpose. See storage.CROSS_SURFACE: one rule,
+ * one counter, no way to reset it by switching surfaces.
+ */
+export const FREEZE_KEY = 'build-freeze'
 
 export function loadFreeze(): FreezeState {
-  return load<FreezeState>(KEY, { weeks: [] })
+  return load<FreezeState>(FREEZE_KEY, { weeks: [] })
 }
 
 export function saveFreeze(state: FreezeState): void {
-  save(KEY, state)
+  save(FREEZE_KEY, state)
 }
 
 export function mondayOf(d: Date): string {

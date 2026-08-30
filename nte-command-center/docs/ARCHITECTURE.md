@@ -93,6 +93,11 @@ seed/*.json  ──►  storage.load(key)  ──►  module state  ──►  p
 Seed files are the initial import only. After first load the local store wins,
 and a `Reset to seed` control in each module restores. There is no server.
 
+Storage keys are namespaced per surface, with exactly one deliberate
+exception: the build-freeze contact counter, which is one number across the
+whole portfolio because it enforces one rule. See `docs/SPEC-CHANGES.md`
+SC-03.
+
 Import from a system of record is a **manual paste or file drop**, handled by
 `src/core/import.ts`, never an automatic fetch. This keeps the zero-network
 constraint true and keeps the console honest about provenance: every imported
