@@ -51,11 +51,25 @@ function walk(dir, out = []) {
   return out
 }
 
+/**
+ * Directory decides surface, and "under practice" means any path component
+ * that names it — surfaces/practice/, modules/practice-desk/,
+ * practice-instance.tsx, marketing-practice.json.
+ *
+ * The delivered detector matched only "/surfaces/practice/" and "/practice-",
+ * which left seed/marketing-practice.json unscanned: a practice-surface data
+ * file that no firewall check ever looked at. Recorded as SC-05.
+ */
+function isPracticePath(file) {
+  return file
+    .split('/')
+    .some((part) => part.toLowerCase().includes('practice'))
+}
+
 const violations = []
 for (const file of walk('.')) {
   if (EXEMPT.some((e) => file.endsWith(e))) continue
-  const isPractice =
-    file.includes('/surfaces/practice/') || file.includes('/practice-')
+  const isPractice = isPracticePath(file)
   const terms = isPractice ? ENTERPRISE : PRACTICE
   const lines = readFileSync(file, 'utf8').split('\n')
   lines.forEach((text, i) => {

@@ -108,3 +108,26 @@ The same commit **tightens** the scan in the other direction: comments were
 exempt everywhere, and are now scanned on the practice surface, because
 comments reach the bundle and the rule for that surface is that the vocabulary
 does not appear in the file at all.
+
+---
+
+## SC-05 · "Under practice" means any path component that names it
+
+**Changed** `scripts/check-lanes.mjs` and `src/core/lane-guard.ts`.
+
+**The conflict.** The delivered detector treated a file as practice source only
+when its path contained `/surfaces/practice/` or `/practice-`. Step 7 of the
+build order names the module 04 seed files `seed/marketing-lane-a.json` and
+`seed/marketing-practice.json`. Under the old rule the second one matched
+neither pattern — a practice-surface data file that no firewall check ever
+looked at, in the one module whose whole risk is the two surfaces meeting.
+
+**The change.** A file is practice source when any component of its path
+contains "practice", case-insensitively. That covers `surfaces/practice/`,
+`modules/practice-desk/`, `practice-instance.tsx` and
+`marketing-practice.json`, and it is the rule both halves of the firewall now
+apply. `isPracticePath` is exported and asserted directly in
+`tests/marketing-content.test.tsx`.
+
+The spec's filenames were kept; the detector was the thing that was wrong.
+Nothing was added to either `EXEMPT` list.

@@ -15,6 +15,7 @@ import type { ModuleDefinition, Surface } from './types'
 import governance from '../modules/gov-infrastructure'
 import ventures from '../modules/ventures-revenue'
 import education from '../modules/education-nvu'
+import marketing from '../modules/marketing-content'
 import compliance from '../modules/compliance-cp'
 import techStack from '../modules/tech-stack'
 import practiceDesk from '../modules/practice-desk'
@@ -30,19 +31,7 @@ export const MODULES: ModuleDefinition[] = [
   governance,
   ventures,
   education,
-  makeStub({
-    id: 'marketing-content',
-    ordinal: '04',
-    title: 'Marketing & Content',
-    eyebrow: 'Calendar and assets',
-    surfaces: ['lane-a', 'practice'],
-    buildWork: true,
-    needs: [
-      'Two seed files — one per surface, zero shared keys',
-      'Content calendar rows with channel and status',
-      'A contact meter reading the same count as the build freeze',
-    ],
-  }),
+  marketing,
   techStack,
   practiceDesk,
   makeStub({

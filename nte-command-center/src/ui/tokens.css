@@ -453,3 +453,26 @@ body {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ── Imprint · Opportunity Architect ─────────────────────────────────────
+   Drafting paper, survey ink, parcel teal.
+
+   Its own block, not a variant. It shares no colour value with the enterprise
+   palette above and inherits neither the navy nor the gold — an imprint that
+   borrows the house's trade dress is the house's, and this one is not. It
+   applies to the element that carries the attribute and its subtree, so an
+   asset row belonging to the imprint reads as the imprint's wherever it sits. */
+[data-imprint="opportunity-architect"] {
+  --ground: #e8e6dc;
+  --panel: #f2f0e7;
+  --panel-raised: #dedbcd;
+  --rule: #bdb9a6;
+  --accent: #2f6b62;
+  --accent-dim: #86a49c;
+  --text: #23281f;
+  --text-quiet: #4f5a4a;
+  --text-faint: #7b8474;
+  --alert: #9c4a30;
+  --caution: #8a6a1c;
+  --clear: #3d6f4a;
+}

@@ -152,17 +152,30 @@ export interface SourceViolation {
 }
 
 /**
+ * Does this path belong to the practice surface?
+ *
+ * Any path component that names it counts — `surfaces/practice/`,
+ * `modules/practice-desk/`, `practice-instance.tsx`,
+ * `marketing-practice.json`. Matching only a leading `/practice-` left a
+ * practice-surface seed file unscanned. See docs/SPEC-CHANGES.md SC-05.
+ *
+ * scripts/check-lanes.mjs applies the identical rule; the two have to agree.
+ */
+export function isPracticePath(file: string): boolean {
+  return file
+    .split('/')
+    .some((part) => part.toLowerCase().includes('practice'))
+}
+
+/**
  * Scan source text for terms that must not appear given the directory the file
- * lives in. Directory decides surface: anything under `surfaces/practice/` or
- * `modules/practice-*` is practice; anything under `surfaces/lane-b/` is B.
+ * lives in. Directory decides surface.
  */
 export function scanSource(
   file: string,
   contents: string,
 ): SourceViolation[] {
-  const isPractice =
-    file.includes('/surfaces/practice/') || file.includes('/practice-')
-  const terms = isPractice ? ENTERPRISE_TERMS : PRACTICE_TERMS
+  const terms = isPracticePath(file) ? ENTERPRISE_TERMS : PRACTICE_TERMS
 
   const violations: SourceViolation[] = []
   contents.split('\n').forEach((text, i) => {
