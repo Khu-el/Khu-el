@@ -9,7 +9,7 @@
     "EventSource",
     "CSS remote import"
   ],
-  "filesScanned": 22,
+  "filesScanned": 26,
   "externalRequests": 0,
   "findings": []
 }

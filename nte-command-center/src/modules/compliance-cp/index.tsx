@@ -21,10 +21,19 @@ import { Panel, RecordRow, Meter, Flag, ProofForm } from '../../ui/components'
 import { load, save } from '../../core/storage'
 import seed from '../../../seed/compliance.json'
 
+interface ChangeEntry {
+  id: string
+  date: string
+  against: string
+  entry: string
+  carriedBy: string
+}
+
 interface ComplianceData {
   conditions: ConditionPrecedent[]
   remediation: ControlledRecord[]
   documents: ControlledRecord[]
+  changes: ChangeEntry[]
 }
 
 const KEY = 'compliance-cp'
@@ -154,6 +163,28 @@ function ComplianceModule({ surface }: { surface: Surface }) {
       </Panel>
 
       <Panel
+        kind="ledger"
+        title="Changes ledger"
+        purpose="CL-001 onward. What changed, what it changed against, and which instrument carries it. Append only — no edit and no delete control exists here."
+      >
+        {data.changes.map((c) => (
+          <article className="record" key={c.id}>
+            <div>
+              <span className="record__code">{c.id}</span>
+              <span className="record__rev">against {c.against}</span>
+              <div className="record__title">{c.entry}</div>
+              <div className="panel__purpose" style={{ margin: 0 }}>
+                Carried by {c.carriedBy}
+              </div>
+            </div>
+            <div className="record__meta">
+              <span className="record__updated">{c.date}</span>
+            </div>
+          </article>
+        ))}
+      </Panel>
+
+      <Panel
         kind="meter"
         title="Release gate position"
         purpose="How many drafts are blocked on the event ID alone."
@@ -180,6 +211,7 @@ const definition: ModuleDefinition = {
     { id: 'critical', kind: 'gate', title: 'Critical conditions', purpose: 'The seven.' },
     { id: 'all', kind: 'gate', title: 'All conditions', purpose: 'Reconciled register.' },
     { id: 'remediation', kind: 'register', title: 'Remediation', purpose: 'R-01..R-06.' },
+    { id: 'changes', kind: 'ledger', title: 'Changes ledger', purpose: 'CL-001 onward.' },
     { id: 'gate', kind: 'meter', title: 'Release gate', purpose: 'Point 8 position.' },
   ],
   Component: ComplianceModule,

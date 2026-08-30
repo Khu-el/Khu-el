@@ -13,6 +13,7 @@
 
 import type { ModuleDefinition, Surface } from './types'
 import governance from '../modules/gov-infrastructure'
+import ventures from '../modules/ventures-revenue'
 import compliance from '../modules/compliance-cp'
 import techStack from '../modules/tech-stack'
 import practiceDesk from '../modules/practice-desk'
@@ -26,19 +27,7 @@ export const SURFACES: Record<Surface, { label: string; seal: string }> = {
 
 export const MODULES: ModuleDefinition[] = [
   governance,
-  makeStub({
-    id: 'ventures-revenue',
-    ordinal: '02',
-    title: 'Ventures & Revenue',
-    eyebrow: 'What is being sold',
-    surfaces: ['lane-a'],
-    buildWork: true,
-    needs: [
-      'seed/ventures.json — 51 venture rows with class, group and entity routing',
-      'The six plan records with revision and funder-annex state',
-      'Model registry rows for MODEL-TOP5-001 and MODEL-LAND-001',
-    ],
-  }),
+  ventures,
   makeStub({
     id: 'education-nvu',
     ordinal: '03',

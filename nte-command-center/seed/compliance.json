@@ -313,5 +313,64 @@
       "gate": [true, true, true, true, true, true, true, false, false],
       "updated": "2026-08-12"
     }
+  ],
+
+  "changes": [
+    {
+      "id": "CL-001",
+      "date": "2026-08-12",
+      "against": "Migration corpus",
+      "entry": "Seven corpus corrections raised as C-01 through C-07. The corpus repeats a superseded entity-name set and is not a drafting source for names.",
+      "carriedBy": "NTE-GOV-2026-MIGRATE-CORR-001"
+    },
+    {
+      "id": "CL-002",
+      "date": "2026-08-12",
+      "against": "Entity register",
+      "entry": "Three of seven operating names settled, four left provisional. The determination was a hybrid across two naming sets, so the remaining names cannot be inherited by default.",
+      "carriedBy": "NTE-GOV-2026-SCHED-001"
+    },
+    {
+      "id": "CL-003",
+      "date": "2026-08-12",
+      "against": "Condition register",
+      "entry": "Four numbering systems reconciled to the Q-series. Aliases render inline on every row. Two rows with different numbers and the same substance is how a false cleared happens.",
+      "carriedBy": "NTE-TECH-2026-CCENTER-001"
+    },
+    {
+      "id": "CL-004",
+      "date": "2026-08-12",
+      "against": "Capacity protocol",
+      "entry": "The three-capacity protocol is retired with its provenance note. It traces to course material, not to trust law. It renders as retired, never as active.",
+      "carriedBy": "NTE-GOV-2026-SCHED-001"
+    },
+    {
+      "id": "CL-005",
+      "date": "2026-08-12",
+      "against": "Canon",
+      "entry": "Security hold raised on a plaintext credential file in the synced vault. Opened as Q-16. It outranks the rest of the board and survives the build freeze.",
+      "carriedBy": "NTE-GOV-2026-CANON-001"
+    },
+    {
+      "id": "CL-006",
+      "date": "2026-08-30",
+      "against": "This console",
+      "entry": "SC-01 — a module may declare a freeze-exempt part. Without it the security hold would disappear under the build freeze in the weeks it matters most.",
+      "carriedBy": "NTE-TECH-2026-CCENTER-001"
+    },
+    {
+      "id": "CL-007",
+      "date": "2026-08-30",
+      "against": "This console",
+      "entry": "SC-03 — the contact counter is held across all three surfaces rather than namespaced per surface. One rule, one number; a counter that resets on a surface switch is a bypass.",
+      "carriedBy": "NTE-TECH-2026-CCENTER-001"
+    },
+    {
+      "id": "CL-008",
+      "date": "2026-08-30",
+      "against": "This console",
+      "entry": "SC-04 — blocked terms match on word boundaries in both halves of the firewall. Neither exemption list was touched; the scan was tightened on the practice surface to include comments.",
+      "carriedBy": "NTE-TECH-2026-CCENTER-001"
+    }
   ]
 }
