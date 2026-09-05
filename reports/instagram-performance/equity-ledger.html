@@ -1,0 +1,938 @@
+<title>The Equity Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#EDEFEA; --card:#F7F8F4; --card-2:#E3E7DD; --sunk:#E8EBE4;
+  --ink:#191E1A; --ink-2:#4C5449; --ink-3:#79826F;
+  --rule:#CFD5C8; --rule-2:#AEB8A5;
+  --seal:#8A2B2E; --seal-ink:#FFFFFF; --seal-wash:#F0DEDC;
+  --brass:#7E6318; --brass-wash:#EDE5CD;
+  --good:#2C6A4A; --good-wash:#DBE9DF;
+  --focus:#8A2B2E;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141711; --card:#1C2019; --card-2:#262B21; --sunk:#181C15;
+    --ink:#E8EBDF; --ink-2:#B4BBA8; --ink-3:#89927E;
+    --rule:#2E3428; --rule-2:#434B3A;
+    --seal:#DB7A6F; --seal-ink:#1A1006; --seal-wash:#33211E;
+    --brass:#D5AE58; --brass-wash:#2C2716;
+    --good:#78C79A; --good-wash:#1C2A21;
+    --focus:#DB7A6F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141711; --card:#1C2019; --card-2:#262B21; --sunk:#181C15;
+  --ink:#E8EBDF; --ink-2:#B4BBA8; --ink-3:#89927E;
+  --rule:#2E3428; --rule-2:#434B3A;
+  --seal:#DB7A6F; --seal-ink:#1A1006; --seal-wash:#33211E;
+  --brass:#D5AE58; --brass-wash:#2C2716;
+  --good:#78C79A; --good-wash:#1C2A21;
+  --focus:#DB7A6F;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15.5px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px 96px}
+@media (max-width:640px){.wrap{padding:0 16px 72px}}
+
+/* ---------- type ---------- */
+h1,h2,h3{margin:0;text-wrap:balance}
+.display{font-family:"Instrument Serif",Georgia,serif;font-weight:400;letter-spacing:-.01em;line-height:1.06}
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+p{margin:0}
+.prose{max-width:66ch;color:var(--ink-2)}
+.prose strong{color:var(--ink);font-weight:600}
+a{color:var(--seal)}
+
+/* ---------- masthead ---------- */
+header.masthead{
+  border-bottom:2px solid var(--ink);
+  padding:44px 0 20px;margin-bottom:0;
+}
+.masthead-top{display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap;margin-bottom:26px}
+h1.title{font-size:clamp(42px,7.2vw,78px)}
+h1.title em{font-style:italic;color:var(--seal)}
+.subhead{margin-top:14px;max-width:60ch;font-size:17px;color:var(--ink-2)}
+.masthead-rule{display:flex;gap:0;border-top:1px solid var(--rule);margin-top:28px}
+.stat{
+  flex:1 1 0;min-width:120px;padding:14px 18px 14px 0;border-right:1px solid var(--rule);
+}
+.stat:last-child{border-right:0}
+.stat .k{display:block;font-size:22px;font-weight:600;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.stat .l{display:block;margin-top:2px}
+@media (max-width:640px){.masthead-rule{flex-wrap:wrap}.stat{flex:1 1 45%;border-right:0}}
+
+/* ---------- articles ---------- */
+section.article{padding:56px 0 0;border-top:1px solid var(--rule);margin-top:56px}
+section.article:first-of-type{border-top:0;margin-top:0}
+.art-head{display:flex;gap:20px;align-items:flex-start;margin-bottom:26px}
+.art-num{
+  flex:0 0 auto;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;
+  color:var(--seal);border:1px solid var(--seal);padding:3px 8px;margin-top:7px;white-space:nowrap;
+}
+.art-title{font-size:clamp(26px,3.6vw,36px)}
+.art-sub{margin-top:8px;color:var(--ink-2);max-width:66ch}
+
+/* ---------- notice block ---------- */
+.notice{
+  background:var(--seal-wash);border-left:3px solid var(--seal);
+  padding:20px 24px;display:grid;gap:10px;
+}
+.notice h3{font-size:17px;font-weight:600}
+.notice p{color:var(--ink-2);max-width:64ch}
+
+/* ---------- generic surfaces ---------- */
+.panel{background:var(--card);border:1px solid var(--rule);padding:22px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+
+/* ---------- source list ---------- */
+ol.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:0}
+ol.steps li{
+  counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:14px;
+  padding:13px 0;border-bottom:1px solid var(--rule);color:var(--ink-2);
+}
+ol.steps li:last-child{border-bottom:0}
+ol.steps li::before{
+  content:counter(s,decimal-leading-zero);font-family:"IBM Plex Mono",monospace;
+  font-size:12px;color:var(--ink-3);padding-top:3px;
+}
+ol.steps li b{color:var(--ink);font-weight:600}
+
+/* ---------- controls ---------- */
+button,select,input,textarea{font:inherit;color:inherit}
+.btn{
+  background:var(--ink);color:var(--paper);border:1px solid var(--ink);
+  padding:9px 16px;cursor:pointer;font-size:13.5px;font-weight:600;
+  font-family:"IBM Plex Mono",monospace;letter-spacing:.04em;
+  transition:opacity .15s ease;
+}
+.btn:hover{opacity:.84}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--rule-2)}
+.btn.ghost:hover{border-color:var(--ink);opacity:1}
+.btn.seal{background:var(--seal);border-color:var(--seal);color:var(--seal-ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.manualgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.manualgrid label{display:grid;gap:5px}
+.manualgrid label.wide{grid-column:1/-1}
+.manualgrid input,.manualgrid select{background:var(--sunk);border:1px solid var(--rule);padding:8px 10px;font-size:14px;width:100%}
+.manualgrid input{font-family:"IBM Plex Mono",monospace;font-size:13px}
+textarea.paste{
+  width:100%;min-height:130px;background:var(--sunk);border:1px solid var(--rule);
+  padding:12px 14px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.55;
+  resize:vertical;
+}
+textarea.paste::placeholder{color:var(--ink-3)}
+
+/* ---------- ledger table ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--rule);background:var(--card)}
+table.ledger{border-collapse:collapse;width:100%;min-width:840px}
+table.ledger th{
+  text-align:right;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:500;
+  padding:12px 14px;border-bottom:1px solid var(--rule-2);white-space:nowrap;
+  background:var(--card-2);
+}
+table.ledger th.l,table.ledger td.l{text-align:left}
+table.ledger td{
+  padding:13px 14px;border-bottom:1px solid var(--rule);text-align:right;
+  font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:13px;
+}
+table.ledger tr:last-child td{border-bottom:0}
+table.ledger td.post{
+  font-family:"Public Sans",sans-serif;font-size:14.5px;line-height:1.35;
+  min-width:250px;max-width:330px;text-align:left;
+}
+table.ledger td.post .fmt{display:block;margin-top:3px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+tr.top td{background:var(--sunk)}
+.rank{color:var(--ink-3);font-size:12px}
+.idxcell{min-width:132px}
+.bar{height:7px;background:var(--card-2);position:relative;margin-top:5px;border:1px solid var(--rule)}
+.bar span{position:absolute;inset:0 auto 0 0;background:var(--seal);display:block}
+.bar.brass span{background:var(--brass)}
+.chip{
+  display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;padding:2px 6px;border:1px solid currentColor;vertical-align:2px;margin-left:6px;
+}
+.chip.ex{color:var(--brass)}
+
+/* ---------- breakdown cards ---------- */
+.dossier{border:1px solid var(--rule);background:var(--card);margin-bottom:20px;overflow:hidden}
+.dossier-head{
+  display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;
+  padding:18px 22px;border-bottom:1px solid var(--rule);background:var(--card-2);
+}
+.dossier-head .name{font-size:20px;font-family:"Instrument Serif",Georgia,serif;line-height:1.15}
+.dossier-metrics{display:flex;gap:18px;flex-wrap:wrap}
+.dm{text-align:right}
+.dm b{display:block;font-family:"IBM Plex Mono",monospace;font-size:15px;font-variant-numeric:tabular-nums;font-weight:600}
+.dm span{display:block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0;margin-right:-1px}
+.field{padding:16px 22px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.field.full{grid-column:1/-1;border-right:0}
+.field label{display:block;margin-bottom:7px}
+.field label i{font-style:normal;color:var(--ink-3);text-transform:none;letter-spacing:0;font-size:11px;margin-left:6px}
+.field select,.field input[type=text],.field textarea{
+  width:100%;background:var(--sunk);border:1px solid var(--rule);padding:8px 10px;font-size:14px;
+}
+.field textarea{min-height:74px;resize:vertical;line-height:1.5}
+.field input[type=text]{font-family:"IBM Plex Mono",monospace;font-size:13px}
+.dossier-foot{padding:14px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.hint{color:var(--ink-3);font-size:12.5px}
+
+/* ---------- pattern bars ---------- */
+.patrow{display:grid;grid-template-columns:minmax(140px,220px) 1fr 64px;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule)}
+.patrow:last-child{border-bottom:0}
+.patrow .nm{font-size:14px}
+.patrow .vl{text-align:right;font-family:"IBM Plex Mono",monospace;font-size:13px;font-variant-numeric:tabular-nums}
+.patbar{height:12px;background:var(--card-2);border:1px solid var(--rule);position:relative}
+.patbar span{position:absolute;inset:0 auto 0 0;background:var(--brass)}
+
+/* ---------- reference ---------- */
+.ref{border-top:1px solid var(--rule);padding:16px 0;display:grid;grid-template-columns:180px 1fr;gap:22px}
+.ref:first-of-type{border-top:0}
+.ref .rt{font-weight:600;font-size:14.5px}
+.ref .rt em{display:block;font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:4px;font-weight:400}
+.ref .rb{color:var(--ink-2);font-size:14.5px}
+.ref .rb q{color:var(--ink);font-style:italic;font-family:"Instrument Serif",Georgia,serif;font-size:17px}
+@media (max-width:640px){.ref{grid-template-columns:1fr;gap:6px}}
+
+.dont{border-left:3px solid var(--rule-2);padding:14px 18px;background:var(--sunk)}
+.dont li{color:var(--ink-2)}
+.dont ul{margin:8px 0 0;padding-left:18px}
+
+footer.colophon{
+  margin-top:64px;border-top:2px solid var(--ink);padding-top:20px;
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;
+}
+.status{
+  display:inline-flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+}
+.dot{width:7px;height:7px;background:var(--brass);border-radius:50%;flex:0 0 auto}
+.dot.live{background:var(--good)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="masthead-top">
+    <span class="eyebrow">Content performance review &middot; prepared 5 September 2026</span>
+    <span class="eyebrow mono" id="statusTop">Record: examples only</span>
+  </div>
+  <h1 class="title display">The Equity <em>Ledger</em></h1>
+  <p class="subhead">A ranked account of what actually carried on <span class="mono">@privateman_of_equity</span> &mdash; and the anatomy of each winner: angle, spoken hook, topic, on-screen title hook, and the mechanical reason it moved.</p>
+  <div class="masthead-rule">
+    <div class="stat"><b class="k" id="sPosts">7</b><span class="l eyebrow">Posts on record</span></div>
+    <div class="stat"><b class="k" id="sReach">81.8k</b><span class="l eyebrow">Total reach</span></div>
+    <div class="stat"><b class="k" id="sFollows">398</b><span class="l eyebrow">Follows earned</span></div>
+    <div class="stat"><b class="k" id="sBest">—</b><span class="l eyebrow">Top index</span></div>
+  </div>
+</header>
+
+<!-- ================= ARTICLE I ================= -->
+<section class="article">
+  <div class="art-head">
+    <span class="art-num">ART. I</span>
+    <div>
+      <h2 class="art-title display">Standing of the record</h2>
+      <p class="art-sub">What this report is built on, stated plainly before anything is ranked.</p>
+    </div>
+  </div>
+
+  <div class="notice">
+    <h3>No live connection to your Instagram account exists in this session.</h3>
+    <p>Instagram Insights is behind a login, and no Meta / Instagram connector is attached here. I could not read a single one of your 466 posts. <strong>Every figure currently on this page is an example set, marked <span class="chip ex">EX</span>, invented to demonstrate the instrument.</strong> None of it is your data and none of it should be quoted as such.</p>
+    <p>What this page <em>is</em>: a working ledger. Paste your own Insights export into Article II and it re-ranks, re-scores, and re-opens every breakdown card against your real numbers. Your entries save and can be read back, so the analysis survives the tab.</p>
+  </div>
+
+  <div class="grid-2" style="margin-top:22px">
+    <div class="panel">
+      <span class="eyebrow">Source A &mdash; the full export</span>
+      <h3 style="font-size:17px;margin:8px 0 12px">Meta Business Suite (recommended)</h3>
+      <ol class="steps">
+        <li><b>business.facebook.com</b> &rarr; Insights &rarr; Content</li>
+        <li>Set the date range to <b>the last 12 months</b>, not 30 days &mdash; you want the whole tail.</li>
+        <li>Filter to <b>Instagram</b>, all formats.</li>
+        <li>Click <b>Export data</b> &rarr; CSV.</li>
+        <li>Open it, select all, and paste into the intake box below.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Source B &mdash; the fast read</span>
+      <h3 style="font-size:17px;margin:8px 0 12px">Instagram app</h3>
+      <ol class="steps">
+        <li>Profile &rarr; <b>Professional dashboard</b> &rarr; Insights.</li>
+        <li><b>Content you shared</b>, then set <b>Reels</b> and sort by <b>Views</b>.</li>
+        <li>Repeat for <b>Posts</b> sorted by <b>Reach</b>.</li>
+        <li>Take your <b>top 10 of each</b> and type them into the intake box, or add rows by hand below.</li>
+      </ol>
+      <p class="hint" style="margin-top:12px">Instagram does not export your on-screen title card or your spoken opening line. Those two fields &mdash; the ones that decide the whole thing &mdash; only ever come from you or from watching the video back.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ARTICLE II ================= -->
+<section class="article">
+  <div class="art-head">
+    <span class="art-num">ART. II</span>
+    <div>
+      <h2 class="art-title display">Intake</h2>
+      <p class="art-sub">Paste a CSV or TSV export, or a plain tab-separated block. Column names are matched loosely &mdash; reach, views, likes, comments, shares, saves, follows, caption, date and duration are all found wherever they sit.</p>
+    </div>
+  </div>
+
+  <textarea class="paste" id="pasteBox" spellcheck="false" placeholder="Paste the export here. Example of the minimum that works:&#10;&#10;Description&#9;Post type&#9;Reach&#9;Views&#9;Likes&#9;Comments&#9;Shares&#9;Saves&#9;Follows&#10;The bank didn't lend you anything&#9;Reel&#9;41200&#9;52900&#9;1840&#9;312&#9;906&#9;1205&#9;214"></textarea>
+
+  <div class="btnrow" style="margin-top:14px">
+    <button class="btn seal" id="btnImport">Import &amp; rank</button>
+    <button class="btn ghost" id="btnAddRow">Add one row by hand</button>
+    <button class="btn ghost" id="btnExamples">Reload example set</button>
+    <button class="btn ghost" id="btnClear">Clear the record</button>
+    <span class="hint" id="importMsg"></span>
+  </div>
+
+  <div class="panel" id="manualPanel" hidden style="margin-top:16px">
+    <span class="eyebrow">Add one post by hand</span>
+    <div class="manualgrid" style="margin-top:12px">
+      <label class="wide"><span class="eyebrow">Post title or caption opening</span><input type="text" id="mTitle" placeholder="The bank didn't lend you anything"></label>
+      <label><span class="eyebrow">Format</span>
+        <select id="mType"><option>Reel</option><option>Carousel</option><option>Static</option><option>Story</option></select></label>
+      <label><span class="eyebrow">Reach</span><input type="text" inputmode="numeric" id="mReach" placeholder="41200"></label>
+      <label><span class="eyebrow">Views</span><input type="text" inputmode="numeric" id="mViews" placeholder="52900"></label>
+      <label><span class="eyebrow">Likes</span><input type="text" inputmode="numeric" id="mLikes" placeholder="1840"></label>
+      <label><span class="eyebrow">Comments</span><input type="text" inputmode="numeric" id="mComments" placeholder="312"></label>
+      <label><span class="eyebrow">Shares</span><input type="text" inputmode="numeric" id="mShares" placeholder="906"></label>
+      <label><span class="eyebrow">Saves</span><input type="text" inputmode="numeric" id="mSaves" placeholder="1205"></label>
+      <label><span class="eyebrow">Follows</span><input type="text" inputmode="numeric" id="mFollows" placeholder="214"></label>
+    </div>
+    <div class="btnrow" style="margin-top:14px">
+      <button class="btn" id="btnSaveRow">Add to the ledger</button>
+      <button class="btn ghost" id="btnCancelRow">Cancel</button>
+    </div>
+  </div>
+
+  <div class="panel" id="exportPanel" hidden style="margin-top:16px">
+    <span class="eyebrow" id="exportLabel">Export</span>
+    <p class="hint" style="margin:8px 0 10px">Saving files isn't available in this view, so here it is to copy.</p>
+    <textarea class="paste" id="exportOut" readonly spellcheck="false"></textarea>
+  </div>
+</section>
+
+<!-- ================= ARTICLE III ================= -->
+<section class="article">
+  <div class="art-head">
+    <span class="art-num">ART. III</span>
+    <div>
+      <h2 class="art-title display">The ledger</h2>
+      <p class="art-sub">Ranked by Performance Index &mdash; 65&thinsp;% the quality of the engagement a post earned per thousand people reached, 35&thinsp;% the size of the reach itself. A post that reaches few people but converts them hard still ranks; a post that reached everyone and moved no one does not.</p>
+    </div>
+  </div>
+
+  <div class="tablewrap">
+    <table class="ledger">
+      <thead>
+        <tr>
+          <th class="l" style="width:34px">#</th>
+          <th class="l">Post</th>
+          <th>Reach</th>
+          <th>Views</th>
+          <th>Saves</th>
+          <th>Shares</th>
+          <th>Comments</th>
+          <th>Follows</th>
+          <th>EP / 1k</th>
+          <th class="l idxcell">Index</th>
+        </tr>
+      </thead>
+      <tbody id="ledgerBody"></tbody>
+    </table>
+  </div>
+
+  <div class="panel" style="margin-top:18px">
+    <span class="eyebrow">How the index is computed</span>
+    <p class="prose" style="margin-top:10px">Engagement points <span class="mono">EP = likes&times;1 + comments&times;3 + shares&times;5 + saves&times;5 + follows&times;10</span>. The weights are not vanity-weighted: a save and a share each cost a viewer something (filing it, or putting their name on it), a follow costs the most, a like costs nothing. <span class="mono">EP&#8202;/&#8202;1k</span> divides that by reach. The index scales EP&#8202;/&#8202;1k and reach against the best row in your own record, so it is always relative to <em>your</em> account, never to some benchmark that doesn't apply to a 1,280-follower niche audience.</p>
+  </div>
+</section>
+
+<!-- ================= ARTICLE IV ================= -->
+<section class="article">
+  <div class="art-head">
+    <span class="art-num">ART. IV</span>
+    <div>
+      <h2 class="art-title display">Breakdown</h2>
+      <p class="art-sub">One dossier per post, in ledger order. Five fields, and the fifth is the only one that compounds: <em>why it worked</em>. Fill them as you watch each video back &mdash; or have Claude propose a first pass from the title and topic, then correct it.</p>
+    </div>
+  </div>
+  <div id="dossiers"></div>
+</section>
+
+<!-- ================= ARTICLE V ================= -->
+<section class="article">
+  <div class="art-head">
+    <span class="art-num">ART. V</span>
+    <div>
+      <h2 class="art-title display">Pattern read</h2>
+      <p class="art-sub">Once four or five dossiers are filled, this stops being a table and starts being an instruction. Average index by angle and by hook archetype, across whatever is on the record.</p>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <span class="eyebrow">Average index by angle</span>
+      <div id="patAngle" style="margin-top:12px"></div>
+    </div>
+    <div class="panel">
+      <span class="eyebrow">Average index by hook archetype</span>
+      <div id="patHook" style="margin-top:12px"></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:18px">
+    <span class="eyebrow">Format read</span>
+    <div id="patFormat" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<!-- ================= ARTICLE VI ================= -->
+<section class="article">
+  <div class="art-head">
+    <span class="art-num">ART. VI</span>
+    <div>
+      <h2 class="art-title display">The instrument itself</h2>
+      <p class="art-sub">The four taxonomies the dossiers are scored against, written for this account's subject matter &mdash; private trust, equity, credit, and estate structure &mdash; not for generic creator advice.</p>
+    </div>
+  </div>
+
+  <h3 class="display" style="font-size:24px;margin-bottom:6px">Angle</h3>
+  <p class="prose" style="margin-bottom:18px">The stance the video takes toward what the viewer already believes. It is not the topic. Two videos on the same trust clause with different angles perform an order of magnitude apart.</p>
+  <div id="refAngles"></div>
+
+  <h3 class="display" style="font-size:24px;margin:44px 0 6px">Hook &mdash; the first 3 to 5 seconds</h3>
+  <p class="prose" style="margin-bottom:18px">What is said, out loud, before the viewer has decided anything. In this niche the audience arrives sceptical and slightly defensive; a hook that asks for patience gets none.</p>
+  <div id="refHooks"></div>
+  <div class="dont" style="margin-top:22px">
+    <span class="eyebrow">Openings that cost you the first three seconds</span>
+    <ul>
+      <li>&ldquo;Hey guys&rdquo; / &ldquo;What&rsquo;s up family&rdquo; &mdash; a greeting is a request for patience.</li>
+      <li>&ldquo;In this video I&rsquo;m going to explain&rdquo; &mdash; announcing the explanation instead of starting it.</li>
+      <li>Any intro sting, logo, or slow push-in before a word is spoken.</li>
+      <li>Credentialing first (&ldquo;I&rsquo;ve been doing this 12 years&rdquo;). Earn the right to say it at second 20, not second 1.</li>
+      <li>Starting on a caveat. Disclaimers belong in the caption, not the hook.</li>
+    </ul>
+  </div>
+
+  <h3 class="display" style="font-size:24px;margin:44px 0 6px">Title hook &mdash; the on-screen headline</h3>
+  <p class="prose" style="margin-bottom:18px">The text card standing over the first frames. It is read before you are heard, and it is the entire pitch to everyone scrolling with sound off. It must not repeat the spoken hook &mdash; it should complete it, contradict it, or name the stake it leaves open.</p>
+  <div id="refTitles"></div>
+  <div class="panel" style="margin-top:22px">
+    <span class="eyebrow">Mechanical constraints</span>
+    <ul style="margin:10px 0 0;padding-left:20px;color:var(--ink-2)">
+      <li>Six words maximum. Four is better.</li>
+      <li>Cap height at least one eighth of frame height &mdash; it must survive a 30&thinsp;% thumbnail.</li>
+      <li>Upper third, but clear of Instagram's own chrome; keep roughly 15&thinsp;% clear at top and 30&thinsp;% at bottom.</li>
+      <li>Hold it for the full hook, not one second. If it leaves before the sentence lands, it never registered.</li>
+      <li>One weight, high contrast, no outline-plus-shadow-plus-glow. Legibility is the whole job.</li>
+    </ul>
+  </div>
+
+  <h3 class="display" style="font-size:24px;margin:44px 0 6px">Why it worked &mdash; the five checks</h3>
+  <p class="prose" style="margin-bottom:18px">Run these against every post in Article III before you write a word in the <em>why</em> field. The answer is nearly always one of five, and naming which one is what makes the next video repeatable.</p>
+  <div id="refWhy"></div>
+</section>
+
+<footer class="colophon">
+  <div>
+    <span class="status"><span class="dot" id="saveDot"></span><span id="saveState">Working locally &mdash; examples loaded</span></span>
+    <p class="hint" style="margin-top:8px;max-width:52ch">Prepared for <span class="mono">@privateman_of_equity</span>. Figures are examples until you import your own export.</p>
+  </div>
+  <div class="btnrow">
+    <button class="btn ghost" id="btnExportCsv">Export ledger &middot; CSV</button>
+    <button class="btn ghost" id="btnExportJson">Export analysis &middot; JSON</button>
+  </div>
+</footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===================== taxonomies ===================== */
+const ANGLES = [
+  {k:"contrarian", n:"Contrarian correction", d:"Takes a belief the audience holds and inverts it in one line. The video is then obliged to prove it.", ex:"“You don’t have bad credit. You have an unmanaged file.”"},
+  {k:"mechanism",  n:"Hidden mechanism",      d:"Shows the machinery behind something the viewer only sees the outside of — how title actually moves, what the signature does.", ex:"“Here is what the bank books on the other side of your loan.”"},
+  {k:"cost",       n:"Cost of not knowing",   d:"Names a specific number the viewer is losing right now. Specific figures outperform vague loss every time.", ex:"“That refinance cost you $47,000 and it never appeared on a statement.”"},
+  {k:"status",     n:"Status reframe",        d:"Repositions who the viewer is in the structure — consumer or holder, public man or private man, debtor or creditor.", ex:"“You are the surety. You have never once been the principal.”"},
+  {k:"receipt",    n:"Receipt on screen",     d:"The document is the content. A recorded instrument, a ledger line, a stamped page, held up and read.", ex:"Camera on the page; you read the clause aloud."},
+  {k:"teardown",   n:"Deal teardown",         d:"One real deal, note or estate taken apart number by number, start to finish.", ex:"“$0 down, $412k held. Here is every line.”"},
+  {k:"gatekeeper", n:"Gatekeeper reveal",     d:"Frames the knowledge as internal — what is normal inside a family office and absent everywhere else.", ex:"“No one structures it this way unless they were shown.”"},
+  {k:"testimony",  n:"Testimony",             d:"Personal stakes. The mistake, the loss, the year it took. Trades authority for trust.", ex:"“My first deal lost $18,000 and I signed it myself.”"}
+];
+const HOOKS = [
+  {k:"assertion", n:"Flat assertion",       d:"One declarative sentence, no throat-clearing, said as settled fact.", ex:"“A trust does not save you tax. Control does.”"},
+  {k:"number",    n:"Named number",         d:"Opens on a specific figure. The oddness of a precise number is what buys the second second.", ex:"“$47,000. That is what that signature cost.”"},
+  {k:"accusation",n:"Direct accusation",    d:"Second person, present tense, uncomfortable. Works only if the video then resolves it.", ex:"“You signed away the equity and you were thanked for it.”"},
+  {k:"trap",      n:"Question with a trap", d:"A question whose obvious answer is wrong. The viewer stays to find out they were wrong.", ex:"“Who holds title to the house you just paid off?”"},
+  {k:"midaction", n:"Mid-action open",      d:"The camera lands while you are already writing, stamping, or pointing at a page. No setup frame.", ex:"Already mid-sentence, pen on the document."},
+  {k:"interrupt", n:"Two-word interrupt",   d:"Two words, a beat, then the context. The pause is the mechanism, not the words.", ex:"“Stop borrowing.” — beat — “against your own asset.”"},
+  {k:"definition",n:"Definition strike",    d:"Corrects a term of art the audience uses loosely. Very high save rate in legal-adjacent niches.", ex:"“Equity is not ownership. Equity is remedy.”"},
+  {k:"clock",     n:"Stakes clock",         d:"Puts a deadline in the first line, then walks the viewer to day one.", ex:"“You have thirty days from that notice.”"}
+];
+const TITLES = [
+  {n:"Noun verdict",       d:"Three to five words, no verb padding, stated as a ruling.", ex:"PRIVATE ≠ SECRET"},
+  {n:"Number and object",  d:"A count plus the thing counted. Promises a finite, watchable list.", ex:"3 LINES THAT KILL A TRUST"},
+  {n:"The open question",  d:"Asks what the video answers. Only works if the answer is genuinely non-obvious.", ex:"WHO HOLDS THE TITLE?"},
+  {n:"Term of art",        d:"A phrase the viewer has heard and cannot define. The gap itself is the hook.", ex:"HOLDER IN DUE COURSE"},
+  {n:"Redaction",          d:"A blacked-out or blurred word the viewer wants revealed. Use sparingly — it wears out.", ex:"THE ██████ CLAUSE"},
+  {n:"Ledger line",        d:"Actual figures set as if on a statement. Reads as evidence rather than as a claim.", ex:"$0 DOWN / $412K HELD"}
+];
+const WHYS = [
+  {n:"The retention cliff held", d:"Views comfortably exceed reach and the average watch time clears the hook. The first three seconds did their job and the algorithm re-served it. If views ≈ reach, the hook is what to fix — nothing downstream matters yet."},
+  {n:"It earned saves, not likes", d:"A save means the viewer intends to come back and use it. High saves per thousand reached is the signature of reference content — a clause, a checklist, a sequence. Make more of the same shape; likes are noise by comparison."},
+  {n:"It earned shares", d:"A share means the viewer put their own name on it. That is identity, not reference — it happened because the post said something they already believed but could not phrase. Shares drive reach outside your follower graph; saves do not."},
+  {n:"It left a deliberate gap", d:"Comments spike when a video leaves one term undefined, one claim disputable, or one step missing. Check whether the gap was intentional. If it was accidental, the next one should be on purpose."},
+  {n:"It converted, not just travelled", d:"Follows per thousand reached is the only figure that says the post sold the account rather than the clip. A post can go wide and convert nothing — that is a distribution win and a positioning loss, and it is worth knowing which one you had."}
+];
+
+/* ===================== example record ===================== */
+function examples(){
+  return [
+    {id:"x1", title:"The bank didn't lend you anything", type:"Reel", date:"2026-06-14", reach:41200, views:52900, likes:1840, comments:312, shares:906, saves:1205, follows:214, len:47, ex:true,
+     angle:"mechanism", hook:"assertion", topic:"Bank credit mechanics — what the signature funds",
+     titleHook:"WHO FUNDED THE LOAN?",
+     why:"Views ran 28% above reach, so the hook held and it was re-served beyond the follower graph. Shares outran comments 3:1 — this was identity, not reference: it said in one line what the audience already half-believed. 214 follows off one post is the account's positioning working, not the clip's."},
+    {id:"x2", title:"Private ≠ secret", type:"Reel", date:"2026-04-02", reach:12400, views:14100, likes:612, comments:88, shares:210, saves:494, follows:61, len:38, ex:true,
+     angle:"status", hook:"definition", topic:"Private vs. secret — answering the standard objection",
+     titleHook:"PRIVATE ≠ SECRET",
+     why:"Definition strike into a status reframe. Saves per thousand (39.8) are the highest on the record — people filed it to use as an argument later. That is the tell for a distinction the audience needs and cannot articulate. Make a series of these."},
+    {id:"x3", title:"3 lines that kill a trust", type:"Reel", date:"2026-07-21", reach:9850, views:11200, likes:501, comments:143, shares:188, saves:622, follows:47, len:62, ex:true,
+     angle:"mechanism", hook:"number", topic:"Drafting errors that collapse a trust",
+     titleHook:"3 LINES THAT KILL A TRUST",
+     why:"Reference content: 63 saves per thousand, the highest save rate here. Finite list, named number, clear completion — the viewer knows exactly how long the payoff takes. Comments were people naming a fourth line, which is the deliberate-gap effect working."},
+    {id:"x4", title:"What a $0-down note actually costs", type:"Carousel", date:"2026-05-09", reach:6300, views:6300, likes:388, comments:41, shares:96, saves:431, follows:29, len:0, ex:true,
+     angle:"teardown", hook:"number", topic:"Seller-financed note — full cost teardown",
+     titleHook:"$0 DOWN / $412K HELD",
+     why:"Carousels cannot travel like reels, so judge it on save rate — 68 per thousand, the best figure on the record. The numbers were legible as stills, which is the only reason a teardown belongs in a carousel at all. Reach ceiling is the format, not the content."},
+    {id:"x5", title:"Holder in due course, explained", type:"Reel", date:"2026-03-18", reach:5120, views:5700, likes:244, comments:66, shares:71, saves:287, follows:22, len:55, ex:true,
+     angle:"gatekeeper", hook:"definition", topic:"Negotiable instruments — holder in due course",
+     titleHook:"HOLDER IN DUE COURSE",
+     why:"Solid save rate, weak share rate. Term-of-art titles pull the people already inside the subject and repel everyone else — useful for depth, poor for growth. Pair the next one with a cost angle so it has a reason to leave the graph."},
+    {id:"x6", title:"My first deal lost $18,000", type:"Reel", date:"2026-02-27", reach:4760, views:5300, likes:402, comments:97, shares:58, saves:119, follows:18, len:41, ex:true,
+     angle:"testimony", hook:"number", topic:"Early mistake — due diligence failure",
+     titleHook:"I LOST $18,000",
+     why:"Highest likes-to-reach ratio and the lowest save rate. Testimony buys trust, not utility — nobody files a story. Correct read: keep testimony as the second beat inside a mechanism video, not as the whole video."},
+    {id:"x7", title:"Notice is not a request", type:"Static", date:"2026-01-30", reach:2140, views:2140, likes:141, comments:12, shares:24, saves:63, follows:7, len:0, ex:true,
+     angle:"status", hook:"assertion", topic:"Notice and standing",
+     titleHook:"NOTICE IS NOT A REQUEST",
+     why:"Floor-level distribution, as static posts are. The line itself is strong and tested cheaply here — that is what statics are good for. Re-cut it as a reel with a flat-assertion open before writing it off."}
+  ];
+}
+
+/* ===================== state ===================== */
+let posts = [];
+let dbNS = null, dlNS = null, sampleNS = null;
+let saveTimer = null;
+const $ = function(id){ return document.getElementById(id); };
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function num(v){ if(v==null) return 0; var n = parseFloat(String(v).replace(/[^0-9.\-]/g,"")); return isFinite(n)?n:0; }
+function fmt(n){ n=Math.round(n||0); return n>=100000 ? (n/1000).toFixed(0)+"k" : n>=10000 ? (n/1000).toFixed(1)+"k" : n.toLocaleString("en-US"); }
+
+/* ===================== scoring ===================== */
+function score(list){
+  list.forEach(function(p){
+    p.ep = p.likes + p.comments*3 + p.shares*5 + p.saves*5 + p.follows*10;
+    p.epk = p.reach > 0 ? (p.ep / p.reach) * 1000 : 0;
+  });
+  var maxEpk = Math.max.apply(null, list.map(function(p){return p.epk;}).concat([1]));
+  var maxReach = Math.max.apply(null, list.map(function(p){return p.reach;}).concat([1]));
+  list.forEach(function(p){
+    var e = maxEpk ? p.epk/maxEpk : 0;
+    var r = maxReach ? Math.sqrt(p.reach/maxReach) : 0;
+    p.index = Math.round((0.65*e + 0.35*r) * 100);
+  });
+  list.sort(function(a,b){ return b.index - a.index; });
+  return list;
+}
+
+/* ===================== parsing ===================== */
+function splitLine(line, delim){
+  var out=[], cur="", q=false;
+  for(var i=0;i<line.length;i++){
+    var c=line[i];
+    if(q){
+      if(c==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else q=false; }
+      else cur+=c;
+    } else if(c==='"'){ q=true; }
+    else if(c===delim){ out.push(cur); cur=""; }
+    else cur+=c;
+  }
+  out.push(cur);
+  return out.map(function(s){return s.trim();});
+}
+function findCol(headers, patterns){
+  for(var p=0;p<patterns.length;p++){
+    for(var i=0;i<headers.length;i++){
+      if(headers[i].indexOf(patterns[p])!==-1) return i;
+    }
+  }
+  return -1;
+}
+function parsePaste(text){
+  var lines = text.split(/\r?\n/).filter(function(l){ return l.trim().length; });
+  if(lines.length < 2) throw new Error("Needs a header row and at least one post row.");
+  var delim = (lines[0].split("\t").length > lines[0].split(",").length) ? "\t" : ",";
+  var headers = splitLine(lines[0], delim).map(function(h){ return h.toLowerCase(); });
+  var col = {
+    title:   findCol(headers,["description","caption","title","post text","content"]),
+    type:    findCol(headers,["post type","media type","format","type"]),
+    date:    findCol(headers,["publish time","date","created","posted"]),
+    reach:   findCol(headers,["reach","accounts reached","impressions"]),
+    views:   findCol(headers,["views","plays","video views"]),
+    likes:   findCol(headers,["like"]),
+    comments:findCol(headers,["comment"]),
+    shares:  findCol(headers,["share"]),
+    saves:   findCol(headers,["save","bookmark"]),
+    follows: findCol(headers,["follow"]),
+    len:     findCol(headers,["duration","length","seconds"])
+  };
+  if(col.reach === -1 && col.views === -1) throw new Error("No reach or views column found in that header row.");
+  var out = [];
+  for(var i=1;i<lines.length;i++){
+    var c = splitLine(lines[i], delim);
+    if(c.length < 2) continue;
+    var g = function(k){ return col[k] >= 0 && col[k] < c.length ? c[col[k]] : ""; };
+    var reach = num(g("reach")), views = num(g("views"));
+    if(!reach && !views) continue;
+    var t = (g("title") || "Untitled post").replace(/\s+/g," ").trim();
+    out.push({
+      id:"p"+i+"_"+Date.now().toString(36),
+      title: t.length > 90 ? t.slice(0,88)+"…" : t,
+      type: g("type") || "Post",
+      date: (g("date")||"").slice(0,10),
+      reach: reach || views, views: views || reach,
+      likes:num(g("likes")), comments:num(g("comments")), shares:num(g("shares")),
+      saves:num(g("saves")), follows:num(g("follows")), len:num(g("len")),
+      ex:false, angle:"", hook:"", topic:"", titleHook:"", why:""
+    });
+  }
+  if(!out.length) throw new Error("Header parsed, but no rows carried a reach or views figure.");
+  return out;
+}
+
+/* ===================== render: ledger ===================== */
+function renderLedger(){
+  var body = $("ledgerBody");
+  if(!posts.length){
+    body.innerHTML = '<tr><td colspan="10" class="l" style="padding:34px 16px;color:var(--ink-3);font-family:\'Public Sans\',sans-serif;text-align:left">The record is empty. Paste an export in Article II, or reload the example set.</td></tr>';
+    return;
+  }
+  var maxIdx = posts[0].index || 1;
+  body.innerHTML = posts.map(function(p,i){
+    return '<tr'+(i===0?' class="top"':'')+'>'+
+      '<td class="l rank">'+String(i+1).padStart(2,"0")+'</td>'+
+      '<td class="post l">'+esc(p.title)+(p.ex?'<span class="chip ex">EX</span>':'')+
+        '<span class="fmt">'+esc(p.type)+(p.date?' &middot; '+esc(p.date):'')+(p.len?' &middot; '+p.len+'s':'')+'</span></td>'+
+      '<td>'+fmt(p.reach)+'</td><td>'+fmt(p.views)+'</td><td>'+fmt(p.saves)+'</td>'+
+      '<td>'+fmt(p.shares)+'</td><td>'+fmt(p.comments)+'</td><td>'+fmt(p.follows)+'</td>'+
+      '<td>'+p.epk.toFixed(1)+'</td>'+
+      '<td class="l idxcell"><b>'+p.index+'</b><span class="bar"><span style="width:'+Math.max(2,(p.index/maxIdx)*100)+'%"></span></span></td>'+
+    '</tr>';
+  }).join("");
+}
+
+/* ===================== render: dossiers ===================== */
+function opts(list, sel){
+  return '<option value="">— not yet assigned —</option>' + list.map(function(o){
+    return '<option value="'+o.k+'"'+(o.k===sel?' selected':'')+'>'+esc(o.n)+'</option>';
+  }).join("");
+}
+function renderDossiers(){
+  var wrap = $("dossiers");
+  if(!posts.length){ wrap.innerHTML = '<p class="hint">Nothing on the record yet.</p>'; return; }
+  wrap.innerHTML = posts.map(function(p,i){
+    return '<article class="dossier" data-id="'+p.id+'">'+
+      '<div class="dossier-head">'+
+        '<div><span class="eyebrow">Rank '+String(i+1).padStart(2,"0")+' &middot; '+esc(p.type)+(p.ex?' &middot; example':'')+'</span>'+
+        '<div class="name">'+esc(p.title)+'</div></div>'+
+        '<div class="dossier-metrics">'+
+          '<div class="dm"><b>'+p.index+'</b><span>Index</span></div>'+
+          '<div class="dm"><b>'+fmt(p.reach)+'</b><span>Reach</span></div>'+
+          '<div class="dm"><b>'+(p.reach?(p.saves/p.reach*1000).toFixed(1):"0")+'</b><span>Saves/1k</span></div>'+
+          '<div class="dm"><b>'+(p.reach?(p.shares/p.reach*1000).toFixed(1):"0")+'</b><span>Shares/1k</span></div>'+
+          '<div class="dm"><b>'+(p.reach?(p.follows/p.reach*1000).toFixed(1):"0")+'</b><span>Follows/1k</span></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="fields">'+
+        '<div class="field"><label class="eyebrow">Angle</label>'+
+          '<select data-f="angle">'+opts(ANGLES,p.angle)+'</select></div>'+
+        '<div class="field"><label class="eyebrow">Hook archetype <i>first 3–5 sec</i></label>'+
+          '<select data-f="hook">'+opts(HOOKS,p.hook)+'</select></div>'+
+        '<div class="field"><label class="eyebrow">Topic</label>'+
+          '<input type="text" data-f="topic" value="'+esc(p.topic)+'" placeholder="e.g. Bank credit mechanics"></div>'+
+        '<div class="field"><label class="eyebrow">Title hook <i>on-screen headline</i></label>'+
+          '<input type="text" data-f="titleHook" value="'+esc(p.titleHook)+'" placeholder="e.g. WHO FUNDED THE LOAN?"></div>'+
+        '<div class="field full"><label class="eyebrow">Why it worked <i>run the five checks in Article VI</i></label>'+
+          '<textarea data-f="why" placeholder="Which of the five fired — retention, saves, shares, the gap, or conversion? Name it, then say what to repeat.">'+esc(p.why)+'</textarea></div>'+
+      '</div>'+
+      '<div class="dossier-foot">'+
+        '<button class="btn ghost ai" data-id="'+p.id+'" hidden>Draft this with Claude</button>'+
+        '<span class="hint aim"></span>'+
+      '</div>'+
+    '</article>';
+  }).join("");
+
+  wrap.querySelectorAll("[data-f]").forEach(function(el){
+    el.addEventListener("change", onField);
+    if(el.tagName!=="SELECT") el.addEventListener("input", onField);
+  });
+  if(sampleNS){
+    wrap.querySelectorAll("button.ai").forEach(function(b){ b.hidden = false; b.addEventListener("click", draftWithClaude); });
+  }
+}
+function onField(e){
+  var card = e.target.closest(".dossier");
+  var p = posts.filter(function(x){ return x.id === card.dataset.id; })[0];
+  if(!p) return;
+  p[e.target.dataset.f] = e.target.value;
+  renderPatterns();
+  queueSave();
+}
+
+/* ===================== Claude assist ===================== */
+async function draftWithClaude(e){
+  var btn = e.currentTarget;
+  var card = btn.closest(".dossier");
+  var msg = card.querySelector(".aim");
+  var p = posts.filter(function(x){ return x.id === card.dataset.id; })[0];
+  if(!p || !sampleNS) return;
+  btn.disabled = true; msg.textContent = "Drafting…";
+  try{
+    var res = await sampleNS.json(
+      "You are analysing one Instagram post for a private-trust / equity / wealth-structure education account (@privateman_of_equity). " +
+      "Post title or caption: " + JSON.stringify(p.title) + ". Format: " + p.type + ". " +
+      "Metrics: reach " + p.reach + ", views " + p.views + ", likes " + p.likes + ", comments " + p.comments +
+      ", shares " + p.shares + ", saves " + p.saves + ", follows " + p.follows + ", performance index " + p.index + ".\n" +
+      "Angle keys: " + ANGLES.map(function(a){return a.k+" ("+a.n+")";}).join(", ") + ".\n" +
+      "Hook keys: " + HOOKS.map(function(h){return h.k+" ("+h.n+")";}).join(", ") + ".\n" +
+      "Return ONLY JSON: {\"angle\":<one angle key>,\"hook\":<one hook key>,\"topic\":<max 8 words>," +
+      "\"titleHook\":<an on-screen headline, MAX 6 WORDS, upper case, that does not repeat the spoken hook>," +
+      "\"why\":<2-4 sentences naming which of these fired: retention held, earned saves not likes, earned shares, left a deliberate gap, or converted to follows — justified by the ratios above, then what to repeat>}",
+      {modelTier:"default"}
+    );
+    ["angle","hook","topic","titleHook","why"].forEach(function(f){
+      if(res && res[f]){
+        p[f] = res[f];
+        var el = card.querySelector('[data-f="'+f+'"]');
+        if(el) el.value = res[f];
+      }
+    });
+    msg.textContent = "Draft in. Correct it — you watched the video, Claude didn't.";
+    renderPatterns(); queueSave();
+  }catch(err){
+    msg.textContent = (err && err.code === "rate_limited") ? "Rate limited — try again shortly."
+      : (err && err.code === "not_granted") ? "Claude drafting isn't available in this view."
+      : "Couldn't draft that one. Fill it by hand.";
+  }
+  btn.disabled = false;
+}
+
+/* ===================== render: patterns ===================== */
+function bars(target, rows){
+  var el = $(target);
+  if(!rows.length){ el.innerHTML = '<p class="hint">Assign fields in Article IV and this fills in.</p>'; return; }
+  var max = Math.max.apply(null, rows.map(function(r){return r.v;}).concat([1]));
+  el.innerHTML = rows.map(function(r){
+    return '<div class="patrow"><div class="nm">'+esc(r.n)+' <span class="hint mono">&times;'+r.c+'</span></div>'+
+      '<div class="patbar"><span style="width:'+Math.max(2,(r.v/max)*100)+'%"></span></div>'+
+      '<div class="vl">'+Math.round(r.v)+'</div></div>';
+  }).join("");
+}
+function group(keyFn, nameFn){
+  var m = {};
+  posts.forEach(function(p){
+    var k = keyFn(p); if(!k) return;
+    if(!m[k]) m[k] = {n:nameFn(k), v:0, c:0};
+    m[k].v += p.index; m[k].c += 1;
+  });
+  return Object.keys(m).map(function(k){ var g=m[k]; return {n:g.n, v:g.v/g.c, c:g.c}; })
+    .sort(function(a,b){ return b.v - a.v; });
+}
+function nameOf(list,k){ var f = list.filter(function(o){return o.k===k;})[0]; return f?f.n:k; }
+function renderPatterns(){
+  bars("patAngle", group(function(p){return p.angle;}, function(k){return nameOf(ANGLES,k);}));
+  bars("patHook",  group(function(p){return p.hook;},  function(k){return nameOf(HOOKS,k);}));
+  bars("patFormat",group(function(p){return p.type;},  function(k){return k;}));
+}
+
+/* ===================== render: header stats ===================== */
+function renderStats(){
+  var anyEx = posts.some(function(p){return p.ex;});
+  $("sPosts").textContent = posts.length;
+  $("sReach").textContent = fmt(posts.reduce(function(a,p){return a+p.reach;},0));
+  $("sFollows").textContent = fmt(posts.reduce(function(a,p){return a+p.follows;},0));
+  $("sBest").textContent = posts.length ? posts[0].index : "—";
+  $("statusTop").textContent = !posts.length ? "Record: empty" : anyEx ? "Record: examples only" : "Record: your export";
+}
+
+/* ===================== reference blocks ===================== */
+function refRows(list){
+  return list.map(function(o){
+    return '<div class="ref"><div class="rt">'+esc(o.n)+'</div>'+
+      '<div class="rb">'+esc(o.d)+(o.ex?' <q>'+esc(o.ex)+'</q>':'')+'</div></div>';
+  }).join("");
+}
+function renderReference(){
+  $("refAngles").innerHTML = refRows(ANGLES);
+  $("refHooks").innerHTML  = refRows(HOOKS);
+  $("refTitles").innerHTML = refRows(TITLES);
+  $("refWhy").innerHTML    = refRows(WHYS);
+}
+
+/* ===================== persistence ===================== */
+function setSaveState(text, live){
+  $("saveState").textContent = text;
+  $("saveDot").className = "dot" + (live ? " live" : "");
+}
+function queueSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 700);
+}
+async function save(){
+  var body = {posts:posts, savedAt:new Date().toISOString()};
+  try{ localStorage.setItem("equity-ledger", JSON.stringify(body)); }catch(e){}
+  if(dbNS){
+    try{
+      await dbNS.doc("ledger/current").set(body);
+      setSaveState("Saved — " + posts.length + " posts on the record", true);
+      return;
+    }catch(e){}
+  }
+  setSaveState("Saved in this browser — " + posts.length + " posts", false);
+}
+function commit(list, msg){
+  posts = score(list);
+  renderStats(); renderLedger(); renderDossiers(); renderPatterns();
+  if(msg) $("importMsg").textContent = msg;
+  queueSave();
+}
+
+/* ===================== exports ===================== */
+function csv(){
+  var head = ["Rank","Post","Type","Date","Reach","Views","Likes","Comments","Shares","Saves","Follows","EP per 1k","Index","Angle","Hook","Topic","Title hook","Why it worked"];
+  var q = function(v){ return '"' + String(v==null?"":v).replace(/"/g,'""') + '"'; };
+  var rows = posts.map(function(p,i){
+    return [i+1,p.title,p.type,p.date,p.reach,p.views,p.likes,p.comments,p.shares,p.saves,p.follows,
+      p.epk.toFixed(2),p.index,nameOf(ANGLES,p.angle),nameOf(HOOKS,p.hook),p.topic,p.titleHook,p.why].map(q).join(",");
+  });
+  return head.map(q).join(",") + "\n" + rows.join("\n");
+}
+async function download(filename, data){
+  if(dlNS){
+    try{ await dlNS.save({filename:filename, data:data}); return; }catch(e){
+      if(e && e.code === "declined") return;
+    }
+  }
+  $("exportLabel").textContent = filename;
+  $("exportOut").value = data;
+  $("exportPanel").hidden = false;
+  $("exportPanel").scrollIntoView({behavior:"smooth", block:"center"});
+  $("exportOut").select();
+}
+
+/* ===================== boot ===================== */
+function bind(){
+  $("btnImport").addEventListener("click", function(){
+    var txt = $("pasteBox").value.trim();
+    if(!txt){ $("importMsg").textContent = "Nothing pasted yet."; return; }
+    try{
+      var rows = parsePaste(txt);
+      commit(rows, "Imported " + rows.length + " posts. Examples cleared.");
+      $("pasteBox").value = "";
+    }catch(err){
+      $("importMsg").textContent = err.message;
+    }
+  });
+  $("btnAddRow").addEventListener("click", function(){
+    $("manualPanel").hidden = false;
+    $("mTitle").focus();
+  });
+  $("btnCancelRow").addEventListener("click", function(){ $("manualPanel").hidden = true; });
+  $("btnSaveRow").addEventListener("click", function(){
+    var t = $("mTitle").value.trim();
+    if(!t){ $("mTitle").focus(); return; }
+    var reach = num($("mReach").value), views = num($("mViews").value);
+    if(!reach && !views){ $("importMsg").textContent = "A row needs a reach or a views figure."; return; }
+    var list = posts.filter(function(p){ return !p.ex; });
+    list.push({id:"m"+Date.now().toString(36), title:t, type:$("mType").value, date:"",
+      reach:reach||views, views:views||reach, likes:num($("mLikes").value), comments:num($("mComments").value),
+      shares:num($("mShares").value), saves:num($("mSaves").value), follows:num($("mFollows").value),
+      len:0, ex:false, angle:"", hook:"", topic:"", titleHook:"", why:""});
+    ["mTitle","mReach","mViews","mLikes","mComments","mShares","mSaves","mFollows"].forEach(function(k){ $(k).value = ""; });
+    commit(list, "Row added.");
+  });
+  $("btnExamples").addEventListener("click", function(){ commit(examples(), "Example set reloaded — these are not your figures."); });
+  var clearArmed = false;
+  $("btnClear").addEventListener("click", function(){
+    if(!clearArmed){
+      clearArmed = true;
+      this.textContent = "Confirm — clear everything";
+      this.classList.add("seal");
+      var self = this;
+      setTimeout(function(){ clearArmed = false; self.textContent = "Clear the record"; self.classList.remove("seal"); }, 4000);
+      return;
+    }
+    clearArmed = false;
+    this.textContent = "Clear the record";
+    this.classList.remove("seal");
+    commit([], "Record cleared.");
+  });
+  $("btnExportCsv").addEventListener("click", function(){ download("equity-ledger.csv", csv()); });
+  $("btnExportJson").addEventListener("click", function(){
+    download("equity-ledger.json", JSON.stringify({handle:"@privateman_of_equity",generated:new Date().toISOString(),posts:posts}, null, 2));
+  });
+}
+
+renderReference();
+bind();
+commit(examples(), "");
+setSaveState("Working locally — example set loaded", false);
+
+(async function(){
+  if(!window.claude || typeof window.claude.use !== "function") return;
+  try{ dbNS = await window.claude.use("db"); }catch(e){}
+  try{ dlNS = await window.claude.use("downloads"); }catch(e){}
+  try{ sampleNS = await window.claude.use("sample"); }catch(e){}
+  if(sampleNS){
+    document.querySelectorAll("button.ai").forEach(function(b){ b.hidden = false; b.addEventListener("click", draftWithClaude); });
+  }
+  if(dbNS){
+    try{
+      var snap = await dbNS.doc("ledger/current").get();
+      var d = snap && snap.exists ? snap.data() : null;
+      if(d && Array.isArray(d.posts) && d.posts.length){
+        commit(d.posts.slice(), "");
+        setSaveState("Loaded your saved record — " + d.posts.length + " posts", true);
+      } else {
+        setSaveState("Ready to save — example set loaded", true);
+      }
+    }catch(e){}
+  }
+})();
+
+})();
+</script>
