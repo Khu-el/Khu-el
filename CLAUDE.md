@@ -58,9 +58,15 @@ npm run typecheck               # root-level tsc sweep
 ```
 
 Per-app `npm run build` runs `tsc -b --noEmit && vite build` — **type errors fail the
-build**, so run a build (or `typecheck`) before pushing. There is no test runner or
-linter configured; do not claim ✅ on "tests pass" — there are none. Say what you actually
-ran.
+build**, so run a build (or `typecheck`) before pushing. **No test runner and no linter
+are configured at the repo root, in `packages/governance-core`, in any of the four apps,
+or in `server/`** — so in those workspaces, do not claim ✅ on "tests pass": there is
+nothing to run. Say what you actually ran.
+
+⚠️ That is scoped deliberately, not a claim about the whole repository forever. A
+workspace may arrive with its own runner and its own `CLAUDE.md`; check the workspace you
+are actually in before concluding either way. Reporting "no tests" where tests exist is
+the same failure as reporting ✅ where they were never run.
 
 ## 🛡️ Hard boundaries — do not cross without an explicit instruction
 
