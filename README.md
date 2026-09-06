@@ -40,6 +40,10 @@ apps/notes-underwriting/    App 3 — Distressed-debt / note underwriting analys
 apps/legacy-estate/         App 4 — CCRLT / House of Ransom family estate coordination (Lane B)
 
 server/                     Shared backend for all four apps (Express + SQLite)
+
+docs/forms/                 Standalone offline HTML working instruments (not built, not deployed) --
+                             currently the Trust Stewardship Client Intake, which is held pending an
+                             outside business activity determination. See docs/forms/README.md.
 ```
 
 Each app is Vite + React + TypeScript + Tailwind, matching the stack already used in this

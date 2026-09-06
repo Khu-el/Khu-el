@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Guided trust stewardship client intake and open-items gap schedule. Runs entirely offline in the browser.">
+<title>Trust Stewardship Client Intake</title>
+<style>
+:root{
+  color-scheme:light;
+  --ground:#E9ECF1;
+  --panel:#FFFFFF;
+  --ink:#14243A;
+  --ink-soft:#4A5A70;
+  --rule:#C6CEDA;
+  --blue:#2A5D9F;
+  --blue-dim:#7E97BC;
+  --open:#B0781F;
+  --filed:#2F6B4F;
+  --held:#8A3232;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+a{color:var(--blue)}
+
+/* ---------- held banner ---------- */
+.held{
+  background:var(--held);
+  color:#fff;
+  padding:10px 18px;
+  font-size:12.5px;
+  letter-spacing:.02em;
+  display:flex;
+  gap:10px;
+  align-items:baseline;
+  flex-wrap:wrap;
+}
+.held b{font-family:var(--mono);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:11px}
+
+/* ---------- masthead ---------- */
+header.mast{
+  background:var(--panel);
+  border-bottom:1px solid var(--rule);
+  padding:22px 18px 18px;
+}
+.mast-in{max-width:1120px;margin:0 auto}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+}
+h1{
+  font-family:var(--serif);
+  font-weight:400;
+  font-size:clamp(26px,4.4vw,40px);
+  line-height:1.08;
+  letter-spacing:-.015em;
+  margin:6px 0 8px;
+}
+.sub{color:var(--ink-soft);max-width:62ch;font-size:14px;margin:0}
+.codeline{
+  font-family:var(--mono);font-size:11px;color:var(--ink-soft);
+  margin-top:12px;padding-top:10px;border-top:1px solid var(--rule);
+  display:flex;gap:18px;flex-wrap:wrap;
+}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1120px;margin:0 auto;padding:22px 18px 80px;display:grid;grid-template-columns:250px 1fr;gap:26px;align-items:start}
+@media(max-width:860px){.wrap{grid-template-columns:1fr;gap:16px}}
+
+/* ---------- ledger rail (signature element) ---------- */
+.rail{position:sticky;top:14px}
+@media(max-width:860px){.rail{position:static}}
+.rail-card{background:var(--panel);border:1px solid var(--rule);padding:14px}
+.rail-h{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px}
+.rail-item{
+  display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:baseline;
+  width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--rule);
+  padding:9px 0;cursor:pointer;font:inherit;color:inherit;
+}
+.rail-item:first-of-type{border-top:0}
+.rail-item:hover .rail-name{color:var(--blue)}
+.rail-item.active .rail-name{font-weight:600}
+.rail-item.active{box-shadow:inset 3px 0 0 var(--blue);padding-left:8px}
+.rail-num{font-family:var(--mono);font-size:11px;color:var(--blue-dim)}
+.rail-name{font-size:13.5px;line-height:1.3}
+.rail-state{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.s-open{color:var(--open)}
+.s-part{color:var(--blue)}
+.s-filed{color:var(--filed)}
+.meter{margin-top:12px;padding-top:12px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:11px;color:var(--ink-soft)}
+.bar{height:5px;background:var(--ground);margin-top:6px;position:relative;overflow:hidden}
+.bar span{position:absolute;inset:0 auto 0 0;background:var(--blue);width:0;transition:width .25s ease}
+@media(prefers-reduced-motion:reduce){.bar span{transition:none}}
+.rail-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.rail-save{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin-top:8px}
+.rail-save.dirty{color:var(--open)}
+
+button{font:inherit}
+.btn{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--panel);border:1px solid var(--rule);color:var(--ink);
+  padding:7px 10px;cursor:pointer;
+}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.primary:hover{background:var(--blue);border-color:var(--blue);color:#fff}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* ---------- sections ---------- */
+section.sheet{background:var(--panel);border:1px solid var(--rule);padding:22px;margin-bottom:18px;scroll-margin-top:14px}
+.sheet-head{display:flex;gap:12px;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:12px;margin-bottom:16px}
+.sheet-num{font-family:var(--mono);font-size:11px;color:var(--blue-dim);padding-top:4px}
+.sheet-title{font-family:var(--serif);font-size:22px;font-weight:400;letter-spacing:-.01em;margin:0}
+.sheet-note{color:var(--ink-soft);font-size:13px;margin:4px 0 0;max-width:64ch}
+
+.field{margin-bottom:16px}
+.field > label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+.hint{display:block;font-size:12.5px;color:var(--ink-soft);font-weight:400;margin-bottom:6px;max-width:66ch}
+input[type=text],input[type=date],input[type=email],input[type=tel],textarea,select{
+  width:100%;padding:9px 10px;border:1px solid var(--rule);background:#FCFDFE;color:var(--ink);
+  font-family:var(--sans);font-size:14.5px;border-radius:0;
+}
+textarea{min-height:76px;resize:vertical;line-height:1.5}
+input:focus,textarea:focus,select:focus{border-color:var(--blue);outline:none;background:#fff;box-shadow:0 0 0 2px rgba(42,93,159,.14)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
+fieldset{border:1px solid var(--rule);padding:12px 14px;margin:0 0 16px}
+legend{padding:0 6px;font-size:11px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.checkrow{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px;font-size:14px}
+.checkrow input{margin-top:3px;flex:none}
+.rowset{border-top:1px solid var(--rule);padding-top:12px;margin-top:12px}
+.rowset:first-child{border-top:0;padding-top:0;margin-top:0}
+.rowlabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px}
+.req{color:var(--open);font-family:var(--mono);font-size:10px;letter-spacing:.08em;margin-left:6px}
+
+.caution{border-left:3px solid var(--open);background:#FCF7EC;padding:10px 12px;font-size:13px;margin:0 0 16px;color:#5C4A22}
+.caution b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+
+/* ---------- open items schedule ---------- */
+#schedule .sheet-title{color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{
+  text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-soft);border-bottom:1px solid var(--ink);padding:0 10px 7px 0;font-weight:600;
+}
+td{border-bottom:1px solid var(--rule);padding:9px 10px 9px 0;vertical-align:top}
+td.ref{font-family:var(--mono);font-size:11.5px;color:var(--blue);white-space:nowrap}
+.empty{color:var(--ink-soft);font-size:13.5px;font-style:italic}
+.tally{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft);margin-top:14px;padding-top:10px;border-top:1px solid var(--rule)}
+
+footer.foot{border-top:1px solid var(--rule);margin-top:26px;padding-top:14px;font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);line-height:1.7}
+
+/* ---------- print ---------- */
+@media print{
+  body{background:#fff}
+  .rail,.rail-acts,.noprint{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  section.sheet{border:0;border-top:1px solid #000;padding:0 0 18px;margin:0 0 18px;break-inside:avoid}
+  header.mast{border-bottom:1px solid #000;padding:0 0 12px}
+  .held{background:#fff;color:#000;border:1px solid #000;padding:8px}
+  input,textarea,select{border:0;border-bottom:1px solid #999;background:#fff}
+  tr{break-inside:avoid}
+  a{color:#000;text-decoration:none}
+}
+</style>
+</head>
+<body>
+
+<div class="held">
+  <b>Held — not for circulation</b>
+  <span>Outside business activity determination (CP-2) is not on file. This form is a working instrument only: it is not to be sent to a prospect, client, or family until that determination is made and the issuing entity below is filled in.</span>
+</div>
+
+<header class="mast">
+  <div class="mast-in">
+    <div class="eyebrow">Guided intake &amp; gap schedule</div>
+    <h1>Trust Stewardship Client Intake</h1>
+    <p class="sub">Seven sheets. Answer what is known, leave the rest blank on purpose — every blank marked <span style="color:var(--open);font-family:var(--mono);font-size:11px">REQUIRED</span> flows to the Open Items schedule on Sheet 7, which is the part that actually earns the engagement.</p>
+    <div class="codeline">
+      <span>Document code: <strong>[ENTITY]&#8209;SVC&#8209;2026&#8209;INTAKE&#8209;001</strong></span>
+      <span>Status: DRAFT — no Event ID</span>
+      <span>Release Gate: not run</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ================= LEDGER RAIL ================= -->
+  <aside class="rail">
+    <div class="rail-card">
+      <div class="rail-h">Completeness ledger</div>
+      <div id="railList"></div>
+      <div class="meter">
+        <div id="meterLbl">Required fields answered <span id="meterTxt">0 / 0</span></div>
+        <div class="bar" role="progressbar" aria-labelledby="meterLbl" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="meterWrap"><span id="meterBar"></span></div>
+      </div>
+      <div class="rail-acts">
+        <button class="btn primary" type="button" id="printBtn">Print / PDF</button>
+        <button class="btn" type="button" id="saveBtn">Save</button>
+        <button class="btn" type="button" id="exportBtn">Export</button>
+        <button class="btn" type="button" id="importBtn">Import</button>
+        <button class="btn" type="button" id="clearBtn">Clear</button>
+      </div>
+      <div class="rail-save" id="saveState" aria-live="polite">No unsaved changes</div>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+    </div>
+  </aside>
+
+  <main id="form">
+
+    <!-- ---------- 0 FILE HEADER ---------- -->
+    <section class="sheet" id="s0" data-name="File header" aria-labelledby="s0h">
+      <div class="sheet-head">
+        <div class="sheet-num">00</div>
+        <div>
+          <h2 class="sheet-title" id="s0h">File header</h2>
+          <p class="sheet-note">Who is being met, by whom, on what date, and under what engagement. Filled by the interviewer, not the family.</p>
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="field"><label for="f_file">File reference<span class="req">required</span></label><input type="text" id="f_file" data-req placeholder="e.g. TS-2026-014"></div>
+        <div class="field"><label for="f_date">Intake date<span class="req">required</span></label><input type="date" id="f_date" data-req></div>
+        <div class="field"><label for="f_mode">Setting</label>
+          <select id="f_mode"><option value="">—</option><option>In person</option><option>Virtual</option><option>Self-completed by family</option><option>Event / workshop</option></select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="f_interviewer">Interviewer<span class="req">required</span></label><input type="text" id="f_interviewer" data-req></div>
+        <div class="field"><label for="f_entity">Issuing entity / engaging party<span class="req">required</span></label><input type="text" id="f_entity" data-req placeholder="Leave blank until determined"><span class="hint">Deliberately blank on the master. Do not write a trust name here without a determination.</span></div>
+      </div>
+      <div class="caution"><b>Scope of this meeting</b>This intake gathers facts and identifies gaps. It does not create an attorney–client, fiduciary, tax-advisory, or agency relationship, and nothing recorded here is legal or tax advice. Anything requiring an opinion of law is routed to licensed counsel.</div>
+      <div class="field"><label for="f_referral">How the family came to us</label><input type="text" id="f_referral"></div>
+    </section>
+
+    <!-- ---------- 1 OBJECTIVES ---------- -->
+    <section class="sheet" id="s1" data-name="Objectives" aria-labelledby="s1h">
+      <div class="sheet-head">
+        <div class="sheet-num">01</div>
+        <div>
+          <h2 class="sheet-title" id="s1h">Objectives</h2>
+          <p class="sheet-note">Start here, before facts. What the family wants determines which facts matter — reversing the order produces a thick file and a thin plan.</p>
+        </div>
+      </div>
+      <div class="field"><label for="o_why">In the family's own words: why now?<span class="req">required</span></label><span class="hint">Record the answer verbatim. A triggering event — a death, a diagnosis, a sale, a birth, a move — changes sequencing more than any preference does.</span><textarea id="o_why" data-req></textarea></div>
+      <div class="field"><label for="o_worst">What is the family most afraid of happening?</label><textarea id="o_worst" placeholder="Court involvement, a child's creditor or divorce, a business dying with its owner, family conflict, a specific person, taxes, running out."></textarea></div>
+      <fieldset>
+        <legend>Stated priorities</legend>
+        <div id="o_prior"></div>
+      </fieldset>
+      <div class="grid2">
+        <div class="field"><label for="o_rank">Top three, ranked, in the family's order<span class="req">required</span></label><textarea id="o_rank" data-req placeholder="1.&#10;2.&#10;3."></textarea></div>
+        <div class="field"><label for="o_horizon">Time expectation</label><select id="o_horizon"><option value="">—</option><option>Urgent — weeks (health, closing, deadline)</option><option>Near term — this quarter</option><option>This year</option><option>Exploring, no deadline</option></select><span class="hint">If urgent, note the hard date and what causes it.</span><label for="o_deadline" class="hint" style="font-weight:600;color:var(--ink)">Hard date and what drives it</label><input type="text" id="o_deadline" placeholder="Hard date and what drives it"></div>
+      </div>
+      <div class="field"><label for="o_disagree">Where do family members disagree?</label><span class="hint">Ask it directly and write down the answer. Undisclosed disagreement is the most common reason a plan is signed and never followed.</span><textarea id="o_disagree"></textarea></div>
+      <div class="field"><label for="o_success">One year from now, what would make this worth having done?</label><textarea id="o_success"></textarea></div>
+    </section>
+
+    <!-- ---------- 2 FAMILY ---------- -->
+    <section class="sheet" id="s2" data-name="Family details" aria-labelledby="s2h">
+      <div class="sheet-head">
+        <div class="sheet-num">02</div>
+        <div>
+          <h2 class="sheet-title" id="s2h">Family details</h2>
+          <p class="sheet-note">Who is in the family, who depends on whom, and who would be asked to act. Names and roles only at intake.</p>
+        </div>
+      </div>
+      <div class="caution"><b>Information handling</b>Do not collect Social Security numbers, account numbers, dates of birth for minors, or copies of identity documents at intake. Those are collected later, through a secured channel, only for a step that actually requires them. For a minor, record first name and relationship only.</div>
+      <div class="grid2">
+        <div class="field"><label for="fam_principal">Principal(s)<span class="req">required</span></label><input type="text" id="fam_principal" data-req><span class="hint">Full legal name as it appears on title and identification. Note any other name forms in use.</span></div>
+        <div class="field"><label for="fam_names">Other name forms in use</label><input type="text" id="fam_names" placeholder="Maiden, prior married, suffix, hyphenated, tribal or religious name"><span class="hint">Name mismatches between deed, policy, and identification are a leading cause of stalled transfers.</span></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="fam_status">Marital status</label><select id="fam_status"><option value="">—</option><option>Married</option><option>Single</option><option>Divorced</option><option>Widowed</option><option>Separated</option><option>Long-term partnership, unmarried</option></select></div>
+        <div class="field"><label for="fam_state">State of residence / domicile<span class="req">required</span></label><input type="text" id="fam_state" data-req><span class="hint">Also note any second residence and how many months a year it is used.</span></div>
+      </div>
+      <div class="field"><label for="fam_members">Household and family roster<span class="req">required</span></label><span class="hint">One line each: name — relationship — adult or minor — lives in household? For minors, first name only.</span><textarea id="fam_members" data-req style="min-height:110px"></textarea></div>
+      <div class="field"><label for="fam_prior">Prior marriages, blended family, or children from another relationship</label><textarea id="fam_prior"></textarea><span class="hint">This changes default inheritance outcomes more than almost anything else. Ask even when it seems obvious.</span></div>
+      <div class="field"><label for="fam_depend">Anyone who depends on the family financially or for care</label><span class="hint">Include a parent, an adult child, a person with a disability, or anyone receiving needs-based benefits — benefits eligibility can be destroyed by a well-meant gift.</span><textarea id="fam_depend"></textarea></div>
+      <div class="field"><label for="fam_actors">Who would be asked to act, and do they know?<span class="req">required</span></label><span class="hint">Successor trustee, agent under a power of attorney, health care agent, guardian nominee. Record whether each person has been asked.</span><textarea id="fam_actors" data-req style="min-height:96px"></textarea></div>
+      <div class="field"><label for="fam_out">Anyone deliberately to be left out or limited</label><textarea id="fam_out"></textarea></div>
+    </section>
+
+    <!-- ---------- 3 PROPERTY ---------- -->
+    <section class="sheet" id="s3" data-name="Property" aria-labelledby="s3h">
+      <div class="sheet-head">
+        <div class="sheet-num">03</div>
+        <div>
+          <h2 class="sheet-title" id="s3h">Property information</h2>
+          <p class="sheet-note">What exists, how it is titled, and who is named on it. Titling and beneficiary designations override a will or a trust — collect them as facts, not estimates.</p>
+        </div>
+      </div>
+      <div class="caution"><b>Two columns that matter most</b>For every asset, the two columns people skip are <em>exact name on title</em> and <em>current named beneficiary</em>. A plan that ignores them is a plan that will be contradicted at the worst possible moment.</div>
+
+      <fieldset><legend>Real property</legend>
+        <div id="prop_real"></div>
+        <button class="btn noprint" type="button" data-add="prop_real">+ Add property</button>
+      </fieldset>
+
+      <fieldset><legend>Business interests</legend>
+        <div class="field"><label for="prop_biz">Entities owned or part-owned</label><span class="hint">One line each: entity — state — type — ownership % — is there a buy-sell or operating agreement?</span><textarea id="prop_biz"></textarea></div>
+        <div class="field"><label for="prop_bizdep">Does the business survive the owner's absence for 90 days?</label><textarea id="prop_bizdep"></textarea></div>
+      </fieldset>
+
+      <fieldset><legend>Accounts, policies, and beneficiary-designated assets</legend>
+        <div class="field"><label for="prop_accts">Institutions and account types<span class="req">required</span></label><span class="hint">Institution and type only — no account numbers. One line each: institution — type — titled how — beneficiary named?</span><textarea id="prop_accts" data-req style="min-height:96px"></textarea></div>
+        <div class="field"><label for="prop_life">Life insurance and annuities</label><span class="hint">Carrier — type (term / permanent) — owner — insured — beneficiary — approximate face amount. Note any policy loan.</span><textarea id="prop_life"></textarea></div>
+        <div class="field"><label for="prop_retire">Retirement accounts</label><span class="hint">These pass by designation and follow their own distribution rules. Note primary and contingent beneficiary for each.</span><textarea id="prop_retire"></textarea></div>
+      </fieldset>
+
+      <fieldset><legend>Other</legend>
+        <div class="grid2">
+          <div class="field"><label for="prop_personal">Tangible property of significance</label><textarea id="prop_personal" placeholder="Vehicles, firearms, collections, heirlooms, livestock, equipment"></textarea></div>
+          <div class="field"><label for="prop_digital">Digital assets and access</label><textarea id="prop_digital" placeholder="Domains, accounts, crypto, media libraries, business logins — and who can reach them"></textarea></div>
+        </div>
+        <div class="field"><label for="prop_debt">Debts, liens, judgments, and guarantees<span class="req">required</span></label><span class="hint">Including anything personally guaranteed for a business. A liability is part of the estate whether or not anyone likes discussing it.</span><textarea id="prop_debt" data-req></textarea></div>
+        <div class="field"><label for="prop_expect">Expected inflows</label><textarea id="prop_expect" placeholder="Inheritance, settlement, sale, vesting equity"></textarea></div>
+      </fieldset>
+    </section>
+
+    <!-- ---------- 4 CONTACTS ---------- -->
+    <section class="sheet" id="s4" data-name="Contacts" aria-labelledby="s4h">
+      <div class="sheet-head">
+        <div class="sheet-num">04</div>
+        <div>
+          <h2 class="sheet-title" id="s4h">Contacts &amp; existing advisers</h2>
+          <p class="sheet-note">Who already advises this family. The answer decides what gets coordinated and what must be referred out.</p>
+        </div>
+      </div>
+      <div id="contacts"></div>
+      <div class="field"><label for="c_release">Permission to contact advisers</label><select id="c_release"><option value="">—</option><option>Yes — written authorization to be signed</option><option>Yes — but notify the family first</option><option>No — do not contact</option></select><span class="hint">Never contact a named adviser before written authorization exists.</span></div>
+      <div class="field"><label for="c_gap">Which of these seats is empty?</label><span class="hint">An empty seat is a referral, not a service to absorb. Name who fills it.</span><textarea id="c_gap"></textarea></div>
+    </section>
+
+    <!-- ---------- 5 EXISTING RECORDS ---------- -->
+    <section class="sheet" id="s5" data-name="Existing records" aria-labelledby="s5h">
+      <div class="sheet-head">
+        <div class="sheet-num">05</div>
+        <div>
+          <h2 class="sheet-title" id="s5h">Existing records</h2>
+          <p class="sheet-note">What documents the family believes exist, and what can actually be produced. Those are different questions and both get asked.</p>
+        </div>
+      </div>
+      <div class="caution"><b>The rule that governs this sheet</b>A document is not verified because it is named, dated, or found in a folder. Until a signed copy is in hand and its signature page has been looked at, the entry stays <em>believed to exist</em>. Blank execution lines are common and are a finding, not a formality.</div>
+      <div id="records"></div>
+      <div class="field"><label for="r_where">Where are the originals kept, and who can reach them?<span class="req">required</span></label><textarea id="r_where" data-req placeholder="Safe, safe deposit box, attorney's office, county records, digital vault — and who has access today"></textarea></div>
+      <div class="field"><label for="r_funded">If a trust exists: was anything ever actually transferred into it?</label><span class="hint">Ask for a deed, an assignment, or a retitled account statement. Signing a trust and funding a trust are separate acts, and the second one is skipped constantly.</span><textarea id="r_funded"></textarea></div>
+      <div class="field"><label for="r_changes">What has changed since these documents were signed?</label><span class="hint">Move to another state, marriage, divorce, death, birth, business sold or started, property bought or sold, a named person who is no longer suitable.</span><textarea id="r_changes"></textarea></div>
+    </section>
+
+    <!-- ---------- 6 DOCUMENT NEEDS ---------- -->
+    <section class="sheet" id="s6" data-name="Document needs" aria-labelledby="s6h">
+      <div class="sheet-head">
+        <div class="sheet-num">06</div>
+        <div>
+          <h2 class="sheet-title" id="s6h">Document &amp; service needs</h2>
+          <p class="sheet-note">Filled by the interviewer after the first five sheets, then read back to the family in plain words before anyone leaves.</p>
+        </div>
+      </div>
+      <div class="field"><label for="n_reads">What the file reads like in three sentences<span class="req">required</span></label><textarea id="n_reads" data-req></textarea></div>
+      <fieldset><legend>Indicated — subject to counsel</legend>
+        <div id="n_needs"></div>
+        <div class="hint" style="margin-top:8px">Checking a box records an indication from the facts gathered. It is not a determination that the family needs it, and it is not a quote.</div>
+      </fieldset>
+      <div class="grid2">
+        <div class="field"><label for="n_first">First action, owner, and date<span class="req">required</span></label><textarea id="n_first" data-req placeholder="One action. Named owner. Real date."></textarea></div>
+        <div class="field"><label for="n_refer">Referred out to</label><textarea id="n_refer" placeholder="Counsel, CPA, or specialist — and for what specific question"></textarea></div>
+      </div>
+      <div class="field"><label for="n_notes">Interviewer notes</label><textarea id="n_notes"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label for="n_next">Next meeting date</label><input type="date" id="n_next"></div>
+        <div class="field"><label for="n_bring">What the family is bringing to it</label><input type="text" id="n_bring"></div>
+      </div>
+    </section>
+
+    <!-- ---------- 7 SCHEDULE ---------- -->
+    <section class="sheet" id="schedule" data-name="Open items" aria-labelledby="s7h">
+      <div class="sheet-head">
+        <div class="sheet-num">07</div>
+        <div>
+          <h2 class="sheet-title" id="s7h">Open items schedule</h2>
+          <p class="sheet-note">Built from what is still blank. Nothing here is inferred and nothing is filled in on the family's behalf — a gap stays a gap until an answer or a document closes it.</p>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th style="width:74px">Ref</th><th style="width:130px">Sheet</th><th>Open item</th></tr></thead>
+        <tbody id="scheduleBody"></tbody>
+      </table>
+      <div class="tally" id="tally" aria-live="polite"></div>
+      <footer class="foot">
+        <div>Trust Stewardship Client Intake · [ENTITY]-SVC-2026-INTAKE-001 · DRAFT, no Event ID, 9-Point Release Gate not run</div>
+        <div>Runs entirely in this browser. No data leaves the device; nothing is transmitted. <em>Save</em> writes a copy to this browser's local storage, which lives there until cleared; <em>Export</em> writes a JSON file to this device. Neither is a backup of the other.</div>
+        <div>Not legal or tax advice. Not an offer of securities or insurance. Held pending outside business activity determination.</div>
+      </footer>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- state (declared before anything can reach it) ---------- */
+var propCount = 0;
+var bound = new WeakSet();
+var dirty = false;
+var SHEETS = [];
+var MAX_PROPERTIES = 40;
+var KEY = "ts-intake-001";
+var mem = null;
+
+/* ---------- content ---------- */
+var GROUPS = {
+  o_prior: ["Avoid probate","Keep a specific property in the family","Provide for a spouse or partner","Provide for minor children","Protect a child's inheritance from divorce or creditors","Care for a dependent with a disability","Business continuity or succession","Reduce family conflict","Charitable or ministry giving","Privacy — keep affairs out of public record","Incapacity planning while living","Organize records so someone else can find them"],
+  n_needs: ["Will (or updated will)","Revocable living trust","Irrevocable trust — counsel required","Trust funding: deeds and assignments","Financial power of attorney","Health care directive / medical agent","Guardian nomination for minors","Beneficiary designation review","Business succession or buy-sell","Insurance needs analysis — licensed channel","Records organization and family binder","Family meeting facilitation","Refer to counsel — do not draft in house"]
+};
+var CONTACTS = ["Estate or trust attorney","CPA or tax preparer","Financial adviser","Insurance agent","Banker or lender","Business attorney","Clergy or trusted adviser"];
+var RECORDS = ["Will","Trust agreement","Trust amendments or restatements","Deeds to real property","Financial power of attorney","Health care directive","Guardian nomination","Buy-sell or operating agreement","Life insurance policies","Beneficiary designation forms","Prenuptial or postnuptial agreement","Divorce decree or settlement","Prior gift tax returns","Death certificates of relevant persons"];
+
+function el(id){ return document.getElementById(id); }
+
+/* ---------- field wiring ---------- */
+function allFields(){
+  return document.querySelectorAll("#form input, #form textarea, #form select");
+}
+function onFieldChange(){
+  markDirty(true);
+  refresh();
+}
+function bind(){
+  var f = allFields();
+  for(var i=0;i<f.length;i++){
+    if(bound.has(f[i])) continue;
+    bound.add(f[i]);
+    if(f[i].hasAttribute("data-req")) f[i].setAttribute("aria-required","true");
+    f[i].setAttribute("autocomplete","off");
+    f[i].addEventListener("input", onFieldChange);
+    f[i].addEventListener("change", onFieldChange);
+  }
+}
+function markDirty(v){
+  dirty = v;
+  var n = el("saveState");
+  n.textContent = v ? "Unsaved changes" : "No unsaved changes";
+  n.className = v ? "rail-save dirty" : "rail-save";
+}
+
+/* ---------- build checkbox groups ---------- */
+Object.keys(GROUPS).forEach(function(gid){
+  var host = el(gid); if(!host) return;
+  GROUPS[gid].forEach(function(label,i){
+    var id = gid+"_"+i;
+    var row = document.createElement("label");
+    row.className = "checkrow";
+    row.setAttribute("for", id);
+    row.innerHTML = '<input type="checkbox" id="'+id+'"><span></span>';
+    row.querySelector("span").textContent = label;
+    host.appendChild(row);
+  });
+});
+
+/* ---------- contacts ---------- */
+CONTACTS.forEach(function(role,i){
+  var host = el("contacts"); if(!host) return;
+  var d = document.createElement("div");
+  d.className = "rowset";
+  d.innerHTML = '<div class="rowlabel"></div><div class="grid3">'+
+    '<div class="field"><label for="ct'+i+'_n">Name</label><input type="text" id="ct'+i+'_n"></div>'+
+    '<div class="field"><label for="ct'+i+'_f">Firm</label><input type="text" id="ct'+i+'_f"></div>'+
+    '<div class="field"><label for="ct'+i+'_c">Best contact</label><input type="text" id="ct'+i+'_c"></div>'+
+    '</div>';
+  d.querySelector(".rowlabel").textContent = role;
+  host.appendChild(d);
+});
+
+/* ---------- records ---------- */
+RECORDS.forEach(function(doc,i){
+  var host = el("records"); if(!host) return;
+  var d = document.createElement("div");
+  d.className = "rowset";
+  d.innerHTML = '<div class="grid3">'+
+    '<div class="field"><label for="rc'+i+'_s">Status</label><select id="rc'+i+'_s">'+
+      '<option value="">—</option><option>Signed copy in hand</option><option>Believed to exist — not produced</option><option>Family unsure</option><option>Does not exist</option><option>Not applicable</option></select></div>'+
+    '<div class="field"><label for="rc'+i+'_d">Date signed</label><input type="text" id="rc'+i+'_d" placeholder="Year is enough"></div>'+
+    '<div class="field"><label for="rc'+i+'_x">Execution page seen?</label><select id="rc'+i+'_x"><option value="">—</option><option>Yes — signed and witnessed</option><option>Yes — signature line blank</option><option>Not seen</option></select></div>'+
+    '</div>';
+  var lab = document.createElement("div");
+  lab.className = "rowlabel"; lab.textContent = doc;
+  d.insertBefore(lab, d.firstChild);
+  host.appendChild(d);
+});
+
+/* ---------- repeatable real property ---------- */
+function addProperty(){
+  var host = el("prop_real");
+  if(!host || propCount >= MAX_PROPERTIES) return;
+  var i = propCount++;
+  var d = document.createElement("div");
+  d.className = "rowset";
+  d.innerHTML = '<div class="rowlabel">Property '+(i+1)+'</div>'+
+    '<div class="grid2">'+
+      '<div class="field"><label for="pr'+i+'_a">County and state</label><input type="text" id="pr'+i+'_a"></div>'+
+      '<div class="field"><label for="pr'+i+'_u">Use</label><select id="pr'+i+'_u"><option value="">—</option><option>Primary residence</option><option>Second home</option><option>Rental</option><option>Land</option><option>Commercial</option><option>Family / heirs property</option></select></div>'+
+    '</div>'+
+    '<div class="grid2">'+
+      '<div class="field"><label for="pr'+i+'_t">Exact name on the deed</label><input type="text" id="pr'+i+'_t" placeholder="As written on the deed, not as remembered"></div>'+
+      '<div class="field"><label for="pr'+i+'_h">How held</label><select id="pr'+i+'_h"><option value="">—</option><option>Sole name</option><option>Joint with right of survivorship</option><option>Tenants in common</option><option>In a trust</option><option>In an entity</option><option>Inherited, never retitled</option><option>Unsure</option></select></div>'+
+    '</div>'+
+    '<div class="field"><label for="pr'+i+'_m">Mortgage, lien, or unresolved title issue</label><input type="text" id="pr'+i+'_m" placeholder="Heirs property, missing probate, unrecorded deed, tax lien"></div>';
+  host.appendChild(d);
+  bind();
+}
+function resetProperties(){
+  var host = el("prop_real");
+  if(!host) return;
+  host.innerHTML = "";
+  propCount = 0;
+  addProperty();
+}
+document.addEventListener("click", function(e){
+  var t = e.target;
+  if(t && t.getAttribute && t.getAttribute("data-add") === "prop_real"){ addProperty(); }
+});
+addProperty();
+
+/* ---------- ledger rail ---------- */
+(function(){
+  var nodes = document.querySelectorAll("section.sheet");
+  for(var i=0;i<nodes.length;i++){
+    if(nodes[i].id === "schedule") continue;
+    SHEETS.push(nodes[i]);
+  }
+})();
+
+var rail = el("railList");
+SHEETS.forEach(function(s,i){
+  var b = document.createElement("button");
+  b.className = "rail-item";
+  b.type = "button";
+  b.innerHTML = '<span class="rail-num">'+String(i).padStart(2,"0")+'</span><span class="rail-name"></span><span class="rail-state s-open">open</span>';
+  b.querySelector(".rail-name").textContent = s.dataset.name;
+  b.addEventListener("click", function(){
+    s.scrollIntoView({behavior:"smooth", block:"start"});
+  });
+  rail.appendChild(b);
+});
+(function(){
+  var b = document.createElement("button");
+  b.className = "rail-item";
+  b.type = "button";
+  b.innerHTML = '<span class="rail-num">07</span><span class="rail-name">Open items</span><span class="rail-state s-part" id="railOpenCount">—</span>';
+  b.addEventListener("click", function(){ el("schedule").scrollIntoView({behavior:"smooth",block:"start"}); });
+  rail.appendChild(b);
+})();
+
+/* ---------- gap schedule ---------- */
+function filled(node){
+  if(!node) return false;
+  if(node.type === "checkbox") return node.checked;
+  return String(node.value || "").trim().length > 0;
+}
+
+function refresh(){
+  var totalReq = 0, doneReq = 0;
+  var blanks = [], derived = [];
+  function derive(sheet, item){ derived.push({sheet:sheet, item:item}); }
+  function derivedFor(sheet){
+    var n = 0;
+    for(var i=0;i<derived.length;i++) if(derived[i].sheet === sheet) n++;
+    return n;
+  }
+
+  /* unverified records are gaps in their own right */
+  RECORDS.forEach(function(doc,i){
+    var s = el("rc"+i+"_s"), x = el("rc"+i+"_x");
+    var status = s ? s.value : "", exec = x ? x.value : "";
+    if(status === "Believed to exist — not produced"){
+      derive("Existing records", "Produce a signed copy: "+doc);
+    }
+    if(status === "Family unsure"){
+      derive("Existing records", "Establish whether it exists at all: "+doc);
+    }
+    if(status === "Signed copy in hand" && exec === "Not seen"){
+      derive("Existing records", "Copy in hand but execution page not looked at — "+doc+" stays unverified");
+    }
+    if(exec === "Yes — signature line blank"){
+      derive("Existing records", "Blank execution line found — "+doc+" cannot be relied on until cured");
+    }
+  });
+
+  /* a named adviser with no contact permission on file is a gap, not a green light */
+  var named = 0;
+  for(var c=0;c<CONTACTS.length;c++){
+    if(filled(el("ct"+c+"_n"))) named++;
+  }
+  if(named && !filled(el("c_release"))){
+    derive("Contacts", "Advisers named ("+named+") with no contact permission recorded — do not contact anyone until this is answered");
+  }
+
+  SHEETS.forEach(function(s, idx){
+    var reqs = s.querySelectorAll("[data-req]");
+    var d = 0;
+    for(var i=0;i<reqs.length;i++){
+      totalReq++;
+      if(filled(reqs[i])){ d++; doneReq++; }
+      else {
+        var lab = s.querySelector('label[for="'+reqs[i].id+'"]');
+        var text = lab ? lab.textContent.replace("required","").trim() : reqs[i].id;
+        blanks.push({sheet:s.dataset.name, item:text});
+      }
+    }
+    var extra = derivedFor(s.dataset.name);
+    var st = rail.children[idx].querySelector(".rail-state");
+    if(d < reqs.length && d > 0){ st.textContent = d+" of "+reqs.length; st.className = "rail-state s-part"; }
+    else if(d < reqs.length){ st.textContent = "open"; st.className = "rail-state s-open"; }
+    else if(extra){ st.textContent = extra+" open"; st.className = "rail-state s-part"; }
+    else { st.textContent = "filed"; st.className = "rail-state s-filed"; }
+  });
+
+  var openRows = blanks.concat(derived).map(function(r, i){
+    return { ref:"OI-"+String(i+1).padStart(2,"0"), sheet:r.sheet, item:r.item };
+  });
+
+  el("meterTxt").textContent = doneReq + " / " + totalReq;
+  var pct = totalReq ? Math.round(doneReq/totalReq*100) : 0;
+  el("meterBar").style.width = pct+"%";
+  el("meterWrap").setAttribute("aria-valuenow", String(pct));
+
+  var body = el("scheduleBody");
+  body.innerHTML = "";
+  if(openRows.length === 0){
+    var tr = document.createElement("tr");
+    var td = document.createElement("td");
+    td.colSpan = 3; td.className = "empty";
+    td.textContent = "No open items. Every required field is answered and no record is left unverified.";
+    tr.appendChild(td); body.appendChild(tr);
+  } else {
+    openRows.forEach(function(r){
+      var row = document.createElement("tr");
+      var a = document.createElement("td"); a.className = "ref"; a.textContent = r.ref;
+      var b = document.createElement("td"); b.textContent = r.sheet;
+      var c2 = document.createElement("td"); c2.textContent = r.item;
+      row.appendChild(a); row.appendChild(b); row.appendChild(c2); body.appendChild(row);
+    });
+  }
+  el("tally").textContent = openRows.length + " open item" + (openRows.length===1?"":"s") + " · " + doneReq + " of " + totalReq + " required fields answered · a file does not open until the file reference, intake date, and interviewer are recorded";
+  el("railOpenCount").textContent = openRows.length + " open";
+}
+
+/* ---------- persistence ---------- */
+function snapshot(){
+  var o = {};
+  var f = allFields();
+  for(var i=0;i<f.length;i++){
+    if(!f[i].id) continue;
+    o[f[i].id] = (f[i].type === "checkbox") ? f[i].checked : f[i].value;
+  }
+  o.__props = propCount;
+  return o;
+}
+function clearFields(){
+  var f = allFields();
+  for(var i=0;i<f.length;i++){
+    if(f[i].type === "checkbox") f[i].checked = false; else f[i].value = "";
+  }
+}
+function restore(o, replace){
+  if(!o || typeof o !== "object" || Array.isArray(o)) return false;
+  if(replace){ resetProperties(); clearFields(); }
+  var want = Math.max(1, Math.min(parseInt(o.__props, 10) || 1, MAX_PROPERTIES));
+  while(propCount < want) addProperty();
+  Object.keys(o).forEach(function(k){
+    if(k === "__props") return;
+    var n = el(k); if(!n) return;
+    if(n.type === "checkbox") n.checked = !!o[k]; else n.value = o[k] == null ? "" : String(o[k]);
+  });
+  bind(); refresh();
+  return true;
+}
+function store(o){
+  try{ window.localStorage.setItem(KEY, JSON.stringify(o)); }
+  catch(e){ mem = o; }
+}
+function load(){
+  try{ var raw = window.localStorage.getItem(KEY); return raw ? JSON.parse(raw) : mem; }
+  catch(e){ return mem; }
+}
+
+bind();
+
+el("printBtn").addEventListener("click", function(){ window.print(); });
+
+el("saveBtn").addEventListener("click", function(){
+  store(snapshot());
+  markDirty(false);
+  var b = this;
+  b.textContent = "Saved";
+  setTimeout(function(){ b.textContent = "Save"; }, 1400);
+});
+
+el("exportBtn").addEventListener("click", function(){
+  var data = JSON.stringify(snapshot(), null, 2);
+  var blob = new Blob([data], {type:"application/json"});
+  var name = el("f_file").value.trim().replace(/[^A-Za-z0-9._-]+/g,"-").replace(/^-+|-+$/g,"") || "unfiled";
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "intake-" + name + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+});
+
+el("importBtn").addEventListener("click", function(){ el("importFile").click(); });
+el("importFile").addEventListener("change", function(e){
+  var file = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if(!file) return;
+  if(dirty && !window.confirm("Importing replaces every answer on this form, and there are unsaved changes. Continue?")) return;
+  var r = new FileReader();
+  r.onload = function(){
+    var parsed = null;
+    try{ parsed = JSON.parse(r.result); }catch(err){ parsed = null; }
+    if(!restore(parsed, true)){
+      window.alert("That file could not be read as an intake export. Choose a .json file produced by Export.");
+      return;
+    }
+    markDirty(true);
+  };
+  r.onerror = function(){ window.alert("That file could not be read."); };
+  r.readAsText(file);
+});
+
+el("clearBtn").addEventListener("click", function(){
+  if(!window.confirm("Clear every answer on this form? This cannot be undone.")) return;
+  clearFields();
+  resetProperties();
+  try{ window.localStorage.removeItem(KEY); }catch(e){}
+  mem = null;
+  markDirty(false);
+  refresh();
+  window.scrollTo({top:0, behavior:"smooth"});
+});
+
+window.addEventListener("beforeunload", function(e){
+  if(!dirty) return;
+  e.preventDefault();
+  e.returnValue = "";
+});
+
+/* active sheet highlight */
+if("IntersectionObserver" in window){
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting) return;
+      var idx = SHEETS.indexOf(en.target);
+      for(var i=0;i<rail.children.length;i++) rail.children[i].classList.remove("active");
+      if(idx > -1) rail.children[idx].classList.add("active");
+    });
+  }, {rootMargin:"-10% 0px -70% 0px"});
+  SHEETS.forEach(function(s){ obs.observe(s); });
+}
+
+restore(load(), false);
+markDirty(false);
+refresh();
+})();
+</script>
+</body>
+</html>
