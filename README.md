@@ -8,6 +8,11 @@ checklists, and draft decision memos — instead of hype.
 > default profile placeholder; if you want the original "Hi there 👋" content back on your profile,
 > it's in git history (`git log -- README.md`).
 
+> **🎛️ Operating standard:** [`docs/EXECUTIVE_OS.md`](docs/EXECUTIVE_OS.md) is the controlling
+> standard for how work in this account is researched, evidenced, visualized, and recorded —
+> including the approval boundary the backend enforces in code. [`CLAUDE.md`](CLAUDE.md) is the
+> repo-specific layer for anyone (human or agent) picking up work here.
+
 ## Why these apps look the way they do
 
 The source material for this build (real-estate/wealth "blueprint" decks, plus an NTE/CCRLT
