@@ -30,6 +30,17 @@ npm run build            # ends with check:bundle — the same scan on the outpu
 npm run single           # one-file outputs, for looking without a toolchain
 ```
 
+## What runs on a pull request
+
+`.github/workflows/command-center.yml` runs types, the lane firewall, the
+external-origin scan, the 152 tests, the production build and the bundle scan
+on every pull request touching `nte-command-center/**`, and checks that no
+generated file drifted during the build.
+
+It exists because the repo's other workflow deploys on push to `main` and never
+runs on a pull request. These guarantees are only guarantees if something other
+than a person's memory runs them.
+
 ## Looking at it without installing anything
 
 `npm run single` (also run as part of `npm run build`) writes three generated

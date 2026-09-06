@@ -45,6 +45,9 @@ Also added:
   ("Eight of nine") is compared against its own strip, and the conflict renders
   on the row. It lives in `RecordRow`, so every register in the console gets it
   rather than the one where it was found.
+- `.github/workflows/command-center.yml` — the checks above, run on every pull
+  request touching this project. Before it, nothing in this repository ran on a
+  pull request at all: the only workflow deploys on push to `main`.
 - `docs/SPEC-CHANGES.md` — six recorded amendments, below.
 - `scripts/bundle-single.mjs` and `npm run single` — generated single-file
   outputs (`dist/command-center.html`, `.jsx`, `.css`) so the console can be
