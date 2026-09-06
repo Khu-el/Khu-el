@@ -1,0 +1,294 @@
+{
+  "_note": "The quarantine list, the four file-level classifications, the three-step doctrine pass and the five genuinely missing items are all sourced. The canon manifest's file identifiers are not in this workspace and are left null — a file identifier is exactly the kind of value that gets copied into a citation, and an invented one would make a citation that resolves to nothing look like one that resolves.",
+  "canon": {
+    "domains": [
+      {
+        "domain": "Governance",
+        "system": "Google Drive"
+      },
+      {
+        "domain": "Registers and catalogs",
+        "system": "Notion"
+      },
+      {
+        "domain": "Tasks and build queues",
+        "system": "ClickUp"
+      },
+      {
+        "domain": "Scheduling",
+        "system": "Google Calendar"
+      },
+      {
+        "domain": "Correspondence",
+        "system": "Gmail"
+      }
+    ],
+    "instrumentCount": 18,
+    "instruments": [
+      {
+        "id": "SI-01",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-02",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-03",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-04",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-05",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-06",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-07",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-08",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-09",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-10",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-11",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-12",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-13",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-14",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-15",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-16",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-17",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      },
+      {
+        "id": "SI-18",
+        "title": null,
+        "fileId": null,
+        "classification": "UNKNOWN"
+      }
+    ],
+    "note": "Eighteen system instruments. Titles and file identifiers are not in this workspace. Module 05 carries an open defect on one identifier recorded against two documents, which is what an unverified identifier costs."
+  },
+  "supersession": [
+    {
+      "id": "FL-001",
+      "classification": "SECURITY HOLD",
+      "entry": "Plaintext credential file in the synced vault. Rotate, then remove, then confirm no other copy exists. Carried as Q-16 and rendered at the top of module 05.",
+      "date": "2026-08-12"
+    },
+    {
+      "id": "FL-002",
+      "classification": "ARCHIVE REVIEW",
+      "entry": "The migration corpus. It repeats a superseded entity-name set and is not a drafting source for names.",
+      "date": "2026-08-12"
+    },
+    {
+      "id": "FL-003",
+      "classification": "CANON",
+      "entry": "The governance instruments listed in module 01 are the controlling set at their stated revisions.",
+      "date": "2026-08-12"
+    },
+    {
+      "id": "FL-004",
+      "classification": "SUPPORT",
+      "entry": "Working models and drafts supporting the canonical set. They do not govern and are not cited as governing.",
+      "date": "2026-08-12"
+    }
+  ],
+  "classifications": [
+    "CANON",
+    "SUPPORT",
+    "ARCHIVE REVIEW",
+    "SECURITY HOLD"
+  ],
+  "quarantine": [
+    {
+      "id": "QR-01",
+      "title": "Postal trust declaration",
+      "exclusion": "X-03",
+      "why": "Ecclesiastical and postal instruments offered as a service are a closed line."
+    },
+    {
+      "id": "QR-02",
+      "title": "Master trust agreement with fee schedule",
+      "exclusion": "X-05",
+      "why": "Third-party trust drafting and administration is a closed line. A fee schedule attached to it is the trust-mill shape the separation protocol exists to prevent."
+    },
+    {
+      "id": "QR-03",
+      "title": "Distributed-organisation folder",
+      "exclusion": "X-04",
+      "why": "Distributed autonomous organisation and tokenised trust structures are excluded, not paused. They do not return."
+    },
+    {
+      "id": "QR-04",
+      "title": "Enhanced notice defence package",
+      "exclusion": "X-02",
+      "why": "Private court of record services offered to third parties are a closed line."
+    },
+    {
+      "id": "QR-05",
+      "title": "Eviction-warfare cluster",
+      "exclusion": "X-02",
+      "why": "Adversarial procedure material aimed at third parties. Closed."
+    },
+    {
+      "id": "QR-06",
+      "title": "2025 revenue-service manual",
+      "exclusion": "X-06",
+      "why": "Income rebuttal material. Closed."
+    },
+    {
+      "id": "QR-07",
+      "title": "2025 banking manual",
+      "exclusion": "X-08",
+      "why": "Commercial filings used as credit manufacturing. Closed."
+    },
+    {
+      "id": "QR-08",
+      "title": "Signature capacity codex and empire charter",
+      "exclusion": "provenance only",
+      "why": "Held for provenance only. It records what was once written; it governs nothing and is not a source for anything."
+    }
+  ],
+  "quarantineRule": "Listed, never opened. There is no preview, no open, no excerpt, no copy and no download control on any row above, and none is added later — the affordance is the leak, not the intent behind it.",
+  "doctrinePass": {
+    "steps": [
+      {
+        "n": 1,
+        "id": "DP-1",
+        "title": "Doctrine pass",
+        "test": "Does the material assert a doctrine this portfolio has retired or excluded? If so it does not come back, in any framing.",
+        "passed": false,
+        "proof": null
+      },
+      {
+        "n": 2,
+        "id": "DP-2",
+        "title": "Entity-name pass",
+        "test": "Does it use an entity name that has been superseded, or one of the four still provisional? An instrument using a superseded name fails the release gate on that ground alone.",
+        "passed": false,
+        "proof": null
+      },
+      {
+        "n": 3,
+        "id": "DP-3",
+        "title": "Capacity pass",
+        "test": "Does it style anyone in a capacity the control schedule does not assign? The three-capacity protocol is retired and does not return through a recovered file.",
+        "passed": false,
+        "proof": null
+      }
+    ],
+    "rule": "Nothing is regenerated from recovered material without all three. Every recovery action in this module is attached to this gate; a recovery action with no gate attached is a failed implementation.",
+    "actions": [
+      {
+        "id": "RA-01",
+        "title": "Recover a file from the archive-review set into the working set"
+      },
+      {
+        "id": "RA-02",
+        "title": "Regenerate an instrument from recovered material"
+      }
+    ]
+  },
+  "missing": [
+    {
+      "id": "MI-01",
+      "title": "Contract set",
+      "heldBy": "Third party",
+      "state": "MISSING"
+    },
+    {
+      "id": "MI-02",
+      "title": "Certified docket, first matter",
+      "heldBy": "Court",
+      "state": "MISSING"
+    },
+    {
+      "id": "MI-03",
+      "title": "Certified docket, second matter",
+      "heldBy": "Court",
+      "state": "MISSING"
+    },
+    {
+      "id": "MI-04",
+      "title": "Transcripts",
+      "heldBy": "Court reporter",
+      "state": "MISSING"
+    },
+    {
+      "id": "MI-05",
+      "title": "Final statement",
+      "heldBy": "Third party",
+      "state": "MISSING"
+    }
+  ],
+  "missingRule": "These are in no vault. They are MISSING, not pending — pending implies somebody is producing them, and nobody is. Each has to be requested from the party that holds it."
+}
