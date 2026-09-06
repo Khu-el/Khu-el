@@ -1,8 +1,31 @@
 # 🧭 CLAUDE.md — Khu-el/Khu-el (NTE Web Apps)
 
-**📌 Read `docs/EXECUTIVE_OS.md` first.** It is the controlling operating standard for
-research, evidence, visuals, artifacts, and the approval boundary in this account. This
-file is the repo-specific layer on top of it.
+**📌 Two controlling standards govern work here. Read both before starting.**
+
+| Standard | Governs | Read before |
+|---|---|---|
+| `docs/EXECUTIVE_OS.md` | How *any* work is researched, evidenced, visualized, and recorded; the approval boundary | Any analysis, report, artifact, or recommendation |
+| `docs/scheduled-tasks/SPEC.md` | How a *scheduled* task (Routine, cron, trigger, recurring brief) is defined | Creating, editing, or scheduling any recurring task |
+
+This file is the repo-specific layer on top of both.
+
+---
+
+## ⏰ Scheduled tasks
+
+Before creating, editing, or scheduling **any** recurring task, read
+`docs/scheduled-tasks/SPEC.md` and follow it in full:
+
+1. Search `docs/scheduled-tasks/REGISTRY.md` and `docs/scheduled-tasks/tasks/` for an
+   existing task that covers the mission. Reuse and update it if one exists.
+2. Otherwise copy `docs/scheduled-tasks/TEMPLATE.md` to
+   `docs/scheduled-tasks/tasks/<TASK-ID>.md` and fill every section before scheduling.
+3. Add the task to `REGISTRY.md` with its Routine ID once scheduled.
+4. Each run appends to the task file's Run Log and ends with exactly one final-output status.
+
+One capacity per task. Never fabricate visual data. Do not manufacture an action when none
+is warranted. This is SPEC v2's `SEARCH → READ → REUSE → UPDATE` rule, and it is the same
+rule as Executive OS §4 (artifact-first continuity) applied to task definitions.
 
 ---
 
@@ -90,6 +113,32 @@ writing a new primitive** — §4, artifact-first.
 - Any number shown to the user should be traceable to inputs or an `EvidenceRef`
   (§2 — data window · as-of · unit · source · limitations).
 - Never render ✅ for something unverified, and never let ❓ UNKNOWN degrade into ✅ (§1).
+
+## 🧾 One evidence vocabulary, three spellings
+
+Three vocabularies now describe the same idea in this repo. They are **not** three
+different concepts — map, do not multiply. Where they disagree, the strictest reading wins.
+
+| Executive OS (§1, §8) | SPEC v2 `EVIDENCE` | `governance-core` `AssertionStatus` |
+|---|---|---|
+| ✅ VERIFIED COMPLETE / 🟢 STRONG | `VERIFIED` | `EXTERNALLY_VERIFIED` |
+| 🟡 MODERATE — from our own systems | `SYSTEM-RECORDED` | `CURRENT_INTERNAL_MODEL` |
+| 🟡 MODERATE — stated by the principal | `USER-REPORTED` | `CURRENT_INTERNAL_MODEL` |
+| 🟠 TENTATIVE — a document says so | `DOCUMENT-STATED` | `DOCUMENT_CLAIM` |
+| 🟠 TENTATIVE — we reasoned to it | `INFERRED` | `CURRENT_INTERNAL_MODEL` *(flag the inference)* |
+| ❓ UNKNOWN / ⚪ | `UNKNOWN` | `UNCLASSIFIED` |
+
+**⚠️ Two gaps, deliberately left visible rather than papered over:**
+
+- `PROFESSIONAL_REVIEW_REQUIRED` has **no SPEC v2 equivalent.** A scheduled task that
+  surfaces something needing an attorney, CPA, or licensed professional should say so in
+  its `🚨 EXCEPTION CONDITIONS` and escalate — not tag it `INFERRED` and move on.
+- `SUPERSEDED` has **no SPEC v2 equivalent.** SPEC v2 handles supersession at the *task*
+  level (`REPLACED` in its kill/merge rule), not at the *claim* level. A superseded claim
+  inside a still-active task has nowhere to go in that vocabulary.
+
+Neither gap is a defect in SPEC v2 — it governs task definitions, not record-level claims.
+They are recorded here so the next person doesn't assume the mapping is total.
 
 ## 🚀 Deployment
 
