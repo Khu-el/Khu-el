@@ -1,0 +1,84 @@
+{
+  "handoff_id": "ho_0001",
+  "correlation_id": "nterverse_init_2026_09_10",
+  "project_id": "prj-neterverse-os",
+  "task_id": "tsk_0002",
+  "parent_task_id": null,
+  "sender": "CLAUDE_CODE",
+  "recipient": "CODEX",
+  "timestamp": "2026-09-10T23:28:24Z",
+  "lane": "LANE_A",
+  "entity": "Neterverse Trust Enterprise (NTE)",
+  "capacity": "Minister / Authorized Representative",
+  "risk_tier": "R1",
+  "objective": "Independently verify the shared-state kernel as Verifier, then extend the bus with the task and handoff lifecycle the kernel does not yet implement.",
+  "current_state": "The bus exists at .neterverse/ with seven schemas and five state files, all validating. The kernel at packages/neterverse-kernel implements schema validation, the lane firewall, risk tiering and the approval boundary, an append-only event log, task leases, and registry loading. 43 tests pass under node --test with no dependencies installed. Nothing is deployed.",
+  "verified_facts": [
+    "Node 22.22.2 executes TypeScript directly, so the kernel and its tests run on a fresh checkout with no npm install",
+    "Six source-of-truth connectors answered a read-only call this session: GitHub, Google Drive, ClickUp, Notion, Google Calendar, Gmail",
+    "ClickUp already separates the family lane into its own space",
+    "The current commercial release record in Drive sets release state to HOLD pending open evidence gates; detail stays in Drive",
+    "Khu-el/Khu-el is a public repository",
+    "43 kernel tests pass, 0 fail, and the full repository build still completes"
+  ],
+  "sources": [
+    "packages/governance-core/src/types.ts - the vocabulary the kernel mirrors",
+    "docs/EXECUTIVE_OS.md - controlling operating standard",
+    "docs/scheduled-tasks/SPEC.md - scheduled task standard",
+    "Google Drive - current commercial release record and April 2026 lane doctrine; identifiers withheld from this public repository"
+  ],
+  "assumptions": [
+    "Khu-el/Khu-el is the canonical software repository and the right host for the control plane",
+    "The bus belongs in version control rather than in Drive, because its consumers are runtimes reading a checkout",
+    "A dependency-free validator is preferable to a library, because bus state must be checkable before any install"
+  ],
+  "decisions": [
+    "ADR-0001 records the control-plane decisions and the source conflicts found",
+    "The kernel mirrors the governance-core vocabulary rather than adding a fourth one",
+    "The event log is append-only; corrections are new events referencing the original"
+  ],
+  "open_questions": [
+    "Two private repositories in the account are named or described as a command center. What is in them, and does this control plane duplicate them?",
+    "Should the control plane live in a public repository at all, or move to a private one?",
+    "Which February 2026 governance-architecture document controls, if any? Several overlap with no supersession marking.",
+    "Does the Cross-Lane tag in the April lane doctrine need a representation in code, or is a declared bridge the correct expression of it?",
+    "Which automation engine owns which production trigger and write path? None is assigned, so duplicate-write risk is open."
+  ],
+  "risks": [
+    "This repository is public. Bus state must carry mechanism and non-identifying status only; a future agent adding a record identifier here would publish it",
+    "A control plane that drifts from the systems it describes becomes confidently wrong; every registry entry carries an as-of and a verification method for that reason",
+    "The MCP connector servers dropped and reattached repeatedly during this session, so any automation assuming a stable attachment needs a retry path",
+    "Lease overlap is exact-match by design; a resource named two different ways by two agents will not conflict when it should"
+  ],
+  "dependencies": [
+    "Node 22.6 or newer for native TypeScript execution"
+  ],
+  "required_output": [
+    "A verdict of PASS, PASS WITH CONDITIONS, FAIL or BLOCKED BY EVIDENCE on the kernel",
+    "Independent review of lane isolation, the approval boundary, lease conflict handling and event immutability",
+    "If PASS: implement task and handoff lifecycle helpers in the kernel, with tests, so tasks move between the queued, active, blocked, review and completed directories under validation rather than by hand",
+    "A handoff packet written back to .neterverse/handoffs/codex-to-claude/"
+  ],
+  "human_gate": null,
+  "last_action": "Sanitized the bus for a public repository, then seeded the event log with 17 events covering connector verification, the data-boundary correction, the possible duplicate command centers, three source conflicts, the unassigned automation ownership, the code change, the passing tests and the completed build.",
+  "next_action": "Run npm test --workspace=packages/neterverse-kernel, read src/lane.ts and src/risk.ts adversarially, and try to find an input that crosses a lane or passes the approval boundary without a gate.",
+  "files_changed": [
+    ".neterverse/schemas/*.schema.json",
+    ".neterverse/state/*.json",
+    ".neterverse/events/events.jsonl",
+    ".neterverse/decisions/ADR-0001-control-plane-foundation.md",
+    "packages/neterverse-kernel/**"
+  ],
+  "commits": [],
+  "tests_run": [
+    "node --test 'test/*.test.ts' in packages/neterverse-kernel"
+  ],
+  "test_results": [
+    "43 pass, 0 fail"
+  ],
+  "deployment_state": "TESTED_LOCALLY",
+  "rollback": "The kernel and the bus are additive. Deleting packages/neterverse-kernel and .neterverse/ returns the repository to its prior state; no existing file's behaviour was changed.",
+  "lease_owner": "",
+  "lease_expiration": "",
+  "status": "OPEN"
+}

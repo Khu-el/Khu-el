@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "neterverse://schemas/connector.schema.json",
+  "title": "Connector registry entry",
+  "description": "One integration surface. verification_state records what was actually observed in a session, never what documentation claims.",
+  "type": "object",
+  "required": ["connector_id", "name", "role", "verification_state", "access", "last_verified"],
+  "additionalProperties": false,
+  "properties": {
+    "connector_id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "role": { "type": "string", "minLength": 1 },
+    "system_of_record_for": { "type": "array", "items": { "type": "string" } },
+    "verification_state": {
+      "type": "string",
+      "enum": ["LIVE_VERIFIED", "EXPOSED_UNVERIFIED", "FAILED", "NOT_EXPOSED", "UNKNOWN"]
+    },
+    "verification_method": { "type": "string" },
+    "access": { "type": "string", "enum": ["READ", "READ_WRITE", "WRITE_ONLY", "UNKNOWN"] },
+    "write_authorized": { "type": "boolean" },
+    "lane_scope": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["LANE_A", "LANE_B", "PERSONAL", "PHILANTHROPIC", "UNCLASSIFIED"] }
+    },
+    "last_verified": { "type": "string", "format": "date-time" },
+    "notes": { "type": "string" }
+  }
+}
