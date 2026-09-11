@@ -1,0 +1,66 @@
+{
+  "as_of": "2026-09-10T23:26:24Z",
+  "observed_by": "CLAUDE_CODE",
+  "note": "CATALOG means the tool surface was listed but never exercised. It is not PRODUCTION and must not be described as connected.",
+  "entries": [
+    {
+      "capability_id": "cap-node-native-ts",
+      "name": "Node 22 native TypeScript execution",
+      "class": "runtime",
+      "status": "PRODUCTION",
+      "evidence": "node 22.22.2 ran a .ts module and node --test executed .ts tests with no dependencies installed",
+      "observed_at": "2026-09-10T23:26:24Z",
+      "observed_by": "CLAUDE_CODE",
+      "notes": "This is why the kernel needs no build step and no npm install to run."
+    },
+    {
+      "capability_id": "cap-bus-kernel",
+      "name": "Neterverse shared-state kernel",
+      "class": "control-plane",
+      "status": "PRODUCTION",
+      "evidence": "43 tests pass under node --test; covers lane firewall, approval boundary, event log, leases, schema validation",
+      "observed_at": "2026-09-10T23:26:24Z",
+      "observed_by": "CLAUDE_CODE",
+      "notes": "Local to the repository. Nothing is deployed."
+    },
+    {
+      "capability_id": "cap-connector-preflight",
+      "name": "Six source-of-truth connectors reachable",
+      "class": "integration",
+      "status": "PRODUCTION",
+      "evidence": "One read-only call each to GitHub, Drive, ClickUp, Notion, Calendar, Gmail",
+      "observed_at": "2026-09-10T23:26:24Z",
+      "observed_by": "CLAUDE_CODE"
+    },
+    {
+      "capability_id": "cap-automation-engines",
+      "name": "Zapier, Composio, IFTTT tool surfaces",
+      "class": "automation",
+      "status": "CATALOG",
+      "evidence": "Tool names appeared in the runtime listing. No call was made, so no workflow, connection or write path is verified.",
+      "observed_at": "2026-09-10T23:26:24Z",
+      "observed_by": "CLAUDE_CODE",
+      "notes": "Section 15 requires one owning automation engine per production trigger and write path. That ownership is not yet assigned, so no engine may be described as owning anything."
+    },
+    {
+      "capability_id": "cap-deploy-surfaces",
+      "name": "Cloudflare, Wix, Shopify, Floot tool surfaces",
+      "class": "deployment-and-commerce",
+      "status": "CATALOG",
+      "evidence": "Listed in the runtime. Not exercised.",
+      "observed_at": "2026-09-10T23:26:24Z",
+      "observed_by": "CLAUDE_CODE",
+      "notes": "Any commerce action here is R3 or R4 and stops at the human gate."
+    },
+    {
+      "capability_id": "cap-mcp-stability",
+      "name": "MCP connector session stability",
+      "class": "observability",
+      "status": "HOLD",
+      "evidence": "Connector servers disconnected and reconnected repeatedly during this session; roughly 640 tool schemas dropped and returned mid-task.",
+      "observed_at": "2026-09-10T23:26:24Z",
+      "observed_by": "CLAUDE_CODE",
+      "notes": "Any automation that assumes a connector stays attached for the length of a run needs a retry path. Recorded because a flapping connector reads as a permanent failure to code that does not expect it."
+    }
+  ]
+}

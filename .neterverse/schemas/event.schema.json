@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "neterverse://schemas/event.schema.json",
+  "title": "Neterverse bus event",
+  "description": "One append-only entry in .neterverse/events/events.jsonl. Events are never rewritten; a correction is a new event that references the one it corrects.",
+  "type": "object",
+  "required": ["event_id", "timestamp", "kind", "actor", "lane", "risk_tier", "subject", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "event_id": { "type": "string", "pattern": "^evt_[a-z0-9_]+$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "TASK_CREATED", "TASK_CLAIMED", "TASK_HANDOFF", "TASK_BLOCKED", "TASK_COMPLETED",
+        "SOURCE_VERIFIED", "SOURCE_CONFLICT",
+        "CAPABILITY_DISCOVERED", "CONNECTION_VERIFIED", "CONNECTION_FAILED",
+        "FILE_CREATED", "FILE_UPDATED", "FILE_SUPERSEDED",
+        "CODE_CHANGED",
+        "TEST_STARTED", "TEST_PASSED", "TEST_FAILED",
+        "BUILD_STARTED", "BUILD_COMPLETED", "BUILD_FAILED",
+        "DEPLOY_REQUESTED", "DEPLOY_APPROVED", "DEPLOY_STARTED", "DEPLOY_SUCCEEDED", "DEPLOY_FAILED", "DEPLOY_ROLLED_BACK",
+        "AUTOMATION_ENABLED", "AUTOMATION_DISABLED", "AUTOMATION_FAILED",
+        "APPROVAL_REQUESTED", "APPROVAL_GRANTED", "APPROVAL_DENIED",
+        "SECURITY_EXCEPTION", "POLICY_EXCEPTION", "DATA_BOUNDARY_EXCEPTION",
+        "LEASE_ACQUIRED", "LEASE_RELEASED", "LEASE_DENIED", "LEASE_EXPIRED",
+        "RELEASE_CREATED", "ROLLBACK_COMPLETED", "CORRECTION"
+      ]
+    },
+    "actor": {
+      "type": "object",
+      "required": ["runtime", "instance_id"],
+      "additionalProperties": false,
+      "properties": {
+        "runtime": { "type": "string", "enum": ["CLAUDE_CODE", "CODEX", "OTHER_AUTHORIZED_RUNTIME", "HUMAN"] },
+        "instance_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "lane": { "type": "string", "enum": ["LANE_A", "LANE_B", "PERSONAL", "PHILANTHROPIC", "UNCLASSIFIED"] },
+    "risk_tier": { "type": "string", "enum": ["R0", "R1", "R2", "R3", "R4"] },
+    "subject": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "minLength": 1 },
+    "correlation_id": { "type": "string" },
+    "corrects_event_id": { "type": "string", "pattern": "^evt_[a-z0-9_]+$" },
+    "refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["system", "ref"],
+        "additionalProperties": false,
+        "properties": {
+          "system": { "type": "string", "enum": ["GITHUB", "DRIVE", "CLICKUP", "NOTION", "CALENDAR", "GMAIL", "SHEETS", "REPO", "OTHER"] },
+          "ref": { "type": "string", "minLength": 1 },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

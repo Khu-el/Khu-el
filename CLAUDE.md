@@ -36,12 +36,15 @@ A npm-workspaces monorepo: **four private planning tools + one shared backend**,
 
 ```
 packages/governance-core/   Shared types + UI + API client (@nte/governance-core)
+packages/neterverse-kernel/ Control-plane kernel (@nte/neterverse-kernel) — has tests
 apps/deal-architect/        Real-estate deal intelligence
 apps/capital-readiness/     Entity & offering-readiness diligence
 apps/notes-underwriting/    Distressed-debt / note underwriting
 apps/legacy-estate/         CCRLT / House of Ransom family estate (Lane B, shared workspace)
 server/                     Express + SQLite backend shared by all four
 web/landing/                Static landing page published to GitHub Pages
+.neterverse/                Claude Code ↔ Codex collaboration bus — read its README first
+.neterverse/live/           Connector observations — gitignored, never committed
 ```
 
 **Stack:** Vite + React 18 + TypeScript + Tailwind (per app) · Express + `node:sqlite` +
@@ -55,15 +58,28 @@ npm run dev:server              # backend on :4000
 npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:legacy-estate
 npm run build                   # all apps + server
 npm run typecheck               # root-level tsc sweep
+npm test                        # the kernel suite — the only tests in this repo
+npm run bus -- status           # what the control plane knows
+npm run bus -- connectors       # live connector health and staleness
+npm run bus -- validate         # is .neterverse/ state still valid
+npm run bus -- audit            # nothing unpublishable in committed bus state
 ```
 
 Per-app `npm run build` runs `tsc -b --noEmit && vite build` — **type errors fail the
-build**, so run a build (or `typecheck`) before pushing. **No test runner and no linter
-are configured at the repo root, in `packages/governance-core`, in any of the four apps,
-or in `server/`** — so in those workspaces, do not claim ✅ on "tests pass": there is
-nothing to run. Say what you actually ran.
+build**, so run a build (or `typecheck`) before pushing.
 
-⚠️ That is scoped deliberately, not a claim about the whole repository forever. A
+**Where tests exist, and where they do not:**
+
+| Workspace | Test runner |
+|---|---|
+| `packages/neterverse-kernel` | ✅ `node --test` — run it with `npm test` from the root |
+| `packages/governance-core`, the four apps, `server/` | ❌ none configured |
+
+**No linter is configured anywhere in this repo.** In a workspace with no runner, do not
+claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran. In
+`packages/neterverse-kernel` there is something to run, so run it.
+
+⚠️ This table is scoped deliberately, not a claim about the whole repository forever. A
 workspace may arrive with its own runner and its own `CLAUDE.md`; check the workspace you
 are actually in before concluding either way. Reporting "no tests" where tests exist is
 the same failure as reporting ✅ where they were never run.
@@ -86,6 +102,10 @@ here:
   has its own "do not build" list — read it before adding features there.
 - **↔️ Lane A and Lane B never auto-connect.** A bridge (e.g. the Business Interests
   registry) records a *reference*, not a merge.
+- **🌐 This repository is public.** Live control-plane state stays in the gitignored
+  `.neterverse/live/`. Never write an account, workspace or file identifier, calendar
+  address, or record content into committed bus state. `npm run bus -- audit` enforces
+  this and fails the moment it slips.
 
 ## 🏛️ Governance model — reuse it, don't reinvent it
 
