@@ -96,9 +96,16 @@ listed here so the network map is complete, not because they are public.
 
 | Artifact | Mirrors | Note |
 |---|---|---|
-| Deal Architect · Capital Readiness · Notes Underwriting · Legacy & Estate | The four apps in `apps/` | Static snapshots of a build. They carry no backend sync — the repo apps are the live versions. |
-| excellencedistrict.org Cutover | `docs/DOMAIN_NETWORK.md` | DNS and mail runbook. That doc is the canonical map; the artifact is the presentation of it. |
+| [excellencedistrict.org Network](https://claude.ai/code/artifact/be86581a-d8ce-439c-a352-d762d12b8d40) | `DOMAIN_NETWORK.md` + this file | The hosting half of the domain. Republish it whenever either file changes. |
+| [excellencedistrict.org Cutover](https://claude.ai/code/artifact/cd379832-6c31-49a0-9cb2-c7bfc2388d02) | — | The mail half: SPF, DKIM, DMARC, and the Workspace account steps. The network map deliberately does not repeat it. |
+| [Deal Architect](https://claude.ai/code/artifact/c0aa02d6-93f7-4559-97bb-e0a334e813b0) | `apps/deal-architect` | Static snapshot of a build. |
+| [Capital Readiness](https://claude.ai/code/artifact/a62d3613-e2b7-4c94-90a1-93ef775cd061) | `apps/capital-readiness` | Static snapshot of a build. |
+| [Notes Underwriting](https://claude.ai/code/artifact/88a01535-2e71-44cb-8b35-d801f47999ae) | `apps/notes-underwriting` | Static snapshot of a build. |
+| [Legacy & Estate](https://claude.ai/code/artifact/ece6a9a8-e27e-4ff9-868f-45be6896aa1f) | `apps/legacy-estate` | Static snapshot of a build. Lane B — the link is private, like the workspace. |
 | The Equity Ledger · Privateman Content Audit · Morning Brief | — | Standalone. Not part of the app network. |
+
+The four app snapshots carry no backend sync and no account; the repo apps are the live versions.
+They were **not** regenerated when this registry was written, so each is as of its own publish date.
 
 Where an artifact and a repo file disagree, **the repo file wins** and the artifact gets
 republished. Snapshots drift; that is what snapshots do.
