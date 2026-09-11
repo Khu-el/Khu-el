@@ -9,6 +9,15 @@
 
 This file is the repo-specific layer on top of both.
 
+Two further canonical files describe *where things run* and *what they may talk to*. They are
+registries, not standards — but they are the single copy, so update them rather than restating
+them elsewhere (§4):
+
+| File | Governs | Read before |
+|---|---|---|
+| `docs/DOMAIN_NETWORK.md` | Which hostname serves which property, across all three repos | Any DNS, hosting, deploy-target, or custom-domain change |
+| `docs/CONNECTORS.md` | Every connector, tool, and plugin, and what each may not do | Wiring up any integration, MCP connector, or automation |
+
 ---
 
 ## ⏰ Scheduled tasks
@@ -152,3 +161,10 @@ Frontends → GitHub Pages via `.github/workflows/deploy-pages.yml` (runs on pus
 served at the account root because the repo is `Khu-el/Khu-el`). Backend → `server/Dockerfile`
 + `fly.toml`, portable to any Docker host. Secrets (`JWT_SECRET`, SMTP, `CORS_ORIGINS`) are
 set on the platform — **never committed**. Full walkthrough is in `README.md`.
+
+The intended destination is `apps.excellencedistrict.org` (frontends) and
+`api.excellencedistrict.org` (backend), with the Squarespace apex and Google Workspace mail left
+alone. `docs/DOMAIN_NETWORK.md` has the rows and the order. **Do not add a `CNAME` file to this
+repo** — the workflow writes `_site/CNAME` from the `PAGES_CUSTOM_DOMAIN` repository variable, so
+that attaching the domain stays a deliberate act gated on DNS actually resolving. A checked-in
+`CNAME` takes effect on merge and takes the site offline if the record does not exist yet.
