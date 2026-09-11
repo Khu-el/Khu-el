@@ -2,86 +2,124 @@
   "as_of": "2026-09-10T23:26:24Z",
   "observed_by": "CLAUDE_CODE",
   "classification": "PUBLIC",
-  "method": "One read-only call per connector in this session. LIVE_VERIFIED means a call returned. Nothing here is verified from a tool listing.",
+  "method": "Declarations only. Whether a connector is currently healthy is computed at runtime from live observations under .neterverse/live/ - run `npm run bus -- connectors`. A stored date ages silently, so no field here should be read as a claim about right now.",
   "identifier_policy": "This repository is public. Account identifiers, workspace IDs, file IDs, calendar addresses and record contents stay in their private systems of record and are never written here.",
   "entries": [
     {
       "connector_id": "github",
       "name": "GitHub",
       "role": "Source code, branches, pull requests, releases - software version truth",
-      "system_of_record_for": ["source code", "branches", "pull requests", "releases"],
+      "system_of_record_for": [
+        "source code",
+        "branches",
+        "pull requests",
+        "releases"
+      ],
       "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Authenticated user lookup returned",
+      "verification_method": "Authenticated user lookup returned; currency now tracked by live observation",
       "access": "READ_WRITE",
       "write_authorized": true,
-      "lane_scope": ["LANE_A"],
-      "last_verified": "2026-09-10T23:26:24Z",
+      "lane_scope": [
+        "LANE_A"
+      ],
+      "last_verified": "2026-09-11T06:50:00Z",
       "notes": "Write scope in this session is feature branches and pull requests only."
     },
     {
       "connector_id": "google-drive",
       "name": "Google Drive",
       "role": "Canonical files, evidence and issued artifacts",
-      "system_of_record_for": ["evidence", "issued artifacts", "release packets"],
+      "system_of_record_for": [
+        "evidence",
+        "issued artifacts",
+        "release packets"
+      ],
       "verification_state": "LIVE_VERIFIED",
-      "verification_method": "File listing and file read both returned",
+      "verification_method": "File listing and file read both returned; currency now tracked by live observation",
       "access": "READ_WRITE",
       "write_authorized": false,
-      "lane_scope": ["LANE_A", "LANE_B", "PERSONAL"],
-      "last_verified": "2026-09-10T23:26:24Z",
+      "lane_scope": [
+        "LANE_A",
+        "LANE_B",
+        "PERSONAL"
+      ],
+      "last_verified": "2026-09-11T06:50:00Z",
       "notes": "Read-only in this session. Drive remains the system of record; file identifiers are not recorded in this public repository."
     },
     {
       "connector_id": "clickup",
       "name": "ClickUp",
       "role": "Action truth - task execution ledger",
-      "system_of_record_for": ["tasks", "execution status"],
+      "system_of_record_for": [
+        "tasks",
+        "execution status"
+      ],
       "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Workspace hierarchy returned",
+      "verification_method": "Workspace hierarchy returned; currency now tracked by live observation",
       "access": "READ_WRITE",
       "write_authorized": false,
-      "lane_scope": ["LANE_A", "LANE_B"],
-      "last_verified": "2026-09-10T23:26:24Z",
+      "lane_scope": [
+        "LANE_A",
+        "LANE_B"
+      ],
+      "last_verified": "2026-09-11T06:50:00Z",
       "notes": "Lane separation is already structural there: the family lane occupies its own space rather than a folder inside the enterprise space."
     },
     {
       "connector_id": "notion",
       "name": "Notion",
       "role": "Governance, knowledge, registries, canonical navigation",
-      "system_of_record_for": ["governance registries", "knowledge base"],
+      "system_of_record_for": [
+        "governance registries",
+        "knowledge base"
+      ],
       "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Workspace identity lookup returned",
+      "verification_method": "Workspace identity lookup returned; currency now tracked by live observation",
       "access": "READ_WRITE",
       "write_authorized": false,
-      "lane_scope": ["LANE_A"],
-      "last_verified": "2026-09-10T23:26:24Z",
+      "lane_scope": [
+        "LANE_A"
+      ],
+      "last_verified": "2026-09-11T06:50:00Z",
       "notes": "The Notion workspace identity differs from the GitHub and Google identities. Mapping those identities to one principal record is unresolved; see ADR-0001."
     },
     {
       "connector_id": "google-calendar",
       "name": "Google Calendar",
       "role": "Time truth - commitments and schedules",
-      "system_of_record_for": ["commitments", "scheduled events"],
+      "system_of_record_for": [
+        "commitments",
+        "scheduled events"
+      ],
       "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Calendar list returned",
+      "verification_method": "Calendar list returned; currency now tracked by live observation",
       "access": "READ_WRITE",
       "write_authorized": false,
-      "lane_scope": ["LANE_A", "PERSONAL"],
-      "last_verified": "2026-09-10T23:26:24Z",
+      "lane_scope": [
+        "LANE_A",
+        "PERSONAL"
+      ],
+      "last_verified": "2026-09-11T06:50:00Z",
       "notes": "The calendar set spans two timezones. A scheduled task that assumes a single timezone across all of them will place events wrongly."
     },
     {
       "connector_id": "gmail",
       "name": "Gmail",
       "role": "Email communication record",
-      "system_of_record_for": ["email correspondence"],
+      "system_of_record_for": [
+        "email correspondence"
+      ],
       "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Label list returned",
+      "verification_method": "Label list returned; currency now tracked by live observation",
       "access": "READ_WRITE",
       "write_authorized": false,
-      "lane_scope": ["LANE_A", "PERSONAL"],
-      "last_verified": "2026-09-10T23:26:24Z",
+      "lane_scope": [
+        "LANE_A",
+        "PERSONAL"
+      ],
+      "last_verified": "2026-09-11T06:50:00Z",
       "notes": "No send is authorized from any automation. Sending is R3 and stops at the human gate."
     }
-  ]
+  ],
+  "freshness": "Each connector carries a freshness budget in packages/neterverse-kernel/src/connectors.ts. Past that budget the control plane reports the entry as stale rather than presenting an old reading as current."
 }

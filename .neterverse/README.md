@@ -23,9 +23,12 @@ is defined). This directory does not replace either; it makes them executable.
 ## 🚦 Start here
 
 ```bash
-node packages/neterverse-kernel/src/cli.ts status     # what the bus knows
-node packages/neterverse-kernel/src/cli.ts validate   # is bus state still valid
-node packages/neterverse-kernel/src/cli.ts events     # what happened, oldest last
+npm run bus -- status       # what the bus knows, including connector freshness
+npm run bus -- connectors   # live connector health and staleness
+npm run bus -- validate     # is bus state still valid
+npm run bus -- audit        # is anything unpublishable in committed state
+npm run bus -- events       # what happened, oldest last
+npm run bus -- sync --file <observation.json>   # record a connector reading
 ```
 
 No install is required. Node 22.6+ runs the TypeScript directly.
@@ -39,6 +42,7 @@ No install is required. Node 22.6+ runs the TypeScript directly.
 | `schemas/` | The contract. Every record here validates against one of these |
 | `state/` | Registries: ecosystem, connectors, capabilities, agents, deployments, projects |
 | `events/events.jsonl` | Append-only log. One JSON record per line |
+| `live/` | **Never committed.** Connector observations, which may carry identifiers |
 | `locks/active-locks.json` | Task leases in force |
 | `handoffs/` | Packets between runtimes: `claude-to-codex/`, `codex-to-claude/`, `completed/`, `rejected/` |
 | `tasks/` | `queued/` → `active/` → `blocked/` → `review/` → `completed/` |
@@ -50,9 +54,12 @@ No install is required. Node 22.6+ runs the TypeScript directly.
 
 ## 📏 The five rules
 
-**1. Exposure is not verification.** A tool appearing in a runtime listing proves
-nothing. `LIVE_VERIFIED` means a call returned in a recorded session, and the
-entry names the call. `CATALOG` is not `PRODUCTION`.
+**1. Exposure is not verification, and verification expires.** A tool appearing
+in a runtime listing proves nothing. An observation records a call that actually
+returned, and every connector carries a freshness budget: past it, the control
+plane reports the entry as **stale** rather than presenting an old reading as
+current. `CATALOG` is not `PRODUCTION`, and "we checked yesterday" is not
+"healthy now". A failed reading is never fresh, however recent.
 
 **2. History is append-only.** Nothing in `events.jsonl` is edited or deleted. A
 mistake is corrected by appending a `CORRECTION` that references the original.
@@ -98,4 +105,21 @@ next session of this one — resumes without re-deriving what you already learne
   out.
 - **Lane B private family records.** They stay in Lane B.
 - **Claims without evidence.** If a thing was not observed, its status is ❓
-  UNKNOWN and it says so.
+  UNKNOWN and it says so. A connector never looked at reports `NEVER_OBSERVED`,
+  not "healthy".
+
+## 🔌 Connecting to a system of record
+
+The kernel holds no credentials and opens no sockets. An authorized runtime
+performs the read and hands the result to the bus:
+
+```
+runtime calls the connector  →  writes an observation JSON
+      →  npm run bus -- sync --file that.json
+      →  kernel validates it, stores it in live/, appends an event
+      →  npm run bus -- connectors  shows freshness against the budget
+```
+
+Put counts and states in `metrics`. Put anything identifying in `detail`, which
+never leaves `live/`. The committed record of a sync is the event, which carries
+the summary and never the detail.

@@ -11,15 +11,15 @@
   "entity": "Neterverse Trust Enterprise (NTE)",
   "capacity": "Minister / Authorized Representative",
   "risk_tier": "R1",
-  "objective": "Independently verify the shared-state kernel as Verifier, then extend the bus with the task and handoff lifecycle the kernel does not yet implement.",
-  "current_state": "The bus exists at .neterverse/ with seven schemas and five state files, all validating. The kernel at packages/neterverse-kernel implements schema validation, the lane firewall, risk tiering and the approval boundary, an append-only event log, task leases, and registry loading. 43 tests pass under node --test with no dependencies installed. Nothing is deployed.",
+  "objective": "Independently verify the kernel and its connector layer as Verifier, then extend the bus with the task and handoff lifecycle it still lacks.",
+  "current_state": "The bus is connected to six systems of record and reports its own staleness. The kernel implements schema validation, the lane firewall, risk tiers and the approval boundary, an append-only event log, task leases, registry loading, connector declarations with freshness budgets, live observation recording, and a committed-state audit. 59 tests pass under node --test with no dependencies installed. The full repository build still completes. Nothing is deployed and no connector was written to.",
   "verified_facts": [
     "Node 22.22.2 executes TypeScript directly, so the kernel and its tests run on a fresh checkout with no npm install",
-    "Six source-of-truth connectors answered a read-only call this session: GitHub, Google Drive, ClickUp, Notion, Google Calendar, Gmail",
-    "ClickUp already separates the family lane into its own space",
-    "The current commercial release record in Drive sets release state to HOLD pending open evidence gates; detail stays in Drive",
-    "Khu-el/Khu-el is a public repository",
-    "43 kernel tests pass, 0 fail, and the full repository build still completes"
+    "All six declared connectors returned a live read on 2026-09-11 and are recorded as fresh against their budgets",
+    "ClickUp separates the family lane into its own space",
+    "The calendar set spans two timezones, so a single-timezone assumption in any scheduled task will misplace events",
+    "Khu-el/Khu-el is a public repository, so committed bus state carries no identifiers and an audit enforces it",
+    "59 kernel tests pass, 0 fail; tsc --noEmit clean; npm run build completes across four apps and the server"
   ],
   "sources": [
     "packages/governance-core/src/types.ts - the vocabulary the kernel mirrors",
@@ -38,43 +38,52 @@
     "The event log is append-only; corrections are new events referencing the original"
   ],
   "open_questions": [
-    "Two private repositories in the account are named or described as a command center. What is in them, and does this control plane duplicate them?",
+    "Two private repositories in the account are named or described as a command center and could not be attached. What is in them, and does this control plane duplicate them?",
     "Should the control plane live in a public repository at all, or move to a private one?",
-    "Which February 2026 governance-architecture document controls, if any? Several overlap with no supersession marking.",
+    "Which February 2026 governance-architecture document controls, if any?",
     "Does the Cross-Lane tag in the April lane doctrine need a representation in code, or is a declared bridge the correct expression of it?",
-    "Which automation engine owns which production trigger and write path? None is assigned, so duplicate-write risk is open."
+    "Which automation engine owns which production trigger and write path? None is assigned."
   ],
   "risks": [
-    "This repository is public. Bus state must carry mechanism and non-identifying status only; a future agent adding a record identifier here would publish it",
-    "A control plane that drifts from the systems it describes becomes confidently wrong; every registry entry carries an as-of and a verification method for that reason",
-    "The MCP connector servers dropped and reattached repeatedly during this session, so any automation assuming a stable attachment needs a retry path",
+    "This repository is public. Bus state must carry mechanism and non-identifying status only; `npm run bus -- audit` enforces it, and a new rule is needed whenever a new identifier shape appears",
+    "Nothing polls. Freshness only improves when a sync is actually run, which is deliberate: an automatic poller would need stored credentials",
+    "A control plane that drifts from the systems it describes becomes confidently wrong; staleness reporting is the mitigation, not a cure",
     "Lease overlap is exact-match by design; a resource named two different ways by two agents will not conflict when it should"
   ],
   "dependencies": [
     "Node 22.6 or newer for native TypeScript execution"
   ],
   "required_output": [
-    "A verdict of PASS, PASS WITH CONDITIONS, FAIL or BLOCKED BY EVIDENCE on the kernel",
-    "Independent review of lane isolation, the approval boundary, lease conflict handling and event immutability",
-    "If PASS: implement task and handoff lifecycle helpers in the kernel, with tests, so tasks move between the queued, active, blocked, review and completed directories under validation rather than by hand",
+    "A verdict of PASS, PASS WITH CONDITIONS, FAIL or BLOCKED BY EVIDENCE on the kernel and the connector layer",
+    "Independent review of lane isolation, the approval boundary, lease conflict handling, event immutability, and whether the audit rules can be evaded by a realistic identifier shape",
+    "If PASS: implement task and handoff lifecycle helpers with tests, so tasks move between queued, active, blocked, review and completed under validation rather than by hand",
     "A handoff packet written back to .neterverse/handoffs/codex-to-claude/"
   ],
   "human_gate": null,
-  "last_action": "Sanitized the bus for a public repository, then seeded the event log with 17 events covering connector verification, the data-boundary correction, the possible duplicate command centers, three source conflicts, the unassigned automation ownership, the code change, the passing tests and the completed build.",
-  "next_action": "Run npm test --workspace=packages/neterverse-kernel, read src/lane.ts and src/risk.ts adversarially, and try to find an input that crosses a lane or passes the approval boundary without a gate.",
+  "last_action": "Connected the bus to all six systems of record with read-only calls, recorded each as a live observation, and confirmed 6/6 fresh with the committed-state audit clean.",
+  "next_action": "Run npm test, then read src/lane.ts, src/risk.ts and src/audit.ts adversarially: try to find an input that crosses a lane, passes the approval boundary without a gate, or slips an external identifier past the audit into committed state.",
   "files_changed": [
     ".neterverse/schemas/*.schema.json",
     ".neterverse/state/*.json",
     ".neterverse/events/events.jsonl",
     ".neterverse/decisions/ADR-0001-control-plane-foundation.md",
-    "packages/neterverse-kernel/**"
+    "packages/neterverse-kernel/**",
+    ".neterverse/schemas/observation.schema.json",
+    ".neterverse/decisions/ADR-0002-connecting-to-systems-of-record.md",
+    "packages/neterverse-kernel/src/connectors.ts",
+    "packages/neterverse-kernel/src/observations.ts",
+    "packages/neterverse-kernel/src/audit.ts"
   ],
   "commits": [],
   "tests_run": [
-    "node --test 'test/*.test.ts' in packages/neterverse-kernel"
+    "node --test 'test/*.test.ts' in packages/neterverse-kernel",
+    "tsc -p tsconfig.json --noEmit",
+    "npm run build at the repo root"
   ],
   "test_results": [
-    "43 pass, 0 fail"
+    "59 pass, 0 fail",
+    "typecheck clean",
+    "build completes"
   ],
   "deployment_state": "TESTED_LOCALLY",
   "rollback": "The kernel and the bus are additive. Deleting packages/neterverse-kernel and .neterverse/ returns the repository to its prior state; no existing file's behaviour was changed.",

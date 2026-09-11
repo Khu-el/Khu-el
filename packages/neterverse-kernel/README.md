@@ -26,11 +26,14 @@ node src/cli.ts status           # or npm run bus -- status
 | `bus.ts` | Bus layout and the append-only event log |
 | `leases.ts` | Task leases, so two runtimes never write the same resource |
 | `registries.ts` | Loading and validating `.neterverse/state/` |
-| `cli.ts` | `status`, `events`, `leases`, `lease`, `validate`, `log` |
+| `connectors.ts` | What each system of record is authoritative for, and its freshness budget |
+| `observations.ts` | Recording live readings, and knowing when one has gone stale |
+| `audit.ts` | Scanning committed state for anything unpublishable |
+| `cli.ts` | `status`, `connectors`, `sync`, `audit`, `events`, `leases`, `lease`, `validate`, `log` |
 
 ---
 
-## Four behaviours worth knowing before you use it
+## Six behaviours worth knowing before you use it
 
 **Cross-lane operations throw by default.** `assertLaneCompatible()` passes only
 on a same-lane operation, or with a bridge naming that exact pair *and* carrying
@@ -61,11 +64,30 @@ Leases expire so a dead runtime cannot hold a resource forever.
 
 ---
 
+**Verification expires.** Every connector declares how long a reading stays
+useful. Past that budget the reading is `STALE`, a connector never read is
+`NEVER_OBSERVED`, and a failed reading is never `FRESH` however recent it is. A
+control plane that reports yesterday's look as today's health is the failure this
+prevents.
+
+```ts
+connectorHealth(root, 'clickup');  // FRESH | STALE | NEVER_OBSERVED
+```
+
+**The kernel never holds a credential and never opens a socket.** An authorized
+runtime performs the read and hands the result to `recordObservation`. That split
+is what lets the kernel run on a fresh clone with nothing configured, and what
+keeps a token out of a public repository. Identifying material goes in an
+observation's `detail` and stays in the gitignored `live/`; `auditCommittedState`
+fails the build if any of it reaches committed state.
+
 ## Testing
 
-43 tests, covering the denied paths rather than only the happy ones: crossing a
+59 tests, covering the denied paths rather than only the happy ones: crossing a
 lane without a bridge, a bridge for the wrong pair, a bridge with no authority, a
 human-only action mis-tiered as R0, an R3 action under a permissive ceiling,
 overlapping lease claims, an expired lease, an event with an invented kind, an
-event carrying an unknown field, and a schema keyword the validator does not
-support.
+event carrying an unknown field, a schema keyword the validator does not support,
+an undeclared connector, a reading past its freshness budget, a failed reading
+that is recent, and each identifier shape that leaked into the very first draft
+of this bus.

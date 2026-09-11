@@ -13,3 +13,6 @@ export * from './risk.ts';
 export * from './bus.ts';
 export * from './leases.ts';
 export * from './registries.ts';
+export * from './connectors.ts';
+export * from './observations.ts';
+export * from './audit.ts';

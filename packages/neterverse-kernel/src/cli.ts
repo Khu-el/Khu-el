@@ -7,11 +7,14 @@
  * that exists is a command someone will eventually run.
  */
 
-import { realpathSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { requireBusRoot, readEvents, appendEvent, busPaths, readJson } from './bus.ts';
 import { acquireLease, releaseLease, activeLeases } from './leases.ts';
 import { validateAllRegistries, formatProblems, loadRegistry } from './registries.ts';
+import { allConnectorHealth, recordObservation, type Observation } from './observations.ts';
+import { CONNECTORS } from './connectors.ts';
+import { auditCommittedState, formatFindings } from './audit.ts';
 import type { Actor, BusEvent, Lease, RiskTier, Lane, Runtime } from './types.ts';
 
 const USAGE = `neterverse - Neterverse control-plane bus
@@ -23,10 +26,14 @@ const USAGE = `neterverse - Neterverse control-plane bus
                              [--risk R0..R4] [--lane L] [--ttl MINUTES]
   lease release --id LEASE_ID
   validate                   Validate every registry against its schema
+  connectors                 Live connector health and staleness
+  sync --file OBSERVATION    Record a connector observation from a JSON file
+                             (written to the ignored live/ directory)
+  audit                      Scan committed bus state for anything unpublishable
   log --kind K --subject S --summary T [--runtime R] [--instance I]
                              [--lane L] [--risk R0..R4]
 
-Exit codes: 0 success, 1 usage or validation failure, 2 lease denied.
+Exit codes: 0 success, 1 usage, validation or audit failure, 2 lease denied.
 `;
 
 function arg(argv: string[], name: string): string | undefined {
@@ -53,6 +60,19 @@ function cmdStatus(root: string): number {
     `${connectors.entries.filter((c) => c.verification_state === 'LIVE_VERIFIED').length} LIVE_VERIFIED`);
   console.log(`active leases    ${leases.length}`);
   console.log(`events           ${events.length}`);
+
+  // Freshness is computed from live observations, never from a committed
+  // field. A stored "last verified" date ages silently; this does not.
+  const health = allConnectorHealth(root);
+  const fresh = health.filter((h) => h.freshness === 'FRESH').length;
+  const never = health.filter((h) => h.freshness === 'NEVER_OBSERVED').length;
+  console.log(`connector health ${fresh}/${health.length} fresh` +
+    (never > 0 ? `, ${never} never observed` : '') +
+    (fresh < health.length - never ? `, ${health.length - never - fresh} stale` : ''));
+  for (const h of health.filter((x) => x.freshness !== 'FRESH')) {
+    console.log(`  ${h.name}: ${h.freshness.toLowerCase().replace('_', ' ')}` +
+      (h.age_minutes === null ? '' : ` (${h.age_minutes}m old, budget ${h.budget_minutes}m)`));
+  }
 
   for (const lease of leases) {
     console.log(`  lease ${lease.lease_id} ${lease.agent.runtime} ${lease.scope} -> ${lease.resources.join(', ')} until ${lease.expiration}`);
@@ -138,6 +158,54 @@ function cmdValidate(root: string): number {
   return 1;
 }
 
+const FRESHNESS_MARK: Record<string, string> = {
+  FRESH: 'fresh',
+  STALE: 'STALE',
+  NEVER_OBSERVED: 'never observed',
+};
+
+function cmdConnectors(root: string): number {
+  const health = allConnectorHealth(root);
+  const stale = health.filter((h) => h.freshness !== 'FRESH');
+
+  for (const h of health) {
+    const age = h.age_minutes === null ? '-' : `${h.age_minutes}m old, budget ${h.budget_minutes}m`;
+    console.log(`${h.name.padEnd(18)} ${FRESHNESS_MARK[h.freshness]?.padEnd(15)} ${age}`);
+    if (h.summary) console.log(`    ${h.summary}`);
+  }
+
+  console.log(`\n${health.length - stale.length}/${health.length} connectors fresh.`);
+  // Staleness is reported, never treated as failure: an old look is a fact
+  // about the control plane, not an error in it.
+  return 0;
+}
+
+function cmdSync(root: string, argv: string[]): number {
+  const file = arg(argv, 'file');
+  if (!file) {
+    console.error('sync requires --file pointing at a JSON observation');
+    console.error(`Declared connectors: ${CONNECTORS.map((c) => c.connector_id).join(', ')}`);
+    return 1;
+  }
+
+  const input = JSON.parse(readFileSync(file, 'utf8')) as Observation;
+  const observation = recordObservation(root, input);
+  console.log(`Recorded ${observation.observation_id} for ${observation.connector_id} (${observation.outcome}).`);
+  return 0;
+}
+
+function cmdAudit(root: string): number {
+  const findings = auditCommittedState(root);
+  if (findings.length === 0) {
+    console.log('Committed bus state is clean.');
+    return 0;
+  }
+  console.error(`${findings.length} finding(s) in committed state:`);
+  console.error(formatFindings(findings));
+  console.error('\nThis repository is public. Move identifying material to live/ or remove it.');
+  return 1;
+}
+
 function cmdLog(root: string, argv: string[]): number {
   const kind = arg(argv, 'kind');
   const subject = arg(argv, 'subject');
@@ -169,6 +237,9 @@ function main(argv: string[]): number {
     case 'leases': return cmdLeases(root);
     case 'lease': return cmdLease(root, argv);
     case 'validate': return cmdValidate(root);
+    case 'connectors': return cmdConnectors(root);
+    case 'sync': return cmdSync(root, argv);
+    case 'audit': return cmdAudit(root);
     case 'log': return cmdLog(root, argv);
     default:
       console.error(`Unknown command "${command}".\n\n${USAGE}`);
