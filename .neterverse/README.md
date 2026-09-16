@@ -94,6 +94,40 @@ next session of this one — resumes without re-deriving what you already learne
 
 ---
 
+## 🤝 Two spellings of one handoff
+
+`docs/AI_COUNCIL.md` §7 defines a **prose** handoff and
+`docs/ai-council/TEMPLATES.md` gives its full form. This bus defines a
+**machine-validated** one in `schemas/handoff.schema.json`. They are not two
+systems — they are one idea written for two readers, and the rule from §6 and
+Executive OS §4 is *map, do not multiply*.
+
+| AI Council §7 | Bus handoff field |
+|---|---|
+| OBJECTIVE | `objective` |
+| CURRENT STATE | `current_state` |
+| COMPLETED | `last_action`, plus `files_changed` · `commits` · `tests_run` · `test_results` |
+| DECISIONS | `decisions` |
+| CONSTRAINTS | `dependencies` · `risks` |
+| OPEN QUESTIONS | `open_questions` |
+| RECOMMENDED NEXT ACTION | `next_action` |
+| BEST NEXT INTELLIGENCE | `recipient` |
+| APPROVAL NEEDED | `human_gate` |
+
+**Two gaps, left visible rather than papered over:** the Council's **STRONG
+POINTS** and **OPPORTUNITIES** have no field in the bus schema. They are
+judgements about a contributor's work, and the bus records machine-checkable
+state — `verified_facts` is the nearest thing and is not the same thing. A
+handoff that needs to credit what worked or name an opening should say so in
+prose, using the Council template, and reference the packet.
+
+**Which to use:** a packet passing between runtimes belongs on the bus, where it
+is validated. A handoff a person will read belongs in the Council's prose form.
+A consequential handoff can be both, and then the packet is the record of state
+and the prose is the record of judgement.
+
+---
+
 ## 🚫 What does not belong here
 
 - **Secrets.** No key, token, password or connection string, ever. Platform
