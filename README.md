@@ -13,6 +13,11 @@ checklists, and draft decision memos — instead of hype.
 > including the approval boundary the backend enforces in code. [`CLAUDE.md`](CLAUDE.md) is the
 > repo-specific layer for anyone (human or agent) picking up work here.
 
+> **🌐 Where this runs:** [`docs/DOMAIN_NETWORK.md`](docs/DOMAIN_NETWORK.md) maps every hostname on
+> the `excellencedistrict.org` network across all three repos, and
+> [`docs/CONNECTORS.md`](docs/CONNECTORS.md) registers every connector, tool, and plugin available
+> to it — with what each one is and is not allowed to do.
+
 ## Why these apps look the way they do
 
 The source material for this build (real-estate/wealth "blueprint" decks, plus an NTE/CCRLT
@@ -167,11 +172,26 @@ One-time setup, both in the repo's GitHub settings (not something I can click th
 1. **Settings → Pages → Source → GitHub Actions.** (Pages is off by default; the workflow can't
    publish anything until this is set.)
 2. **Settings → Secrets and variables → Actions → Variables → New repository variable** named
-   `VITE_API_BASE_URL`, set to your deployed backend URL (`https://your-chosen-app-name.fly.dev`).
-   Without this, the deployed apps fall back to `http://localhost:4000` and just show "offline."
+   `VITE_API_BASE_URL`, set to your deployed backend URL (`https://your-chosen-app-name.fly.dev`,
+   or `https://api.excellencedistrict.org` once that hostname exists). Without this, the deployed
+   apps fall back to `http://localhost:4000` and just show "offline."
 3. Once you know the Pages URL is live, go back and run `fly secrets set
    CORS_ORIGINS=https://khu-el.github.io` (one origin covers all four apps + the landing page, since
    they share a domain) and `fly deploy` again so the backend actually accepts requests from it.
+
+### Putting it on excellencedistrict.org
+
+The apps are meant to end up at `apps.excellencedistrict.org`, with the backend at
+`api.excellencedistrict.org` and the Squarespace site and Google Workspace mail left untouched on
+the apex. [`docs/DOMAIN_NETWORK.md`](docs/DOMAIN_NETWORK.md) is the canonical map: the DNS rows to
+add, the order to add them in, and the verification commands. None of it has been executed — DNS
+edits are on the human side of the approval boundary.
+
+The one thing worth knowing before reading that file: there is deliberately **no `CNAME` file in
+this repo**. The Pages workflow writes `_site/CNAME` from a `PAGES_CUSTOM_DOMAIN` repository
+variable, and skips the step while it is unset. A checked-in `CNAME` would attach the custom domain
+the moment it merged — which, before the DNS record resolves, takes the site off
+`khu-el.github.io` and serves nothing in its place.
 
 The workflow runs on every push to `main`, and can also be triggered by hand from the repo's Actions
 tab (`Deploy web apps to GitHub Pages` → Run workflow) — including from this branch, before merging,
