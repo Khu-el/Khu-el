@@ -12,3 +12,8 @@ server/uploads/*
 .env
 .env.*
 !.env.example
+
+# Live control-plane observations. These carry account, workspace and file
+# identifiers and record content. This repository is public, so they are never
+# committed; `npm run bus -- audit` verifies the boundary held.
+.neterverse/live/

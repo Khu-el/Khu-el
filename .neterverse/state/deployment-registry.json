@@ -1,0 +1,27 @@
+{
+  "as_of": "2026-09-10T23:26:24Z",
+  "note": "DEPLOYED and LIVE_VERIFIED are different states. Nothing reaches LIVE_VERIFIED without evidence that the live surface answered.",
+  "entries": [
+    {
+      "target": "Khu-el/Khu-el web/landing and app builds",
+      "surface": "GitHub Pages via .github/workflows/deploy-pages.yml on push to main",
+      "state": "UNKNOWN",
+      "evidence": "Not checked from this session. The workflow file exists; no run and no live fetch was verified.",
+      "lane": "LANE_A"
+    },
+    {
+      "target": "Khu-el/Khu-el server",
+      "surface": "server/Dockerfile plus fly.toml",
+      "state": "UNKNOWN",
+      "evidence": "Configuration exists in the repository. No deployment and no health check was observed.",
+      "lane": "LANE_A"
+    },
+    {
+      "target": "@nte/neterverse-kernel",
+      "surface": "Local workspace package; no deployment target",
+      "state": "TESTED_LOCALLY",
+      "evidence": "43 tests pass under node --test in this session",
+      "lane": "LANE_A"
+    }
+  ]
+}

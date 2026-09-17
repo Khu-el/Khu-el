@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "neterverse://schemas/lease.schema.json",
+  "title": "Task lease",
+  "description": "A concurrency claim over named resources, so Claude Code and Codex never write the same resource at once.",
+  "type": "object",
+  "required": ["lease_id", "task_id", "agent", "scope", "resources", "start_time", "expiration", "risk_tier"],
+  "additionalProperties": false,
+  "properties": {
+    "lease_id": { "type": "string", "pattern": "^lease_[a-z0-9_]+$" },
+    "task_id": { "type": "string", "minLength": 1 },
+    "agent": {
+      "type": "object",
+      "required": ["runtime", "instance_id"],
+      "additionalProperties": false,
+      "properties": {
+        "runtime": { "type": "string", "enum": ["CLAUDE_CODE", "CODEX", "OTHER_AUTHORIZED_RUNTIME", "HUMAN"] },
+        "instance_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "scope": { "type": "string", "minLength": 1 },
+    "resources": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "start_time": { "type": "string", "format": "date-time" },
+    "expiration": { "type": "string", "format": "date-time" },
+    "risk_tier": { "type": "string", "enum": ["R0", "R1", "R2", "R3", "R4"] },
+    "lane": { "type": "string", "enum": ["LANE_A", "LANE_B", "PERSONAL", "PHILANTHROPIC", "UNCLASSIFIED"] },
+    "note": { "type": "string" }
+  }
+}
