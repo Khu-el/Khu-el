@@ -1,0 +1,89 @@
+name: Verify
+
+# The repository documents four mechanical guarantees -- the kernel suite, a type
+# sweep, the registry validator and the public-repo leak audit -- and until now
+# nothing ran any of them automatically. The only workflow on main triggers on
+# push to main and workflow_dispatch, so no pull request in this repository has
+# ever carried a check. The guarantees held because someone remembered to run
+# them, which is the shape of assurance the governance model exists to replace.
+#
+# Steps are kept separate rather than folded into one script so a red run names
+# which guarantee broke instead of only reporting that "verify" failed.
+#
+# This does not touch deploy-pages.yml. That workflow's own failure (Pages is
+# not enabled for the repository) is a repository setting, not a code defect,
+# and its action versions are being fixed in PR #9.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # The only tests in this repository. CLAUDE.md is explicit that a claim of
+      # "tests pass" is only honest about this workspace.
+      - name: Kernel test suite
+        run: npm test
+
+      # Covers the four apps, the server and the kernel. governance-core has no
+      # tsconfig of its own and is typechecked transitively through the apps
+      # that import its source.
+      - name: Type sweep
+        run: npm run typecheck
+
+      - name: Build every workspace
+        run: npm run build
+
+      - name: Control-plane registries are valid
+        run: npm run bus -- validate
+
+      # This repository is public. The audit scans committed bus state for
+      # emails, tokens, key material and record identifiers.
+      - name: Committed bus state carries nothing unpublishable
+        run: npm run bus -- audit
+
+      # Two boundaries from CLAUDE.md that are mechanical, and whose violation
+      # would be both costly and easy to miss in a diff.
+      - name: Live control-plane state is not committed
+        run: |
+          set -euo pipefail
+          if [ -n "$(git ls-files .neterverse/live/)" ]; then
+            echo "::error::.neterverse/live/ is gitignored and must never be committed."
+            git ls-files .neterverse/live/
+            exit 1
+          fi
+          echo "No tracked files under .neterverse/live/."
+
+      # A checked-in CNAME takes effect the moment it merges. If the DNS record
+      # does not resolve yet, that moves the site off khu-el.github.io and
+      # serves nothing in its place. The deploy workflow writes _site/CNAME from
+      # the PAGES_CUSTOM_DOMAIN repository variable instead, so attaching the
+      # domain stays a deliberate act gated on DNS.
+      - name: No CNAME file is checked in
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -iE '(^|/)CNAME$'; then
+            echo "::error::A committed CNAME takes the site offline if the DNS record does not exist yet. Set the PAGES_CUSTOM_DOMAIN repository variable instead -- see docs/DOMAIN_NETWORK.md."
+            exit 1
+          fi
+          echo "No CNAME file tracked."
