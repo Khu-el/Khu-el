@@ -1,0 +1,1278 @@
+{
+  "_note": "The entry count, the status distribution, the twelve house names, the deliverable gap and its type breakdown, the five course-level conditions and the six-step amendment procedure are all sourced. Course titles, house assignment, level, price and per-course deliverable counts are not in this workspace and are left null. Eighty-three invented course titles would read as a working catalog somebody could be sold from, which is the worst kind of defect this console can ship.",
+  "outwardName": "Academy",
+  "internalName": "Education",
+  "namingCondition": "Q-12",
+  "namingNote": "Anything a student or a prospect reads says Academy. The other word is not usable in a public-facing string in this state without commission authorisation, and the naming condition is still open.",
+  "distribution": {
+    "BUILT": 30,
+    "PARTIAL": 1,
+    "SPECIFIED": 49,
+    "PLANNED": 3,
+    "total": 83,
+    "note": "Post-Amendment 002."
+  },
+  "courses": [
+    {
+      "id": "C-001",
+      "code": "EVOP-201",
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "PARTIAL",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "statusAssumed": true,
+      "inoperable": true,
+      "inoperableBecause": "The 40-document practice file it teaches against is not built. The course cannot be run until that file exists, whatever its build status says.",
+      "note": "Assigned to the single PARTIAL entry on the reading that a course whose dependency is unbuilt is partially built. That assignment is an assumption of this console, not a fact carried from the register — confirm it before relying on the distribution."
+    },
+    {
+      "id": "C-002",
+      "code": "TRMS-201",
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": "CP-4",
+      "note": "Held behind the licensing and securities review before release."
+    },
+    {
+      "id": "C-003",
+      "code": "TRRE-201",
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": "CP-6",
+      "note": "Modules IV and VII are held behind the tax attorney review."
+    },
+    {
+      "id": "C-004",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "authored": true,
+      "note": "Authored for this catalog. It is not recovered prior work and must never be presented as such. This flag does not come off."
+    },
+    {
+      "id": "C-005",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "authored": true,
+      "note": "Authored for this catalog. It is not recovered prior work and must never be presented as such. This flag does not come off."
+    },
+    {
+      "id": "C-006",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "authored": true,
+      "note": "Authored for this catalog. It is not recovered prior work and must never be presented as such. This flag does not come off."
+    },
+    {
+      "id": "C-007",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "authored": true,
+      "note": "Authored for this catalog. It is not recovered prior work and must never be presented as such. This flag does not come off."
+    },
+    {
+      "id": "C-008",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "authored": true,
+      "note": "Authored for this catalog. It is not recovered prior work and must never be presented as such. This flag does not come off."
+    },
+    {
+      "id": "C-009",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "authored": true,
+      "note": "Authored for this catalog. It is not recovered prior work and must never be presented as such. This flag does not come off."
+    },
+    {
+      "id": "C-010",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-011",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-012",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-013",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-014",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-015",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-016",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-017",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-018",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-019",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-020",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-021",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-022",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null,
+      "productionReady": true,
+      "note": "Production-ready. Waiting on a house with nothing built in it."
+    },
+    {
+      "id": "C-023",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-024",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-025",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-026",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-027",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-028",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-029",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-030",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-031",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-032",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-033",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-034",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-035",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-036",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-037",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-038",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-039",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-040",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-041",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-042",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-043",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-044",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-045",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-046",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "BUILT",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-047",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-048",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-049",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-050",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-051",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-052",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-053",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-054",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-055",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-056",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-057",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-058",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-059",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-060",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-061",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-062",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-063",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-064",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-065",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-066",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-067",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-068",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-069",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-070",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-071",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-072",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-073",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-074",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-075",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-076",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-077",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-078",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-079",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-080",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "SPECIFIED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-081",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "PLANNED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-082",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "PLANNED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    },
+    {
+      "id": "C-083",
+      "code": null,
+      "title": null,
+      "house": null,
+      "level": null,
+      "price": null,
+      "status": "PLANNED",
+      "deliverablesFilled": null,
+      "deliverableSlots": 8,
+      "blockingCp": null
+    }
+  ],
+  "houses": [
+    {
+      "numeral": "I",
+      "name": "Ma'at",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "II",
+      "name": "Auset",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "III",
+      "name": "Ptah",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "IV",
+      "name": "Djehuti",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "V",
+      "name": "Heru",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "VI",
+      "name": "Hapi",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "VII",
+      "name": "Sekhmet",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "VIII",
+      "name": "Amun",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "IX",
+      "name": "Seshat",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "X",
+      "name": "Hu",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "XI",
+      "name": "Sia",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    },
+    {
+      "numeral": "XII",
+      "name": "Khepera",
+      "builtCount": null,
+      "note": "Built count per house is not in this workspace."
+    }
+  ],
+  "housesAtZero": {
+    "count": 4,
+    "which": null,
+    "waitingSpecCount": 13,
+    "note": "Four houses have nothing built in them and thirteen production-ready specs are waiting on them. Which four, and which spec goes to which, is not in this workspace — so the specs render as thirteen distinct rows rather than as a count, and no house is named as empty on a guess."
+  },
+  "deliverables": {
+    "slots": 248,
+    "filled": 152,
+    "open": 96,
+    "slotsPerCourse": 8,
+    "note": "248 is eight slots against each of the 31 entries that are BUILT or PARTIAL. The per-course split of the 152 filled is not in this workspace, so the rows above say so and only the aggregate is claimed.",
+    "byType": [
+      {
+        "type": "CERT",
+        "open": 21
+      },
+      {
+        "type": "GLOS",
+        "open": 20
+      },
+      {
+        "type": "CAT",
+        "open": 17
+      },
+      {
+        "type": "STG",
+        "open": 15
+      },
+      {
+        "type": "SYL",
+        "open": 9
+      },
+      {
+        "type": "WBK",
+        "open": 5
+      },
+      {
+        "type": "TEXT",
+        "open": 5
+      },
+      {
+        "type": "ASMT",
+        "open": 4
+      }
+    ],
+    "waves": [
+      {
+        "id": "W-1",
+        "quarter": null
+      },
+      {
+        "id": "W-2",
+        "quarter": null
+      },
+      {
+        "id": "W-3",
+        "quarter": null
+      },
+      {
+        "id": "W-4",
+        "quarter": null
+      },
+      {
+        "id": "W-5",
+        "quarter": null
+      },
+      {
+        "id": "W-6",
+        "quarter": null
+      },
+      {
+        "id": "W-7",
+        "quarter": null
+      },
+      {
+        "id": "W-8",
+        "quarter": null
+      }
+    ],
+    "waveNote": "Eight waves. Quarter assignment is not in this workspace. Eight waves across eight quarters is the obvious mapping and is exactly the kind of guess that later gets quoted as a commitment, so the column is empty."
+  },
+  "conditions": [
+    {
+      "id": "CP-3",
+      "alias": "Q-08",
+      "title": "Georgia attorney review of certificate texts",
+      "covers": "Styling as well as wording.",
+      "cleared": false
+    },
+    {
+      "id": "CP-4",
+      "alias": "Q-09",
+      "title": "Licensing and securities review",
+      "covers": "TRMS-201, before release.",
+      "cleared": false
+    },
+    {
+      "id": "CP-5",
+      "alias": "Q-10",
+      "title": "Due-on-sale acceleration disclosure",
+      "covers": "Verified before the material teaches around it.",
+      "cleared": false
+    },
+    {
+      "id": "CP-6",
+      "alias": "Q-11",
+      "title": "Georgia tax attorney review",
+      "covers": "TRRE-201 Modules IV and VII.",
+      "cleared": false
+    },
+    {
+      "id": "CP-9",
+      "alias": "Q-11",
+      "title": "Georgia tax attorney review of the trust course modules",
+      "covers": "Renumbered from CP-6, which two systems used for different things. Both resolve to Q-11.",
+      "cleared": false
+    }
+  ],
+  "doctrineScreen": {
+    "run": false,
+    "test": "Does the asset teach placing income into a grantor-controlled structure described as non-grantor?",
+    "consequence": "Any asset that does renders UNPUBLISHED and locked. It is not previewable and not releasable.",
+    "flagged": [],
+    "note": "The screen has not been run against the catalog. Zero flagged entries below means nobody has looked, not that nothing is there. No course in this register is clear of this test."
+  },
+  "amendments": {
+    "procedure": [
+      "Declare",
+      "Conform",
+      "Place",
+      "Crosswalk",
+      "Declare deliverables",
+      "Clear compliance"
+    ],
+    "note": "Six steps, in order, for every build that happened outside the register. A build that skipped a step is not amended, it is pending.",
+    "entries": [
+      {
+        "id": "AM-002",
+        "title": "Amendment 002",
+        "against": "Course register",
+        "reached": "UNKNOWN",
+        "entry": "Took the register to 83 entries. Which of the six steps this amendment completed is not recorded in this workspace.",
+        "date": "UNKNOWN"
+      }
+    ]
+  }
+}
