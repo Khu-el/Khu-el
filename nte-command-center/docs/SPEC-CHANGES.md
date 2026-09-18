@@ -153,3 +153,72 @@ real guarantee for a cosmetic one.
 nothing reads should not be in the bundle. The scan result now carries
 `patternsDefinedIn: 'scripts/check-network.mjs'` — a path rather than a list of
 API names. The patterns still live in the script, which is where they are used.
+
+---
+
+## SC-07 · One copy of the firewall terms, and one copy of the network matchers
+
+**Changed** `src/core/lane-guard.ts`, `scripts/check-lanes.mjs`,
+`scripts/check-network.mjs`, `scripts/check-bundle.mjs`; adds
+`src/core/firewall-terms.mjs` and `scripts/network-patterns.mjs`.
+
+**Raised by** review on PR #4, and it corrects an overclaim in SC-04.
+
+**The conflict.** SC-04 said both halves of the firewall apply the same rule.
+That was true of the matcher and **false of the term lists**.
+`scripts/check-lanes.mjs` carried its own `ENTERPRISE` array, and it omitted
+`PMA`, `Lane A`, `Lane B` and `lane`. Confirmed by probe: a file under
+`src/modules/practice-desk/` containing all three of those terms reported
+**"Lane firewall: clear."** and was then blocked by `guardText` at render. A
+firewall that answers a question it did not ask is worse than no firewall.
+
+Three holes in the network gates, each confirmed the same way before fixing:
+
+| Hole | Probe result before the fix |
+|---|---|
+| The local-host exemption was a prefix, so any hostname *starting* with `localhost` was exempt | `http://localhost.evil.example/collect` → "External origins: none" |
+| Scheme-relative URLs carry no `http`, so no pattern saw them | `//evil.example/beacon.js` → "External origins: none" |
+| The built-output inert list matched by prefix, vouching for every URL under an accounted host | `url(https://reactjs.org/pixel)` would pass with no request-capable call |
+
+**The change.** The term lists, the matcher and the practice-path rule live in
+`src/core/firewall-terms.mjs`; the URL matchers live in
+`scripts/network-patterns.mjs`. Each is imported by both halves, and tests
+assert the halves agree. The inert list is now keyed by **exact URL**, a URL
+inside a CSS `url()` is a finding whatever the string is, and scheme-relative
+URLs are matched in source, in the bundle and in HTML attributes.
+
+**Both shared modules are `.mjs` on purpose.** The scans read
+`.ts/.tsx/.json/.css/.html`, so a terms list in any of those would flag itself
+and need an exemption. **Neither guard script's `EXEMPT` list has been
+touched**; both are identical to the delivered scaffold.
+
+**One narrowing, stated plainly.** `lane` is a blocked word and also the stem
+of this codebase's own surface identifiers — `Surface` is
+`'lane-a' | 'lane-b' | 'practice'`, and the guard lives in `lane-guard.ts`. The
+term now matches prose and not those three identifiers. A test asserts the
+narrowing is narrow: `lane-c` and `lane-guardian` still fire, as do the prose
+spellings `Lane A` and `Lane B`.
+
+---
+
+## SC-08 · The week key is local, not UTC
+
+**Changed** `src/core/build-freeze.ts`, `tests/helpers.tsx`.
+
+**Raised by** review on PR #4.
+
+`mondayOf` mixed local and UTC: `getDay()` and `setDate()` are local,
+`toISOString()` is not. West of Greenwich the key moved forward from the
+evening onwards; east of it, early morning moved the key back a week. Either
+way, contacts logged inside one local week landed under two keys, the week's
+count appeared to reset, and **the freeze could be cleared twice in one week** —
+a bypass of the one rule this console is built around.
+
+Reproduced in `America/New_York` before fixing: Monday 09:00 gave `2026-09-14`,
+Monday 21:00 gave `2026-09-15`.
+
+The key is now formatted from local calendar fields. `tests/helpers.tsx` had
+its own copy of the same calculation carrying the same bug, which is why no
+existing test caught it — the helper and the module agreed while both were
+wrong. It now calls `mondayOf`. The suite passes in `UTC`,
+`America/New_York`, `Asia/Kolkata` and `Pacific/Kiritimati`.

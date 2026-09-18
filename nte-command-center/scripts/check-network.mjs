@@ -9,8 +9,11 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { join, extname } from 'node:path'
 
+import { remoteUrl, schemeRelativeUrl } from './network-patterns.mjs'
+
 const PATTERNS = [
-  { re: /https?:\/\/(?!localhost|127\.0\.0\.1)/g, what: 'remote URL' },
+  { re: remoteUrl(), what: 'remote URL' },
+  { re: schemeRelativeUrl(), what: 'scheme-relative URL' },
   { re: /\bfetch\s*\(/g, what: 'fetch()' },
   { re: /XMLHttpRequest/g, what: 'XMLHttpRequest' },
   { re: /navigator\.sendBeacon/g, what: 'sendBeacon' },

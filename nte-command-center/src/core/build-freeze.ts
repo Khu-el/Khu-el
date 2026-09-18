@@ -47,7 +47,18 @@ export function mondayOf(d: Date): string {
   const day = copy.getDay()
   const diff = day === 0 ? -6 : 1 - day
   copy.setDate(copy.getDate() + diff)
-  return copy.toISOString().slice(0, 10)
+  // Formatted from the local calendar fields, not through toISOString().
+  //
+  // getDay() and setDate() are local; toISOString() converts to UTC. West of
+  // Greenwich that combination moves the key forward a day from the evening
+  // onwards: in America/New_York, Monday 09:00 produced 2026-09-14 and Monday
+  // 21:00 produced 2026-09-15. Contacts logged the same Monday therefore
+  // landed under two different keys, so the week's count appeared to reset and
+  // the freeze could be cleared twice over. Verified before fixing.
+  const year = copy.getFullYear()
+  const month = String(copy.getMonth() + 1).padStart(2, '0')
+  const date = String(copy.getDate()).padStart(2, '0')
+  return `${year}-${month}-${date}`
 }
 
 export function currentWeek(state: FreezeState, now = new Date()): ContactWeek {

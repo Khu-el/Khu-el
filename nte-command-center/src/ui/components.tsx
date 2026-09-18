@@ -245,7 +245,19 @@ export function ProofForm({
   const [source, setSource] = React.useState('')
   const [reference, setReference] = React.useState('')
   const [verifiedBy, setVerifiedBy] = React.useState('')
-  const complete = Boolean(source && reference && verifiedBy)
+  // Trimmed before the completeness test and before submit. Boolean(' ') is
+  // true, so three spaces enabled the control and recorded a Proof whose
+  // fields were blank — and canClear and isAttestedRecord only test that a
+  // proof object exists, so whitespace cleared a condition precedent and
+  // marked a security hold remediated.
+  const trimmed = {
+    source: source.trim(),
+    reference: reference.trim(),
+    verifiedBy: verifiedBy.trim(),
+  }
+  const complete = Boolean(
+    trimmed.source && trimmed.reference && trimmed.verifiedBy,
+  )
 
   return (
     <div style={{ display: 'grid', gap: 'var(--s2)', marginTop: 'var(--s2)' }}>
@@ -280,9 +292,7 @@ export function ProofForm({
         }
         onClick={() =>
           onSubmit({
-            source,
-            reference,
-            verifiedBy,
+            ...trimmed,
             obtained: new Date().toISOString().slice(0, 10),
           })
         }

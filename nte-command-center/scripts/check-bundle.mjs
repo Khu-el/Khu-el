@@ -21,6 +21,11 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, extname } from 'node:path'
+import {
+  cssUrl,
+  htmlRemoteAttr,
+  schemeRelativeUrl,
+} from './network-patterns.mjs'
 
 const DIST = 'dist'
 
@@ -40,18 +45,41 @@ const REQUESTING = [
 
 /**
  * Remote URL strings that are present but never dereferenced.
- * Each needs a reason, and the reason has to be about why no request happens.
+ *
+ * Matched as EXACT strings, not prefixes. A prefix rule accounted for every URL
+ * under a host, so `url(https://reactjs.org/pixel)` in a stylesheet would have
+ * passed this gate carrying no REQUESTING call — the prefix vouched for a
+ * request the reason never covered. Each entry is one whole URL, and the reason
+ * has to be about why that exact string is never fetched.
  */
-const INERT = [
-  {
-    match: (url) => url.startsWith('http://www.w3.org/'),
-    why: 'XML/SVG namespace URI. Used as an identifier in createElementNS and setAttributeNS. The browser never dereferences a namespace.',
-  },
-  {
-    match: (url) => url.startsWith('https://reactjs.org/'),
-    why: "Documentation link inside React's error-decoder message. It is text in a thrown Error, not a target.",
-  },
-]
+const INERT = new Map([
+  [
+    'http://www.w3.org/1999/xhtml',
+    'XML namespace URI. An identifier passed to createElementNS; the browser never dereferences a namespace.',
+  ],
+  [
+    'http://www.w3.org/2000/svg',
+    'SVG namespace URI. An identifier passed to createElementNS.',
+  ],
+  [
+    'http://www.w3.org/1998/Math/MathML',
+    'MathML namespace URI. An identifier passed to createElementNS.',
+  ],
+  [
+    'http://www.w3.org/1999/xlink',
+    'XLink namespace URI. An identifier passed to setAttributeNS.',
+  ],
+  [
+    'http://www.w3.org/XML/1998/namespace',
+    'XML namespace URI. An identifier passed to setAttributeNS.',
+  ],
+  [
+    'https://reactjs.org/docs/error-decoder.html',
+    "Documentation link inside React's error-decoder message. Text in a thrown Error, not a target.",
+  ],
+])
+
+
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -77,10 +105,20 @@ for (const file of walk(DIST)) {
     }
   }
 
+  // A URL in a CSS url() is a request whatever the string is, so it is judged
+  // before the inert list gets a chance to vouch for it.
+  for (const match of text.matchAll(cssUrl())) {
+    failures.push(`${file}: remote URL in CSS url() — ${match[1]}`)
+  }
+
+  for (const url of text.match(schemeRelativeUrl()) ?? []) {
+    failures.push(`${file}: scheme-relative URL ${url}`)
+  }
+
   for (const url of text.match(/https?:\/\/[a-zA-Z0-9./_-]+/g) ?? []) {
-    const inert = INERT.find((i) => i.match(url))
-    if (inert) {
-      accounted.set(url, inert.why)
+    const why = INERT.get(url)
+    if (why) {
+      accounted.set(url, why)
     } else {
       failures.push(`${file}: unaccounted remote URL ${url}`)
     }
@@ -90,7 +128,7 @@ for (const file of walk(DIST)) {
 // An external origin in an HTML attribute is a request the browser makes
 // before any script runs, so it is checked separately and strictly.
 const html = readFileSync(join(DIST, 'index.html'), 'utf8')
-for (const attr of html.match(/(src|href)="https?:\/\/[^"]+"/g) ?? []) {
+for (const attr of html.match(htmlRemoteAttr()) ?? []) {
   failures.push(`dist/index.html: remote ${attr}`)
 }
 if (!/name="robots"\s+content="noindex/.test(html)) {

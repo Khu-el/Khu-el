@@ -1,4 +1,5 @@
 import React, { act } from 'react'
+import { mondayOf } from '../src/core/build-freeze'
 import { createRoot } from 'react-dom/client'
 
 /**
@@ -64,11 +65,15 @@ export function focusables(container: HTMLElement): HTMLElement[] {
   )
 }
 
-/** A freeze state carrying `count` contacts in the current week. */
+/**
+ * A freeze state carrying `count` contacts in the current week.
+ *
+ * Uses mondayOf rather than recomputing the key. It used to have its own copy
+ * of the calculation, carrying the same toISOString bug the real one did — so
+ * at UTC+14 the helper and the module disagreed about which week it was, and
+ * every freeze test silently saw a count of zero. Found by running the suite
+ * in Pacific/Kiritimati. One copy of the rule, and the tests exercise it.
+ */
 export function weekWith(count: number): { weeks: { weekOf: string; count: number }[] } {
-  const now = new Date()
-  const copy = new Date(now)
-  const day = copy.getDay()
-  copy.setDate(copy.getDate() + (day === 0 ? -6 : 1 - day))
-  return { weeks: [{ weekOf: copy.toISOString().slice(0, 10), count }] }
+  return { weeks: [{ weekOf: mondayOf(new Date()), count }] }
 }

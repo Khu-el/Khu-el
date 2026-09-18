@@ -9,6 +9,7 @@
  * Both directions matter. A matcher that never fires is decoration; a matcher
  * that fires on "interface" gets suppressed within a week.
  */
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   ENTERPRISE_TERMS,
@@ -104,5 +105,69 @@ describe('the two halves of the firewall agree', () => {
     for (let i = 0; i < 3; i++) {
       expect(guardText('NTE', 'practice').ok).toBe(false)
     }
+  })
+})
+
+describe('the build scan and the runtime guard cannot diverge', () => {
+  it('shares one copy of every term list', async () => {
+    // The script used to restate these. Its ENTERPRISE list omitted PMA,
+    // Lane A, Lane B and lane, so a practice-path file containing any of the
+    // four reported "Lane firewall: clear." and was then blocked at render.
+    const shared = await import('../src/core/firewall-terms.mjs')
+    expect([...shared.ENTERPRISE_TERMS]).toEqual([...ENTERPRISE_TERMS])
+    expect([...shared.PRACTICE_TERMS]).toEqual([...PRACTICE_TERMS])
+    expect([...shared.OUTWARD_FACING_BLOCKED]).toEqual([...OUTWARD_FACING_BLOCKED])
+  })
+
+  it('carries the four terms the script was missing', () => {
+    for (const term of ['PMA', 'Lane A', 'Lane B', 'lane']) {
+      expect(ENTERPRISE_TERMS, term).toContain(term)
+      expect(guardText(`a sentence naming ${term} plainly`, 'practice').ok).toBe(false)
+    }
+  })
+
+  it('reads the term lists from a file the scan does not scan', () => {
+    // A terms list in .ts/.tsx/.json/.css/.html would flag itself and need an
+    // EXEMPT entry. Neither guard script's EXEMPT list has been touched.
+    const script = readFileSync('scripts/check-lanes.mjs', 'utf8')
+    expect(script).toContain("from '../src/core/firewall-terms.mjs'")
+    expect(script).toContain(
+      "const EXEMPT = ['lane-guard.ts', 'check-lanes.mjs', 'CLAUDE.md']",
+    )
+    // And the script no longer restates the lists or the matcher.
+    expect(script).not.toMatch(/const ENTERPRISE = \[/)
+    expect(script).not.toMatch(/function matches\(/)
+  })
+})
+
+describe('the lane term matches prose, not this repo’s own identifiers', () => {
+  it('leaves the surface identifiers and the guard filename alone', () => {
+    for (const identifier of [
+      "['lane-a', 'lane-b']",
+      "from '../src/core/lane-guard'",
+      'tests/lane-guard.test.ts',
+      'surfaces/lane-b/',
+    ]) {
+      expect(guardText(identifier, 'practice').blocked, identifier).not.toContain('lane')
+    }
+  })
+
+  it('still fires on the word, and on the prose spellings', () => {
+    for (const prose of [
+      'switches lane without saying so',
+      'the lane rule',
+      'lane.',
+      'one lane, two consoles',
+    ]) {
+      expect(guardText(prose, 'practice').blocked, prose).toContain('lane')
+    }
+    expect(guardText('Lane A', 'practice').ok).toBe(false)
+    expect(guardText('Lane B', 'practice').ok).toBe(false)
+  })
+
+  it('narrows only the three identifiers that exist here', () => {
+    // lane-c is not one of ours, so it is prose as far as the guard knows.
+    expect(guardText('lane-c', 'practice').blocked).toContain('lane')
+    expect(guardText('lane-guardian', 'practice').blocked).toContain('lane')
   })
 })

@@ -11,35 +11,19 @@
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, extname } from 'node:path'
-
-const ENTERPRISE = [
-  'NTE', 'Neterverse', 'CCRLT', 'EDM', 'trustee', 'ministry',
-  'Private Administrator', 'Sui Generis', 'Event ID', 'Release Gate',
-  'House of Ransom', 'GodMode',
-]
-const PRACTICE = ['Primerica', 'H.O.P.E. Dealers', 'Agent Growth Series']
+// One copy of the term lists, the matcher and the practice-path rule, shared
+// with src/core/lane-guard.ts. This script used to restate all three, and its
+// ENTERPRISE list was missing PMA, Lane A, Lane B and lane — so those four
+// reported "clear." here and were blocked at render. See SC-07.
+import {
+  ENTERPRISE_TERMS,
+  PRACTICE_TERMS,
+  isPracticePath,
+  termPattern,
+} from '../src/core/firewall-terms.mjs'
 
 const EXEMPT = ['lane-guard.ts', 'check-lanes.mjs', 'CLAUDE.md']
 const EXTS = new Set(['.ts', '.tsx', '.json', '.css', '.html'])
-
-/**
- * Terms match on word boundaries, not as bare substrings.
- *
- * They are names and acronyms. A substring scan flags "NTE" inside
- * "interface", "documented" and "content", and "lane" inside "plane" — which
- * does not tighten the firewall, it just pushes authors into worse copy or
- * into suppressing the check. The boundary is alphanumeric rather than \b so
- * that a code like NTE-GOV-2026-001 still matches on the hyphen and a term
- * carrying dots, like H.O.P.E. Dealers, still matches at all.
- *
- * This is a correction to the matcher, not an exemption: nothing was added to
- * EXEMPT, and every term still fires wherever it is actually used as a term.
- * Recorded as SC-04 in docs/SPEC-CHANGES.md.
- */
-function matches(text, term) {
-  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  return new RegExp(`(?<![A-Za-z0-9])${escaped}(?![A-Za-z0-9])`, 'i').test(text)
-}
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
@@ -51,26 +35,12 @@ function walk(dir, out = []) {
   return out
 }
 
-/**
- * Directory decides surface, and "under practice" means any path component
- * that names it — surfaces/practice/, modules/practice-desk/,
- * practice-instance.tsx, marketing-practice.json.
- *
- * The delivered detector matched only "/surfaces/practice/" and "/practice-",
- * which left seed/marketing-practice.json unscanned: a practice-surface data
- * file that no firewall check ever looked at. Recorded as SC-05.
- */
-function isPracticePath(file) {
-  return file
-    .split('/')
-    .some((part) => part.toLowerCase().includes('practice'))
-}
 
 const violations = []
 for (const file of walk('.')) {
   if (EXEMPT.some((e) => file.endsWith(e))) continue
   const isPractice = isPracticePath(file)
-  const terms = isPractice ? ENTERPRISE : PRACTICE
+  const terms = isPractice ? ENTERPRISE_TERMS : PRACTICE_TERMS
   const lines = readFileSync(file, 'utf8').split('\n')
   lines.forEach((text, i) => {
     // Comments are exempt everywhere except the practice surface, where the
@@ -80,7 +50,7 @@ for (const file of walk('.')) {
     const isComment = trimmed.startsWith('//') || trimmed.startsWith('*')
     if (isComment && !isPractice) return
     for (const term of terms) {
-      if (matches(text, term)) {
+      if (termPattern(term).test(text)) {
         violations.push({ file, line: i + 1, term, text: text.trim() })
       }
     }

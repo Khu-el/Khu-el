@@ -12,61 +12,33 @@
  */
 
 import type { Surface } from './types'
+import {
+  ENTERPRISE_TERMS,
+  OUTWARD_FACING_BLOCKED,
+  PRACTICE_TERMS,
+  isPracticePath,
+  termPattern,
+} from './firewall-terms.mjs'
 
-/** Terms that must never reach the licensed-practice surface. */
-export const ENTERPRISE_TERMS = [
-  'NTE',
-  'Neterverse',
-  'CCRLT',
-  'EDM',
-  'trustee',
-  'ministry',
-  'Private Administrator',
-  'Sui Generis',
-  'PMA',
-  'Event ID',
-  'Release Gate',
-  'House of Ransom',
-  'GodMode',
-  'Lane A',
-  'Lane B',
-  'lane',
-] as const
-
-/** Terms that must never reach the enterprise surfaces. */
-export const PRACTICE_TERMS = [
-  'Primerica',
-  'H.O.P.E. Dealers',
-  'Agent Growth Series',
-] as const
-
-/** Terms that must never reach any outward-facing label anywhere. */
-export const OUTWARD_FACING_BLOCKED = [
-  // O.C.G.A. 20-3-250.7(b): "University" cannot be used publicly in Georgia
-  // without commission authorization. Internal views may say it; anything a
-  // prospect or student sees says Academy.
-  'University',
-] as const
+/**
+ * The term lists and the matcher live in ./firewall-terms.mjs, which
+ * scripts/check-lanes.mjs imports as well. One copy, so the build-time scan and
+ * the runtime guard cannot disagree about what a breach is — they had, and the
+ * script's list was missing four terms. See docs/SPEC-CHANGES.md SC-07.
+ *
+ * Re-exported here so app code keeps importing them from lane-guard.
+ */
+export {
+  ENTERPRISE_TERMS,
+  PRACTICE_TERMS,
+  OUTWARD_FACING_BLOCKED,
+  termPattern,
+  isPracticePath,
+} from './firewall-terms.mjs'
 
 export interface GuardResult {
   ok: boolean
   blocked: string[]
-}
-
-/**
- * Terms are names and acronyms, so they match on word boundaries rather than
- * as bare substrings — otherwise "NTE" fires inside "interface" and
- * "documented", and "lane" fires inside "plane". The boundary is alphanumeric
- * rather than \b so a document code like NTE-GOV-2026-001 still matches on
- * the hyphen, and a term carrying dots still matches at all.
- *
- * This is the same rule scripts/check-lanes.mjs applies. The two have to
- * agree, or the build-time scan and the runtime guard disagree about what a
- * breach is. See docs/SPEC-CHANGES.md SC-04.
- */
-export function termPattern(term: string): RegExp {
-  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  return new RegExp(`(?<![A-Za-z0-9])${escaped}(?![A-Za-z0-9])`, 'gi')
 }
 
 function findTerms(text: string, terms: readonly string[]): string[] {
@@ -149,22 +121,6 @@ export interface SourceViolation {
   line: number
   term: string
   text: string
-}
-
-/**
- * Does this path belong to the practice surface?
- *
- * Any path component that names it counts — `surfaces/practice/`,
- * `modules/practice-desk/`, `practice-instance.tsx`,
- * `marketing-practice.json`. Matching only a leading `/practice-` left a
- * practice-surface seed file unscanned. See docs/SPEC-CHANGES.md SC-05.
- *
- * scripts/check-lanes.mjs applies the identical rule; the two have to agree.
- */
-export function isPracticePath(file: string): boolean {
-  return file
-    .split('/')
-    .some((part) => part.toLowerCase().includes('practice'))
 }
 
 /**

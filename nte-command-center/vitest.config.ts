@@ -9,6 +9,12 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['tests/setup.ts'],
-    include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
+    include: [
+      'tests/**/*.test.ts',
+      'tests/**/*.test.tsx',
+      // .mjs so a test naming the scanners' own patterns is not scanned by
+      // them. See the header of tests/network-gates.test.mjs.
+      'tests/**/*.test.mjs',
+    ],
   },
 })

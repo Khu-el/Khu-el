@@ -57,7 +57,11 @@ function namespaced(key: string): string {
 
 export function load<T>(key: string, fallback: T): T {
   const k = namespaced(key)
-  const raw = backing ? backing.getItem(k) : memory.get(k) ?? null
+  // Memory first. `save` falls back to memory when setItem throws — quota, or
+  // private mode — and this read used to consult only `backing` whenever
+  // `backing` existed, so a fallback write was silently unreadable and the
+  // change disappeared on the next load.
+  const raw = memory.get(k) ?? backing?.getItem(k) ?? null
   if (raw == null) return fallback
   try {
     return JSON.parse(raw) as T
@@ -74,6 +78,8 @@ export function save<T>(key: string, value: T): void {
   if (backing) {
     try {
       backing.setItem(k, raw)
+      // Drop any earlier fallback copy, or it would shadow this one forever.
+      memory.delete(k)
       return
     } catch {
       // Quota or private mode. Fall through to memory.
