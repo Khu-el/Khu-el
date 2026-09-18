@@ -37,8 +37,11 @@ external-origin scan, the 152 tests, the production build and the bundle scan
 on every pull request touching `nte-command-center/**`, and checks that no
 generated file drifted during the build.
 
-It exists because the repo's other workflow deploys on push to `main` and never
-runs on a pull request. These guarantees are only guarantees if something other
+It exists because nothing else checks this project on a pull request. The
+repository's `verify.yml` also runs on pull requests, but it runs the root
+workspace's gates, and this project is deliberately not an npm workspace — it
+has its own lockfile and toolchain, so the workspace builds, the root type
+sweep and the kernel suite all skip it. The two are complementary. These guarantees are only guarantees if something other
 than a person's memory runs them.
 
 ## Looking at it without installing anything

@@ -1,0 +1,97 @@
+{
+  "as_of": "2026-09-10T23:26:24Z",
+  "recorded_by": "CLAUDE_CODE",
+  "classification": "PUBLIC",
+  "identifier_policy": "This repository is public. Record identifiers, workspace IDs, file IDs and record contents stay in their private systems of record.",
+  "note": "What is actually observed. Inventory is not operational status; a listed system is not a running one.",
+  "lanes": {
+    "LANE_A": {
+      "description": "Enterprise, ministry, technology, IP, education, controlled commercial activity",
+      "controlling_structure": "Neterverse Trust Enterprise (NTE), irrevocable non-grantor trust; trustee Equity of the Divine Ministries",
+      "human_capacity": "Minister / Authorized Representative unless a separate valid appointment establishes another capacity for the specific act",
+      "assertion_status": "DOCUMENT_CLAIM",
+      "assertion_note": "Structure and capacity are as stated in the controlling instruction set. Nothing here is externally verified, and no regulated status is implied by any internal name."
+    },
+    "LANE_B": {
+      "description": "Family estate, household, beneficiary and succession administration",
+      "controlling_structure": "Christopher Chaz Ransom-El Living Trust (CCRLT), revocable living trust; trustee House of Ransom / Family Church",
+      "human_capacity": "Minister / Authorized Representative unless a separate valid appointment establishes another capacity for the specific act",
+      "assertion_status": "DOCUMENT_CLAIM",
+      "assertion_note": "Lane B data stays in Lane B and is not described in this public repository beyond the structure named above. A bridge records a reference, never a merge."
+    }
+  },
+  "repositories_in_session_scope": [
+    {
+      "name": "Khu-el/Khu-el",
+      "visibility": "PUBLIC",
+      "role": "Canonical software repository and host of the control-plane mechanism",
+      "lane": "LANE_A",
+      "deployment": "Frontends to GitHub Pages on push to main; backend Dockerfile and fly.toml present. Neither verified deployed from this session."
+    },
+    {
+      "name": "Khu-el/Neterverse_DAO",
+      "visibility": "PUBLIC",
+      "role": "Public-facing portal for the Neterverse Administration Trust DAO",
+      "lane": "LANE_A",
+      "deployment": "Static. Publication is a human-gated act."
+    },
+    {
+      "name": "Khu-el/Mental-Alchemy",
+      "visibility": "PRIVATE",
+      "role": "Personal operating system - 90-day sprint and daily discipline app",
+      "lane": "PERSONAL",
+      "deployment": "Local. No backend and no network call by design."
+    }
+  ],
+  "repositories_out_of_session_scope": [
+    {
+      "name": "Khu-el/NTE-Command-Center",
+      "visibility": "PRIVATE",
+      "observation": "Named and described as a command center. Not in this session's scope, so its contents are UNKNOWN.",
+      "significance": "Possible duplication with the control plane started here. Must be reviewed before any further control-plane surface is built."
+    },
+    {
+      "name": "Khu-el/StructureGen",
+      "visibility": "PRIVATE",
+      "observation": "Also described as a command center. Contents UNKNOWN from this session.",
+      "significance": "Same duplication risk."
+    }
+  ],
+  "source_of_truth": {
+    "time": "Google Calendar",
+    "action": "ClickUp",
+    "files_and_evidence": "Google Drive",
+    "governance_and_knowledge": "Notion",
+    "source_code": "GitHub",
+    "email": "Gmail",
+    "control_plane_mechanism": ".neterverse/ in Khu-el/Khu-el",
+    "rule": "Originals stay in the authoritative system. This repository stores the mechanism and non-identifying status, never copies of records. A dashboard is a projection, not a source."
+  },
+  "observed_external_state": [
+    {
+      "system": "ClickUp",
+      "observation": "Three spaces. The enterprise and commercial folders are numbered and grouped; the family lane occupies a separate space. Several folders were retired or migrated on 2026-09-10 with the change labelled in the folder name rather than deleted.",
+      "assertion_status": "EXTERNALLY_VERIFIED",
+      "evidence": "Workspace hierarchy call, this session"
+    },
+    {
+      "system": "Google Drive",
+      "observation": "A dated release-control packet is the current commercial control record. Its commercial release state is HOLD pending open evidence gates. Details stay in Drive.",
+      "assertion_status": "EXTERNALLY_VERIFIED",
+      "evidence": "File read, this session. Identifier withheld from this public repository."
+    },
+    {
+      "system": "Google Drive",
+      "observation": "A dated lane-architecture document from April 2026 is the most recent narrative lane doctrine found. Several earlier overlapping governance-architecture documents from February 2026 remain alongside it with no supersession marking.",
+      "assertion_status": "EXTERNALLY_VERIFIED",
+      "evidence": "File listing and read, this session. Identifiers withheld."
+    }
+  ],
+  "control_plane": {
+    "bus": ".neterverse/",
+    "kernel": "packages/neterverse-kernel (@nte/neterverse-kernel)",
+    "state": "TESTED_LOCALLY",
+    "peer_runtime_state": "No Codex activity observed on this bus yet. The first handoff is open.",
+    "open_question": "Whether the control plane should live in a public repository at all. See ADR-0001."
+  }
+}

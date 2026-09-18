@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "neterverse://schemas/task.schema.json",
+  "title": "Bus task",
+  "type": "object",
+  "required": ["task_id", "title", "lane", "risk_tier", "state", "created_at", "next_action"],
+  "additionalProperties": false,
+  "properties": {
+    "task_id": { "type": "string", "pattern": "^tsk_[a-z0-9_]+$" },
+    "parent_task_id": { "type": ["string", "null"] },
+    "title": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string" },
+    "lane": { "type": "string", "enum": ["LANE_A", "LANE_B", "PERSONAL", "PHILANTHROPIC", "UNCLASSIFIED"] },
+    "entity": { "type": "string" },
+    "capacity": { "type": "string" },
+    "risk_tier": { "type": "string", "enum": ["R0", "R1", "R2", "R3", "R4"] },
+    "state": { "type": "string", "enum": ["QUEUED", "ACTIVE", "BLOCKED", "REVIEW", "COMPLETED"] },
+    "preferred_runtime": { "type": "string", "enum": ["CLAUDE_CODE", "CODEX", "OTHER_AUTHORIZED_RUNTIME", "HUMAN", "EITHER"] },
+    "resources": { "type": "array", "items": { "type": "string" } },
+    "blocked_by": { "type": "array", "items": { "type": "string" } },
+    "human_gate": { "type": ["string", "null"] },
+    "acceptance": { "type": "array", "items": { "type": "string" } },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "next_action": { "type": "string", "minLength": 1 }
+  }
+}

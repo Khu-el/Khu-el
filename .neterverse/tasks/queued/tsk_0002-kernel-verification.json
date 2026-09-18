@@ -1,0 +1,24 @@
+{
+  "task_id": "tsk_0002",
+  "parent_task_id": null,
+  "title": "Verify the shared-state kernel and add the task lifecycle",
+  "objective": "Independent verification under the builder and verifier protocol, then implement task and handoff lifecycle helpers with tests.",
+  "lane": "LANE_A",
+  "entity": "Neterverse Trust Enterprise (NTE)",
+  "capacity": "Minister / Authorized Representative",
+  "risk_tier": "R1",
+  "state": "QUEUED",
+  "preferred_runtime": "CODEX",
+  "resources": ["packages/neterverse-kernel", ".neterverse/schemas"],
+  "blocked_by": [],
+  "human_gate": null,
+  "acceptance": [
+    "A written verdict of PASS, PASS WITH CONDITIONS, FAIL or BLOCKED BY EVIDENCE",
+    "Lane isolation, the approval boundary, lease conflicts and event immutability each reviewed independently",
+    "Any lifecycle helper added is covered by tests that include the denied paths",
+    "A handoff packet written back to .neterverse/handoffs/codex-to-claude/"
+  ],
+  "created_at": "2026-09-10T23:28:24Z",
+  "updated_at": "2026-09-10T23:28:24Z",
+  "next_action": "Claim a lease over packages/neterverse-kernel, then run the suite and read src/lane.ts and src/risk.ts adversarially."
+}

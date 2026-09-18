@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "neterverse://schemas/agent.schema.json",
+  "title": "Agent registry entry",
+  "type": "object",
+  "required": ["agent_id", "name", "purpose", "lane", "runtime", "risk_ceiling", "deployment_status", "owner", "last_verified"],
+  "additionalProperties": false,
+  "properties": {
+    "agent_id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "purpose": { "type": "string", "minLength": 1 },
+    "domain": { "type": "string" },
+    "lane": { "type": "string", "enum": ["LANE_A", "LANE_B", "PERSONAL", "PHILANTHROPIC", "UNCLASSIFIED"] },
+    "entity_scope": { "type": "string" },
+    "allowed_data": { "type": "array", "items": { "type": "string" } },
+    "forbidden_data": { "type": "array", "items": { "type": "string" } },
+    "runtime": { "type": "string", "enum": ["CLAUDE_CODE", "CODEX", "OTHER_AUTHORIZED_RUNTIME", "HUMAN"] },
+    "tools": { "type": "array", "items": { "type": "string" } },
+    "read_permissions": { "type": "array", "items": { "type": "string" } },
+    "write_permissions": { "type": "array", "items": { "type": "string" } },
+    "risk_ceiling": { "type": "string", "enum": ["R0", "R1", "R2", "R3", "R4"] },
+    "approval_rules": { "type": "string" },
+    "trigger": { "type": "string" },
+    "schedule": { "type": "string" },
+    "output_destination": { "type": "string" },
+    "test_status": { "type": "string", "enum": ["PASSING", "FAILING", "NOT_RUN", "NONE_CONFIGURED"] },
+    "deployment_status": {
+      "type": "string",
+      "enum": ["DESIGNED", "AUTHORED", "CONFIGURED", "TESTED_LOCALLY", "TESTED_INTEGRATION", "STAGED", "DEPLOYED", "LIVE_VERIFIED", "FAILED", "BLOCKED", "UNKNOWN"]
+    },
+    "kill_switch": { "type": "string" },
+    "owner": { "type": "string", "minLength": 1 },
+    "last_verified": { "type": "string", "format": "date-time" }
+  }
+}

@@ -10,6 +10,15 @@
 #
 # Scoped by path: it does not fire on changes elsewhere in the repo, and it
 # does not touch the deploy workflow.
+#
+# Relationship to verify.yml, which also runs on pull requests: that workflow
+# runs the root workspace's gates -- the kernel suite, the root type sweep, the
+# workspace builds, the registry validator and the leak audit. None of them
+# reach this project. nte-command-center is deliberately not an npm workspace
+# (it has its own lockfile and its own toolchain), so `npm run build
+# --workspaces`, `npm test --workspace=...` and the explicit tsc -b list all
+# skip it. The two workflows are complementary, not duplicates: without this
+# one, nothing on a pull request checks this project at all.
 
 name: Command Center
 
