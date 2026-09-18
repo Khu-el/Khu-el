@@ -99,7 +99,7 @@ npm install                     # repo root — installs every workspace
 npm run dev:server              # backend on :4000
 npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:legacy-estate
 npm run build                   # all apps + server
-npm run typecheck               # root-level tsc sweep
+npm run typecheck               # tsc sweep: four apps + server + kernel
 npm test                        # the kernel suite — the only tests in this repo
 npm run bus -- status           # what the control plane knows
 npm run bus -- connectors       # live connector health and staleness
@@ -109,6 +109,19 @@ npm run bus -- audit            # nothing unpublishable in committed bus state
 
 Per-app `npm run build` runs `tsc -b --noEmit && vite build` — **type errors fail the
 build**, so run a build (or `typecheck`) before pushing.
+
+**These are also what CI runs.** `.github/workflows/verify.yml` runs `npm test`,
+`npm run typecheck`, `npm run build`, `bus validate` and `bus audit` on every pull
+request, plus two boundary checks that need no script: no tracked files under
+`.neterverse/live/`, and no committed `CNAME`. Steps are separate so a red run names
+which guarantee broke. Nothing ran on a pull request before this workflow existed, so
+these checks are new *as enforcement*, not new as expectations.
+
+⚠️ `npm run typecheck` used to end in `2>/dev/null || true` and therefore **could not
+fail** — it reported success on genuine type errors. That is fixed; if you are working
+from a memory of it passing, re-run it. The sweep covers the four apps, `server/` and
+`packages/neterverse-kernel`; `governance-core` has no `tsconfig.json` of its own and is
+checked transitively through the apps that import its source.
 
 **Where tests exist, and where they do not:**
 
