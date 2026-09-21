@@ -47,8 +47,10 @@ report or from CI history.
 
 | Repository | Command | Result |
 |---|---|---|
-| `Khu-el/Khu-el` | `npm test` (kernel) | ✅ 59/59 pass |
-| `Khu-el/Khu-el` | `npm test` (server, **new this session**) | ✅ 23/23 pass |
+| `Khu-el/Khu-el` | `npm test` (all workspaces) | ✅ **143/143 pass** |
+| ↳ | kernel | ✅ 59 |
+| ↳ | server (**new this session**) | ✅ 23 |
+| ↳ | three app `finance.ts` suites (**new this session**) | ✅ 61 |
 | `Khu-el/Khu-el` | `npm run typecheck` | ✅ pass |
 | `Khu-el/Khu-el` | `npm run build` (all workspaces) | ✅ pass |
 | `Khu-el/Khu-el` | `npm run bus -- validate` | ✅ All registries valid |
@@ -57,9 +59,10 @@ report or from CI history.
 | `Khu-el/Mental-Alchemy` | `npm run check` (typecheck + 2 guards) | ✅ pass |
 | `Khu-el/Neterverse_DAO` | `python3 scripts/check_page.py` | ✅ tags balanced, no external subresource |
 
-**Where there is still nothing to run:** `packages/governance-core` and the four Vite apps in
-`Khu-el/Khu-el` have no test runner, and no repository has a linter. A green run above is
-evidence for exactly the workspaces named and nothing wider.
+**Where there is still nothing to run:** `packages/governance-core` and `apps/legacy-estate` have
+no test runner, and no repository has a linter. **The UI is untested everywhere** — components,
+tabs and stores have no coverage; the three app suites cover `finance.ts` only. A green run above
+is evidence for exactly the workspaces named and nothing wider.
 
 ⚠️ `npm run check` in `Mental-Alchemy` and `check_page.py` in `Neterverse_DAO` are **boundary
 guards, not tests**. They prove the data boundary and the offline-rendering boundary hold. They
@@ -77,6 +80,8 @@ findings are written up with evidence in `SECURITY_FINDINGS.md`.
 | `e87367d` | `?token=` accepted on the file-download route only, not on every route |
 | `71670bb` | A role is assigned by the deployment, never chosen by the person registering |
 | `533a985` | `server/` gains a test runner and 23 tests over the running app |
+| `f71baf8` | This audit, the conflict register, the blocker list and the generated inventory |
+| *(this commit)* | Calculators return `NaN` for a missing input instead of `0`, plus 61 tests across three apps |
 
 Nothing was changed in `Neterverse_DAO` or `Mental-Alchemy`: both pass their own checks, and no
 defect was found in either that would justify a change.
@@ -90,7 +95,7 @@ should be built** — most entries are ⚪ UNKNOWN provenance (see `SOURCE_CONFL
 
 | Project | Repository | Status | Evidence |
 |---|---|---|---|
-| Four NTE planning apps (Deal Architect, Capital Readiness, Notes Underwriting, Legacy & Estate) | `Khu-el/Khu-el` | **IN PROGRESS** | Build and typecheck pass; no tests exist for them |
+| Four NTE planning apps (Deal Architect, Capital Readiness, Notes Underwriting, Legacy & Estate) | `Khu-el/Khu-el` | **IN PROGRESS** | Build and typecheck pass; 61 tests cover `finance.ts` in three of them; **all UI untested** |
 | Shared Express/SQLite backend | `Khu-el/Khu-el` `server/` | **IN PROGRESS** | Builds; 23 tests pass; two authorization defects fixed this session; not deployed |
 | `@nte/governance-core` (shared types + UI) | `Khu-el/Khu-el` | **IN PROGRESS** | Typechecked transitively; no tests |
 | `@nte/neterverse-kernel` (control plane) | `Khu-el/Khu-el` | **IN PROGRESS** | 59 tests pass; registries valid; 0/6 connectors ever observed |
@@ -171,4 +176,5 @@ the six is currently reachable.**
 3. Enable GitHub Pages (`HUMAN_ACTION_REQUIRED.md` #1) — unblocks the entire frontend deployment.
 4. Re-run PR #5 against current `main` — it has never been checked by CI.
 5. Extend the `server/` suite past the two authorization boundaries it now covers.
-6. Give `governance-core` and the four apps a test runner — they are the largest untested surface.
+6. Cover the UI — components, tabs and stores are now the largest untested surface, along with
+   `governance-core` and `apps/legacy-estate`.

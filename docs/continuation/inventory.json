@@ -1,10 +1,10 @@
 {
   "generated_by": "scripts/build-inventory.mjs",
-  "generated_at": "2026-09-21T14:16:24.414Z",
+  "generated_at": "2026-09-21T14:23:30.326Z",
   "repository": "Khu-el/Khu-el",
   "branch": "claude/neterverse-continuation-audit-k0meuw",
-  "commit": "533a985e9d642f28879982f616df6f1a78597b3e",
-  "tracked_file_count": 193,
+  "commit": "f71baf8c58f250d60ac264930fa179216c183d66",
+  "tracked_file_count": 200,
   "working_tree_clean": false,
   "root_scripts": [
     "build",
@@ -17,6 +17,7 @@
     "dev:server",
     "inventory",
     "test",
+    "test:apps",
     "test:kernel",
     "test:server",
     "typecheck"
@@ -29,12 +30,15 @@
       "scripts": [
         "build",
         "dev",
-        "preview"
+        "preview",
+        "test"
       ],
       "has_typecheck": true,
       "has_build": true,
-      "test_runner": null,
-      "test_files": [],
+      "test_runner": "node --test",
+      "test_files": [
+        "finance.test.ts"
+      ],
       "dependency_count": 3
     },
     {
@@ -44,12 +48,15 @@
       "scripts": [
         "build",
         "dev",
-        "preview"
+        "preview",
+        "test"
       ],
       "has_typecheck": true,
       "has_build": true,
-      "test_runner": null,
-      "test_files": [],
+      "test_runner": "node --test",
+      "test_files": [
+        "finance.test.ts"
+      ],
       "dependency_count": 3
     },
     {
@@ -74,12 +81,15 @@
       "scripts": [
         "build",
         "dev",
-        "preview"
+        "preview",
+        "test"
       ],
       "has_typecheck": true,
       "has_build": true,
-      "test_runner": null,
-      "test_files": [],
+      "test_runner": "node --test",
+      "test_files": [
+        "finance.test.ts"
+      ],
       "dependency_count": 3
     },
     {
@@ -139,10 +149,7 @@
     }
   ],
   "untested_workspaces": [
-    "apps/capital-readiness",
-    "apps/deal-architect",
     "apps/legacy-estate",
-    "apps/notes-underwriting",
     "packages/governance-core"
   ],
   "linter": null,

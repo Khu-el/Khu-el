@@ -8,6 +8,9 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    // The test files import ../src/finance.ts by its real extension, which is
+    // how `node --test` resolves them with type stripping and no bundler.
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
@@ -16,5 +19,5 @@
       "@nte/governance-core": ["../../packages/governance-core/src/index.ts"]
     }
   },
-  "include": ["src", "../../packages/governance-core/src"]
+  "include": ["src", "test", "../../packages/governance-core/src"]
 }

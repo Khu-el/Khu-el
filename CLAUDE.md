@@ -101,7 +101,7 @@ npm run dev:server              # backend on :4000
 npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:legacy-estate
 npm run build                   # all apps + server
 npm run typecheck               # tsc sweep: four apps + server + kernel
-npm test                        # kernel suite + server suite (test:kernel / test:server run one)
+npm test                        # every workspace suite (test:kernel / test:server / test:apps run a subset)
 npm run check:query-token       # ?token= stays limited to the file-download route
 npm run bus -- status           # what the control plane knows
 npm run bus -- connectors       # live connector health and staleness
@@ -131,7 +131,12 @@ checked transitively through the apps that import its source.
 |---|---|
 | `packages/neterverse-kernel` | ✅ `node --test` — 59 tests, `npm run test:kernel` |
 | `server/` | ✅ `node --test` — 23 tests over the running app, `npm run test:server` |
-| `packages/governance-core`, the four apps | ❌ none configured |
+| `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
+| `apps/legacy-estate`, `packages/governance-core` | ❌ none configured |
+
+`npm test` at the root runs every workspace that has a suite — 143 tests. **What is still
+untested is the UI**: components, tabs, stores and `governance-core` have no coverage at all,
+and `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only.
 
 **No linter is configured anywhere in this repo.** In a workspace with no runner, do not
 claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran.
@@ -143,7 +148,12 @@ first and exercises `dist/`, which is what the deployment runs. `test/helpers.ts
 `lib/env.ts` and `lib/db.ts` read their configuration at import time — each file gets its
 own throwaway SQLite database that way, with nothing mocked. Keep that ordering when
 adding a file. It covers the two authorization boundaries below; it is not a full
-API-surface suite, and the four apps and `governance-core` remain untested.
+API-surface suite.
+
+The three app suites test `finance.ts` directly — pure functions, no imports, so `node --test`
+runs them with type stripping and no bundler. `tsconfig.json` includes `test` and sets
+`allowImportingTsExtensions`, so a test file's `../src/finance.ts` import typechecks as well as
+runs.
 
 ⚠️ This table is scoped deliberately, not a claim about the whole repository forever. A
 workspace may arrive with its own runner and its own `CLAUDE.md`; check the workspace you
@@ -219,6 +229,12 @@ writing a new primitive** — §4, artifact-first.
 - Any number shown to the user should be traceable to inputs or an `EvidenceRef`
   (§2 — data window · as-of · unit · source · limitations).
 - Never render ✅ for something unverified, and never let ❓ UNKNOWN degrade into ✅ (§1).
+- **A calculation with a missing input returns `NaN`, not `0`.** Every `fmt*` helper renders a
+  non-finite number as `—`, so the UI shows a blank for "not entered yet" and keeps a real `0`
+  for "computed to zero". The two are not interchangeable: a DSCR of `0.00x` sits beside the
+  caption "≥1.25x is a common lender floor" and reads as a failed deal, and a
+  `probabilityWeightedRecovery` of `$0` reads as a total loss. Both were being shown for empty
+  forms. Guard with `denominator > 0 ? … : NaN` and let it propagate.
 
 ## 🧾 One evidence vocabulary, four spellings
 
