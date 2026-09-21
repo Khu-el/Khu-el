@@ -20,7 +20,7 @@
 import React, { useMemo, useState } from 'react'
 import type { ModuleDefinition, Proof, Surface } from '../../core/types'
 import { Panel, Empty, Flag, Meter, ProofForm, ProofLine } from '../../ui/components'
-import { load, save } from '../../core/storage'
+import { hasShape, load, save } from '../../core/storage'
 import {
   governing,
   placeholderAsProjection,
@@ -90,6 +90,12 @@ interface VenturesData {
 }
 
 const KEY = 'ventures-revenue'
+
+/**
+ * The top-level keys this module reads. A stored value missing any of them
+ * would throw on first render, and the Reset control is inside this module.
+ */
+const SHAPE = { classes: 'array', groups: 'array', ventures: 'array', plans: 'array', capital: 'object', models: 'array', projections: 'array', scenarios: 'array', classARevenue: 'object' } as const
 const SEED = seed as unknown as VenturesData
 
 const money = (n: number, currency: string) =>
@@ -139,7 +145,7 @@ function PlansBoard({ plans }: { plans: Plan[] }) {
 }
 
 function VenturesFrozen() {
-  const data = load<VenturesData>(KEY, SEED)
+  const data = load<VenturesData>(KEY, SEED, (v) => hasShape(v, SHAPE))
   return <PlansBoard plans={data.plans} />
 }
 
@@ -147,7 +153,7 @@ function VenturesFrozen() {
 
 function VenturesModule({ surface }: { surface: Surface }) {
   const [data, setData] = useState<VenturesData>(() =>
-    load<VenturesData>(KEY, SEED),
+    load<VenturesData>(KEY, SEED, (v) => hasShape(v, SHAPE)),
   )
   const [classFilter, setClassFilter] = useState<string>('all')
   const [groupFilter, setGroupFilter] = useState<string>('all')
@@ -255,6 +261,18 @@ function VenturesModule({ surface }: { surface: Surface }) {
             </p>
           ))}
 
+        {/* CLAUDE.md: a record without a docCode does not enter a register.
+            None of these carries a sourced document code, so the register
+            holds nothing and the rows below are slots awaiting registration.
+            Rendering them as register entries would put 51 uncontrolled rows
+            behind a doc-code strip that none of them has. */}
+        <Flag tone="alert">
+          Register entries: 0 of {data.ventures.length}. A record without a
+          document code does not enter a register, and no venture here carries
+          a sourced one. The rows below are slots, not entries — they are
+          listed so the class distribution is visible and so the gap is
+          countable, not so they can be cited.
+        </Flag>
         {visible.length === 0 ? (
           <Empty title="No ventures in this filter">
             Group membership is not in this workspace, so filtering by group
@@ -262,9 +280,10 @@ function VenturesModule({ surface }: { surface: Surface }) {
           </Empty>
         ) : (
           visible.map((v) => (
-            <article className="record" key={v.id}>
+            <article className="record" key={v.id} data-unregistered-slot="true">
               <div>
                 <span className="record__code">{v.id}</span>
+                <span className="record__rev">slot · no document code</span>
                 <div className="record__title">
                   {v.title ?? 'Title awaiting source'}
                 </div>

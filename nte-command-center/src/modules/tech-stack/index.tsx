@@ -23,7 +23,7 @@
 import React, { useState } from 'react'
 import type { ModuleDefinition, Proof, Surface } from '../../core/types'
 import { Panel, Empty, Flag, ProofForm, ProofLine } from '../../ui/components'
-import { load, save } from '../../core/storage'
+import { hasShape, load, save } from '../../core/storage'
 import seed from '../../../seed/tech-stack.json'
 import scan from '../../../seed/network-scan.json'
 
@@ -106,10 +106,16 @@ interface TechStackData {
 }
 
 const KEY = 'tech-stack'
+
+/**
+ * The top-level keys this module reads. A stored value missing any of them
+ * would throw on first render, and the Reset control is inside this module.
+ */
+const SHAPE = { securityHold: 'object', applications: 'array', unifiedOs: 'object', repoHealth: 'object', defects: 'array' } as const
 const SEED = seed as unknown as TechStackData
 
 function useTechStack() {
-  const [data, setData] = useState<TechStackData>(() => load<TechStackData>(KEY, SEED))
+  const [data, setData] = useState<TechStackData>(() => load<TechStackData>(KEY, SEED, (v) => hasShape(v, SHAPE)))
   const update = (next: TechStackData) => {
     save(KEY, next)
     setData(next)

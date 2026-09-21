@@ -268,8 +268,49 @@ describe('recovery actions', () => {
     )) {
       const button = action.querySelector('button')!
       expect(button.hasAttribute('disabled')).toBe(false)
-      expect(button.textContent).toBe('Run')
+      // Not "Run". The control used to say Run and carry no handler, so a
+      // click did nothing and the operator read that as a failed recovery.
+      // This console records that work happened; it does not perform it.
+      expect(button.textContent).toBe('Record outcome')
+      expect(action.textContent).toContain('UNBLOCKED')
     }
+    v.unmount()
+  })
+
+  it('records an outcome through the same proof form as everything else', () => {
+    const data = structuredClone(canon) as unknown as {
+      doctrinePass: { steps: { passed: boolean; proof: unknown }[] }
+    }
+    for (const step of data.doctrinePass.steps) {
+      step.passed = true
+      step.proof = {
+        source: 'Doctrine review memo',
+        reference: 'DR-001',
+        obtained: '2026-08-30',
+        verifiedBy: 'Operator',
+      }
+    }
+    save('knowledge-canon', data)
+    const v = know()
+    const action = v.container.querySelector('[data-recovery-action="true"]')!
+    click(action.querySelector('button')!)
+
+    const inputs = action.querySelectorAll<HTMLInputElement>('input')
+    expect(inputs.length).toBe(3)
+    typeInto(inputs[0]!, 'Recovery log')
+    typeInto(inputs[1]!, 'RL-001')
+    typeInto(inputs[2]!, 'Operator')
+    click(
+      Array.from(action.querySelectorAll('button')).find((b) =>
+        (b.textContent ?? '').startsWith('Record that'),
+      )!,
+    )
+
+    const after = v.container.querySelector('[data-recovery-action="true"]')!
+    expect(after.textContent).toContain('RECORDED')
+    expect(after.textContent).toContain('RL-001')
+    // Recorded outcomes are not re-runnable from the console.
+    expect(after.querySelector('button')).toBe(null)
     v.unmount()
   })
 

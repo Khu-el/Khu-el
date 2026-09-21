@@ -23,7 +23,7 @@
 import React, { useState } from 'react'
 import type { ModuleDefinition, Proof, Surface } from '../../core/types'
 import { Panel, Empty, Flag, ProofForm, ProofLine } from '../../ui/components'
-import { load, save } from '../../core/storage'
+import { hasShape, load, save } from '../../core/storage'
 import seed from '../../../seed/practice-desk.json'
 
 interface AgendaItem {
@@ -53,6 +53,15 @@ interface Asset {
   note?: string
 }
 
+/** What the written response actually said. Only one of them opens the gate. */
+type Disposition = 'APPROVED' | 'DENIED' | 'MORE INFORMATION REQUESTED'
+
+const DISPOSITIONS: Disposition[] = [
+  'APPROVED',
+  'DENIED',
+  'MORE INFORMATION REQUESTED',
+]
+
 interface DeskData {
   standup: {
     cadence: string
@@ -74,23 +83,38 @@ interface DeskData {
     blocks: string
     why: string
     letter: { title: string; status: string; note: string }
+    disposition: Disposition | null
+    dispositionNote: string
     proof: Proof | null
   }
 }
 
 const KEY = 'practice-desk'
+
+/**
+ * The top-level keys this module reads. A stored value missing any of them
+ * would throw on first render, and the Reset control is inside this module.
+ */
+const SHAPE = { standup: 'object', funnel: 'object', warmMarket: 'array', outsideActivity: 'object' } as const
 const SEED = seed as unknown as DeskData
 
 function DeskModule({ surface }: { surface: Surface }) {
-  const [data, setData] = useState<DeskData>(() => load<DeskData>(KEY, SEED))
+  const [data, setData] = useState<DeskData>(() => load<DeskData>(KEY, SEED, (v) => hasShape(v, SHAPE)))
   const [recording, setRecording] = useState(false)
+  const [disposition, setDisposition] = useState<Disposition | null>(null)
 
   const update = (next: DeskData) => {
     save(KEY, next)
     setData(next)
   }
 
-  const submitted = Boolean(data.outsideActivity.proof)
+  // A response on file is not an approval. This used to read
+  // Boolean(proof), so recording a denial cleared the blocking alert and the
+  // row read SUBMITTED · RESPONSE ON FILE — the gate reporting itself open on
+  // the strength of a refusal.
+  const responseOnFile = Boolean(data.outsideActivity.proof)
+  const approved =
+    responseOnFile && data.outsideActivity.disposition === 'APPROVED'
 
   return (
     <>
@@ -98,15 +122,16 @@ function DeskModule({ surface }: { surface: Surface }) {
         kind="gate"
         title="Outside business activity"
         purpose="One question. It is the single highest-leverage open item on this desk, and it is a letter."
-        alert={!submitted}
+        alert={!approved}
       >
         <p className="record__title">{data.outsideActivity.question}</p>
         <p className="panel__purpose" style={{ marginTop: 'var(--s3)' }}>
           {data.outsideActivity.why}
         </p>
-        <Flag tone={submitted ? 'permanent' : 'alert'}>
+        <Flag tone={approved ? 'permanent' : 'alert'}>
           {data.outsideActivity.blocks}
         </Flag>
+        <Flag tone="permanent">{data.outsideActivity.dispositionNote}</Flag>
         <article className="record">
           <div>
             <div className="record__title">
@@ -137,12 +162,19 @@ function DeskModule({ surface }: { surface: Surface }) {
           <div className="record__meta">
             <span
               className={`status ${
-                submitted ? 'status--built' : 'status--conditional'
+                approved
+                  ? 'status--built'
+                  : responseOnFile
+                    ? 'status--conditional'
+                    : 'status--conditional'
               }`}
+              data-oba-state="true"
             >
-              {submitted ? 'SUBMITTED · RESPONSE ON FILE' : data.outsideActivity.state}
+              {responseOnFile
+                ? `RESPONSE ON FILE · ${data.outsideActivity.disposition ?? 'DISPOSITION NOT RECORDED'}`
+                : data.outsideActivity.state}
             </span>
-            {!submitted && (
+            {!responseOnFile && (
               <button
                 className="nav__item"
                 onClick={() => setRecording(!recording)}
@@ -152,17 +184,49 @@ function DeskModule({ surface }: { surface: Surface }) {
             )}
           </div>
         </article>
-        {recording && !submitted && (
-          <ProofForm
-            label="Record the written response"
-            onSubmit={(proof) => {
-              update({
-                ...data,
-                outsideActivity: { ...data.outsideActivity, proof },
-              })
-              setRecording(false)
-            }}
-          />
+        {recording && !responseOnFile && (
+          <>
+            <p className="panel__purpose" style={{ marginTop: 'var(--s3)' }}>
+              What did the response say? The gate opens for an approval and for
+              nothing else.
+            </p>
+            <div style={{ display: 'flex', gap: 'var(--s2)', flexWrap: 'wrap' }}>
+              {DISPOSITIONS.map((d) => (
+                <button
+                  key={d}
+                  className="nav__item"
+                  aria-current={disposition === d}
+                  data-disposition={d}
+                  onClick={() => setDisposition(d)}
+                >
+                  {disposition === d ? '\u2713 ' : ''}
+                  {d}
+                </button>
+              ))}
+            </div>
+            {disposition ? (
+              <ProofForm
+                label="Record the written response"
+                onSubmit={(proof) => {
+                  update({
+                    ...data,
+                    outsideActivity: {
+                      ...data.outsideActivity,
+                      proof,
+                      disposition,
+                    },
+                  })
+                  setRecording(false)
+                }}
+              />
+            ) : (
+              <Flag>
+                Choose what the response said before recording it. A response
+                with no disposition would leave the gate unable to say whether
+                it is open.
+              </Flag>
+            )}
+          </>
         )}
       </Panel>
 

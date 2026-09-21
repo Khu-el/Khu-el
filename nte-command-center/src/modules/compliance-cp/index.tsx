@@ -17,8 +17,15 @@ import type {
   Surface,
 } from '../../core/types'
 import { canClear, gateNoteConflict } from '../../core/types'
+import {
+  asymmetries,
+  canClearCondition,
+  derivedDependsOn,
+  openBlockers,
+  typeBreakdown,
+} from './edges'
 import { Panel, RecordRow, Meter, Flag, ProofForm } from '../../ui/components'
-import { load, save } from '../../core/storage'
+import { hasShape, load, save } from '../../core/storage'
 import seed from '../../../seed/compliance.json'
 
 interface ChangeEntry {
@@ -55,11 +62,18 @@ interface ComplianceData {
 
 const KEY = 'compliance-cp'
 
+/**
+ * The top-level keys this module reads. A stored value missing any of them
+ * would throw on first render, and the Reset control is inside this module.
+ */
+const SHAPE = { criticalSet: 'object', conditions: 'array', remediation: 'array', documents: 'array', changes: 'array' } as const
+
 function ComplianceModule({ surface }: { surface: Surface }) {
   const [data, setData] = useState<ComplianceData>(() =>
-    load<ComplianceData>(KEY, seed as unknown as ComplianceData),
+    load<ComplianceData>(KEY, seed as unknown as ComplianceData, (v) => hasShape(v, SHAPE)),
   )
   const [open, setOpen] = useState<string | null>(null)
+  const [refusal, setRefusal] = useState<string | null>(null)
 
   const update = (next: ComplianceData) => {
     save(KEY, next)
@@ -67,6 +81,15 @@ function ComplianceModule({ surface }: { surface: Surface }) {
   }
 
   const clearCondition = (id: string, proof: Proof) => {
+    // Proof is necessary and not sufficient. A condition cannot clear ahead of
+    // what must clear before it, or the reconciled register shows CLEARED on a
+    // row whose blocker is still open.
+    const decision = canClearCondition(data.conditions, id)
+    if (!decision.ok) {
+      setRefusal(decision.message)
+      return
+    }
+    setRefusal(null)
     update({
       ...data,
       conditions: data.conditions.map((c) =>
@@ -78,6 +101,15 @@ function ComplianceModule({ surface }: { surface: Surface }) {
 
   const critical = useMemo(
     () => data.conditions.filter((c) => c.critical && !c.cleared),
+    [data.conditions],
+  )
+
+  // Both arrays describe the same edge set from opposite ends, so the union is
+  // that set. Rendering only `dependsOn` made a condition another row blocks
+  // read as waiting on nothing.
+  const waits = useMemo(() => derivedDependsOn(data.conditions), [data.conditions])
+  const edgeAsymmetries = useMemo(
+    () => asymmetries(data.conditions),
     [data.conditions],
   )
 
@@ -166,9 +198,18 @@ function ComplianceModule({ surface }: { surface: Surface }) {
       <Panel
         kind="gate"
         title="Critical conditions"
-        purpose="The ones that gate the rest of the portfolio. Five are administrative and one is drafting. None is build work — none of these waits on the freeze."
+        purpose={`The ones that gate the rest of the portfolio: ${
+          critical.length
+        } open, by type ${typeBreakdown(critical)}. None is build work — none of these waits on the freeze. The declared critical set is seven names; the register flags ${
+          data.conditions.filter((c) => c.critical).length
+        }, which the panel above reconciles.`}
         alert={critical.length > 0}
       >
+        {refusal && (
+          <p className="flag flag--alert" role="status" data-clear-refusal="true">
+            {refusal}
+          </p>
+        )}
         {critical.map((c) => (
           <article className="record" key={c.id}>
             <div>
@@ -182,7 +223,9 @@ function ComplianceModule({ surface }: { surface: Surface }) {
               <div className="panel__purpose" style={{ margin: 0 }}>
                 {c.type} · blocks {c.blocks.length || 'nothing recorded'}
                 {c.blocks.length ? ` (${c.blocks.join(', ')})` : ''}
-                {c.dependsOn.length ? ` · waits on ${c.dependsOn.join(', ')}` : ''}
+                {(waits.get(c.id) ?? []).length
+                  ? ` · waits on ${(waits.get(c.id) ?? []).join(', ')}`
+                  : ''}
               </div>
               {!canClear(c) && (
                 <Flag tone="permanent">
@@ -201,6 +244,13 @@ function ComplianceModule({ surface }: { surface: Surface }) {
               <span className="status status--conditional">OPEN</span>
               <button
                 className="nav__item"
+                disabled={openBlockers(data.conditions, c.id).length > 0}
+                aria-disabled={openBlockers(data.conditions, c.id).length > 0}
+                title={
+                  openBlockers(data.conditions, c.id).length > 0
+                    ? `Blocked: ${openBlockers(data.conditions, c.id).join(', ')} must clear first.`
+                    : 'Record the proof that clears this condition'
+                }
                 onClick={() => setOpen(open === c.id ? null : c.id)}
               >
                 {open === c.id ? 'Cancel' : 'Record proof'}
@@ -215,6 +265,22 @@ function ComplianceModule({ surface }: { surface: Surface }) {
         title="All conditions, reconciled"
         purpose="Four numbering systems in one register, aliases inline. Two rows with different numbers and the same substance is how a false clear happens."
       >
+        {edgeAsymmetries.length > 0 && (
+          <Flag tone="alert">
+            {edgeAsymmetries.length} dependency edges are recorded in one
+            direction only:{' '}
+            {edgeAsymmetries
+              .map((a) =>
+                a.declaredIn === 'blocks'
+                  ? `${a.from} blocks ${a.to}, which does not say it waits on ${a.from}`
+                  : `${a.from} waits on ${a.to}, which does not say it blocks ${a.from}`,
+              )
+              .join('; ')}
+            . The panel derives the edge set from both directions, so nothing
+            renders as waiting on nothing — but the register disagrees with
+            itself and that is not reconciled here.
+          </Flag>
+        )}
         {data.conditions.map((c) => (
           <article className="record" key={c.id}>
             <div>
@@ -225,6 +291,11 @@ function ComplianceModule({ surface }: { surface: Surface }) {
                   : 'no alias in the other three systems'}
               </span>
               <div className="record__title">{c.title}</div>
+              {(waits.get(c.id) ?? []).length > 0 && (
+                <div className="panel__purpose" style={{ margin: 0 }}>
+                  Waits on {(waits.get(c.id) ?? []).join(', ')}
+                </div>
+              )}
             </div>
             <div className="record__meta">
               <span

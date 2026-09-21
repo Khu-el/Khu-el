@@ -19,7 +19,7 @@
 import React, { useState } from 'react'
 import type { ModuleDefinition, Proof, Surface } from '../../core/types'
 import { Panel, Flag, ProofForm, ProofLine } from '../../ui/components'
-import { load, save } from '../../core/storage'
+import { hasShape, load, save } from '../../core/storage'
 import {
   CARRY_LIMIT,
   attemptCarry,
@@ -71,6 +71,12 @@ interface HouseholdData {
 }
 
 const KEY = 'family-office'
+
+/**
+ * The top-level keys this module reads. A stored value missing any of them
+ * would throw on first render, and the Reset control is inside this module.
+ */
+const SHAPE = { sundayRhythm: 'array', commands: 'array', binder: 'array', distribution: 'object', youth: 'array' } as const
 const SEED = seed as unknown as HouseholdData
 
 /**
@@ -104,7 +110,7 @@ function ExportControl({ rows }: { rows: { youth?: boolean }[] }) {
 
 function HouseholdModule({ surface }: { surface: Surface }) {
   const [data, setData] = useState<HouseholdData>(() =>
-    load<HouseholdData>(KEY, SEED),
+    load<HouseholdData>(KEY, SEED, (v) => hasShape(v, SHAPE)),
   )
   const [message, setMessage] = useState<string | null>(null)
   const [recording, setRecording] = useState(false)

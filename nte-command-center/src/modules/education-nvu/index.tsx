@@ -21,7 +21,7 @@ import React, { useMemo, useState } from 'react'
 import type { ModuleDefinition, Surface } from '../../core/types'
 import { Panel, Empty, Flag, Meter } from '../../ui/components'
 import { assertLane } from '../../core/lane-guard'
-import { load, save } from '../../core/storage'
+import { hasShape, load, save } from '../../core/storage'
 import seed from '../../../seed/education.json'
 
 interface Course {
@@ -103,6 +103,12 @@ interface EducationData {
 }
 
 const KEY = 'education-nvu'
+
+/**
+ * The top-level keys this module reads. A stored value missing any of them
+ * would throw on first render, and the Reset control is inside this module.
+ */
+const SHAPE = { courses: 'array', houses: 'array', conditions: 'array', deliverables: 'object', doctrineScreen: 'object', amendments: 'object', distribution: 'object', housesAtZero: 'object' } as const
 const SEED = seed as unknown as EducationData
 
 /**
@@ -201,7 +207,7 @@ function CourseRow({ course }: { course: Course }) {
 
 function EducationModule({ surface }: { surface: Surface }) {
   const [data, setData] = useState<EducationData>(() =>
-    load<EducationData>(KEY, SEED),
+    load<EducationData>(KEY, SEED, (v) => hasShape(v, SHAPE)),
   )
   const [statusFilter, setStatusFilter] = useState<string>('all')
 

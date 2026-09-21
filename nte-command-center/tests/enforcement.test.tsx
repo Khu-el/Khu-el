@@ -13,7 +13,8 @@ import {
   mondayOf,
 } from '../src/core/build-freeze'
 import { assertSurface } from '../src/core/lane-guard'
-import { load, save, setSurface } from '../src/core/storage'
+import { hasShape, load, save, setSurface } from '../src/core/storage'
+import familyOffice from '../src/modules/family-office'
 import type { ModuleDefinition, Surface } from '../src/core/types'
 import { ProofForm } from '../src/ui/components'
 import { click, render, typeInto, weekWith } from './helpers'
@@ -274,5 +275,55 @@ describe('7 · a fallback write is readable', () => {
     }
     save('fallback-probe', { rows: 2 })
     expect(load('fallback-probe', null)).toEqual({ rows: 2 })
+  })
+})
+
+describe('8 · a malformed stored value does not brick a module', () => {
+  beforeEach(() => {
+    window.localStorage.clear()
+    setSurface('lane-b')
+  })
+
+  it('checks the keys the module reads', () => {
+    expect(hasShape({ a: [], b: {} }, { a: 'array', b: 'object' })).toBe(true)
+    expect(hasShape({ a: {}, b: {} }, { a: 'array', b: 'object' })).toBe(false)
+    expect(hasShape({ a: [] }, { a: 'array', b: 'object' })).toBe(false)
+    expect(hasShape({ a: [], b: [] }, { a: 'array', b: 'object' })).toBe(false)
+    expect(hasShape(null, { a: 'array' })).toBe(false)
+    expect(hasShape([], { a: 'array' })).toBe(false)
+    expect(hasShape('{}', { a: 'array' })).toBe(false)
+  })
+
+  it('falls back to the seed rather than throwing on render', () => {
+    // Valid JSON, wrong shape. The module reads data.commands.filter(...), so
+    // this used to throw on first render — and because the stored value wins
+    // after first load and Reset to seed lives inside the module, the module
+    // stayed dead on every reload.
+    save('family-office', { commands: 'not an array' })
+    const view = render(
+      <ModuleBody
+        module={familyOffice}
+        surface="lane-b"
+        status={freezeStatus(weekWith(0))}
+      />,
+    )
+    expect(view.text).toContain('Sunday rhythm')
+    expect(view.text).toContain('Commands')
+    view.unmount()
+  })
+
+  it('leaves the bad value in place for inspection', () => {
+    save('family-office', { commands: 'not an array' })
+    load('family-office', { ok: true }, (v) => hasShape(v, { commands: 'array' }))
+    expect(window.localStorage.getItem('ccenter:lane-b:family-office')).toContain(
+      'not an array',
+    )
+  })
+
+  it('still returns a stored value that does have the shape', () => {
+    save('shape-probe', { rows: [1, 2] })
+    expect(
+      load('shape-probe', { rows: [] }, (v) => hasShape(v, { rows: 'array' })),
+    ).toEqual({ rows: [1, 2] })
   })
 })

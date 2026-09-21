@@ -70,6 +70,11 @@ jobs:
       - name: External origins, source
         run: npm run check:network
 
+      # This repository is public. The root bus audit enforces the same
+      # boundary but walks only .neterverse/, so it never reaches this project.
+      - name: No identifier or address is committed
+        run: npm run check:public
+
       - name: Tests
         run: npm test
 

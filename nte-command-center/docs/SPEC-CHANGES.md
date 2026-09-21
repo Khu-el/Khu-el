@@ -222,3 +222,99 @@ its own copy of the same calculation carrying the same bug, which is why no
 existing test caught it — the helper and the module agreed while both were
 wrong. It now calls `mondayOf`. The suite passes in `UTC`,
 `America/New_York`, `Asia/Kolkata` and `Pacific/Kiritimati`.
+
+---
+
+## SC-09 · The Drive file identifier is not committed to a public repository
+
+**Changed** `seed/tech-stack.json`, `docs/MODULE-SPECS.md`; adds
+`scripts/check-public.mjs` and `npm run check:public`.
+
+**Raised by** this build, on reading the root `CLAUDE.md` that arrived with the
+merge of `main`. It is explicit: *this repository is public*, and an account,
+workspace or file identifier must never be committed.
+
+Module 05's file-ID collision defect carried the literal Google Drive
+identifier, and `docs/MODULE-SPECS.md` § 05 repeated it. A Drive id is close to
+a capability — where a file is shared to anyone with the link, the identifier
+*is* the credential — and the defect reads perfectly well without it.
+
+The root `npm run bus -- audit` enforces the same boundary but walks only the
+committed bus directories under `.neterverse/`, so it never reaches this
+project. Confirmed by reading `audit.ts`, not inferred from its description.
+Nothing was checking this project, which is why this sat in a public repository
+through two reviews.
+
+**The change.** The identifier is replaced by the label `DRIVE-ID-1` in both
+places, and the defect states that the identifier is held outside the
+repository. `scripts/check-public.mjs` now fails on an opaque identifier — a
+long token mixing cases with digits or underscores, which is what a Drive,
+calendar or account id looks like and what neither English nor a document code
+looks like — or on an email address. It runs in `npm run check` and in CI.
+Verified both ways: it found exactly the two occurrences and nothing else, and
+reports clean now they are gone.
+
+---
+
+## SC-10 · The dependency graph is derived, and a condition cannot clear early
+
+**Changed** `src/modules/compliance-cp/index.tsx`; adds
+`src/modules/compliance-cp/edges.ts`.
+
+**Raised by** review on PR #4. Two defects, both confirmed against the
+delivered seed first.
+
+`dependsOn` and `blocks` describe the same edge from opposite ends, and **nine
+edges in the delivered seed are recorded in one direction only**. The panel
+rendered each row's `dependsOn` as "waits on …", so a condition another row
+blocks rendered as waiting on nothing — the false-cleared shape this register
+exists to prevent. The graph is now derived from both directions and the union
+governs, which is not inventing data: both arrays are statements about the same
+edge set. The asymmetry is still reported on the panel, because a register that
+disagrees with itself is a finding about the register, and it is not
+reconciled here.
+
+`clearCondition` set `cleared: true` the moment a proof arrived, without
+consulting `dependsOn` at all. Q-05 could clear while Q-01, which it waits on,
+was still open. The proof requirement stops an unevidenced clear; it did not
+stop an out-of-order one. Clearing is now refused while any derived blocker is
+open, the refusal names the blocker, and the proof control is disabled on a
+blocked row.
+
+---
+
+## SC-11 · Three controls that reported a state they had not reached
+
+**Changed** `src/modules/practice-desk/index.tsx`,
+`src/modules/ventures-revenue/index.tsx`,
+`src/modules/knowledge-canon/index.tsx`, `seed/practice-desk.json`,
+`src/core/storage.ts` and every module that reads stored state.
+
+**Raised by** review on PR #4.
+
+**The outside business activity gate opened on any response.** It read
+`Boolean(proof)`, so recording a *denial* cleared the blocking alert and the row
+read SUBMITTED · RESPONSE ON FILE. A refusal is not an approval. The recorded
+response now carries a disposition — approved, denied, or more information
+requested — and only an approval opens the gate. A response cannot be recorded
+without one.
+
+**Fifty-one records without a document code were entering a register.** The root
+`CLAUDE.md` and § 06 of this console's own rules both say a record without a
+`docCode` does not enter a register. The panel now reports zero register
+entries and renders the rows as slots awaiting registration, marked as such.
+
+**A recovery action said "Run" and did nothing.** The control had no handler, so
+once the doctrine pass completed it became enabled and a click did nothing —
+which an operator reads as a failed recovery. This console records that work
+happened; it does not perform recovery. The control now opens the same proof
+form every other outcome goes through, and the row shows RECORDED with its
+proof afterwards.
+
+**A malformed stored value bricked a module permanently.** `load` parsed JSON
+and cast the result, so a syntactically valid value of the wrong shape threw on
+first render. That is worse than an ordinary crash here: the stored value wins
+after first load, and `Reset to seed` lives inside the module that will not
+render, so the module stayed dead on every reload with no path back short of
+developer tools. `load` now takes an optional shape check, `hasShape` is in
+`src/core/storage.ts`, and all nine stateful modules pass the keys they read.

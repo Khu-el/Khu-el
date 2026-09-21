@@ -18,7 +18,7 @@ import {
 // Guard behaviour itself is exercised in tests/lane-guard.test.ts, which is
 // where a blocked term may be written out. This file must not contain one:
 // it lives under a practice- path and is scanned as practice source.
-import { render, weekWith } from './helpers'
+import { click, render, typeInto, weekWith } from './helpers'
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -110,5 +110,69 @@ describe('the desk is reachable from one surface only', () => {
         assertSurface('practice-desk', practiceDesk.surfaces, surface),
       ).toThrow()
     }
+  })
+})
+
+describe('the outside business activity gate opens only for an approval', () => {
+  const record = (disposition: string) => {
+    const v = renderDesk()
+    click(
+      Array.from(v.container.querySelectorAll('button')).find(
+        (b) => b.textContent === 'Record the response',
+      )!,
+    )
+    click(v.container.querySelector(`[data-disposition="${disposition}"]`)!)
+    const inputs = v.container.querySelectorAll<HTMLInputElement>('input')
+    typeInto(inputs[0]!, 'Written response')
+    typeInto(inputs[1]!, 'REF-1')
+    typeInto(inputs[2]!, 'Reviewer')
+    click(
+      Array.from(v.container.querySelectorAll('button')).find(
+        (b) => b.textContent === 'Record the written response',
+      )!,
+    )
+    return v
+  }
+
+  it('stays open, and alerting, on a denial', () => {
+    const v = record('DENIED')
+    // This used to read Boolean(proof), so recording a denial cleared the
+    // blocking alert and the row read SUBMITTED. A refusal is not an approval.
+    const state = v.container.querySelector('[data-oba-state="true"]')!
+    expect(state.textContent).toContain('DENIED')
+    expect(v.container.querySelector('.panel--alert')).toBeTruthy()
+    v.unmount()
+  })
+
+  it('stays open when more information was asked for', () => {
+    const v = record('MORE INFORMATION REQUESTED')
+    expect(
+      v.container.querySelector('[data-oba-state="true"]')!.textContent,
+    ).toContain('MORE INFORMATION REQUESTED')
+    expect(v.container.querySelector('.panel--alert')).toBeTruthy()
+    v.unmount()
+  })
+
+  it('opens on an approval', () => {
+    const v = record('APPROVED')
+    const panel = v.container.querySelector('.panel')!
+    expect(
+      v.container.querySelector('[data-oba-state="true"]')!.textContent,
+    ).toContain('APPROVED')
+    expect(panel.className).not.toContain('panel--alert')
+    v.unmount()
+  })
+
+  it('will not record a response with no disposition', () => {
+    const v = renderDesk()
+    click(
+      Array.from(v.container.querySelectorAll('button')).find(
+        (b) => b.textContent === 'Record the response',
+      )!,
+    )
+    // No disposition chosen: the proof form is not even offered.
+    expect(v.container.querySelector('input[aria-label="Proof source"]')).toBe(null)
+    expect(v.text).toContain('Choose what the response said before recording it')
+    v.unmount()
   })
 })

@@ -18,7 +18,7 @@
 import React, { useMemo, useState } from 'react'
 import type { ModuleDefinition, Proof, Surface } from '../../core/types'
 import { Panel, Empty, Flag, ProofForm, ProofLine } from '../../ui/components'
-import { load, save } from '../../core/storage'
+import { hasShape, load, save } from '../../core/storage'
 import {
   FORECAST_CRITERIA,
   FORECAST_STAGE,
@@ -56,6 +56,12 @@ interface CapabilityData {
 }
 
 const KEY = 'capability-services'
+
+/**
+ * The top-level keys this module reads. A stored value missing any of them
+ * would throw on first render, and the Reset control is inside this module.
+ */
+const SHAPE = { capabilityStatement: 'object', products: 'array', protocol: 'object', exclusion: 'object', stages: 'array', deals: 'array', playbooks: 'array' } as const
 const SEED = seed as unknown as CapabilityData
 
 const CRITERION_LABEL: Record<ForecastCriterion, string> = {
@@ -67,7 +73,7 @@ const CRITERION_LABEL: Record<ForecastCriterion, string> = {
 
 function CapabilityModule({ surface }: { surface: Surface }) {
   const [data, setData] = useState<CapabilityData>(() =>
-    load<CapabilityData>(KEY, SEED),
+    load<CapabilityData>(KEY, SEED, (v) => hasShape(v, SHAPE)),
   )
   const [signing, setSigning] = useState(false)
   const [dealName, setDealName] = useState('')

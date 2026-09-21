@@ -19,7 +19,7 @@
 import React, { useState } from 'react'
 import type { ModuleDefinition, Proof, Surface } from '../../core/types'
 import { Panel, Flag, ProofForm, ProofLine } from '../../ui/components'
-import { load, save } from '../../core/storage'
+import { hasShape, load, save } from '../../core/storage'
 import seed from '../../../seed/knowledge-canon.json'
 
 interface Instrument {
@@ -64,18 +64,25 @@ interface CanonData {
   doctrinePass: {
     steps: PassStep[]
     rule: string
-    actions: { id: string; title: string }[]
+    actions: { id: string; title: string; performed?: Proof | null }[]
   }
   missing: { id: string; title: string; heldBy: string; state: string }[]
   missingRule: string
 }
 
 const KEY = 'knowledge-canon'
+
+/**
+ * The top-level keys this module reads. A stored value missing any of them
+ * would throw on first render, and the Reset control is inside this module.
+ */
+const SHAPE = { canon: 'object', supersession: 'array', classifications: 'array', quarantine: 'array', doctrinePass: 'object', missing: 'array' } as const
 const SEED = seed as unknown as CanonData
 
 function KnowledgeModule({ surface }: { surface: Surface }) {
-  const [data, setData] = useState<CanonData>(() => load<CanonData>(KEY, SEED))
+  const [data, setData] = useState<CanonData>(() => load<CanonData>(KEY, SEED, (v) => hasShape(v, SHAPE)))
   const [openStep, setOpenStep] = useState<string | null>(null)
+  const [recording, setRecording] = useState<string | null>(null)
 
   const update = (next: CanonData) => {
     save(KEY, next)
@@ -86,6 +93,19 @@ function KnowledgeModule({ surface }: { surface: Surface }) {
     (s) => s.passed && s.proof,
   )
   const outstanding = data.doctrinePass.steps.filter((s) => !s.proof)
+
+  const recordAction = (id: string, proof: Proof) => {
+    update({
+      ...data,
+      doctrinePass: {
+        ...data.doctrinePass,
+        actions: data.doctrinePass.actions.map((a) =>
+          a.id === id ? { ...a, performed: proof } : a,
+        ),
+      },
+    })
+    setRecording(null)
+  }
 
   const provePass = (id: string, proof: Proof) => {
     update({
@@ -237,20 +257,56 @@ function KnowledgeModule({ surface }: { surface: Surface }) {
                   ({outstanding.map((s) => s.id).join(', ')}).
                 </Flag>
               )}
+              {a.performed ? (
+                <ProofLine proof={a.performed} />
+              ) : (
+                passComplete &&
+                recording === a.id && (
+                  <ProofForm
+                    label={`Record that ${a.id} was carried out`}
+                    onSubmit={(proof) => recordAction(a.id, proof)}
+                  />
+                )
+              )}
             </div>
             <div className="record__meta">
-              <button
-                className="nav__item"
-                disabled={!passComplete}
-                aria-disabled={!passComplete}
-                title={
-                  passComplete
-                    ? 'Run this recovery action'
-                    : 'Blocked: the three-step doctrine pass is not complete.'
-                }
+              <span
+                className={`status ${
+                  a.performed
+                    ? 'status--built'
+                    : passComplete
+                      ? 'status--conditional'
+                      : 'status--unknown'
+                }`}
               >
-                {passComplete ? 'Run' : 'Blocked'}
-              </button>
+                {a.performed ? 'RECORDED' : passComplete ? 'UNBLOCKED' : 'BLOCKED'}
+              </span>
+              {/* This console records that work happened; it does not perform
+                  recovery. The control used to read "Run" with no handler, so
+                  a click did nothing and an operator read that as a failed
+                  run. It now opens the same proof form every other outcome in
+                  this console goes through. */}
+              {!a.performed && (
+                <button
+                  className="nav__item"
+                  disabled={!passComplete}
+                  aria-disabled={!passComplete}
+                  title={
+                    passComplete
+                      ? 'Record that this recovery was carried out, with its proof'
+                      : 'Blocked: the three-step doctrine pass is not complete.'
+                  }
+                  onClick={() =>
+                    setRecording(recording === a.id ? null : a.id)
+                  }
+                >
+                  {!passComplete
+                    ? 'Blocked'
+                    : recording === a.id
+                      ? 'Cancel'
+                      : 'Record outcome'}
+                </button>
+              )}
             </div>
           </article>
         ))}

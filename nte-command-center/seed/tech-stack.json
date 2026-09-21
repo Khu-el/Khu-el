@@ -160,8 +160,8 @@
       "id": "D-01",
       "title": "File-ID collision",
       "severity": "open",
-      "detail": "One file identifier is recorded against two different documents. One of the two rows is wrong. Until it is resolved, any reference resolved through that identifier may fetch the wrong document, and a citation to it proves nothing.",
-      "reference": "14tj7L_lStV7fxXpi_unfqebvvfOU2vDj",
+      "detail": "One file identifier, labelled DRIVE-ID-1, is recorded against two different documents. One of the two rows is wrong. Until it is resolved, any reference resolved through that identifier may fetch the wrong document, and a citation to it proves nothing.",
+      "reference": "DRIVE-ID-1 — the identifier itself is held outside this public repository",
       "resolution": "Open the identifier, determine which document it actually is, and correct the other row. Do not delete either row — correct one and record the supersession.",
       "proof": null
     },

@@ -177,8 +177,9 @@ determinations.
 3. `board` — Repository health, bi-weekly check: build status, dependency
    updates, activation priority, tech debt.
 4. `gate` — Open defects. The file-ID collision
-   (`14tj7L_lStV7fxXpi_unfqebvvfOU2vDj` recorded against two documents — one row
-   is wrong), the seal-asset question (seals exist in Drive; confirm approved
+   (one Drive file identifier, labelled `DRIVE-ID-1`, recorded against two
+   documents — one row is wrong; the identifier is held outside this public
+   repository, see `docs/SPEC-CHANGES.md` SC-09), the seal-asset question (seals exist in Drive; confirm approved
    assets before use, never recreate a seal), and **the SECURITY HOLD on the
    plaintext credential file in the synced vault.**
 

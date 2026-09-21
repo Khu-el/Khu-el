@@ -14,7 +14,7 @@
 import React, { useMemo, useState } from 'react'
 import type { ModuleDefinition, ControlledRecord, Surface } from '../../core/types'
 import { Panel, RecordRow, Empty, Flag } from '../../ui/components'
-import { load, save } from '../../core/storage'
+import { hasShape, load, save } from '../../core/storage'
 import seed from '../../../seed/governance.json'
 
 interface Entity {
@@ -55,9 +55,15 @@ interface GovernanceData {
 
 const KEY = 'gov-infrastructure'
 
+/**
+ * The top-level keys this module reads. A stored value missing any of them
+ * would throw on first render, and the Reset control is inside this module.
+ */
+const SHAPE = { instruments: 'array', entities: 'array', licences: 'array', exclusions: 'array', supersession: 'array' } as const
+
 function GovernanceModule({ surface }: { surface: Surface }) {
   const [data, setData] = useState<GovernanceData>(() =>
-    load<GovernanceData>(KEY, seed as unknown as GovernanceData),
+    load<GovernanceData>(KEY, seed as unknown as GovernanceData, (v) => hasShape(v, SHAPE)),
   )
 
   const reset = () => {

@@ -239,3 +239,35 @@ describe('module 10 carries a changes ledger', () => {
     v.unmount()
   })
 })
+
+describe('a record without a document code does not enter the register', () => {
+  it('reports zero register entries and marks every row a slot', () => {
+    const v = view()
+    expect(v.text).toContain(`Register entries: 0 of ${seed.ventures.length}`)
+    expect(v.text).toContain('A record without a document code does not enter a register')
+    const slots = v.container.querySelectorAll('[data-unregistered-slot="true"]')
+    expect(slots.length).toBe(seed.ventures.length)
+    for (const slot of Array.from(slots).slice(0, 5)) {
+      expect(slot.textContent).toContain('slot · no document code')
+    }
+    v.unmount()
+  })
+
+  it('has no venture carrying a document code in the seed', () => {
+    for (const venture of seed.ventures) {
+      expect('docCode' in venture).toBe(false)
+    }
+  })
+
+  it('does not render them through the controlled-record strip', () => {
+    const v = view()
+    // No gate dots on a slot: the nine-point strip belongs to controlled
+    // records, and none of these is one.
+    for (const slot of Array.from(
+      v.container.querySelectorAll('[data-unregistered-slot="true"]'),
+    )) {
+      expect(slot.querySelector('.gate')).toBe(null)
+    }
+    v.unmount()
+  })
+})
