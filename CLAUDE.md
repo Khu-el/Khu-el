@@ -101,6 +101,7 @@ npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwri
 npm run build                   # all apps + server
 npm run typecheck               # tsc sweep: four apps + server + kernel
 npm test                        # the kernel suite — the only tests in this repo
+npm run check:query-token       # ?token= stays limited to the file-download route
 npm run bus -- status           # what the control plane knows
 npm run bus -- connectors       # live connector health and staleness
 npm run bus -- validate         # is .neterverse/ state still valid
@@ -112,8 +113,8 @@ build**, so run a build (or `typecheck`) before pushing.
 
 **These are also what CI runs.** `.github/workflows/verify.yml` runs `npm test`,
 `npm run typecheck`, `npm run build`, `bus validate` and `bus audit` on every pull
-request, plus two boundary checks that need no script: no tracked files under
-`.neterverse/live/`, and no committed `CNAME`. Steps are separate so a red run names
+request, `check:query-token`, plus two boundary checks that need no script: no tracked files
+under `.neterverse/live/`, and no committed `CNAME`. Steps are separate so a red run names
 which guarantee broke. Nothing ran on a pull request before this workflow existed, so
 these checks are new *as enforcement*, not new as expectations.
 
@@ -144,6 +145,13 @@ the same failure as reporting ✅ where they were never run.
 These are architectural, not stylistic. §10 and §14 of the Executive OS standard bind
 here:
 
+- **🔑 The bearer token travels in the header.** Exactly one route accepts
+  `?token=` — `GET /api/attachments/:id/download`, because a plain `<a href>`
+  cannot set a header — and it opts in through `requireAuthAllowingQueryToken`.
+  Every other route uses `requireAuth`, which reads the header only. A token in
+  a URL is copied into access logs, browser history and `Referer` headers, and
+  these tokens last 30 days. `npm run check:query-token` keeps the list at one;
+  do not mount the exception on a router.
 - **🚫 No third-party send.** The server may email **only the signed-in user's own
   address** — `sendSelfEmail()` hard-codes `req.user.email` and there is no recipient
   field anywhere in client or server. Do not add one.

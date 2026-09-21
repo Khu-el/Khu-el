@@ -62,6 +62,13 @@ jobs:
       - name: Committed bus state carries nothing unpublishable
         run: npm run bus -- audit
 
+      # A JWT in a query string lands in access logs, browser history and
+      # Referer headers, and these tokens last 30 days. Exactly one route needs
+      # it -- a plain <a href> download cannot set a header -- and the guard
+      # keeps it at exactly one.
+      - name: Query-string token stays limited to the download route
+        run: npm run check:query-token
+
       # Two boundaries from CLAUDE.md that are mechanical, and whose violation
       # would be both costly and easy to miss in a diff.
       - name: Live control-plane state is not committed
