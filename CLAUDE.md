@@ -1,14 +1,15 @@
 # 🧭 CLAUDE.md — Khu-el/Khu-el (NTE Web Apps)
 
-**📌 Three controlling standards govern work here. Read them before starting.**
+**📌 Four controlling standards govern work here. Read them before starting.**
 
 | Standard | Governs | Read before |
 |---|---|---|
 | `docs/EXECUTIVE_OS.md` | How *any* work is researched, evidenced, visualized, and recorded; the approval boundary | Any analysis, report, artifact, or recommendation |
 | `docs/AI_COUNCIL.md` | How contributors treat each other's work — review, dissent, handoff, attribution, audit | Reviewing, extending, or auditing work another contributor produced |
 | `docs/scheduled-tasks/SPEC.md` | How a *scheduled* task (Routine, cron, trigger, recurring brief) is defined | Creating, editing, or scheduling any recurring task |
+| `docs/claude-projects/SPEC.md` | How a *Claude Project* is defined, and what may be loaded into its knowledge base | Creating or editing any Claude Project, or adding a source to one |
 
-This file is the repo-specific layer on top of all three.
+This file is the repo-specific layer on top of all four.
 
 **🧭 Precedence:** a task-specific instruction from the principal wins. Otherwise, where
 these standards appear to disagree, **the stricter reading wins** — and no collaboration
@@ -50,6 +51,7 @@ them elsewhere (§4):
 |---|---|---|
 | `docs/DOMAIN_NETWORK.md` | Which hostname serves which property, across all three repos | Any DNS, hosting, deploy-target, or custom-domain change |
 | `docs/CONNECTORS.md` | Every connector, tool, and plugin, and what each may not do | Wiring up any integration, MCP connector, or automation |
+| `docs/claude-projects/REGISTRY.md` | Every Claude Project, its capacity, its lane, and what is loaded into it | Creating a Claude Project, or adding a source to an existing one |
 
 ---
 
@@ -68,6 +70,30 @@ Before creating, editing, or scheduling **any** recurring task, read
 One capacity per task. Never fabricate visual data. Do not manufacture an action when none
 is warranted. This is SPEC v2's `SEARCH → READ → REUSE → UPDATE` rule, and it is the same
 rule as Executive OS §4 (artifact-first continuity) applied to task definitions.
+
+---
+
+## 🗂️ Claude Projects
+
+Before creating a Claude Project on `claude.ai`, or adding a source to one, read
+`docs/claude-projects/SPEC.md` and follow it:
+
+1. Search `docs/claude-projects/REGISTRY.md` and `docs/claude-projects/projects/` for a project
+   that already covers the work. Extend it rather than adding a parallel one.
+2. Otherwise copy `docs/claude-projects/TEMPLATE.md` to `projects/<PROJECT-ID>.md`, fill every
+   section, and add the registry row.
+3. Run `npm run projects` — it fails on a source that does not exist, a source that may never be
+   loaded, or a registry row that drifted from its definition.
+4. `npm run projects:build` assembles each bundle into the gitignored `build/claude-projects/`.
+
+**One capacity per project, and Lane A and Lane B never share a knowledge base.** A project's
+knowledge is ambient — every conversation in it sees every document in it — so a capacity blend
+there is both more durable and less visible than one in a single prompt. The six current
+definitions and the runbook for creating them are in `docs/claude-projects/GETTING_STARTED.md`.
+
+A knowledge bundle is a **copy as of its build date**, not evidence that the source still says the
+same thing. Rebuild after any material change to a listed source, and after any change to a
+controlling standard — all six projects list the standards.
 
 ---
 
@@ -105,14 +131,16 @@ npm run bus -- status           # what the control plane knows
 npm run bus -- connectors       # live connector health and staleness
 npm run bus -- validate         # is .neterverse/ state still valid
 npm run bus -- audit            # nothing unpublishable in committed bus state
+npm run projects                # are the Claude Project definitions valid
+npm run projects:build          # assemble the project knowledge bundles
 ```
 
 Per-app `npm run build` runs `tsc -b --noEmit && vite build` — **type errors fail the
 build**, so run a build (or `typecheck`) before pushing.
 
 **These are also what CI runs.** `.github/workflows/verify.yml` runs `npm test`,
-`npm run typecheck`, `npm run build`, `bus validate` and `bus audit` on every pull
-request, plus two boundary checks that need no script: no tracked files under
+`npm run typecheck`, `npm run build`, `bus validate`, `bus audit` and `npm run projects` on
+every pull request, plus two boundary checks that need no script: no tracked files under
 `.neterverse/live/`, and no committed `CNAME`. Steps are separate so a red run names
 which guarantee broke. Nothing ran on a pull request before this workflow existed, so
 these checks are new *as enforcement*, not new as expectations.

@@ -17,6 +17,8 @@
     "build": "npm run build --workspaces --if-present",
     "typecheck": "tsc -b --noEmit apps/deal-architect apps/capital-readiness apps/notes-underwriting apps/legacy-estate server packages/neterverse-kernel",
     "test": "npm test --workspace=packages/neterverse-kernel",
-    "bus": "node packages/neterverse-kernel/src/cli.ts"
+    "bus": "node packages/neterverse-kernel/src/cli.ts",
+    "projects": "node scripts/claude-projects.mjs --check",
+    "projects:build": "node scripts/claude-projects.mjs --build"
   }
 }

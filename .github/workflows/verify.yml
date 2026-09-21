@@ -62,6 +62,14 @@ jobs:
       - name: Committed bus state carries nothing unpublishable
         run: npm run bus -- audit
 
+      # Every Claude Project definition points at real files and matches its
+      # registry row. A definition that names a deleted or renamed source would
+      # otherwise build a knowledge bundle with a hole in it, silently. The
+      # sibling repositories are not checked out here, so their sources are
+      # reported as unverified rather than failing the run.
+      - name: Claude Project definitions are valid
+        run: npm run projects
+
       # Two boundaries from CLAUDE.md that are mechanical, and whose violation
       # would be both costly and easy to miss in a diff.
       - name: Live control-plane state is not committed
