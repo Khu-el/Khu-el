@@ -102,13 +102,15 @@ contact or foreclosure action in notes-underwriting; brokerage, lending or title
 in deal-architect.
 
 VERIFICATION. Per-app build runs tsc -b --noEmit && vite build, so type errors fail the build.
-Run npm run typecheck or a build before pushing. npm test at the root runs every workspace with
-a suite — 182 tests: the kernel (98), server/ (23, driving the real app over HTTP against
-dist/), and finance.ts in the three Lane A apps (61). npm run test:server and npm run test:apps
-run a subset. What is still untested is the UI: components, tabs, stores and governance-core
-have no coverage at all, and the app suites cover finance.ts only. There is no linter anywhere.
-Do not report "tests pass" as though it covered a component you changed — state what you
-actually ran and what it reaches.
+Run npm run typecheck or a build before pushing.
+
+WHICH WORKSPACES HAVE TESTS IS NOT RECORDED HERE, ON PURPOSE. The table under "Where tests exist,
+and where they do not" in CLAUDE.md is the canonical answer and it moves — suites have been added
+to server/, to the three Lane A apps and to governance-core in the space of a day. Read that
+table rather than any count quoted elsewhere, including a count quoted in this project's own
+knowledge base. Then run what it names and say what you ran. Do not report "tests pass" as though
+it covered a component you changed: UI components, tabs and stores have no coverage, and a
+workspace suite may reach only part of its workspace. There is no linter anywhere in this repo.
 
 When adding a server test, keep test/helpers.ts's ordering: it sets NTE_DATA_DIR, JWT_SECRET and
 friends BEFORE importing anything from src/, because lib/env.ts and lib/db.ts read their
@@ -133,6 +135,7 @@ JWT_SECRET, SMTP settings and CORS_ORIGINS are set on the platform and never com
 | Khu-el/Khu-el | packages/governance-core/src/components/ | Shared UI primitives to reuse before writing a new one | `PUBLIC` |
 | Khu-el/Khu-el | packages/governance-core/src/api/ | Backend client, auth hook and record sync hook | `PUBLIC` |
 | Khu-el/Khu-el | packages/governance-core/src/index.ts | What the package actually exports | `PUBLIC` |
+| Khu-el/Khu-el | packages/governance-core/test/ | The cache-key and staleness helper suites | `PUBLIC` |
 | Khu-el/Khu-el | apps/deal-architect/src/ | App 1 — real-estate deal intelligence | `PUBLIC` |
 | Khu-el/Khu-el | apps/capital-readiness/src/ | App 2 — entity and offering-readiness diligence | `PUBLIC` |
 | Khu-el/Khu-el | apps/notes-underwriting/src/ | App 3 — distressed-debt and note underwriting | `PUBLIC` |
@@ -174,7 +177,9 @@ JWT_SECRET, SMTP settings and CORS_ORIGINS are set on the platform and never com
 - A new or changed shared component or API hook in `governance-core`.
 - A new tab, calculator or checklist in any of the three Lane A apps.
 - Any change to `server/src/` that touches auth, email or the record routes.
-- A new or changed test suite — the instructions quote the counts, so they go stale with them.
+- A new or changed test suite **only if it changes what a contributor should run** — the
+  instructions cite `CLAUDE.md`'s table rather than copying counts, so a count moving is not a
+  rebuild trigger. A *new workspace* gaining a suite is.
 - Any change to the controlling standards or to `CLAUDE.md`.
 
 ## 🧑‍⚖️ PROVENANCE

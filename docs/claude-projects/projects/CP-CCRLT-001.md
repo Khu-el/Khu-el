@@ -4,7 +4,7 @@
 |-------------------|-------|
 | 🏷️ Project ID     | `CP-CCRLT-001` |
 | 🏷️ Name           | Legacy & Estate — CCRLT (Lane B) |
-| 🧑‍💼 Capacity      | `CCRLT` 🔵 PROPOSED — see CAPACITY below |
+| 🧑‍💼 Capacity      | `CCRLT` |
 | 🛣️ Lane           | `LANE_B` |
 | 📆 Defined        | 2026-09-21 |
 | 🔧 Status         | `DRAFT` |
@@ -24,25 +24,27 @@ place in this account where that separation can be made structural rather than r
 
 ## 🧑‍💼 CAPACITY
 
-`CCRLT` — 🔵 **PROPOSED**, not settled.
+`CCRLT` — **settled by the principal, 2026-09-21.**
 
-The capacity table offers two plausible codes, and SPEC v2 forbids blending them:
+Two codes were plausible and SPEC v2 forbids blending them:
 
 - **`CCRLT`** — the Christopher Chaz Ransom-El Living Trust: the revocable living trust whose
-  estate this app administers.
+  estate this app administers. **Chosen.**
 - **`HOR`** — House of Ransom / Family Church: the trustee of that trust, and the Lane B code.
+  Not chosen.
 
-`CCRLT` is proposed because the app's subject matter is the *estate being administered* — assets,
-beneficiaries, distributions, insurance — rather than the trustee's own ministry operations. If
-the principal intends this workspace to cover House of Ransom activity generally rather than the
-trust's estate specifically, the correct code is `HOR` and this project should be reissued under a
-new ID with this row marked `REPLACED`.
+The reasoning that was put to the principal, and which the decision accepts: the app's subject
+matter is the *estate being administered* — assets, beneficiaries, distributions, insurance —
+rather than the trustee's own ministry operations.
 
-🔵 PROPOSED marks a design choice awaiting a decision. Per `AI_COUNCIL.md` §9 it takes no
-confidence icon and must not be rendered as though it were a finding about the world.
+This is a `USER-REPORTED` decision (Executive OS 🟡 MODERATE — stated by the principal), which is
+the correct and highest available evidence class for a choice of this kind: it is a decision about
+intent, not a claim about the world, so no external verification applies. The ID is now fixed.
+Should House of Ransom ministry operations later need their own project, that is `CP-HOR-001` — a
+new project, not a rename of this one.
 
-**What is not in doubt:** the lane. This is `LANE_B`, and nothing below may be loaded into a Lane A
-project regardless of how the capacity question resolves.
+**The lane was never in doubt.** This is `LANE_B`, and nothing below may be loaded into a Lane A
+project.
 
 ## 🚫 WHAT THIS PROJECT MUST NOT ABSORB
 
@@ -154,13 +156,11 @@ app and no linter. State what you actually ran.
   `AssertionStatus` vocabularies.
 - Any change to `server/src/` touching auth, email or role assignment.
 - Any change to the controlling standards.
-- **Resolution of the capacity question above.** That does not rebuild this project — it replaces
-  it.
 
 ## 🧑‍⚖️ PROVENANCE
 
 | Field | Value |
 |-------|-------|
 | Defined by | Claude Code, 2026-09-21 |
-| Reviewed by | ⚪ UNKNOWN — and the capacity choice specifically needs the principal's decision |
-| Evidence for the source list | Direct file listing and read of `Khu-el/Khu-el` at commit `5848e75`, this session. The Lane B designation is stated in `CLAUDE.md`, `README.md` and `.neterverse/state/ecosystem-state.json` — `EXTERNALLY_VERIFIED` as to the repository's own text. The `CCRLT` vs `HOR` capacity choice is 🔵 PROPOSED and rests on no evidence beyond the app's subject matter |
+| Reviewed by | ⚪ UNKNOWN as to the manifest. The **capacity choice was decided by the principal** on 2026-09-21 |
+| Evidence for the source list | Direct file listing and read of `Khu-el/Khu-el` at commit `5848e75`, this session. The Lane B designation is stated in `CLAUDE.md`, `README.md` and `.neterverse/state/ecosystem-state.json` — `EXTERNALLY_VERIFIED` as to the repository's own text. The `CCRLT` capacity is `USER-REPORTED` — the principal chose it on 2026-09-21, and a decision about intent takes no external verification |

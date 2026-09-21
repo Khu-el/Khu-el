@@ -74,22 +74,12 @@ Not required, but this order front-loads the projects that make the others easie
 | 2 | `CP-NTE-002` Lane A Apps | The largest body of day-to-day work |
 | 3 | `CP-PERS-001` Mental Performance Playbook | Self-contained, and the easiest to verify you got the pattern right |
 | 4 | `CP-NTE-003` DAO Portal | Needs the DAO repo checked out |
-| 5 | `CP-CCRLT-001` Legacy & Estate | **Settle the capacity question first** — see below |
+| 5 | `CP-CCRLT-001` Legacy & Estate | Lane B — create it in its own sitting, not alongside a Lane A project |
 | 6 | `CP-DIGP-001` Release Wave 1 | On `HOLD`. Create it when the hold lifts, or now as a placeholder |
 
 ---
 
-## ⚠️ Two things to decide before you start
-
-### 🔵 `CP-CCRLT-001`'s capacity is PROPOSED, not settled
-
-The estate project could be `CCRLT` (the trust whose estate the app administers) or `HOR` (House
-of Ransom, the trustee, and the Lane B code). `CCRLT` is proposed on the reasoning in that file's
-CAPACITY section. **If `HOR` is right, change it before creating the project** — the ID contains
-the capacity code, and IDs are never reused, so changing it afterwards means a new ID and a
-`REPLACED` row rather than an edit.
-
-The lane is not in doubt. It is Lane B either way.
+## ⚠️ One thing worth knowing before you start
 
 ### 📁 `CP-DIGP-001` is deliberately almost empty
 
