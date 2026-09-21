@@ -50,6 +50,7 @@ them elsewhere (§4):
 |---|---|---|
 | `docs/DOMAIN_NETWORK.md` | Which hostname serves which property, across all three repos | Any DNS, hosting, deploy-target, or custom-domain change |
 | `docs/CONNECTORS.md` | Every connector, tool, and plugin, and what each may not do | Wiring up any integration, MCP connector, or automation |
+| `docs/continuation/` | Point-in-time audit: verified state, source conflicts, blockers, security findings | Picking up portfolio-wide work, or wondering what was already checked |
 
 ---
 

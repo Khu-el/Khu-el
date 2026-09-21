@@ -1,0 +1,154 @@
+{
+  "generated_by": "scripts/build-inventory.mjs",
+  "generated_at": "2026-09-21T14:16:24.414Z",
+  "repository": "Khu-el/Khu-el",
+  "branch": "claude/neterverse-continuation-audit-k0meuw",
+  "commit": "533a985e9d642f28879982f616df6f1a78597b3e",
+  "tracked_file_count": 193,
+  "working_tree_clean": false,
+  "root_scripts": [
+    "build",
+    "bus",
+    "check:query-token",
+    "dev:capital-readiness",
+    "dev:deal-architect",
+    "dev:legacy-estate",
+    "dev:notes-underwriting",
+    "dev:server",
+    "inventory",
+    "test",
+    "test:kernel",
+    "test:server",
+    "typecheck"
+  ],
+  "workspaces": [
+    {
+      "path": "apps/capital-readiness",
+      "name": "nte-capital-readiness",
+      "private": true,
+      "scripts": [
+        "build",
+        "dev",
+        "preview"
+      ],
+      "has_typecheck": true,
+      "has_build": true,
+      "test_runner": null,
+      "test_files": [],
+      "dependency_count": 3
+    },
+    {
+      "path": "apps/deal-architect",
+      "name": "nte-deal-architect",
+      "private": true,
+      "scripts": [
+        "build",
+        "dev",
+        "preview"
+      ],
+      "has_typecheck": true,
+      "has_build": true,
+      "test_runner": null,
+      "test_files": [],
+      "dependency_count": 3
+    },
+    {
+      "path": "apps/legacy-estate",
+      "name": "ccrlt-legacy-estate",
+      "private": true,
+      "scripts": [
+        "build",
+        "dev",
+        "preview"
+      ],
+      "has_typecheck": true,
+      "has_build": true,
+      "test_runner": null,
+      "test_files": [],
+      "dependency_count": 3
+    },
+    {
+      "path": "apps/notes-underwriting",
+      "name": "nte-notes-underwriting",
+      "private": true,
+      "scripts": [
+        "build",
+        "dev",
+        "preview"
+      ],
+      "has_typecheck": true,
+      "has_build": true,
+      "test_runner": null,
+      "test_files": [],
+      "dependency_count": 3
+    },
+    {
+      "path": "packages/governance-core",
+      "name": "@nte/governance-core",
+      "private": true,
+      "scripts": [],
+      "has_typecheck": false,
+      "has_build": false,
+      "test_runner": null,
+      "test_files": [],
+      "dependency_count": 0
+    },
+    {
+      "path": "packages/neterverse-kernel",
+      "name": "@nte/neterverse-kernel",
+      "private": true,
+      "scripts": [
+        "cli",
+        "test",
+        "typecheck"
+      ],
+      "has_typecheck": true,
+      "has_build": false,
+      "test_runner": "node --test",
+      "test_files": [
+        "audit.test.ts",
+        "bus.test.ts",
+        "lane.test.ts",
+        "leases.test.ts",
+        "observations.test.ts",
+        "registries.test.ts",
+        "risk.test.ts",
+        "validate.test.ts"
+      ],
+      "dependency_count": 0
+    },
+    {
+      "path": "server",
+      "name": "nte-server",
+      "private": true,
+      "scripts": [
+        "build",
+        "dev",
+        "start",
+        "test"
+      ],
+      "has_typecheck": true,
+      "has_build": true,
+      "test_runner": "node --test",
+      "test_files": [
+        "auth-bootstrap.test.ts",
+        "auth-query-token.test.ts",
+        "auth-roles.test.ts"
+      ],
+      "dependency_count": 7
+    }
+  ],
+  "untested_workspaces": [
+    "apps/capital-readiness",
+    "apps/deal-architect",
+    "apps/legacy-estate",
+    "apps/notes-underwriting",
+    "packages/governance-core"
+  ],
+  "linter": null,
+  "notes": [
+    "test_runner records whether a runner is configured, not whether the suite passes.",
+    "Dated run results live in docs/continuation/CONTINUATION_AUDIT.md.",
+    "governance-core has no tsconfig of its own; it is typechecked through the apps that import its source."
+  ]
+}

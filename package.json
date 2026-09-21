@@ -20,6 +20,7 @@
     "test:kernel": "npm test --workspace=packages/neterverse-kernel",
     "test:server": "npm test --workspace=server",
     "check:query-token": "node scripts/check-query-token.mjs",
+    "inventory": "node scripts/build-inventory.mjs",
     "bus": "node packages/neterverse-kernel/src/cli.ts"
   }
 }
