@@ -57,6 +57,43 @@ for (const pattern of rootPkg.workspaces ?? []) {
 
 const workspaces = workspaceDirs.map(describeWorkspace).filter(Boolean).sort((a, b) => a.path.localeCompare(b.path));
 
+/**
+ * Projects that live in this repository but are deliberately NOT npm workspaces.
+ *
+ * nte-command-center arrived this way in PR #4: it has its own package.json,
+ * its own vitest suite and its own CI workflow, and it is absent from the
+ * workspaces globs on purpose. The consequence is easy to miss and easy to
+ * misreport -- root `npm test` does not reach it, `npm run typecheck` does not
+ * sweep it, and before this it did not appear here at all. An inventory that
+ * silently omits a whole project is worse than one that admits the gap, because
+ * the continuation audit cites this file as evidence of what the repository
+ * contains.
+ */
+function findNonWorkspaceProjects() {
+  const workspacePaths = new Set(workspaceDirs);
+  const skip = new Set(['node_modules', 'build', 'dist', '.git', '.github', '.neterverse', 'docs', 'scripts', 'web']);
+  const out = [];
+  for (const entry of readdirSync(ROOT, { withFileTypes: true })) {
+    if (!entry.isDirectory() || skip.has(entry.name) || entry.name.startsWith('.')) continue;
+    const pkgPath = join(ROOT, entry.name, 'package.json');
+    if (!existsSync(pkgPath)) continue;
+    if (workspacePaths.has(entry.name)) continue;
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+    out.push({
+      path: entry.name,
+      name: pkg.name,
+      scripts: Object.keys(pkg.scripts ?? {}).sort(),
+      test_runner: pkg.scripts?.test ?? null,
+      reached_by_root_npm_test: false,
+      reached_by_root_typecheck: false,
+      note: 'Not an npm workspace. Its checks run from its own workflow, not from the root scripts.',
+    });
+  }
+  return out.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+const nonWorkspaceProjects = findNonWorkspaceProjects();
+
 // Fields that change on every run regardless of whether anything real changed,
 // plus one that cannot be generated correctly at the moment it must be written.
 // Kept out of the comparison in --check so the guard flags drift, not bookkeeping.
@@ -83,6 +120,7 @@ const structural = {
   root_scripts: Object.keys(rootPkg.scripts ?? {}).sort(),
   workspaces,
   untested_workspaces: workspaces.filter((w) => !w.test_runner).map((w) => w.path),
+  non_workspace_projects: nonWorkspaceProjects,
   linter: null, // none configured anywhere in this repository
   notes: [
     'test_runner records whether a runner is configured, not whether the suite passes.',
@@ -90,6 +128,7 @@ const structural = {
     'governance-core has no tsconfig of its own; it is typechecked through the apps that import its source.',
     'Regenerate with `npm run inventory`; `npm run inventory:check` fails when this file has drifted.',
     'tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.',
+    'non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them.',
   ],
 };
 
@@ -114,16 +153,22 @@ if (process.argv.includes('--check')) {
       // `workspaces` is an array of sizeable objects. Printing both copies whole
       // buries the one changed field in a wall of JSON, so narrow it to the
       // workspace that actually differs and the field within it.
-      if (k === 'workspaces') {
-        const byPath = (arr) => new Map((arr ?? []).map((w) => [w.path, w]));
+      // Arrays of {path, ...} records -- workspaces and non-workspace projects --
+      // diff by path and then by field. Printing both copies whole buries the one
+      // field that moved in a wall of JSON, and `${object}` renders as
+      // "[object Object]", which tells a CI log nothing at all.
+      const isRecordArray = (v) => Array.isArray(v) && v.every((x) => x && typeof x === 'object' && typeof x.path === 'string');
+
+      if (isRecordArray(committed[k]) || isRecordArray(structural[k])) {
+        const byPath = (arr) => new Map((Array.isArray(arr) ? arr : []).map((w) => [w.path, w]));
         const before = byPath(committed[k]);
         const after = byPath(structural[k]);
-        for (const path of new Set([...before.keys(), ...after.keys()])) {
+        for (const path of [...new Set([...before.keys(), ...after.keys()])].sort()) {
           const a = before.get(path);
           const b = after.get(path);
-          if (!a) { console.error(`    + ${path} (new workspace)`); continue; }
-          if (!b) { console.error(`    - ${path} (no longer present)`); continue; }
-          for (const field of new Set([...Object.keys(a), ...Object.keys(b)])) {
+          if (!a) { console.error(`    + ${path} (not recorded in the committed inventory)`); continue; }
+          if (!b) { console.error(`    - ${path} (recorded, but no longer present)`); continue; }
+          for (const field of [...new Set([...Object.keys(a), ...Object.keys(b)])].sort()) {
             if (JSON.stringify(a[field]) !== JSON.stringify(b[field])) {
               console.error(`    ~ ${path}.${field}: ${JSON.stringify(a[field])} -> ${JSON.stringify(b[field])}`);
             }
@@ -132,8 +177,8 @@ if (process.argv.includes('--check')) {
       } else if (Array.isArray(committed[k]) && Array.isArray(structural[k])) {
         const before = new Set(committed[k].map((x) => JSON.stringify(x)));
         const after = new Set(structural[k].map((x) => JSON.stringify(x)));
-        for (const x of after) if (!before.has(x)) console.error(`    + ${JSON.parse(x)}`);
-        for (const x of before) if (!after.has(x)) console.error(`    - ${JSON.parse(x)}`);
+        for (const x of after) if (!before.has(x)) console.error(`    + ${x}`);
+        for (const x of before) if (!after.has(x)) console.error(`    - ${x}`);
       } else {
         console.error(`    committed: ${JSON.stringify(committed[k])}`);
         console.error(`    actual:    ${JSON.stringify(structural[k])}`);
@@ -143,7 +188,13 @@ if (process.argv.includes('--check')) {
     process.exit(1);
   }
   console.log(`${out} matches the repository: ${workspaces.length} workspaces, ${structural.untested_workspaces.length} without a test runner.`);
+  if (nonWorkspaceProjects.length > 0) {
+    console.log(`   plus ${nonWorkspaceProjects.length} non-workspace project(s): ${nonWorkspaceProjects.map((p) => p.path).join(', ')}`);
+  }
 } else {
   writeFileSync(outPath, JSON.stringify(inventory, null, 2) + '\n');
   console.log(`${out}: ${workspaces.length} workspaces, ${structural.untested_workspaces.length} without a test runner`);
+  if (nonWorkspaceProjects.length > 0) {
+    console.log(`   plus ${nonWorkspaceProjects.length} non-workspace project(s) root scripts do not reach: ${nonWorkspaceProjects.map((p) => p.path).join(', ')}`);
+  }
 }

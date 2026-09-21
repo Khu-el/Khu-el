@@ -40,19 +40,28 @@ committed.
 
 ---
 
-## 3. Resolve the two NTE Command Centers — before PR #4 merges
+## 3. Resolve the two NTE Command Centers — PR #4 has now merged
 
 | | |
 |---|---|
 | **Project** | NTE Command Center |
-| **Exact blocker** | [PR #4](https://github.com/Khu-el/Khu-el/pull/4) adds an `nte-command-center/` directory to `Khu-el/Khu-el`, while the separate private repository `Khu-el/NTE-Command-Center` also exists. Their relationship is **⚪ UNKNOWN** — the repository was not opened in this session. |
-| **Exact action** | Decide which is canonical, then either record the other as `SUPERSEDED` or drop the directory from PR #4. |
-| **Where** | Compare `Khu-el/NTE-Command-Center` against the `claude/generate-web-apps-ysvtoq` branch. |
-| **Afterwards** | PR #4 (CI green on both workflows) is free to merge without creating two sources of truth. |
-| **Verify** | One location holds the Command Center, and `docs/DOMAIN_NETWORK.md` names it. |
+| **Exact blocker** | **PR #4 merged on 2026-09-21**, so `nte-command-center/` is now on `main` — while the separate private repository `Khu-el/NTE-Command-Center` also still exists. Their relationship is **⚪ UNKNOWN**; the repository has never been opened. |
+| **Exact action** | Open `Khu-el/NTE-Command-Center`, compare it against `nte-command-center/` on `main`, then either archive the repository with a pointer to the directory, or record what the merged directory is missing if the repository turns out to be authoritative. |
+| **Where** | `github.com/Khu-el/NTE-Command-Center` vs `nte-command-center/` on `main`. |
+| **Afterwards** | One location is authoritative and the other says so, instead of two copies existing silently. |
+| **Verify** | `docs/DOMAIN_NETWORK.md` names which holds the Command Center, and the non-canonical one is archived or annotated. |
 
-📌 **Push dates suggest, but do not establish, that the PR branch is the newer of the two.** See
-`SOURCE_CONFLICTS.md` SC-03.
+⚠️ **This was recorded as something to settle before #4 merged, and it was not.** The duplication
+is now realized rather than preventable. Anyone who finds the standalone repository has no way to
+know whether it is superseded — which is the entire cost of a duplicate source of truth.
+
+📌 **Push dates suggest, but do not establish, that the merged directory is the newer of the two.**
+See `SOURCE_CONFLICTS.md` SC-03.
+
+📎 **A side effect worth knowing:** `nte-command-center/` is deliberately **not** an npm workspace.
+Root `npm test` and `npm run typecheck` do not reach it — its suite runs from `command-center.yml`
+instead. `inventory.json` now records it under `non_workspace_projects` so the omission is visible
+rather than silent.
 
 ---
 
