@@ -77,10 +77,30 @@ honestly.** See `SOURCE_CONFLICTS.md` SC-02.
 | **Project** | Shared Express/SQLite backend |
 | **Service** | Fly.io (or any Docker host) |
 | **Exact blocker** | Commit `71670bb` removed the ability to register as `SYSTEM_ADMIN`. The **only** remaining path is the single address in `BOOTSTRAP_ADMIN_EMAIL`, set on the platform. **Unset — the default — means no registration can ever produce an admin.** |
-| **Exact action** | Set it alongside `JWT_SECRET`, e.g. `fly secrets set BOOTSTRAP_ADMIN_EMAIL=you@yourdomain`, **then** register with that exact address. |
-| **Where** | The deployment platform's secrets, never a committed file. |
+| **Address designated** | ✅ `khuel@excellencedistrict.org` — chosen by the principal, 2026-09-21. `USER-REPORTED`: a decision about intent, so no external verification applies. |
+| **Exact action** | `fly secrets set BOOTSTRAP_ADMIN_EMAIL=khuel@excellencedistrict.org`, alongside `JWT_SECRET`, **then** register with that address. |
+| **Where** | The deployment platform's secrets, **never a committed file.** Recording the address here is not setting it — `server/src/lib/env.ts` reads `process.env` at boot and nothing else. |
 | **Afterwards** | That one account registers as `SYSTEM_ADMIN`; everyone else is a `FAMILY_COUNCIL_MEMBER`. |
 | **Verify** | `GET /api/auth/me` returns `"role": "SYSTEM_ADMIN"` for that account and `FAMILY_COUNCIL_MEMBER` for a second test registration. |
+
+⏳ **Cannot be done yet, and not for want of the value.** The backend has never been deployed —
+`fly.toml` still carries its placeholder app name, and `docs/DOMAIN_NETWORK.md` records
+`api.excellencedistrict.org` as *"Planned — backend not yet deployed"*. **There is no platform to
+set a secret on.** This becomes a one-line step the moment blocker 6 is done, and until then it is
+waiting on that, not on a decision.
+
+✅ **Verified against this exact address**, by probe on the built server: registering
+`khuel@excellencedistrict.org` returns `SYSTEM_ADMIN`, and matching is case-insensitive on both
+sides — the address was supplied as `Khuel@…` and resolves identically. Four near misses all
+return `FAMILY_COUNCIL_MEMBER`: `khuel@excellencedistrict.org.attacker.example`,
+`xkhuel@excellencedistrict.org`, `khuel@excellencedistrict.com` and
+`someone.else@excellencedistrict.org`.
+
+📌 **On recording it in a public repository:** `khuel@excellencedistrict.org` is already committed
+here in `docs/DOMAIN_NETWORK.md` and `docs/CONNECTORS.md`, so naming it again adds no disclosure.
+It is also not a credential — knowing the address grants nothing without `INVITE_CODE` *and* the
+ability to register. Say the word if you would rather this row read `<the designated address>` and
+the value live only on the platform.
 
 🟢 **This is not a regression** — it is the fix. Previously anyone holding the invite code could
 register as an admin and read and delete every user's records. See `SECURITY_FINDINGS.md` SF-02.
