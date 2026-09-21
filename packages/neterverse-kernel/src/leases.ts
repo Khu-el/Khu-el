@@ -32,8 +32,33 @@ export type AcquireResult =
 
 const DEFAULT_TTL_MINUTES = 60;
 
+/**
+ * Whether a lease has run out at `at`.
+ *
+ * An unparseable expiration counts as expired. `new Date('nonsense').getTime()`
+ * is `NaN`, and every comparison against `NaN` is false - so the obvious
+ * spelling of this function answers "not expired" for a corrupt value, and the
+ * lease becomes permanent. That inverts the entire point of having an expiry:
+ * a runtime that dies mid-task must not be able to hold a resource forever.
+ * Writes are schema-validated, but the lock file is a file, and a value that
+ * arrived by hand or by a partial write is refused rather than trusted.
+ */
 function isExpired(lease: Lease, at: Date): boolean {
-  return new Date(lease.expiration).getTime() <= at.getTime();
+  const expires = new Date(lease.expiration).getTime();
+  if (!Number.isFinite(expires)) return true;
+  return expires <= at.getTime();
+}
+
+/**
+ * Whether two actors are the same claimant.
+ *
+ * Both halves matter. `instance_id` is a free-form string with no uniqueness
+ * rule across runtimes, so comparing it alone lets Codex inherit a lease held
+ * by Claude Code whenever the two happen to pick the same instance name - a
+ * silent failure of the one guarantee this module exists to provide.
+ */
+function isSameAgent(a: Actor, b: Actor): boolean {
+  return a.runtime === b.runtime && a.instance_id === b.instance_id;
 }
 
 function readAll(root: string): Lease[] {
@@ -85,7 +110,7 @@ export function acquireLease(root: string, request: LeaseRequest, at: Date = new
   const wanted = new Set(request.resources);
 
   const conflicts = held
-    .filter((l) => !(l.task_id === request.task_id && l.agent.instance_id === request.agent.instance_id))
+    .filter((l) => !(l.task_id === request.task_id && isSameAgent(l.agent, request.agent)))
     .map((lease) => ({ lease, resources: lease.resources.filter((r) => wanted.has(r)) }))
     .filter((c) => c.resources.length > 0);
 

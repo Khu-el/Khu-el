@@ -89,5 +89,5 @@
   "rollback": "The kernel and the bus are additive. Deleting packages/neterverse-kernel and .neterverse/ returns the repository to its prior state; no existing file's behaviour was changed.",
   "lease_owner": "",
   "lease_expiration": "",
-  "status": "OPEN"
+  "status": "COMPLETED"
 }
