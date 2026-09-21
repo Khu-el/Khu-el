@@ -111,3 +111,23 @@ register as an admin and read and delete every user's records. See `SECURITY_FIN
 📌 Several links on the portal are honest `#` placeholders marked "coming soon". **Leave them
 that way** until a real destination exists; pointing them somewhere plausible would turn a ❓ into
 a ✅ (§1).
+
+---
+
+## 8. Re-create the ST-NTE-001 Routine with connectors attached
+
+| | |
+|---|---|
+| **Project** | Scheduled task `ST-NTE-001` — Continuation Audit Drift Watch |
+| **Service** | Claude Routines |
+| **Exact blocker** | The Routine (`trig_012vVNu9cbBucVpWHAxYnQAe`) was created from a session with no passable connector grants, so **the sessions it fires run with no `mcp__*` tools at all**. The create call said so explicitly. |
+| **What still works** | Fetching all three repositories, running every documented check, both registry validators, the inventory drift guard, and correcting the continuation documents. That is most of the task. |
+| **What does not** | PROCESS step 5 — reconciling Routines against `REGISTRY.md` — needs the Routines API and **cannot run at all**. Step 7's PR and CI re-checks are partial: git still sees commits and branches, but PR state, review threads and workflow conclusions are unreachable. |
+| **Exact action** | Re-create the Routine from a session holding the GitHub and Claude Code Remote connectors, or create it in the Routines UI on `claude.ai` with those connectors attached. Then delete `trig_012vVNu9cbBucVpWHAxYnQAe` and update the Routine ID in `docs/scheduled-tasks/REGISTRY.md` and in the task definition's header. |
+| **Where** | `claude.ai` → Routines |
+| **Afterwards** | Step 5 runs, and SC-07's orphan-Routine reconciliation becomes automatic instead of a standing ⚪ UNKNOWN. |
+| **Verify** | A run reports a Routine count and names the unregistered ones, rather than recording ⚪ UNKNOWN for step 5. |
+
+🟢 **Not urgent.** The task is genuinely scheduled and its first run on 2026-09-28 will do real
+work. This raises its ceiling; it does not unblock it. **The run must report the connector-dependent
+steps as ⚪ UNKNOWN rather than as passing** — that rule is written into the definition.

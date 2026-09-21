@@ -78,6 +78,24 @@ jobs:
       - name: Claude Project definitions are valid
         run: npm run projects
 
+      # Same shape for scheduled tasks: SPEC v2 says "no orphan tasks", and until
+      # now nothing checked that a definition has a registry row, that an ACTIVE
+      # task names the Routine that fires it, or that every section is filled in
+      # rather than left as template scaffolding.
+      #
+      # What it cannot see is the Routines API: whether a recorded Routine ID
+      # exists, and whether something is firing with no definition here at all.
+      # ST-NTE-001 reconciles that; a green step here is not evidence of it.
+      - name: Scheduled task definitions are valid
+        run: npm run tasks
+
+      # The committed inventory describes the repository's shape -- workspaces,
+      # which have a test runner, which do not. It is generated, so it drifts
+      # silently the moment a workspace is added and nobody re-runs it, and the
+      # continuation audit cites it as evidence.
+      - name: Workspace inventory is not stale
+        run: npm run inventory:check
+
       # Two boundaries from CLAUDE.md that are mechanical, and whose violation
       # would be both costly and easy to miss in a diff.
       - name: Live control-plane state is not committed

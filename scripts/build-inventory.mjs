@@ -57,15 +57,21 @@ for (const pattern of rootPkg.workspaces ?? []) {
 
 const workspaces = workspaceDirs.map(describeWorkspace).filter(Boolean).sort((a, b) => a.path.localeCompare(b.path));
 
-const inventory = {
-  // Regenerate with `npm run inventory` rather than editing by hand.
-  generated_by: 'scripts/build-inventory.mjs',
+// Fields that change on every run regardless of whether anything real changed.
+// Kept out of the comparison in --check so the guard flags drift, not the clock.
+const volatile = {
   generated_at: new Date().toISOString(),
-  repository: 'Khu-el/Khu-el',
   branch: git('rev-parse', '--abbrev-ref', 'HEAD'),
   commit: git('rev-parse', 'HEAD'),
-  tracked_file_count: git('ls-files').split('\n').filter(Boolean).length,
   working_tree_clean: git('status', '--porcelain') === '',
+};
+
+// The shape of the repository. A change here without a regenerated file means the
+// committed inventory is describing a repository that no longer exists.
+const structural = {
+  generated_by: 'scripts/build-inventory.mjs',
+  repository: 'Khu-el/Khu-el',
+  tracked_file_count: git('ls-files').split('\n').filter(Boolean).length,
   root_scripts: Object.keys(rootPkg.scripts ?? {}).sort(),
   workspaces,
   untested_workspaces: workspaces.filter((w) => !w.test_runner).map((w) => w.path),
@@ -74,9 +80,67 @@ const inventory = {
     'test_runner records whether a runner is configured, not whether the suite passes.',
     'Dated run results live in docs/continuation/CONTINUATION_AUDIT.md.',
     'governance-core has no tsconfig of its own; it is typechecked through the apps that import its source.',
+    'Regenerate with `npm run inventory`; `npm run inventory:check` fails when this file has drifted.',
   ],
 };
 
+const inventory = { ...structural, ...volatile };
 const out = 'docs/continuation/inventory.json';
-writeFileSync(join(ROOT, out), JSON.stringify(inventory, null, 2) + '\n');
-console.log(`${out}: ${workspaces.length} workspaces, ${inventory.untested_workspaces.length} without a test runner`);
+const outPath = join(ROOT, out);
+
+// `tracked_file_count` counts what git tracks, so a file added but not yet staged
+// is invisible to it while `workspaces` already sees the change on disk. In --check
+// that mismatch would read as drift on a perfectly ordinary working tree, so the
+// count is compared only when the tree is clean.
+const STRUCTURAL_KEYS = Object.keys(structural);
+
+if (process.argv.includes('--check')) {
+  if (!existsSync(outPath)) {
+    console.error(`${out} does not exist. Run \`npm run inventory\`.`);
+    process.exit(1);
+  }
+  const committed = JSON.parse(readFileSync(outPath, 'utf-8'));
+  const keys = STRUCTURAL_KEYS.filter((k) => k !== 'tracked_file_count' || volatile.working_tree_clean);
+  const drifted = keys.filter((k) => JSON.stringify(committed[k]) !== JSON.stringify(structural[k]));
+
+  if (drifted.length > 0) {
+    console.error(`${out} no longer describes this repository.\n`);
+    for (const k of drifted) {
+      console.error(`  ${k}`);
+      // `workspaces` is an array of sizeable objects. Printing both copies whole
+      // buries the one changed field in a wall of JSON, so narrow it to the
+      // workspace that actually differs and the field within it.
+      if (k === 'workspaces') {
+        const byPath = (arr) => new Map((arr ?? []).map((w) => [w.path, w]));
+        const before = byPath(committed[k]);
+        const after = byPath(structural[k]);
+        for (const path of new Set([...before.keys(), ...after.keys()])) {
+          const a = before.get(path);
+          const b = after.get(path);
+          if (!a) { console.error(`    + ${path} (new workspace)`); continue; }
+          if (!b) { console.error(`    - ${path} (no longer present)`); continue; }
+          for (const field of new Set([...Object.keys(a), ...Object.keys(b)])) {
+            if (JSON.stringify(a[field]) !== JSON.stringify(b[field])) {
+              console.error(`    ~ ${path}.${field}: ${JSON.stringify(a[field])} -> ${JSON.stringify(b[field])}`);
+            }
+          }
+        }
+      } else if (Array.isArray(committed[k]) && Array.isArray(structural[k])) {
+        const before = new Set(committed[k].map((x) => JSON.stringify(x)));
+        const after = new Set(structural[k].map((x) => JSON.stringify(x)));
+        for (const x of after) if (!before.has(x)) console.error(`    + ${JSON.parse(x)}`);
+        for (const x of before) if (!after.has(x)) console.error(`    - ${JSON.parse(x)}`);
+      } else {
+        console.error(`    committed: ${JSON.stringify(committed[k])}`);
+        console.error(`    actual:    ${JSON.stringify(structural[k])}`);
+      }
+    }
+    console.error(`\nRun \`npm run inventory\` and commit the result.`);
+    process.exit(1);
+  }
+  console.log(`${out} matches the repository: ${workspaces.length} workspaces, ${structural.untested_workspaces.length} without a test runner.`);
+  if (!volatile.working_tree_clean) console.log('   (tracked_file_count skipped — working tree is dirty)');
+} else {
+  writeFileSync(outPath, JSON.stringify(inventory, null, 2) + '\n');
+  console.log(`${out}: ${workspaces.length} workspaces, ${structural.untested_workspaces.length} without a test runner`);
+}

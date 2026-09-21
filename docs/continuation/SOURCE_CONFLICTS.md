@@ -120,3 +120,36 @@ House of Ransom estate record. There is no per-app invitation, and the write is 
 overwrite rather than an append. Whether that is the intent is the principal's call; **no change
 was made** — this is a documented design decision, not a defect, and changing it would alter how
 a shared family workspace behaves.
+
+---
+
+## SC-07 — The scheduled-task registry is empty while Routines are firing
+
+| | |
+|---|---|
+| **Source A** | `docs/scheduled-tasks/REGISTRY.md` — the index of every task defined under SPEC v2. Its table reads `_none yet_`. |
+| **Source B** | The account's Routines list, 2026-09-21: **at least 20 enabled recurring Routines**, among them "💰 Financial Leakage Audit", "🏛 Rockefeller Structure Gap Audit", "🛡 Scheduled Task Health Watchdog", "📣 Crusade Content Queue" and "NTE Weekly Operations and Control Brief". |
+| **Conflict** | SPEC v2 states *"A task is not scheduled until it has a row here and a filled-in file in `tasks/`"* and *"No orphan tasks."* Every one of those Routines is firing without either. |
+| **Which controls** | **Source B for what is actually happening; Source A for what is governed.** The registry is not wrong about its own contents — it is simply not being used, which is the finding. |
+| **Human resolution required** | ✅ **Yes** |
+
+⚠️ **The count is a floor, not a total.** That listing was paginated and returned a
+`next_cursor` that was not followed, so **at least** 20 is verified and the true number is
+⚪ UNKNOWN. It also covers only enabled recurring Routines; paused and one-shot Routines were not
+counted.
+
+**Why this was not fixed here.** Writing a definition for an existing Routine means stating its
+mission, capacity, inputs, guardrails and success metric. Those are knowable only from whoever
+created it — inferring them from a Routine's name would be fabricating a governance record, which
+is the specific failure the registry exists to prevent. `ST-NTE-001`'s PROCESS therefore reports
+unregistered Routines as a finding and is explicitly forbidden from inventing definitions for them.
+
+📌 **Possible existing owner, not yet confirmed.** One of the Routines is named *"🛡 Scheduled Task
+Health Watchdog (daily 7:00 AM ET)"*. Under `SEARCH → READ → REUSE → UPDATE` that is the obvious
+candidate to own this reconciliation, and a second Routine covering the same mission should not be
+created before someone checks what it already does. Its definition is ⚪ UNKNOWN — it is one of the
+unregistered ones.
+
+**What a human needs to decide:** for each Routine, whether to write a definition and register it,
+retire it, or record it as deliberately out of scope. Until then the registry's `_none yet_` is
+accurate about itself and misleading about the account.

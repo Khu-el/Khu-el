@@ -68,6 +68,17 @@ Before creating, editing, or scheduling **any** recurring task, read
 3. Add the task to `REGISTRY.md` with its Routine ID once scheduled.
 4. Each run appends to the task file's Run Log and ends with exactly one final-output status.
 
+`npm run tasks` enforces the mechanical half on every pull request: a definition with no registry
+row (or the reverse), a required section left as template scaffolding, a missing UTC cron or local
+time, an `ACTIVE` task that names no Routine, and a "next sequence number" that would hand out an
+ID already in use.
+
+⚠️ **What it cannot see is the Routines API.** It cannot confirm a recorded Routine ID exists, and
+it cannot notice a Routine firing with no definition here at all — and at least 20 currently are
+(`docs/continuation/SOURCE_CONFLICTS.md` SC-07). Reconciling that is `ST-NTE-001`'s job, not a
+validator's. **A green `npm run tasks` is not evidence that what is scheduled is what is
+registered.**
+
 One capacity per task. Never fabricate visual data. Do not manufacture an action when none
 is warranted. This is SPEC v2's `SEARCH → READ → REUSE → UPDATE` rule, and it is the same
 rule as Executive OS §4 (artifact-first continuity) applied to task definitions.
