@@ -20,7 +20,11 @@ bus, the kernel, the connector and domain registries, and the decisions recorded
 where a question like *"does this belong in the control plane, and under which authority?"* gets
 answered without re-deriving the whole governance model first.
 
-Its current slice is the shared-state kernel and collaboration bus, at `TESTED_LOCALLY`.
+Its current slice is **kernel verification and the task lifecycle**, at `TESTED_LOCALLY`. Four
+findings in `AUD-KHU-002` are open for the principal's decision — event-log tamper evidence, a
+bridge registry, what `UNCLASSIFIED` means at a lane boundary, and whether to extend the
+human-only action list — and independent verification of the hardened kernel by a runtime that did
+not write it is queued as `tsk_0003` / `ho_0002`.
 
 ## 🧑‍💼 CAPACITY
 
