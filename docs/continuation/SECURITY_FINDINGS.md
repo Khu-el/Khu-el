@@ -170,6 +170,65 @@ else signs in. Both are reasonable next steps and neither is done here.
 
 ---
 
+## SF-04 — 🟠 Medium — An unreadable verification date read as *verified*
+
+**Status:** ✅ Fixed in this branch · **Regression cover:** 46 tests across both copies
+
+### What was wrong
+
+The estate app flags a beneficiary designation not verified in two years, and the server's
+"Needs Attention" digest emails the same finding. **Both** implemented the rule as:
+
+```js
+Date.now() - new Date(dateStr).getTime() > twoYearsMs
+```
+
+An unparseable date gives `NaN`, and **every comparison against `NaN` is false** — so the
+designation reported as *current*. The empty string was handled; nothing else that is not a date
+was.
+
+### Evidence — probed before the fix
+
+| Stored value | Old result | Meaning |
+|---|---|---|
+| `""` | stale ✅ | handled |
+| `"2020-01-01"` | stale ✅ | correct |
+| `"31/12/2019"` | **not stale** 🔴 | a plausible thing to type — reads as verified |
+| `"TBD"` | **not stale** 🔴 | reads as verified |
+| `"unknown"` | **not stale** 🔴 | reads as verified |
+| `"2019-13-45"` | **not stale** 🔴 | reads as verified |
+
+### Why it matters
+
+This is a **fail-open on the one safety check the feature exists for**, on estate data. A
+designation last checked in 2019 but written `31/12/2019` showed as current in the UI **and** was
+omitted from the digest — the two places a person would otherwise have caught it. That is an
+UNKNOWN presenting as a ✅, which §1 rules out.
+
+📌 The server reads these straight from stored JSON, so the value is whatever a client sent — not
+necessarily what a `<input type="date">` produced.
+
+### The fix
+
+`stalenessReason()` resolves to stale on every branch unless a real instant says otherwise, and
+names *which* problem: `missing`, `unparseable`, `in-the-future`, `expired`. The wording follows —
+an unreadable date no longer claims to be "2+ years old", which would be inventing a fact.
+
+A date slightly ahead of now is tolerated as timezone skew (a date input records a calendar day
+with no timezone); well beyond that it is a typo like the year 20250, and a verification that has
+not happened cannot evidence that it has.
+
+⚠️ **The rule is duplicated** — `packages/governance-core/src/verification.ts` and
+`server/src/lib/staleness.ts` — because `server/` has no dependency on the React-facing
+`governance-core`. That duplication is what let one bug live in two places. **A test now asserts
+the two copies agree on 14 inputs**, so changing one without the other fails rather than
+silently diverging.
+
+Verified that the suites catch the original: reinstating the old comparison fails **10 of 20** in
+`governance-core` and **5 of 26** in the server.
+
+---
+
 ## Not findings — reviewed and accepted
 
 Recorded so the next reviewer does not re-open them.

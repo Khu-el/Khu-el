@@ -1,10 +1,10 @@
 {
   "generated_by": "scripts/build-inventory.mjs",
-  "generated_at": "2026-09-21T14:34:10.671Z",
+  "generated_at": "2026-09-21T14:39:13.552Z",
   "repository": "Khu-el/Khu-el",
   "branch": "claude/neterverse-continuation-audit-k0meuw",
-  "commit": "372f0a4e7bed7553be2a204dc02eccd19b65d543",
-  "tracked_file_count": 208,
+  "commit": "5334f2b5315f5e2b198e6e1b521ed6b4999b3509",
+  "tracked_file_count": 210,
   "working_tree_clean": false,
   "root_scripts": [
     "build",
@@ -103,7 +103,8 @@
       "has_build": false,
       "test_runner": "node --test",
       "test_files": [
-        "cacheKey.test.ts"
+        "cacheKey.test.ts",
+        "verification.test.ts"
       ],
       "dependency_count": 0
     },
@@ -149,7 +150,8 @@
       "test_files": [
         "auth-bootstrap.test.ts",
         "auth-query-token.test.ts",
-        "auth-roles.test.ts"
+        "auth-roles.test.ts",
+        "digest-staleness.test.ts"
       ],
       "dependency_count": 7
     }
