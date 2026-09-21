@@ -74,10 +74,11 @@ time, an `ACTIVE` task that names no Routine, and a "next sequence number" that 
 ID already in use.
 
 ⚠️ **What it cannot see is the Routines API.** It cannot confirm a recorded Routine ID exists, and
-it cannot notice a Routine firing with no definition here at all — and at least 20 currently are
-(`docs/continuation/SOURCE_CONFLICTS.md` SC-07). Reconciling that is `ST-NTE-001`'s job, not a
-validator's. **A green `npm run tasks` is not evidence that what is scheduled is what is
-registered.**
+it cannot notice a Routine firing with no definition here at all — and Routines currently are.
+How many, and which, is recorded in `docs/continuation/SOURCE_CONFLICTS.md` SC-07; read it there
+rather than trusting a count quoted here, because that number moves and a copy of it cannot know
+it has gone stale. Reconciling the two is `ST-NTE-001`'s job, not a validator's. **A green
+`npm run tasks` is not evidence that what is scheduled is what is registered.**
 
 One capacity per task. Never fabricate visual data. Do not manufacture an action when none
 is warranted. This is SPEC v2's `SEARCH → READ → REUSE → UPDATE` rule, and it is the same
