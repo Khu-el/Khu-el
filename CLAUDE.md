@@ -165,8 +165,10 @@ checked transitively through the apps that import its source.
 | `apps/legacy-estate` | ❌ none configured |
 
 `npm test` at the root runs every workspace that has a suite — 245 tests. **What is still
-untested is the UI**: components, tabs, stores and `governance-core` have no coverage at all,
-and `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only.
+untested is the UI**: components, tabs and stores have no coverage at all, and
+`apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
+`governance-core`'s suites cover its cache-key and staleness helpers — **not** its components,
+which remain uncovered along with every other component in the repo.
 
 **No linter is configured anywhere in this repo.** In a workspace with no runner, do not
 claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran.
