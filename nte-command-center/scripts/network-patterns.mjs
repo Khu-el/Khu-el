@@ -20,12 +20,29 @@ export const remoteUrl = () =>
   new RegExp(String.raw`https?://(?!${LOCAL_AUTHORITY})`, 'g')
 
 /**
+ * An authority: a dotted hostname, a bare IPv4, or a bracketed IPv6.
+ *
+ * The first version matched only a dotted hostname ending in letters, so
+ * `new Image().src = '//203.0.113.7/p.gif'` and `'//[2001:db8::1]/b'` were both
+ * missed — an address is a perfectly good host and neither form carries a TLD.
+ * Confirmed by probe before fixing.
+ */
+const HOST = String.raw`(?:[A-Za-z0-9][A-Za-z0-9.\-]*\.[A-Za-z]{2,}|(?:\d{1,3}\.){3}\d{1,3}|\[[0-9A-Fa-f:.]+\])`
+
+/**
  * A scheme-relative URL. The host must follow the slashes immediately, so an
  * inline comment ("// see example.com") is not a match, and a preceding colon
  * or word character rules out the tail of an absolute URL or a path.
+ *
+ * Exact local authorities are excluded, the same way the absolute-URL matcher
+ * excludes them — and by the same expression, so `//localhost.evil.example`
+ * stays a finding while `//localhost:5173/` does not.
  */
 export const schemeRelativeUrl = () =>
-  /(?<![:A-Za-z0-9.\-])\/\/[A-Za-z0-9][A-Za-z0-9.\-]*\.[A-Za-z]{2,}[^)'"\s]*/g
+  new RegExp(
+    String.raw`(?<![:A-Za-z0-9.\-])\/\/(?!${LOCAL_AUTHORITY})${HOST}[^)'"\s]*`,
+    'g',
+  )
 
 /**
  * A URL inside a CSS url(). The browser fetches it with no script involved, so

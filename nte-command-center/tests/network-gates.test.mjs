@@ -64,6 +64,33 @@ describe('scheme-relative URLs are seen', () => {
     }
   })
 
+  it('flags a bare address as readily as a hostname', () => {
+    // An address is a perfectly good host and carries no TLD, so the first
+    // version of this matcher — which required a dotted name ending in
+    // letters — missed both of these. Confirmed by probe before fixing.
+    for (const text of [
+      "new Image().src = '//203.0.113.7/p.gif'",
+      "beacon('//[2001:db8::1]/collect')",
+      '<img src="//198.51.100.4/t.gif">',
+    ]) {
+      expect(hits(schemeRelativeUrl(), text), text).not.toHaveLength(0)
+    }
+  })
+
+  it('excludes an exact local authority, but not a host that merely starts with one', () => {
+    for (const local of [
+      "'//localhost/'",
+      "'//localhost:5173/'",
+      "'//127.0.0.1:4000/api'",
+      "'//[::1]:8080/'",
+    ]) {
+      expect(hits(schemeRelativeUrl(), local), local).toHaveLength(0)
+    }
+    for (const remote of ["'//localhost.evil.example/c'", "'//127.0.0.1.evil.example/c'"]) {
+      expect(hits(schemeRelativeUrl(), remote), remote).not.toHaveLength(0)
+    }
+  })
+
   it('does not fire on a comment, a path, or the tail of an absolute URL', () => {
     for (const text of [
       'const x = 1 // see example.com for details',
