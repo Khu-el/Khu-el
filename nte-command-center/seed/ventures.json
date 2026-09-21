@@ -1,0 +1,726 @@
+{
+  "_note": "The class distribution, the plan set, the capital ask and its four tranches, the two model shapes and the base-case figures are all sourced. The 51 venture titles, their group assignment and their entity routing are not in this workspace, so those rows are slots rather than names. A register of 51 invented venture names would look complete and would be a defect. Every projection carries its scenario label; a number without one is not a projection.",
+  "classes": [
+    {
+      "code": "A",
+      "declared": 9,
+      "note": "Near-term revenue. The revenue line carries twelve entries against this declared nine — see the discrepancy panel."
+    },
+    {
+      "code": "B",
+      "declared": 16,
+      "note": null
+    },
+    {
+      "code": "C",
+      "declared": 14,
+      "note": null
+    },
+    {
+      "code": "D",
+      "declared": 11,
+      "note": "Sits behind the outside business activity determination. Roughly two thirds of the register waits on that one letter."
+    },
+    {
+      "code": "E",
+      "declared": 1,
+      "note": null
+    }
+  ],
+  "groups": [
+    {
+      "id": "G-1",
+      "name": null
+    },
+    {
+      "id": "G-2",
+      "name": null
+    },
+    {
+      "id": "G-3",
+      "name": null
+    },
+    {
+      "id": "G-4",
+      "name": null
+    },
+    {
+      "id": "G-5",
+      "name": null
+    },
+    {
+      "id": "G-6",
+      "name": null
+    },
+    {
+      "id": "G-7",
+      "name": null
+    }
+  ],
+  "ventures": [
+    {
+      "id": "A-01",
+      "class": "A",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "A-02",
+      "class": "A",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "A-03",
+      "class": "A",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "A-04",
+      "class": "A",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "A-05",
+      "class": "A",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "A-06",
+      "class": "A",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "A-07",
+      "class": "A",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "A-08",
+      "class": "A",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "A-09",
+      "class": "A",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-01",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-02",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-03",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-04",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-05",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-06",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-07",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-08",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-09",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-10",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-11",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-12",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-13",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-14",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-15",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "B-16",
+      "class": "B",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-01",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-02",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-03",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-04",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-05",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-06",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-07",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-08",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-09",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-10",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-11",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-12",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-13",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "C-14",
+      "class": "C",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-01",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-02",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-03",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-04",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-05",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-06",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-07",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-08",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-09",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-10",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "D-11",
+      "class": "D",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "E-01",
+      "class": "E",
+      "title": null,
+      "group": null,
+      "entity": null,
+      "status": "UNKNOWN"
+    }
+  ],
+  "plans": [
+    {
+      "code": "HOPE",
+      "docCode": "HOPE-GOV-2026-BIZPLAN-001",
+      "title": "Licensed practice plan and proposal",
+      "revision": "B",
+      "phase": "Plan complete, conditional",
+      "funderAnnex": "UNKNOWN",
+      "blockingCp": "Q-01",
+      "note": "Routed to the licensed practice, not to an enterprise entity. Reading it is not build work."
+    },
+    {
+      "code": "LAND",
+      "docCode": "NTE-GOV-2026-BIZPLAN-LAND-001",
+      "title": "Land desk plan and proposal",
+      "revision": "B",
+      "phase": "Plan complete, conditional",
+      "funderAnnex": "UNKNOWN",
+      "blockingCp": "Q-06",
+      "note": "Blocked on the flat-fee agreement with no transaction-contingent compensation."
+    },
+    {
+      "code": "OPHQ",
+      "docCode": "NTE-GOV-2026-BIZPLAN-OPHQ-001",
+      "title": "Operations headquarters plan",
+      "revision": "UNKNOWN",
+      "phase": "UNKNOWN",
+      "funderAnnex": "UNKNOWN",
+      "blockingCp": "UNKNOWN",
+      "docCodeProvisional": true,
+      "note": "Named in the plan set. Neither the document nor its revision is in this workspace."
+    },
+    {
+      "code": "PUB",
+      "docCode": "NTE-GOV-2026-BIZPLAN-PUB-001",
+      "title": "Publishing plan",
+      "revision": "UNKNOWN",
+      "phase": "UNKNOWN",
+      "funderAnnex": "UNKNOWN",
+      "blockingCp": "UNKNOWN",
+      "docCodeProvisional": true,
+      "note": "Named in the plan set. Not in this workspace."
+    },
+    {
+      "code": "AGS",
+      "docCode": "AGS-GOV-2026-BIZPLAN-001",
+      "title": "Practice-side product line plan",
+      "revision": "UNKNOWN",
+      "phase": "UNKNOWN",
+      "funderAnnex": "UNKNOWN",
+      "blockingCp": "Q-01",
+      "docCodeProvisional": true,
+      "note": "Routed to the licensed practice. Its content belongs to module 04's practice instance and is not held here."
+    },
+    {
+      "code": "ACAD",
+      "docCode": "NTE-GOV-2026-BIZPLAN-ACAD-001",
+      "title": "Academy plan",
+      "revision": "UNKNOWN",
+      "phase": "UNKNOWN",
+      "funderAnnex": "UNKNOWN",
+      "blockingCp": "Q-12",
+      "docCodeProvisional": true,
+      "note": "Blocked on the public naming condition before anything outward-facing."
+    }
+  ],
+  "capital": {
+    "ask": 28500,
+    "currency": "USD",
+    "note": "Four tranches. A tranche is locked until its gating event carries a proof. Two of the four have no named gating event, and a tranche gated on an unnamed event is not gated — those render as defective rather than as ready.",
+    "tranches": [
+      {
+        "id": "T-1",
+        "amount": 8500,
+        "event": "Written response to the outside business activity disclosure on file",
+        "eventRef": "Q-01",
+        "proof": null
+      },
+      {
+        "id": "T-2",
+        "amount": 6000,
+        "event": "Land desk agreement executed with a first subscriber",
+        "eventRef": "Q-14",
+        "proof": null
+      },
+      {
+        "id": "T-3",
+        "amount": 8000,
+        "event": null,
+        "eventRef": null,
+        "proof": null
+      },
+      {
+        "id": "T-4",
+        "amount": 6000,
+        "event": null,
+        "eventRef": null,
+        "proof": null
+      }
+    ]
+  },
+  "models": [
+    {
+      "id": "MODEL-TOP5-001",
+      "title": "Top-five venture financial model",
+      "tabs": 10,
+      "formulas": 583,
+      "recalcStatus": "UNKNOWN",
+      "scenarioSwitchCell": "UNKNOWN",
+      "placeholders": [
+        {
+          "cell": "B1",
+          "label": "Average case value",
+          "value": 600,
+          "scenario": "average",
+          "verified": false
+        }
+      ],
+      "placeholderNote": "One placeholder is identified. Whether it is the only one is not observable from this workspace, so this list is not a complete list and does not claim to be."
+    },
+    {
+      "id": "MODEL-LAND-001",
+      "title": "Land desk financial model",
+      "tabs": 6,
+      "formulas": 274,
+      "recalcStatus": "UNKNOWN",
+      "scenarioSwitchCell": "UNKNOWN",
+      "placeholders": [],
+      "placeholderNote": "No placeholder cells identified. That is not the same as none existing — nobody has enumerated them."
+    }
+  ],
+  "projections": [
+    {
+      "id": "y1-gross",
+      "label": "Year one gross",
+      "scenario": "base",
+      "modelValue": 260351,
+      "planValue": null,
+      "model": "MODEL-TOP5-001",
+      "verified": true
+    },
+    {
+      "id": "y1-contribution",
+      "label": "Year one contribution",
+      "scenario": "base",
+      "modelValue": 238861,
+      "planValue": null,
+      "model": "MODEL-TOP5-001",
+      "verified": true
+    },
+    {
+      "id": "y1-net",
+      "label": "Year one net after owner compensation",
+      "scenario": "base",
+      "modelValue": 142221,
+      "planValue": null,
+      "model": "MODEL-TOP5-001",
+      "verified": true
+    },
+    {
+      "id": "q1",
+      "label": "Quarter one result",
+      "scenario": "base",
+      "modelValue": -10813,
+      "planValue": null,
+      "model": "MODEL-TOP5-001",
+      "verified": true
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "conservative",
+      "label": "Conservative",
+      "status": "UNKNOWN",
+      "note": "Not in this workspace. No figures are shown under this label rather than base-case figures relabelled."
+    },
+    {
+      "id": "base",
+      "label": "Base",
+      "status": "LOADED",
+      "note": "The four figures below are the model's base case."
+    },
+    {
+      "id": "aggressive",
+      "label": "Aggressive",
+      "status": "UNKNOWN",
+      "note": "Not in this workspace."
+    }
+  ],
+  "classARevenue": {
+    "declaredCount": 9,
+    "lineCount": 12,
+    "note": "Twelve entries on the near-term revenue line against nine declared Class A ventures. Three are unaccounted for. This is an open item. It is not reconciled here, because reconciling it needs the twelve line labels and the nine venture names, and neither is in this workspace — an invented reconciliation is worse than the discrepancy.",
+    "lines": [
+      {
+        "position": 1,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 2,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 3,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 4,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 5,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 6,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 7,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 8,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 9,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 10,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 11,
+        "label": null,
+        "value": null
+      },
+      {
+        "position": 12,
+        "label": null,
+        "value": null
+      }
+    ]
+  }
+}

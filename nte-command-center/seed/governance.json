@@ -1,0 +1,260 @@
+{
+  "_note": "Seed only. Statuses are authored statuses. Nothing here claims execution, filing, or release — where the release gate has not been run, all nine points are false, because 'not run' is not the same as 'failed' and neither is the same as 'passed'.",
+
+  "instruments": [
+    {
+      "id": "masterplay",
+      "docCode": "NTE-GOV-2026-MASTERPLAY-001",
+      "title": "Master Enterprise Playbook — 51-venture register, entity architecture, 60-month timeline",
+      "revision": "B",
+      "lane": "A",
+      "status": "CONDITIONAL",
+      "eventId": null,
+      "gate": [false, false, false, false, false, false, false, false, false],
+      "updated": "2026-08-12",
+      "notes": "Complete build, conditional on the outside business activity determination. Release gate not yet run."
+    },
+    {
+      "id": "migrate-init",
+      "docCode": "NTE-GOV-2026-MIGRATE-INIT-001",
+      "title": "Portfolio Initialization Set — 69-dossier dashboard, decision queue, source request list",
+      "revision": "A",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [false, false, false, false, false, false, false, false, false],
+      "updated": "2026-08-12"
+    },
+    {
+      "id": "migrate-corr",
+      "docCode": "NTE-GOV-2026-MIGRATE-CORR-001",
+      "title": "Corpus Correction Sheet — seven supersession entries against the migration corpus",
+      "revision": "A",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [false, false, false, false, false, false, false, false, false],
+      "updated": "2026-08-12",
+      "notes": "Do not use the migration corpus as a drafting source for entity names — it repeats a superseded set."
+    },
+    {
+      "id": "sched",
+      "docCode": "NTE-GOV-2026-SCHED-001",
+      "title": "Entity & Capacity Control Schedule — execution blocks, prohibited forms, language scan",
+      "revision": "A",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [false, false, false, false, false, false, false, false, false],
+      "updated": "2026-08-12",
+      "notes": "Carries six open items rather than drafting around them. The household mirror is a separate instrument and is not yet built."
+    },
+    {
+      "id": "canon",
+      "docCode": "NTE-GOV-2026-CANON-001",
+      "title": "Canon & Recovery Determination — canonical source, doctrine quarantine, three defects",
+      "revision": "A",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [false, false, false, false, false, false, false, false, false],
+      "updated": "2026-08-12",
+      "notes": "Raises the open security hold on a plaintext credential file in the synced vault. That item outranks the whole board."
+    },
+    {
+      "id": "lic",
+      "docCode": "NTE-IPI-2026-LIC-001",
+      "title": "IP Licence Chain — head licence plus seven field-of-use sublicences",
+      "revision": "A",
+      "lane": "A",
+      "status": "DRAFT",
+      "eventId": null,
+      "gate": [false, false, false, false, false, false, false, false, false],
+      "updated": "2026-08-12",
+      "notes": "Royalty rates left blank pending tax counsel. One rate set once and applied across the chain, not seven rates."
+    }
+  ],
+
+  "entities": [
+    {
+      "code": "EDM",
+      "name": "Equity of the Divine Ministries",
+      "nameStatus": "CONFIRMED",
+      "role": "Trustee of the trust estate. Does not operate and does not receive revenue."
+    },
+    {
+      "code": "GHC",
+      "name": "Parent holding company",
+      "nameStatus": "CONFIRMED",
+      "role": "Holds the operating companies. Does not operate, does not contract, does not receive revenue.",
+      "note": "Because it does not operate, the credit venture re-routed to the education entity and the project vehicles hold the operating interests."
+    },
+    {
+      "code": "IPI",
+      "name": "IP & Licensing Inc.",
+      "nameStatus": "CONFIRMED",
+      "role": "Functional. Licenses intellectual property to the operating companies.",
+      "note": "Does not own the master intellectual property and has no charter power to issue instruments. A head licence must precede every sublicence."
+    },
+    {
+      "code": "TFS",
+      "name": "Treasury Services",
+      "nameStatus": "CONFIRMED",
+      "role": "Functional. Treasury only — narrowed from a broader trading scope."
+    },
+    {
+      "code": "VEI",
+      "name": "Advisory Inc. (recommended rename)",
+      "nameStatus": "PROVISIONAL",
+      "role": "Operating.",
+      "note": "The prior name reads as an investment vehicle to lenders and regulators. Awaiting confirmation."
+    },
+    {
+      "code": "OPS",
+      "name": "Operations & Systems Inc.",
+      "nameStatus": "PROVISIONAL",
+      "role": "Operating.",
+      "note": "Recommended, not confirmed. The determination was a hybrid across two naming sets, so the remaining names cannot be inherited by default."
+    },
+    {
+      "code": "NPE",
+      "name": "Publishing & Education Inc., with a digital and AI division",
+      "nameStatus": "PROVISIONAL",
+      "role": "Operating.",
+      "note": "Recommended as one entity with a division, not split into a second entity."
+    },
+    {
+      "code": "QVI",
+      "name": "Quantum Vault Inc. (recommended)",
+      "nameStatus": "PROVISIONAL",
+      "role": "Functional. Custody and records.",
+      "note": "The enforcement reading of this entity collides with an excluded line and was rejected."
+    },
+    {
+      "code": "MFG",
+      "name": "Manufacturing, trading as the apparel brand",
+      "nameStatus": "CONFIRMED",
+      "role": "Operating. Apparel only — has no claim to sales, governance, or education material."
+    }
+  ],
+
+  "licences": [
+    {
+      "id": "L-0",
+      "from": "Trust estate",
+      "to": "IPI",
+      "field": "Head licence. Master intellectual property. Must execute before any sublicence or all seven are defective at the root.",
+      "blockedBy": null,
+      "prerequisite": null
+    },
+    {
+      "id": "L-1",
+      "from": "IPI",
+      "to": "VEI",
+      "field": "Advisory field of use",
+      "blockedBy": "Q-03",
+      "prerequisite": "L-0"
+    },
+    {
+      "id": "L-2",
+      "from": "IPI",
+      "to": "OPS",
+      "field": "Operations and systems field of use",
+      "blockedBy": "Q-03",
+      "prerequisite": "L-0"
+    },
+    {
+      "id": "L-3",
+      "from": "IPI",
+      "to": "NPE",
+      "field": "Publishing and education field of use",
+      "blockedBy": "Q-03",
+      "prerequisite": "L-0"
+    },
+    {
+      "id": "L-4",
+      "from": "IPI",
+      "to": "MFG",
+      "field": "Apparel field of use",
+      "blockedBy": "D-13",
+      "prerequisite": "L-0"
+    },
+    {
+      "id": "L-5",
+      "from": "IPI",
+      "to": "TFS",
+      "field": "Treasury field of use",
+      "blockedBy": null,
+      "prerequisite": "L-0"
+    },
+    {
+      "id": "L-6",
+      "from": "IPI",
+      "to": "QVI",
+      "field": "Custody and records field of use",
+      "blockedBy": "Q-03",
+      "prerequisite": "L-0"
+    },
+    {
+      "id": "L-7",
+      "from": "IPI",
+      "to": "GHC",
+      "field": "Holding-level marks only. No operating field.",
+      "blockedBy": null,
+      "prerequisite": "L-0"
+    }
+  ],
+
+  "supersession": [
+    {
+      "id": "C-01",
+      "date": "2026-08-12",
+      "entry": "Tax characterisation: the grantor working position controls. No classification is asserted anywhere until counsel confirms in writing."
+    },
+    {
+      "id": "C-02",
+      "date": "2026-08-12",
+      "entry": "The entity determination partly closes the open entity-naming decision. Three of seven names settled; four remain provisional."
+    },
+    {
+      "id": "C-03",
+      "date": "2026-08-12",
+      "entry": "Token and distributed-organisation scope is excluded, not paused. It does not return."
+    },
+    {
+      "id": "C-04",
+      "date": "2026-08-12",
+      "entry": "Presentment and bond kits are excluded."
+    },
+    {
+      "id": "C-05",
+      "date": "2026-08-12",
+      "entry": "The vehicle-related line is void."
+    },
+    {
+      "id": "C-06",
+      "date": "2026-08-12",
+      "entry": "The education hierarchy is resolved by the catalog build. One naming condition remains open."
+    },
+    {
+      "id": "C-07",
+      "date": "2026-08-12",
+      "entry": "The migration corpus repeats superseded entity names. It is not a drafting source for names."
+    }
+  ],
+
+  "exclusions": [
+    { "id": "X-01", "title": "Private bond issuance, at-par instruments, CUSIP and depository registration" },
+    { "id": "X-02", "title": "Private court of record services offered to third parties" },
+    { "id": "X-03", "title": "Ecclesiastical and postal instruments offered as a service" },
+    { "id": "X-04", "title": "Distributed autonomous organisation and tokenised trust structures" },
+    { "id": "X-05", "title": "Third-party trust drafting and administration" },
+    { "id": "X-06", "title": "Private income rebuttal toolkit" },
+    { "id": "X-07", "title": "Removal of accurate credit inquiries and identity-theft affidavits against accurate items" },
+    { "id": "X-08", "title": "Commercial filings used as credit manufacturing" },
+    { "id": "X-09", "title": "Family credit pooling" },
+    { "id": "X-10", "title": "Business credit absorbing personal debt, borrowed equity injection, cross-bureau sequencing" },
+    { "id": "X-11", "title": "The cash-value insurance loop presented as a wealth system" },
+    { "id": "X-12", "title": "The vehicle-related line" }
+  ]
+}

@@ -1,0 +1,478 @@
+/*
+ * Design tokens.
+ *
+ * Direction: this is an administrative instrument, not a product dashboard.
+ * The vernacular it borrows from is document control — codes, revisions,
+ * registers, gates, seals. So document codes are set in monospace because that
+ * is what a document code looks like; panel titles are set in a serif because
+ * that is what an instrument looks like; and body copy is a plain humanist
+ * sans that gets out of the way.
+ *
+ * Boldness is spent in exactly one place: the gate strip. Nine dots on a
+ * hairline, one per Release Gate point. Everything else stays quiet — no card
+ * shadows, no gradients, no rounded corners beyond 2px, no decorative icons.
+ *
+ * Three palettes, one per surface. They do not share a single accent value.
+ * You should be able to tell which lane you are in from across the room.
+ */
+
+:root {
+  /* Type — system stacks only, no network requests */
+  --font-code: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono",
+    Menlo, Consolas, monospace;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino,
+    "Book Antiqua", Georgia, serif;
+  --font-body: ui-sans-serif, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
+  --step--1: 0.75rem;
+  --step-0: 0.875rem;
+  --step-1: 1rem;
+  --step-2: 1.25rem;
+  --step-3: 1.625rem;
+  --step-4: 2.125rem;
+
+  --tracking-eyebrow: 0.14em;
+  --tracking-code: 0.02em;
+
+  /* Space — 4px base, no half steps */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 64px;
+
+  --radius: 2px;
+  --hairline: 1px;
+  --ribbon: 3px;
+
+  --measure: 68ch;
+}
+
+/* ── Surface A · enterprise ──────────────────────────────────────────────
+   Ink navy and gold. Deep, close to black, so the gold reads as a seal
+   rather than as a highlight. */
+[data-surface="lane-a"] {
+  --ground: #0c1520;
+  --panel: #132131;
+  --panel-raised: #17293c;
+  --rule: #1e3348;
+  --accent: #c8a44a;
+  --accent-dim: #7d6730;
+  --text: #dce5ee;
+  --text-quiet: #8ba0b6;
+  --text-faint: #5b7089;
+  --alert: #c4553b;
+  --caution: #d69a3c;
+  --clear: #4f9c7e;
+  --seal-label: "Lane A";
+}
+
+/* ── Surface B · family estate ───────────────────────────────────────────
+   Warm ink and brass. Deliberately not a tint of the Lane A palette — it is
+   a different material entirely, because it is a different instrument. */
+[data-surface="lane-b"] {
+  --ground: #1a1512;
+  --panel: #241c17;
+  --panel-raised: #2d231c;
+  --rule: #3a2c22;
+  --accent: #b08d57;
+  --accent-dim: #6f593a;
+  --text: #ede4d8;
+  --text-quiet: #b3a08c;
+  --text-faint: #7d6d5c;
+  --alert: #b8543f;
+  --caution: #c8934a;
+  --clear: #6d9370;
+  --seal-label: "Household";
+}
+
+/* ── Surface Practice · licensed practice ────────────────────────────────
+   Light, slate and teal. Carries no enterprise trade dress by construction:
+   there is no navy and no gold token in this block at all, so a component
+   cannot accidentally inherit one. */
+[data-surface="practice"] {
+  --ground: #f2f4f3;
+  --panel: #ffffff;
+  --panel-raised: #f7f9f8;
+  --rule: #d3dad8;
+  --accent: #0e6b63;
+  --accent-dim: #7fa8a3;
+  --text: #16211f;
+  --text-quiet: #55635f;
+  --text-faint: #8b9995;
+  --alert: #a83c2c;
+  --caution: #97701f;
+  --clear: #17705a;
+  --seal-label: "Practice";
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Panel ──────────────────────────────────────────────────────────────── */
+
+.panel {
+  position: relative;
+  background: var(--panel);
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--s5) var(--s5) var(--s5) calc(var(--s5) + var(--ribbon));
+  margin-bottom: var(--s5);
+}
+
+/* The lane ribbon. Every panel carries it; it is how the surface identifies
+   itself without a logo. */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--ribbon);
+  background: var(--accent);
+}
+
+.panel--alert::before {
+  background: var(--alert);
+}
+
+.panel__eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 var(--s1);
+}
+
+.panel__title {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0 0 var(--s2);
+  color: var(--text);
+}
+
+.panel__purpose {
+  font-size: var(--step-0);
+  color: var(--text-quiet);
+  max-width: var(--measure);
+  margin: 0 0 var(--s5);
+}
+
+/* ── The gate strip — the signature element ─────────────────────────────── */
+
+.record {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--s2) var(--s4);
+  align-items: baseline;
+  padding: var(--s3) 0;
+  border-top: var(--hairline) solid var(--rule);
+}
+
+.record:last-child {
+  border-bottom: var(--hairline) solid var(--rule);
+}
+
+.record__code {
+  font-family: var(--font-code);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-code);
+  color: var(--accent);
+  word-break: break-all;
+}
+
+.record__rev {
+  font-family: var(--font-code);
+  font-size: var(--step--1);
+  color: var(--text-faint);
+  margin-left: var(--s2);
+}
+
+.record__title {
+  font-size: var(--step-0);
+  color: var(--text);
+  margin-top: var(--s1);
+}
+
+.record__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.gate {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.gate__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: var(--hairline) solid var(--accent-dim);
+  background: transparent;
+  transition: background-color 120ms ease;
+}
+
+.gate__dot--passed {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Point 8 is Event ID and is the usual blocker. It gets a distinct outline so
+   a strip that is blocked only on 8 is readable at a glance. */
+.gate__dot--eventid:not(.gate__dot--passed) {
+  border-color: var(--caution);
+  border-style: dashed;
+}
+
+.status {
+  font-family: var(--font-code);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-code);
+  padding: 2px var(--s2);
+  border: var(--hairline) solid currentColor;
+  border-radius: var(--radius);
+  white-space: nowrap;
+}
+
+.status--draft { color: var(--text-quiet); }
+.status--built { color: var(--clear); }
+.status--conditional { color: var(--caution); }
+.status--excluded,
+.status--superseded { color: var(--text-faint); text-decoration: line-through; }
+.status--unknown { color: var(--text-faint); }
+.status--attested { color: var(--accent); }
+
+.record__updated {
+  font-family: var(--font-code);
+  font-size: var(--step--1);
+  color: var(--text-faint);
+}
+
+/* ── Meter ──────────────────────────────────────────────────────────────── */
+
+.meter__track {
+  position: relative;
+  height: 22px;
+  background: var(--panel-raised);
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.meter__fill {
+  height: 100%;
+  background: var(--accent-dim);
+  transition: width 160ms ease;
+}
+
+.meter__fill--met {
+  background: var(--clear);
+}
+
+/* The threshold is a physical line on the gauge, not a colour change. It does
+   not move, and neither does the rule. */
+.meter__threshold {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--alert);
+}
+
+.meter__readout {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-code);
+  font-size: var(--step--1);
+  color: var(--text-quiet);
+  margin-top: var(--s2);
+}
+
+/* ── Freeze stamp ───────────────────────────────────────────────────────── */
+
+.freeze {
+  border: var(--hairline) dashed var(--alert);
+  border-radius: var(--radius);
+  padding: var(--s4);
+  color: var(--text-quiet);
+  font-size: var(--step-0);
+}
+
+.freeze__label {
+  font-family: var(--font-code);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--alert);
+  display: block;
+  margin-bottom: var(--s2);
+}
+
+/* ── Flags ──────────────────────────────────────────────────────────────── */
+
+.flag {
+  font-family: var(--font-code);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-code);
+  color: var(--caution);
+  border-left: 2px solid var(--caution);
+  padding-left: var(--s2);
+}
+
+.flag--permanent {
+  color: var(--text-quiet);
+  border-left-color: var(--text-faint);
+}
+
+.flag--alert {
+  color: var(--alert);
+  border-left-color: var(--alert);
+}
+
+/* ── Empty state — an invitation, not an apology ─────────────────────────── */
+
+.empty {
+  border: var(--hairline) dashed var(--rule);
+  border-radius: var(--radius);
+  padding: var(--s5);
+  color: var(--text-quiet);
+}
+
+.empty__title {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  color: var(--text);
+  margin: 0 0 var(--s2);
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+
+.shell {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: var(--s6) var(--s4) var(--s8);
+}
+
+.masthead {
+  border-bottom: var(--hairline) solid var(--rule);
+  padding-bottom: var(--s4);
+  margin-bottom: var(--s6);
+}
+
+.masthead__seal {
+  font-family: var(--font-code);
+  font-size: var(--step--1);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.masthead__title {
+  font-family: var(--font-display);
+  font-size: var(--step-4);
+  font-weight: 400;
+  margin: var(--s2) 0 0;
+  line-height: 1.1;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s4);
+}
+
+.nav__item {
+  font-family: var(--font-code);
+  font-size: var(--step--1);
+  color: var(--text-quiet);
+  background: none;
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--s1) var(--s3);
+  cursor: pointer;
+}
+
+.nav__item[aria-current="true"] {
+  color: var(--ground);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.nav__ordinal {
+  color: var(--text-faint);
+  margin-right: var(--s2);
+}
+
+.nav__item[aria-current="true"] .nav__ordinal {
+  color: var(--ground);
+  opacity: 0.65;
+}
+
+@media (max-width: 600px) {
+  .shell { padding: var(--s5) var(--s3) var(--s7); }
+  .record { grid-template-columns: 1fr; }
+  .record__meta { justify-content: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ── Imprint · Opportunity Architect ─────────────────────────────────────
+   Drafting paper, survey ink, parcel teal.
+
+   Its own block, not a variant. It shares no colour value with the enterprise
+   palette above and inherits neither the navy nor the gold — an imprint that
+   borrows the house's trade dress is the house's, and this one is not. It
+   applies to the element that carries the attribute and its subtree, so an
+   asset row belonging to the imprint reads as the imprint's wherever it sits. */
+[data-imprint="opportunity-architect"] {
+  --ground: #e8e6dc;
+  --panel: #f2f0e7;
+  --panel-raised: #dedbcd;
+  --rule: #bdb9a6;
+  --accent: #2f6b62;
+  --accent-dim: #86a49c;
+  --text: #23281f;
+  --text-quiet: #4f5a4a;
+  --text-faint: #7b8474;
+  --alert: #9c4a30;
+  --caution: #8a6a1c;
+  --clear: #3d6f4a;
+}
