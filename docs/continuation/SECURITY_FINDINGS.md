@@ -120,6 +120,56 @@ can be created. See `HUMAN_ACTION_REQUIRED.md` #5.
 
 ---
 
+## SF-03 — 🟠 Medium–High — One browser, one record cache, shared by every account
+
+**Status:** ✅ Fixed in this branch · **Regression cover:** 17 tests
+
+### What was wrong
+
+`useSyncedRecords` mirrors the server's records into `localStorage` so the apps still render
+offline. The key was a **fixed string per app** — `nte-deal-architect:deals`,
+`ccrlt-legacy-estate:estates` — shared by everyone who signed in on that browser. All four apps
+passed a literal constant.
+
+`logout()` clears the token and the user. **It does not clear the cache.**
+
+### The sequence
+
+1. User A signs in, works in Deal Architect. Their records are cached.
+2. A signs out. `AuthGate` unmounts the app; the cache stays on disk.
+3. User B signs in on the same browser. `AuthGate` mounts the app, which reads the same key and
+   **renders A's records immediately**, before any request completes.
+4. If the server is unreachable, B keeps seeing them — under the caption *"showing your last
+   saved copy."*
+
+### Why it matters
+
+`deal-architect`, `capital-readiness` and `notes-underwriting` are **private per owner** — the
+server will not serve one user another's records, which is exactly what makes the local copy a
+leak. `legacy-estate` is a shared workspace, so much of it B may legitimately see; the other
+three are a straight cross-account exposure of private deal terms, cap tables and obligor
+records.
+
+📌 This needs no attacker — two family members sharing a laptop is the whole scenario.
+
+### The fix
+
+The cache key is now scoped to the signed-in account, and `userId` is a **required** parameter,
+so a new call site cannot omit it without a type error. Opening a cache also purges any other
+account's copy of it — including the old unscoped key, which is precisely the shared cache this
+retires — so a shared machine does not keep records at rest that its current user cannot see.
+
+The helpers are plain functions over a `Storage`-shaped object (`src/api/cacheKey.ts`), so they
+are tested without a DOM: key scoping and separation, the old shared key being treated as
+foreign, other apps and unrelated keys left alone, near-miss keys (`…:dealsX`) not matched,
+storage that throws on read or refuses writes, and the full A-signs-out-B-signs-in sequence.
+
+⚠️ **Scope, stated honestly:** this fixes the cache. It does not add a general logout-time purge
+of every app's storage, and a signed-out user's own cache still sits on the disk until someone
+else signs in. Both are reasonable next steps and neither is done here.
+
+---
+
 ## Not findings — reviewed and accepted
 
 Recorded so the next reviewer does not re-open them.

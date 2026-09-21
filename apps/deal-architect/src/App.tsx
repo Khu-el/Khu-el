@@ -35,13 +35,13 @@ const TABS = [
 export default function App() {
   return (
     <AuthGate appName="Deal Architect">
-      {({ user, logout }) => <DealArchitect userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} onLogout={logout} />}
+      {({ user, logout }) => <DealArchitect userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} userId={user.id} onLogout={logout} />}
     </AuthGate>
   );
 }
 
-function DealArchitect({ userLabel, onLogout }: { userLabel: string; onLogout: () => void }) {
-  const { records: deals, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<DealData>('deal-architect', 'nte-deal-architect:deals', true);
+function DealArchitect({ userLabel, userId, onLogout }: { userLabel: string; userId: string; onLogout: () => void }) {
+  const { records: deals, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<DealData>('deal-architect', 'nte-deal-architect:deals', true, userId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState('intake');
   const [newAddress, setNewAddress] = useState('');

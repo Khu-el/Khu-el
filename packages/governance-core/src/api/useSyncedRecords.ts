@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { purgeForeignCaches, scopedCacheKey } from './cacheKey';
 import type { GovernedRecord } from '../types';
 import { api, ApiError } from './client';
 import type { AppId } from './types';
@@ -10,9 +11,21 @@ export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'offline';
  * Records are cached in localStorage (so the app still works offline / mid-flight)
  * and synced against the backend whenever authenticated. The cache is the
  * fallback, never the source of truth once a session is live.
+ *
+ * `userId` is required because the cache is per account, not per browser. See
+ * cacheKey.ts: a shared key let one account's records render for the next
+ * person to sign in on the same machine.
  */
-export function useSyncedRecords<T>(appId: AppId, cacheKey: string, isAuthenticated: boolean) {
-  const [records, setRecords] = useLocalStorage<GovernedRecord<T>[]>(cacheKey, []);
+export function useSyncedRecords<T>(appId: AppId, cacheKey: string, isAuthenticated: boolean, userId: string) {
+  const ownedKey = useMemo(() => scopedCacheKey(cacheKey, userId), [cacheKey, userId]);
+
+  // Drop any other account's copy of this cache before reading our own, so a
+  // shared machine does not keep records the signed-in user cannot see.
+  useMemo(() => {
+    if (typeof window !== 'undefined') purgeForeignCaches(window.localStorage, cacheKey, userId);
+  }, [cacheKey, userId]);
+
+  const [records, setRecords] = useLocalStorage<GovernedRecord<T>[]>(ownedKey, []);
   const [status, setStatus] = useState<SyncStatus>('idle');
   const [syncError, setSyncError] = useState<string | null>(null);
   const loadedFor = useRef<string | null>(null);

@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/build-inventory.mjs",
-  "generated_at": "2026-09-21T14:25:24.036Z",
+  "generated_at": "2026-09-21T14:34:10.671Z",
   "repository": "Khu-el/Khu-el",
   "branch": "claude/neterverse-continuation-audit-k0meuw",
-  "commit": "5e75ba2a1faafc4af8fc0b8226e5f46c9423412f",
+  "commit": "372f0a4e7bed7553be2a204dc02eccd19b65d543",
   "tracked_file_count": 208,
   "working_tree_clean": false,
   "root_scripts": [
@@ -96,11 +96,15 @@
       "path": "packages/governance-core",
       "name": "@nte/governance-core",
       "private": true,
-      "scripts": [],
+      "scripts": [
+        "test"
+      ],
       "has_typecheck": false,
       "has_build": false,
-      "test_runner": null,
-      "test_files": [],
+      "test_runner": "node --test",
+      "test_files": [
+        "cacheKey.test.ts"
+      ],
       "dependency_count": 0
     },
     {
@@ -151,8 +155,7 @@
     }
   ],
   "untested_workspaces": [
-    "apps/legacy-estate",
-    "packages/governance-core"
+    "apps/legacy-estate"
   ],
   "linter": null,
   "notes": [

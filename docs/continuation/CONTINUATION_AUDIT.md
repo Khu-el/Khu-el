@@ -47,10 +47,11 @@ report or from CI history.
 
 | Repository | Command | Result |
 |---|---|---|
-| `Khu-el/Khu-el` | `npm test` (all workspaces) | ✅ **182/182 pass** |
+| `Khu-el/Khu-el` | `npm test` (all workspaces) | ✅ **199/199 pass** |
 | ↳ | kernel | ✅ 98 |
 | ↳ | server (**new this session**) | ✅ 23 |
 | ↳ | three app `finance.ts` suites (**new this session**) | ✅ 61 |
+| ↳ | `governance-core` cache scoping (**new this session**) | ✅ 17 |
 | `Khu-el/Khu-el` | `npm run typecheck` | ✅ pass |
 | `Khu-el/Khu-el` | `npm run build` (all workspaces) | ✅ pass |
 | `Khu-el/Khu-el` | `npm run bus -- validate` | ✅ All registries valid |
@@ -59,8 +60,7 @@ report or from CI history.
 | `Khu-el/Mental-Alchemy` | `npm run check` (typecheck + 2 guards) | ✅ pass |
 | `Khu-el/Neterverse_DAO` | `python3 scripts/check_page.py` | ✅ tags balanced, no external subresource |
 
-**Where there is still nothing to run:** `packages/governance-core` and `apps/legacy-estate` have
-no test runner, and no repository has a linter. **The UI is untested everywhere** — components,
+**Where there is still nothing to run:** `apps/legacy-estate` has no test runner, and no repository has a linter. **The UI is untested everywhere** — components,
 tabs and stores have no coverage; the three app suites cover `finance.ts` only. A green run above
 is evidence for exactly the workspaces named and nothing wider.
 
@@ -82,6 +82,7 @@ findings are written up with evidence in `SECURITY_FINDINGS.md`.
 | `533a985` | `server/` gains a test runner and 23 tests over the running app |
 | `f71baf8` | This audit, the conflict register, the blocker list and the generated inventory |
 | `88d3ca3` | Calculators return `NaN` for a missing input instead of `0`, plus 61 tests across three apps |
+| *(this commit)* | The record cache is scoped per account instead of shared per browser, plus 17 tests |
 | *(merge)* | `main` moved mid-session — PR #11 merged, hardening the kernel and taking its suite 59 → 98. Merged in and re-verified; the figures above are post-merge |
 
 Nothing was changed in `Neterverse_DAO` or `Mental-Alchemy`: both pass their own checks, and no
@@ -178,4 +179,5 @@ the six is currently reachable.**
 4. Re-run PR #5 against current `main` — it has never been checked by CI.
 5. Extend the `server/` suite past the two authorization boundaries it now covers.
 6. Cover the UI — components, tabs and stores are now the largest untested surface, along with
-   `governance-core` and `apps/legacy-estate`.
+   `apps/legacy-estate`. `governance-core`'s React hooks are also untested; only its pure
+   helpers are covered.

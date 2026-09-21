@@ -10,4 +10,5 @@ export * from './components/SyncStatus';
 export * from './api/client';
 export * from './api/types';
 export * from './api/useAuth';
+export * from './api/cacheKey';
 export * from './api/useSyncedRecords';
