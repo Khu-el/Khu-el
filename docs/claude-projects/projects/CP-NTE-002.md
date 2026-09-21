@@ -81,7 +81,17 @@ status, not automatic conclusions. Memos are drafts — never offering documents
 solicitations. Where the underlying idea needs a licensed professional, the app says so and
 stops; that is what PROFESSIONAL_REVIEW_REQUIRED is for.
 
-HARD BOUNDARIES, ARCHITECTURAL AND NOT STYLISTIC. Do not add a recipient field anywhere in
+HARD BOUNDARIES, ARCHITECTURAL AND NOT STYLISTIC. The bearer token travels in the header:
+exactly one route accepts ?token= — GET /api/attachments/:id/download, because a plain <a href>
+cannot set a header — and it opts in through requireAuthAllowingQueryToken. Every other route
+uses requireAuth, which reads the header only. A token in a URL is copied into access logs,
+browser history and Referer headers, and these tokens last 30 days; npm run check:query-token
+keeps the list at one, so do not mount the exception on a router. A role is assigned by the
+deployment, never self-chosen: registration ignores a role in the body, PATCH /api/auth/me
+refuses one with 403, and the only path to SYSTEM_ADMIN is BOOTSTRAP_ADMIN_EMAIL set on the
+platform. This matters because INVITE_CODE is the shareable credential while a SYSTEM_ADMIN
+reads and deletes every user's records in every app, across both lanes — do not add a role field
+to a client form or an API promotion route. Do not add a recipient field anywhere in
 client or server — sendSelfEmail() hard-codes req.user.email and the system can email only the
 signed-in user's own address. Do not add automatic or scheduled outbound email; every send is a
 human clicking a button. Keep registration invite-only and fail-closed, including for the owner.
@@ -92,10 +102,18 @@ contact or foreclosure action in notes-underwriting; brokerage, lending or title
 in deal-architect.
 
 VERIFICATION. Per-app build runs tsc -b --noEmit && vite build, so type errors fail the build.
-Run npm run typecheck or a build before pushing. Tests exist ONLY in
-packages/neterverse-kernel; the apps, governance-core and server have no test runner and there is
-no linter anywhere. Do not report "tests pass" for a workspace that has no runner — state what
-you actually ran.
+Run npm run typecheck or a build before pushing. npm test at the root runs every workspace with
+a suite — 182 tests: the kernel (98), server/ (23, driving the real app over HTTP against
+dist/), and finance.ts in the three Lane A apps (61). npm run test:server and npm run test:apps
+run a subset. What is still untested is the UI: components, tabs, stores and governance-core
+have no coverage at all, and the app suites cover finance.ts only. There is no linter anywhere.
+Do not report "tests pass" as though it covered a component you changed — state what you
+actually ran and what it reaches.
+
+When adding a server test, keep test/helpers.ts's ordering: it sets NTE_DATA_DIR, JWT_SECRET and
+friends BEFORE importing anything from src/, because lib/env.ts and lib/db.ts read their
+configuration at import time. That is what gives each file its own throwaway SQLite database
+with nothing mocked.
 
 THIS REPOSITORY IS PUBLIC. No secrets, no real records, no identifiers in committed files.
 JWT_SECRET, SMTP settings and CORS_ORIGINS are set on the platform and never committed.
@@ -118,7 +136,12 @@ JWT_SECRET, SMTP settings and CORS_ORIGINS are set on the platform and never com
 | Khu-el/Khu-el | apps/deal-architect/src/ | App 1 — real-estate deal intelligence | `PUBLIC` |
 | Khu-el/Khu-el | apps/capital-readiness/src/ | App 2 — entity and offering-readiness diligence | `PUBLIC` |
 | Khu-el/Khu-el | apps/notes-underwriting/src/ | App 3 — distressed-debt and note underwriting | `PUBLIC` |
-| Khu-el/Khu-el | server/src/ | The shared backend, where the send boundary is enforced in code | `PUBLIC` |
+| Khu-el/Khu-el | server/src/ | The shared backend, where the send and role boundaries are enforced in code | `PUBLIC` |
+| Khu-el/Khu-el | server/test/ | The 23 tests over the running app, covering the two authorization boundaries | `PUBLIC` |
+| Khu-el/Khu-el | apps/deal-architect/test/ | The finance.ts suite for app 1 | `PUBLIC` |
+| Khu-el/Khu-el | apps/capital-readiness/test/ | The finance.ts suite for app 2 | `PUBLIC` |
+| Khu-el/Khu-el | apps/notes-underwriting/test/ | The finance.ts suite for app 3 | `PUBLIC` |
+| Khu-el/Khu-el | docs/continuation/SECURITY_FINDINGS.md | The two fixed authorization defects, with before and after evidence | `PUBLIC` |
 | Khu-el/Khu-el | server/.env.example | Which secrets exist, without their values | `PUBLIC` |
 | Khu-el/Khu-el | package.json | Workspace layout and the scripts CI runs | `PUBLIC` |
 | Khu-el/Khu-el | .github/workflows/verify.yml | What CI enforces on every pull request | `PUBLIC` |
@@ -151,6 +174,7 @@ JWT_SECRET, SMTP settings and CORS_ORIGINS are set on the platform and never com
 - A new or changed shared component or API hook in `governance-core`.
 - A new tab, calculator or checklist in any of the three Lane A apps.
 - Any change to `server/src/` that touches auth, email or the record routes.
+- A new or changed test suite — the instructions quote the counts, so they go stale with them.
 - Any change to the controlling standards or to `CLAUDE.md`.
 
 ## 🧑‍⚖️ PROVENANCE

@@ -7,9 +7,12 @@
   "entity": "Neterverse Trust Enterprise (NTE)",
   "capacity": "Minister / Authorized Representative",
   "risk_tier": "R1",
-  "state": "QUEUED",
+  "state": "REVIEW",
   "preferred_runtime": "CODEX",
-  "resources": ["packages/neterverse-kernel", ".neterverse/schemas"],
+  "resources": [
+    "packages/neterverse-kernel",
+    ".neterverse/schemas"
+  ],
   "blocked_by": [],
   "human_gate": null,
   "acceptance": [
@@ -19,6 +22,6 @@
     "A handoff packet written back to .neterverse/handoffs/codex-to-claude/"
   ],
   "created_at": "2026-09-10T23:28:24Z",
-  "updated_at": "2026-09-10T23:28:24Z",
-  "next_action": "Claim a lease over packages/neterverse-kernel, then run the suite and read src/lane.ts and src/risk.ts adversarially."
+  "updated_at": "2026-09-21T14:05:24.586Z",
+  "next_action": "Independent verification by a runtime that did not write the code. See ho_0002 and AUD-KHU-002."
 }

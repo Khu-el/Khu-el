@@ -6,9 +6,15 @@
  * detail; it was caught by reading, which is not a control that scales. This
  * module makes the boundary a check that runs.
  *
- * It scans only what git would publish - `state/`, `events/`, `schemas/`,
- * `decisions/`, `reports/`, `tasks/`, `handoffs/` - and never `live/`, which is
+ * It scans what git would publish - every committed directory under the bus
+ * root, plus the loose files at the root itself - and never `live/`, which is
  * ignored precisely so it can hold the identifying material.
+ *
+ * The list of scanned directories is derived from what is NOT ignored rather
+ * than from a hand-kept allow-list. An allow-list is the failure mode here: it
+ * was missing `evidence/` and `locks/`, both of which git publishes, so the
+ * audit reported a boundary it had not actually looked at. A new committed
+ * directory is now covered the moment it exists.
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -22,8 +28,11 @@ export interface AuditFinding {
   excerpt: string;
 }
 
-/** Directories under the bus root that are committed and therefore published. */
-const COMMITTED_DIRS = ['state', 'events', 'schemas', 'decisions', 'reports', 'tasks', 'handoffs'];
+/**
+ * Directories under the bus root that git ignores and this scan therefore
+ * skips. Everything else under the root is published and is scanned.
+ */
+const IGNORED_DIRS: ReadonlySet<string> = new Set([LIVE_DIRNAME, 'node_modules', '.git']);
 
 interface Rule {
   name: string;
@@ -45,6 +54,26 @@ const hasUpper = (s: string) => /[A-Z]/.test(s);
 const hasLower = (s: string) => /[a-z]/.test(s);
 const hasDigit = (s: string) => /[0-9]/.test(s);
 
+/**
+ * How often the string flips between upper and lower case.
+ *
+ * This is what separates a random token from a hyphenated human name. Base64ish
+ * identifiers alternate case constantly; `ADR-0001-control-plane-foundation`
+ * and `claude-code-init-2026-09-10` never do. Counting the flips lets a rule
+ * reach segmented identifiers without firing on every decision record and
+ * instance id in the bus.
+ */
+function caseFlips(s: string): number {
+  let flips = 0;
+  for (let i = 1; i < s.length; i += 1) {
+    const a = s[i - 1]!;
+    const b = s[i]!;
+    if (!/[A-Za-z]/.test(a) || !/[A-Za-z]/.test(b)) continue;
+    if ((a === a.toUpperCase()) !== (b === b.toUpperCase())) flips += 1;
+  }
+  return flips;
+}
+
 const RULES: Rule[] = [
   {
     name: 'email address',
@@ -58,6 +87,25 @@ const RULES: Rule[] = [
     // Our own ids are lowercase and word-shaped, so they do not match.
     pattern: /\b[A-Za-z0-9_]{25,}\b/g,
     confirm: (m) => hasUpper(m) && hasLower(m) && hasDigit(m),
+  },
+  {
+    name: 'segmented file identifier',
+    // Drive and Docs identifiers routinely carry `-` and `_`. Each separator
+    // ends a word boundary, which chops the token into pieces too short for the
+    // rule above - a real identifier spread over five segments walked straight
+    // through. This rule rejoins the segments before judging them, and uses the
+    // case-flip count so hyphenated names of our own stay quiet.
+    pattern: /\b[A-Za-z0-9]{2,}(?:[-_][A-Za-z0-9]{2,})+\b/g,
+    confirm: (m) => {
+      const joined = m.replace(/[-_]/g, '');
+      return (
+        joined.length >= 25 &&
+        hasUpper(joined) &&
+        hasLower(joined) &&
+        hasDigit(joined) &&
+        caseFlips(joined) >= 5
+      );
+    },
   },
   {
     name: 'workspace or record numeric identifier',
@@ -83,14 +131,32 @@ const RULES: Rule[] = [
   },
 ];
 
+/** Every published file under `dir`, recursively, skipping the ignored directories. */
 function walk(dir: string, out: string[] = []): string[] {
   if (!existsSync(dir)) return out;
   for (const entry of readdirSync(dir)) {
+    if (IGNORED_DIRS.has(entry)) continue;
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) walk(full, out);
     else out.push(full);
   }
   return out;
+}
+
+/** Applies every rule to one line (or to a path), recording what it finds. */
+function scan(file: string, text: string, line: number, findings: AuditFinding[]): void {
+  for (const rule of RULES) {
+    for (const match of text.match(rule.pattern) ?? []) {
+      if (rule.allow?.test(match)) continue;
+      if (rule.confirm && !rule.confirm(match)) continue;
+      findings.push({
+        file,
+        line,
+        rule: rule.name,
+        excerpt: match.length > 60 ? `${match.slice(0, 57)}...` : match,
+      });
+    }
+  }
 }
 
 /**
@@ -103,27 +169,20 @@ function walk(dir: string, out: string[] = []): string[] {
 export function auditCommittedState(root: string): AuditFinding[] {
   const findings: AuditFinding[] = [];
 
-  for (const dirName of COMMITTED_DIRS) {
-    for (const file of walk(join(root, dirName))) {
-      // Defensive: the live directory must never be reachable from here.
-      if (relative(root, file).split(/[\\/]/).includes(LIVE_DIRNAME)) continue;
+  for (const file of walk(root)) {
+    const name = relative(root, file);
 
-      const lines = readFileSync(file, 'utf8').split('\n');
-      lines.forEach((line, i) => {
-        for (const rule of RULES) {
-          for (const match of line.match(rule.pattern) ?? []) {
-            if (rule.allow?.test(match)) continue;
-            if (rule.confirm && !rule.confirm(match)) continue;
-            findings.push({
-              file: relative(root, file),
-              line: i + 1,
-              rule: rule.name,
-              excerpt: match.length > 60 ? `${match.slice(0, 57)}...` : match,
-            });
-          }
-        }
-      });
-    }
+    // Defensive: the live directory must never be reachable from here, even
+    // through a symlink that `walk` followed.
+    if (name.split(/[\\/]/).includes(LIVE_DIRNAME)) continue;
+
+    // A path is published too. A task file named after a customer leaks the
+    // customer whatever the file contains, so line 0 is the name itself.
+    scan(name, name, 0, findings);
+
+    readFileSync(file, 'utf8')
+      .split('\n')
+      .forEach((line, i) => scan(name, line, i + 1, findings));
   }
 
   return findings;

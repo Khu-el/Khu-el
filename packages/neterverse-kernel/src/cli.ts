@@ -9,9 +9,9 @@
 
 import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { requireBusRoot, readEvents, appendEvent, busPaths, readJson } from './bus.ts';
+import { requireBusRoot, readEvents, readEventsDetailed, appendEvent, busPaths, readJson } from './bus.ts';
 import { acquireLease, releaseLease, activeLeases } from './leases.ts';
-import { validateAllRegistries, formatProblems, loadRegistry } from './registries.ts';
+import { validateAllRegistries, formatProblems, loadRegistry, unvalidatedStateFiles, REGISTRY_SCHEMAS } from './registries.ts';
 import { allConnectorHealth, recordObservation, type Observation } from './observations.ts';
 import { CONNECTORS } from './connectors.ts';
 import { auditCommittedState, formatFindings } from './audit.ts';
@@ -51,11 +51,16 @@ function actorFrom(argv: string[]): Actor {
 function cmdStatus(root: string): number {
   const problems = validateAllRegistries(root);
   const leases = activeLeases(root);
-  const events = readEvents(root);
+  const { events, unreadableLines } = readEventsDetailed(root);
   const connectors = loadRegistry<{ name: string; verification_state: string }>(root, 'connector-registry');
 
   console.log(`bus root         ${root}`);
-  console.log(`registries       ${problems.length === 0 ? 'VALID' : `${problems.length} problem(s)`}`);
+  const uncovered = unvalidatedStateFiles(root);
+  console.log(`registries       ${problems.length === 0 ? `${Object.keys(REGISTRY_SCHEMAS).length} validated` : `${problems.length} problem(s)`}` +
+    `${uncovered.length > 0 ? `, ${uncovered.length} unvalidated (no schema)` : ''}`);
+  if (unreadableLines.length > 0) {
+    console.log(`event log        DAMAGED - ${unreadableLines.length} unreadable line(s) at ${unreadableLines.join(', ')}`);
+  }
   console.log(`connectors       ${connectors.entries.length} registered, ` +
     `${connectors.entries.filter((c) => c.verification_state === 'LIVE_VERIFIED').length} LIVE_VERIFIED`);
   console.log(`active leases    ${leases.length}`);
@@ -153,9 +158,21 @@ function cmdLease(root: string, argv: string[]): number {
 
 function cmdValidate(root: string): number {
   const problems = validateAllRegistries(root);
-  if (problems.length === 0) { console.log('All registries valid.'); return 0; }
-  console.error(formatProblems(problems));
-  return 1;
+  const uncovered = unvalidatedStateFiles(root);
+  const checked = Object.keys(REGISTRY_SCHEMAS).length;
+
+  if (problems.length > 0) {
+    console.error(formatProblems(problems));
+    return 1;
+  }
+
+  // Say what was checked, not just that nothing failed. "All registries valid"
+  // over three unmapped files is the unearned tick the standard forbids.
+  console.log(`${checked} registr${checked === 1 ? 'y' : 'ies'} validated against a schema, 0 problems.`);
+  if (uncovered.length > 0) {
+    console.log(`NOT VALIDATED - no schema is mapped for: ${uncovered.join(', ')}`);
+  }
+  return 0;
 }
 
 const FRESHNESS_MARK: Record<string, string> = {

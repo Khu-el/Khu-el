@@ -52,6 +52,7 @@ them elsewhere (§4):
 | `docs/DOMAIN_NETWORK.md` | Which hostname serves which property, across all three repos | Any DNS, hosting, deploy-target, or custom-domain change |
 | `docs/CONNECTORS.md` | Every connector, tool, and plugin, and what each may not do | Wiring up any integration, MCP connector, or automation |
 | `docs/claude-projects/REGISTRY.md` | Every Claude Project, its capacity, its lane, and what is loaded into it | Creating a Claude Project, or adding a source to an existing one |
+| `docs/continuation/` | Point-in-time audit: verified state, source conflicts, blockers, security findings | Picking up portfolio-wide work, or wondering what was already checked |
 
 ---
 
@@ -126,7 +127,8 @@ npm run dev:server              # backend on :4000
 npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:legacy-estate
 npm run build                   # all apps + server
 npm run typecheck               # tsc sweep: four apps + server + kernel
-npm test                        # the kernel suite — the only tests in this repo
+npm test                        # every workspace suite (test:kernel / test:server / test:apps run a subset)
+npm run check:query-token       # ?token= stays limited to the file-download route
 npm run bus -- status           # what the control plane knows
 npm run bus -- connectors       # live connector health and staleness
 npm run bus -- validate         # is .neterverse/ state still valid
@@ -139,9 +141,10 @@ Per-app `npm run build` runs `tsc -b --noEmit && vite build` — **type errors f
 build**, so run a build (or `typecheck`) before pushing.
 
 **These are also what CI runs.** `.github/workflows/verify.yml` runs `npm test`,
-`npm run typecheck`, `npm run build`, `bus validate`, `bus audit` and `npm run projects` on
-every pull request, plus two boundary checks that need no script: no tracked files under
-`.neterverse/live/`, and no committed `CNAME`. Steps are separate so a red run names
+`npm run typecheck`, `npm run build`, `bus validate` and `bus audit` on every pull
+request, `check:query-token` and `npm run projects`, plus two boundary checks that need no
+script: no tracked files under `.neterverse/live/`, and no committed `CNAME`. Steps are
+separate so a red run names
 which guarantee broke. Nothing ran on a pull request before this workflow existed, so
 these checks are new *as enforcement*, not new as expectations.
 
@@ -155,12 +158,31 @@ checked transitively through the apps that import its source.
 
 | Workspace | Test runner |
 |---|---|
-| `packages/neterverse-kernel` | ✅ `node --test` — run it with `npm test` from the root |
-| `packages/governance-core`, the four apps, `server/` | ❌ none configured |
+| `packages/neterverse-kernel` | ✅ `node --test` — 98 tests, `npm run test:kernel` |
+| `server/` | ✅ `node --test` — 23 tests over the running app, `npm run test:server` |
+| `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
+| `apps/legacy-estate`, `packages/governance-core` | ❌ none configured |
+
+`npm test` at the root runs every workspace that has a suite — 182 tests. **What is still
+untested is the UI**: components, tabs, stores and `governance-core` have no coverage at all,
+and `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only.
 
 **No linter is configured anywhere in this repo.** In a workspace with no runner, do not
-claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran. In
-`packages/neterverse-kernel` there is something to run, so run it.
+claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran.
+
+The `server/` suite starts the real app on an ephemeral port and drives it over HTTP, so
+it covers routing, middleware order and the auth stack as they actually run. It builds
+first and exercises `dist/`, which is what the deployment runs. `test/helpers.ts` sets
+`NTE_DATA_DIR`, `JWT_SECRET` and friends *before* importing anything from `src/`, because
+`lib/env.ts` and `lib/db.ts` read their configuration at import time — each file gets its
+own throwaway SQLite database that way, with nothing mocked. Keep that ordering when
+adding a file. It covers the two authorization boundaries below; it is not a full
+API-surface suite.
+
+The three app suites test `finance.ts` directly — pure functions, no imports, so `node --test`
+runs them with type stripping and no bundler. `tsconfig.json` includes `test` and sets
+`allowImportingTsExtensions`, so a test file's `../src/finance.ts` import typechecks as well as
+runs.
 
 ⚠️ This table is scoped deliberately, not a claim about the whole repository forever. A
 workspace may arrive with its own runner and its own `CLAUDE.md`; check the workspace you
@@ -172,6 +194,13 @@ the same failure as reporting ✅ where they were never run.
 These are architectural, not stylistic. §10 and §14 of the Executive OS standard bind
 here:
 
+- **🔑 The bearer token travels in the header.** Exactly one route accepts
+  `?token=` — `GET /api/attachments/:id/download`, because a plain `<a href>`
+  cannot set a header — and it opts in through `requireAuthAllowingQueryToken`.
+  Every other route uses `requireAuth`, which reads the header only. A token in
+  a URL is copied into access logs, browser history and `Referer` headers, and
+  these tokens last 30 days. `npm run check:query-token` keeps the list at one;
+  do not mount the exception on a router.
 - **🚫 No third-party send.** The server may email **only the signed-in user's own
   address** — `sendSelfEmail()` hard-codes `req.user.email` and there is no recipient
   field anywhere in client or server. Do not add one.
@@ -180,6 +209,13 @@ here:
   authorization for that exact action.
 - **🚫 No automatic sends.** The digest email goes out only when a human clicks the button.
 - **🔐 Registration stays invite-only and fail-closed.** No bypass, including for the owner.
+- **🎭 A role is assigned by the deployment, never self-chosen.** Registration ignores a
+  `role` in the body and `PATCH /api/auth/me` refuses one with 403. The only path to
+  `SYSTEM_ADMIN` is the single address in `BOOTSTRAP_ADMIN_EMAIL`, set on the platform
+  beside `JWT_SECRET`; unset means no registration can produce an admin. This matters
+  because `INVITE_CODE` is the *shareable* credential — it is printed to the logs on first
+  boot — while a `SYSTEM_ADMIN` reads and deletes every user's records in every app, across
+  both lanes. Do not add a role field to a client form or an API promotion route.
 - **⛔️ Scoped-out by design:** features that would turn Capital Readiness into an
   investor-solicitation tool or Notes Underwriting into a debt-collection tool. Each app
   has its own "do not build" list — read it before adding features there.
@@ -222,6 +258,12 @@ writing a new primitive** — §4, artifact-first.
 - Any number shown to the user should be traceable to inputs or an `EvidenceRef`
   (§2 — data window · as-of · unit · source · limitations).
 - Never render ✅ for something unverified, and never let ❓ UNKNOWN degrade into ✅ (§1).
+- **A calculation with a missing input returns `NaN`, not `0`.** Every `fmt*` helper renders a
+  non-finite number as `—`, so the UI shows a blank for "not entered yet" and keeps a real `0`
+  for "computed to zero". The two are not interchangeable: a DSCR of `0.00x` sits beside the
+  caption "≥1.25x is a common lender floor" and reads as a failed deal, and a
+  `probabilityWeightedRecovery` of `$0` reads as a total loss. Both were being shown for empty
+  forms. Guard with `denominator > 0 ? … : NaN` and let it propagate.
 
 ## 🧾 One evidence vocabulary, four spellings
 

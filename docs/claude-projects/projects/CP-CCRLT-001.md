@@ -95,6 +95,13 @@ asset retitling or beneficiary change, and none may be added. The backend can em
 signed-in user at their own address, and only when a human clicks. Consensus among contributors
 is never authorization.
 
+ONE ROLE CROSSES THE LANES, AND IT IS NOT A BRIDGE. A SYSTEM_ADMIN on the shared backend reads
+and deletes every user's records in every app, across both lanes. That is why a role is assigned
+by the deployment and never self-chosen: registration ignores a role in the body, PATCH
+/api/auth/me refuses one with 403, and the only path to SYSTEM_ADMIN is BOOTSTRAP_ADMIN_EMAIL
+set on the platform. Do not add a role field to a client form or an API promotion route. The
+lane separation above is a data rule; this is the operational hole that would defeat it.
+
 THIS REPOSITORY IS PUBLIC. apps/legacy-estate lives in a public repository. Never commit a
 beneficiary name, an asset detail, a document title, an account identifier or any record content
 into it. The app is the mechanism; the records belong in the running app's own storage, not in
@@ -115,7 +122,8 @@ app and no linter. State what you actually ran.
 | Khu-el/Khu-el | packages/governance-core/src/components/ | Shared UI primitives, including the badges that render assertion status | `PUBLIC` |
 | Khu-el/Khu-el | packages/governance-core/src/api/ | Backend client, auth and record sync | `PUBLIC` |
 | Khu-el/Khu-el | apps/legacy-estate/src/ | The app itself — assets, beneficiaries, distributions, documents, insurance, continuity, business-interests bridge | `PUBLIC` |
-| Khu-el/Khu-el | server/src/ | The shared backend, where the self-send-only boundary is enforced in code | `PUBLIC` |
+| Khu-el/Khu-el | server/src/ | The shared backend, where the self-send-only and role boundaries are enforced in code | `PUBLIC` |
+| Khu-el/Khu-el | server/test/ | The tests covering the two authorization boundaries, including role assignment | `PUBLIC` |
 | Khu-el/Neterverse_DAO | docs/EXECUTIVE_OS.md | The same standard as held in the DAO repo — relevant because trust and estate concepts are modeled in both and terminology must stay consistent | `PUBLIC` |
 
 ### 📎 Held elsewhere
@@ -144,7 +152,7 @@ app and no linter. State what you actually ran.
 - Any change to `apps/legacy-estate/src/`.
 - Any change to `packages/governance-core/src/types.ts`, especially the `Lane` or
   `AssertionStatus` vocabularies.
-- Any change to `server/src/` touching auth or email.
+- Any change to `server/src/` touching auth, email or role assignment.
 - Any change to the controlling standards.
 - **Resolution of the capacity question above.** That does not rebuild this project — it replaces
   it.

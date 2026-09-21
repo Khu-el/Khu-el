@@ -63,13 +63,27 @@ current. `CATALOG` is not `PRODUCTION`, and "we checked yesterday" is not
 
 **2. History is append-only.** Nothing in `events.jsonl` is edited or deleted. A
 mistake is corrected by appending a `CORRECTION` that references the original.
-The kernel offers no other way, on purpose.
+The kernel offers no other way, on purpose, and `appendEvent` stamps the id and
+the timestamp itself so a caller cannot hand the log a history that did not
+happen.
+
+> ⚠️ **Append-only is a property of the kernel's API, not of the file.** Nothing
+> in `events.jsonl` is hashed, chained or signed, so an editor can still rewrite
+> it and no reader would know. Whether to add a `prev_hash` chain or to treat the
+> git history as the integrity record is an open question for the principal —
+> finding **A** in `docs/ai-council/AUDIT_LOG.md` (`AUD-KHU-002`).
 
 **3. Lanes do not merge.** Lane A (NTE, enterprise and technology) and Lane B
 (CCRLT and House of Ransom, family estate) stay separate. A crossing requires a
 declared bridge naming that exact pair and carrying an authority reference. A
 bridge records a *reference*, never a merge. The same human participating in both
 structures is not authority to join them.
+
+> ⚠️ **"Declared" currently means well-formed, not registered.** There is no
+> bridge registry: `assertLaneCompatible` accepts any object a caller builds
+> inline whose `authority_ref` is non-empty. Findings **B** and **C** in
+> `AUD-KHU-002` put that, and the question of what `UNCLASSIFIED` means at a lane
+> boundary, to the principal.
 
 **4. Take a lease before you write.** Claim the resources you are about to
 change. If the claim is denied, read the holder's handoff and take
@@ -91,6 +105,36 @@ read status  →  claim a lease  →  do the work  →  run the tests
 
 Leaving a handoff is not optional courtesy. It is how the next runtime — or the
 next session of this one — resumes without re-deriving what you already learned.
+
+### 🔁 The task lifecycle is code, not a convention
+
+`packages/neterverse-kernel/src/tasks.ts` moves a task between the `tasks/`
+directories under validation. **Do not move a task file by hand** — a hand move
+skips the schema check and the event, and the log then describes a history that
+did not happen.
+
+```
+QUEUED  ⇄  ACTIVE  →  REVIEW  →  COMPLETED
+   ↘        ⇅   ↖______↙
+      →  BLOCKED
+```
+
+- `COMPLETED` is **terminal**. The successor to finished work is new work.
+- A task cannot reach `ACTIVE` while anything in its `blocked_by` is unfinished
+  or unknown to the bus.
+- A task carrying a `human_gate` reaches `COMPLETED` only with an approval whose
+  `granted_by.runtime` is `HUMAN` and which carries evidence. **A runtime cannot
+  grant its own gate** — that is Executive OS §10 as a code path, and it is the
+  reason consensus between runtimes is not authorization.
+- Each move appends its event (`TASK_CLAIMED`, `TASK_BLOCKED`,
+  `TASK_REVIEW_REQUESTED`, `TASK_RELEASED`, `TASK_COMPLETED`). A **refused**
+  transition appends nothing and moves nothing.
+- A task file keeps its descriptive name (`tsk_0002-kernel-verification.json`)
+  through every state.
+
+Handoff packets have the same treatment — `OPEN → CLAIMED → {COMPLETED,
+REJECTED}` — and a settled packet is filed to `handoffs/completed/` or
+`handoffs/rejected/` so the two inboxes hold only what is actually outstanding.
 
 ---
 

@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-10T23:26:24Z",
+  "as_of": "2026-09-21T00:00:00Z",
   "classification": "PUBLIC",
   "note": "Project status only. Commercial and family-lane detail stays in its private system of record.",
   "entries": [
@@ -11,13 +11,16 @@
       "entity": "NTE",
       "status": "ACTIVE",
       "owner": "principal",
-      "repositories": ["Khu-el/Khu-el"],
-      "current_slice": "Shared-state kernel and collaboration bus",
+      "repositories": [
+        "Khu-el/Khu-el"
+      ],
+      "current_slice": "Kernel verification and the task lifecycle",
       "state": "TESTED_LOCALLY",
       "next_actions": [
+        "Decide findings A to D in AUD-KHU-002: event-log tamper evidence, a bridge registry, what UNCLASSIFIED means at a lane boundary, and whether to extend the human-only action list",
+        "Independent verification of the hardened kernel by a runtime that did not write it - tsk_0003 / ho_0002",
         "Review the two private command-center repositories before building any further control-plane surface",
         "Decide whether the control plane belongs in a public repository or a private one",
-        "Peer verification of the kernel by Codex",
         "Assign one owning automation engine per production trigger and write path"
       ]
     },

@@ -57,6 +57,24 @@ reference — the Business Interests registry pattern — never a copy.
 | `MM`     | `CP-MM-001` |
 | `OTHER`  | `CP-OTHER-001` |
 
+## ⚠️ What "every project" means here
+
+These six are derived from what is **reachable and evidenced** in this session: the two entries in
+`.neterverse/state/active-projects.json`, and the three repositories on the account that were
+opened and read.
+
+`docs/continuation/SOURCE_CONFLICTS.md` records something a reader of this table needs to know.
+**SC-01** documents a continuation directive naming roughly eighty active engineering projects —
+Quantum Vault, SealChain, CodeSeal, Genesis Drop, Opportunity Architect, Credit Capital OS,
+Neterverse University and some seventy more — **none of which appears in any reachable
+repository.** SC-02 records five canonical registries that could not be located either. That
+audit's ruling stands here too: working code and committed files are evidence; a project name in a
+brief is 🔵 `PROPOSED` design intent, not a claim that something exists.
+
+So this registry is **not** a claim that six is the whole portfolio. It is the set of projects
+that could be defined against evidence rather than against a name. If any of those other systems
+is real and reachable, it earns a row here the same way these did — by being read first.
+
 ## Capacities with no project yet
 
 `HOPE`, `VZB`, `REPR`, `MM` and `HOR` appear in the capacity table but have no Claude Project

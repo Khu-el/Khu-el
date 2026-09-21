@@ -61,6 +61,13 @@ export const env = {
   dbPath: path.join(dataDir, 'nte.db'),
   jwtSecret: resolveJwtSecret(),
   inviteCode: resolveInviteCode(),
+  /**
+   * The one address that registers as SYSTEM_ADMIN. Unset means no
+   * registration can produce an admin, which is the fail-closed default and
+   * the right one: the invite code is meant to be shared, so it must not be
+   * able to confer authority over everyone else's records.
+   */
+  bootstrapAdminEmail: (process.env.BOOTSTRAP_ADMIN_EMAIL ?? '').trim().toLowerCase(),
   corsOrigins: (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176').split(','),
   smtp: {
     host: process.env.SMTP_HOST ?? '',

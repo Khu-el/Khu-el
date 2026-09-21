@@ -34,6 +34,21 @@ const SUPPORTED_KEYWORDS = new Set([
 
 const DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 
+/**
+ * Whether a string is both shaped like an ISO-8601 instant and actually names
+ * one.
+ *
+ * The shape test alone accepts `2026-13-45T99:99:99Z`, which reads as a date
+ * and parses to `Invalid Date`. That matters beyond tidiness: a lease whose
+ * `expiration` cannot be parsed compares as not-yet-expired forever, so a
+ * schema that waves the value through hands the lock table a claim nothing can
+ * reclaim. Both halves are therefore required.
+ */
+function isDateTime(value: string): boolean {
+  if (!DATE_TIME.test(value)) return false;
+  return Number.isFinite(new Date(value).getTime());
+}
+
 type Schema = Record<string, unknown>;
 
 function typeOf(value: unknown): string {
@@ -52,13 +67,36 @@ function join(path: string, key: string | number): string {
   return typeof key === 'number' ? `${path}[${key}]` : path === '' ? key : `${path}.${key}`;
 }
 
-function check(value: unknown, schema: Schema, path: string, errors: ValidationError[]): void {
+/**
+ * Reports every unsupported keyword anywhere in the schema.
+ *
+ * This walks the schema itself rather than the sub-schemas an instance happens
+ * to reach. Checking during the instance walk means a constraint on an optional
+ * property is only noticed when that property is present - so the same schema
+ * would be judged strict for one record and lax for the next, which is exactly
+ * the unearned confidence this module exists to refuse.
+ */
+function checkSchemaKeywords(schema: Schema, path: string, errors: ValidationError[]): void {
   for (const keyword of Object.keys(schema)) {
     if (!SUPPORTED_KEYWORDS.has(keyword)) {
       errors.push({ path, message: `schema uses unsupported keyword "${keyword}"` });
     }
   }
 
+  const properties = schema['properties'] as Record<string, Schema> | undefined;
+  if (properties && typeOf(properties) === 'object') {
+    for (const [key, sub] of Object.entries(properties)) {
+      if (sub && typeOf(sub) === 'object') checkSchemaKeywords(sub, join(path, key), errors);
+    }
+  }
+
+  const items = schema['items'];
+  if (items && typeOf(items) === 'object') {
+    checkSchemaKeywords(items as Schema, `${path}[]`, errors);
+  }
+}
+
+function check(value: unknown, schema: Schema, path: string, errors: ValidationError[]): void {
   if ('const' in schema && JSON.stringify(value) !== JSON.stringify(schema['const'])) {
     errors.push({ path, message: `must equal ${JSON.stringify(schema['const'])}` });
   }
@@ -93,8 +131,8 @@ function check(value: unknown, schema: Schema, path: string, errors: ValidationE
     if (typeof pattern === 'string' && !new RegExp(pattern).test(value)) {
       errors.push({ path, message: `must match ${pattern}` });
     }
-    if (schema['format'] === 'date-time' && !DATE_TIME.test(value)) {
-      errors.push({ path, message: 'must be an ISO-8601 date-time' });
+    if (schema['format'] === 'date-time' && !isDateTime(value)) {
+      errors.push({ path, message: 'must be a real ISO-8601 date-time' });
     }
   }
 
@@ -139,6 +177,7 @@ function check(value: unknown, schema: Schema, path: string, errors: ValidationE
 
 export function validate(value: unknown, schema: Schema): ValidationResult {
   const errors: ValidationError[] = [];
+  checkSchemaKeywords(schema, '', errors);
   check(value, schema, '', errors);
   return { valid: errors.length === 0, errors };
 }

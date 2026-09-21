@@ -54,6 +54,11 @@ rather than picking the plausible answer. That is ⚪ UNKNOWN, and it must not d
 - **Lane B estate material.** Different lane, no relationship.
 - **Personal practice material.** `CP-PERS-001` is `PERSONAL`.
 - **Gate detail written into any file in a public repository.** Gate contents stay in Drive.
+- **The unverified product portfolio.** `docs/continuation/SOURCE_CONFLICTS.md` SC-01 records a
+  directive naming roughly eighty engineering projects that appear in no reachable repository.
+  Whether any of them is this wave's contents is ⚪ UNKNOWN. Do not load that list as though it
+  described this project — a name in a brief is 🔵 PROPOSED intent, not a `DOCUMENT_CLAIM` about
+  something that exists.
 
 ## 📝 DESCRIPTION
 
@@ -111,6 +116,8 @@ is on HOLD. That is the whole of what belongs there.
 | Khu-el/Khu-el | docs/claude-projects/SPEC.md | Why this manifest is deliberately thin | `PUBLIC` |
 | Khu-el/Khu-el | .neterverse/state/active-projects.json | The project's own recorded status, slice and next action — and the unresolved entity | `PUBLIC` |
 | Khu-el/Khu-el | docs/CONNECTORS.md | Which connectors may be used for this work, and the verdict on each | `PUBLIC` |
+| Khu-el/Khu-el | docs/continuation/SOURCE_CONFLICTS.md | SC-01 and SC-02 — the named portfolio and the canonical registries that could not be located | `PUBLIC` |
+| Khu-el/Khu-el | docs/continuation/HUMAN_ACTION_REQUIRED.md | The seven blockers, several of which gate any release | `PUBLIC` |
 
 ### 📎 Held elsewhere
 
