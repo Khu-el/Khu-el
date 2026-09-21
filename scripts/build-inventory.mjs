@@ -57,13 +57,22 @@ for (const pattern of rootPkg.workspaces ?? []) {
 
 const workspaces = workspaceDirs.map(describeWorkspace).filter(Boolean).sort((a, b) => a.path.localeCompare(b.path));
 
-// Fields that change on every run regardless of whether anything real changed.
-// Kept out of the comparison in --check so the guard flags drift, not the clock.
+// Fields that change on every run regardless of whether anything real changed,
+// plus one that cannot be generated correctly at the moment it must be written.
+// Kept out of the comparison in --check so the guard flags drift, not bookkeeping.
+//
+// tracked_file_count is here rather than below because of a genuine ordering
+// problem, found when CI rejected the very commit that introduced this guard.
+// The file is generated before `git add`, so a commit that adds files records a
+// count from before they were tracked -- committed 225, actual 227 on a clean
+// checkout. It is a snapshot fact like the commit SHA, useful to read and
+// impossible to gate on, so it is recorded and not compared.
 const volatile = {
   generated_at: new Date().toISOString(),
   branch: git('rev-parse', '--abbrev-ref', 'HEAD'),
   commit: git('rev-parse', 'HEAD'),
   working_tree_clean: git('status', '--porcelain') === '',
+  tracked_file_count: git('ls-files').split('\n').filter(Boolean).length,
 };
 
 // The shape of the repository. A change here without a regenerated file means the
@@ -71,7 +80,6 @@ const volatile = {
 const structural = {
   generated_by: 'scripts/build-inventory.mjs',
   repository: 'Khu-el/Khu-el',
-  tracked_file_count: git('ls-files').split('\n').filter(Boolean).length,
   root_scripts: Object.keys(rootPkg.scripts ?? {}).sort(),
   workspaces,
   untested_workspaces: workspaces.filter((w) => !w.test_runner).map((w) => w.path),
@@ -81,6 +89,7 @@ const structural = {
     'Dated run results live in docs/continuation/CONTINUATION_AUDIT.md.',
     'governance-core has no tsconfig of its own; it is typechecked through the apps that import its source.',
     'Regenerate with `npm run inventory`; `npm run inventory:check` fails when this file has drifted.',
+    'tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.',
   ],
 };
 
@@ -88,10 +97,6 @@ const inventory = { ...structural, ...volatile };
 const out = 'docs/continuation/inventory.json';
 const outPath = join(ROOT, out);
 
-// `tracked_file_count` counts what git tracks, so a file added but not yet staged
-// is invisible to it while `workspaces` already sees the change on disk. In --check
-// that mismatch would read as drift on a perfectly ordinary working tree, so the
-// count is compared only when the tree is clean.
 const STRUCTURAL_KEYS = Object.keys(structural);
 
 if (process.argv.includes('--check')) {
@@ -100,8 +105,7 @@ if (process.argv.includes('--check')) {
     process.exit(1);
   }
   const committed = JSON.parse(readFileSync(outPath, 'utf-8'));
-  const keys = STRUCTURAL_KEYS.filter((k) => k !== 'tracked_file_count' || volatile.working_tree_clean);
-  const drifted = keys.filter((k) => JSON.stringify(committed[k]) !== JSON.stringify(structural[k]));
+  const drifted = STRUCTURAL_KEYS.filter((k) => JSON.stringify(committed[k]) !== JSON.stringify(structural[k]));
 
   if (drifted.length > 0) {
     console.error(`${out} no longer describes this repository.\n`);
@@ -139,7 +143,6 @@ if (process.argv.includes('--check')) {
     process.exit(1);
   }
   console.log(`${out} matches the repository: ${workspaces.length} workspaces, ${structural.untested_workspaces.length} without a test runner.`);
-  if (!volatile.working_tree_clean) console.log('   (tracked_file_count skipped — working tree is dirty)');
 } else {
   writeFileSync(outPath, JSON.stringify(inventory, null, 2) + '\n');
   console.log(`${out}: ${workspaces.length} workspaces, ${structural.untested_workspaces.length} without a test runner`);

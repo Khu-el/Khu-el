@@ -1,7 +1,6 @@
 {
   "generated_by": "scripts/build-inventory.mjs",
   "repository": "Khu-el/Khu-el",
-  "tracked_file_count": 225,
   "root_scripts": [
     "build",
     "bus",
@@ -164,10 +163,12 @@
     "test_runner records whether a runner is configured, not whether the suite passes.",
     "Dated run results live in docs/continuation/CONTINUATION_AUDIT.md.",
     "governance-core has no tsconfig of its own; it is typechecked through the apps that import its source.",
-    "Regenerate with `npm run inventory`; `npm run inventory:check` fails when this file has drifted."
+    "Regenerate with `npm run inventory`; `npm run inventory:check` fails when this file has drifted.",
+    "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on."
   ],
-  "generated_at": "2026-09-21T15:52:45.566Z",
-  "branch": "main",
-  "commit": "918de4d86464e694a394dec6bf29a8565b9e9e67",
-  "working_tree_clean": false
+  "generated_at": "2026-09-21T15:56:41.337Z",
+  "branch": "claude/neterverse-continuation-audit-k0meuw",
+  "commit": "7e70aac88c853d3aaca15495ad063f3c3f04ea93",
+  "working_tree_clean": false,
+  "tracked_file_count": 227
 }
