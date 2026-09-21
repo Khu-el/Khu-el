@@ -47,8 +47,8 @@ report or from CI history.
 
 | Repository | Command | Result |
 |---|---|---|
-| `Khu-el/Khu-el` | `npm test` (all workspaces) | ✅ **143/143 pass** |
-| ↳ | kernel | ✅ 59 |
+| `Khu-el/Khu-el` | `npm test` (all workspaces) | ✅ **182/182 pass** |
+| ↳ | kernel | ✅ 98 |
 | ↳ | server (**new this session**) | ✅ 23 |
 | ↳ | three app `finance.ts` suites (**new this session**) | ✅ 61 |
 | `Khu-el/Khu-el` | `npm run typecheck` | ✅ pass |
@@ -81,7 +81,8 @@ findings are written up with evidence in `SECURITY_FINDINGS.md`.
 | `71670bb` | A role is assigned by the deployment, never chosen by the person registering |
 | `533a985` | `server/` gains a test runner and 23 tests over the running app |
 | `f71baf8` | This audit, the conflict register, the blocker list and the generated inventory |
-| *(this commit)* | Calculators return `NaN` for a missing input instead of `0`, plus 61 tests across three apps |
+| `88d3ca3` | Calculators return `NaN` for a missing input instead of `0`, plus 61 tests across three apps |
+| *(merge)* | `main` moved mid-session — PR #11 merged, hardening the kernel and taking its suite 59 → 98. Merged in and re-verified; the figures above are post-merge |
 
 Nothing was changed in `Neterverse_DAO` or `Mental-Alchemy`: both pass their own checks, and no
 defect was found in either that would justify a change.
