@@ -40,9 +40,10 @@ jobs:
 
       - run: npm ci
 
-      # The only tests in this repository. CLAUDE.md is explicit that a claim of
-      # "tests pass" is only honest about this workspace.
-      - name: Kernel test suite
+      # Two suites: the kernel's, and the server's, which starts the real app on
+      # an ephemeral port and drives it over HTTP. Neither covers the four apps
+      # or governance-core, which still have no runner.
+      - name: Kernel and server test suites
         run: npm test
 
       # Covers the four apps, the server and the kernel. governance-core has no

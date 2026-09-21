@@ -100,7 +100,7 @@ npm run dev:server              # backend on :4000
 npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:legacy-estate
 npm run build                   # all apps + server
 npm run typecheck               # tsc sweep: four apps + server + kernel
-npm test                        # the kernel suite — the only tests in this repo
+npm test                        # kernel suite + server suite (test:kernel / test:server run one)
 npm run check:query-token       # ?token= stays limited to the file-download route
 npm run bus -- status           # what the control plane knows
 npm run bus -- connectors       # live connector health and staleness
@@ -128,12 +128,21 @@ checked transitively through the apps that import its source.
 
 | Workspace | Test runner |
 |---|---|
-| `packages/neterverse-kernel` | ✅ `node --test` — run it with `npm test` from the root |
-| `packages/governance-core`, the four apps, `server/` | ❌ none configured |
+| `packages/neterverse-kernel` | ✅ `node --test` — 59 tests, `npm run test:kernel` |
+| `server/` | ✅ `node --test` — 23 tests over the running app, `npm run test:server` |
+| `packages/governance-core`, the four apps | ❌ none configured |
 
 **No linter is configured anywhere in this repo.** In a workspace with no runner, do not
-claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran. In
-`packages/neterverse-kernel` there is something to run, so run it.
+claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran.
+
+The `server/` suite starts the real app on an ephemeral port and drives it over HTTP, so
+it covers routing, middleware order and the auth stack as they actually run. It builds
+first and exercises `dist/`, which is what the deployment runs. `test/helpers.ts` sets
+`NTE_DATA_DIR`, `JWT_SECRET` and friends *before* importing anything from `src/`, because
+`lib/env.ts` and `lib/db.ts` read their configuration at import time — each file gets its
+own throwaway SQLite database that way, with nothing mocked. Keep that ordering when
+adding a file. It covers the two authorization boundaries below; it is not a full
+API-surface suite, and the four apps and `governance-core` remain untested.
 
 ⚠️ This table is scoped deliberately, not a claim about the whole repository forever. A
 workspace may arrive with its own runner and its own `CLAUDE.md`; check the workspace you
@@ -160,6 +169,13 @@ here:
   authorization for that exact action.
 - **🚫 No automatic sends.** The digest email goes out only when a human clicks the button.
 - **🔐 Registration stays invite-only and fail-closed.** No bypass, including for the owner.
+- **🎭 A role is assigned by the deployment, never self-chosen.** Registration ignores a
+  `role` in the body and `PATCH /api/auth/me` refuses one with 403. The only path to
+  `SYSTEM_ADMIN` is the single address in `BOOTSTRAP_ADMIN_EMAIL`, set on the platform
+  beside `JWT_SECRET`; unset means no registration can produce an admin. This matters
+  because `INVITE_CODE` is the *shareable* credential — it is printed to the logs on first
+  boot — while a `SYSTEM_ADMIN` reads and deletes every user's records in every app, across
+  both lanes. Do not add a role field to a client form or an API promotion route.
 - **⛔️ Scoped-out by design:** features that would turn Capital Readiness into an
   investor-solicitation tool or Notes Underwriting into a debt-collection tool. Each app
   has its own "do not build" list — read it before adding features there.
