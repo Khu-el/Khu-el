@@ -31,13 +31,13 @@ const TABS = [
 export default function App() {
   return (
     <AuthGate appName="Notes Underwriting">
-      {({ user, logout }) => <NotesUnderwriting userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} onLogout={logout} />}
+      {({ user, logout }) => <NotesUnderwriting userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} userId={user.id} onLogout={logout} />}
     </AuthGate>
   );
 }
 
-function NotesUnderwriting({ userLabel, onLogout }: { userLabel: string; onLogout: () => void }) {
-  const { records: notes, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<NoteData>('notes-underwriting', 'nte-notes-underwriting:notes', true);
+function NotesUnderwriting({ userLabel, userId, onLogout }: { userLabel: string; userId: string; onLogout: () => void }) {
+  const { records: notes, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<NoteData>('notes-underwriting', 'nte-notes-underwriting:notes', true, userId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState('intake');
   const [newRef, setNewRef] = useState('');

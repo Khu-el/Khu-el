@@ -130,11 +130,12 @@ checked transitively through the apps that import its source.
 | Workspace | Test runner |
 |---|---|
 | `packages/neterverse-kernel` | ✅ `node --test` — 98 tests, `npm run test:kernel` |
-| `server/` | ✅ `node --test` — 23 tests over the running app, `npm run test:server` |
+| `server/` | ✅ `node --test` — 49 tests (auth over the running app, plus the digest's staleness rule), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
-| `apps/legacy-estate`, `packages/governance-core` | ❌ none configured |
+| `packages/governance-core` | ✅ `node --test` — 37 tests over the cache-key and staleness helpers |
+| `apps/legacy-estate` | ❌ none configured |
 
-`npm test` at the root runs every workspace that has a suite — 182 tests. **What is still
+`npm test` at the root runs every workspace that has a suite — 245 tests. **What is still
 untested is the UI**: components, tabs, stores and `governance-core` have no coverage at all,
 and `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only.
 
@@ -190,6 +191,18 @@ here:
 - **⛔️ Scoped-out by design:** features that would turn Capital Readiness into an
   investor-solicitation tool or Notes Underwriting into a debt-collection tool. Each app
   has its own "do not build" list — read it before adding features there.
+- **📅 A date we cannot read is not a verification.** `stalenessReason()` resolves to stale on
+  every branch unless a real instant says otherwise — `missing`, `unparseable`, `in-the-future`
+  or `expired`. The old `Date.now() - new Date(s).getTime() > window` compared against `NaN` and
+  returned false, so `"TBD"` and `"31/12/2019"` showed a beneficiary designation as current and
+  kept it out of the digest. The rule lives in two places — `governance-core/src/verification.ts`
+  and `server/src/lib/staleness.ts`, because `server/` does not depend on `governance-core` — and
+  a test asserts they agree. **Change both, or the test fails.**
+- **🗄️ A cached record belongs to one account, not to the browser.** `useSyncedRecords` takes a
+  required `userId` and keys its `localStorage` cache by it, purging any other account's copy of
+  that cache when it opens. A shared key let the next person to sign in on a machine render the
+  previous person's records — and three of the four apps are private per owner. Do not
+  reintroduce a fixed cache key.
 - **↔️ Lane A and Lane B never auto-connect.** A bridge (e.g. the Business Interests
   registry) records a *reference*, not a merge.
 - **🌐 This repository is public.** Live control-plane state stays in the gitignored

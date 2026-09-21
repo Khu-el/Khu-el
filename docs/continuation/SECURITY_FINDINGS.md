@@ -120,6 +120,115 @@ can be created. See `HUMAN_ACTION_REQUIRED.md` #5.
 
 ---
 
+## SF-03 — 🟠 Medium–High — One browser, one record cache, shared by every account
+
+**Status:** ✅ Fixed in this branch · **Regression cover:** 17 tests
+
+### What was wrong
+
+`useSyncedRecords` mirrors the server's records into `localStorage` so the apps still render
+offline. The key was a **fixed string per app** — `nte-deal-architect:deals`,
+`ccrlt-legacy-estate:estates` — shared by everyone who signed in on that browser. All four apps
+passed a literal constant.
+
+`logout()` clears the token and the user. **It does not clear the cache.**
+
+### The sequence
+
+1. User A signs in, works in Deal Architect. Their records are cached.
+2. A signs out. `AuthGate` unmounts the app; the cache stays on disk.
+3. User B signs in on the same browser. `AuthGate` mounts the app, which reads the same key and
+   **renders A's records immediately**, before any request completes.
+4. If the server is unreachable, B keeps seeing them — under the caption *"showing your last
+   saved copy."*
+
+### Why it matters
+
+`deal-architect`, `capital-readiness` and `notes-underwriting` are **private per owner** — the
+server will not serve one user another's records, which is exactly what makes the local copy a
+leak. `legacy-estate` is a shared workspace, so much of it B may legitimately see; the other
+three are a straight cross-account exposure of private deal terms, cap tables and obligor
+records.
+
+📌 This needs no attacker — two family members sharing a laptop is the whole scenario.
+
+### The fix
+
+The cache key is now scoped to the signed-in account, and `userId` is a **required** parameter,
+so a new call site cannot omit it without a type error. Opening a cache also purges any other
+account's copy of it — including the old unscoped key, which is precisely the shared cache this
+retires — so a shared machine does not keep records at rest that its current user cannot see.
+
+The helpers are plain functions over a `Storage`-shaped object (`src/api/cacheKey.ts`), so they
+are tested without a DOM: key scoping and separation, the old shared key being treated as
+foreign, other apps and unrelated keys left alone, near-miss keys (`…:dealsX`) not matched,
+storage that throws on read or refuses writes, and the full A-signs-out-B-signs-in sequence.
+
+⚠️ **Scope, stated honestly:** this fixes the cache. It does not add a general logout-time purge
+of every app's storage, and a signed-out user's own cache still sits on the disk until someone
+else signs in. Both are reasonable next steps and neither is done here.
+
+---
+
+## SF-04 — 🟠 Medium — An unreadable verification date read as *verified*
+
+**Status:** ✅ Fixed in this branch · **Regression cover:** 46 tests across both copies
+
+### What was wrong
+
+The estate app flags a beneficiary designation not verified in two years, and the server's
+"Needs Attention" digest emails the same finding. **Both** implemented the rule as:
+
+```js
+Date.now() - new Date(dateStr).getTime() > twoYearsMs
+```
+
+An unparseable date gives `NaN`, and **every comparison against `NaN` is false** — so the
+designation reported as *current*. The empty string was handled; nothing else that is not a date
+was.
+
+### Evidence — probed before the fix
+
+| Stored value | Old result | Meaning |
+|---|---|---|
+| `""` | stale ✅ | handled |
+| `"2020-01-01"` | stale ✅ | correct |
+| `"31/12/2019"` | **not stale** 🔴 | a plausible thing to type — reads as verified |
+| `"TBD"` | **not stale** 🔴 | reads as verified |
+| `"unknown"` | **not stale** 🔴 | reads as verified |
+| `"2019-13-45"` | **not stale** 🔴 | reads as verified |
+
+### Why it matters
+
+This is a **fail-open on the one safety check the feature exists for**, on estate data. A
+designation last checked in 2019 but written `31/12/2019` showed as current in the UI **and** was
+omitted from the digest — the two places a person would otherwise have caught it. That is an
+UNKNOWN presenting as a ✅, which §1 rules out.
+
+📌 The server reads these straight from stored JSON, so the value is whatever a client sent — not
+necessarily what a `<input type="date">` produced.
+
+### The fix
+
+`stalenessReason()` resolves to stale on every branch unless a real instant says otherwise, and
+names *which* problem: `missing`, `unparseable`, `in-the-future`, `expired`. The wording follows —
+an unreadable date no longer claims to be "2+ years old", which would be inventing a fact.
+
+A date slightly ahead of now is tolerated as timezone skew (a date input records a calendar day
+with no timezone); well beyond that it is a typo like the year 20250, and a verification that has
+not happened cannot evidence that it has.
+
+⚠️ **The rule is duplicated** — `packages/governance-core/src/verification.ts` and
+`server/src/lib/staleness.ts` — because `server/` has no dependency on the React-facing
+`governance-core`. That duplication is what let one bug live in two places. **A test now asserts
+the two copies agree on 14 inputs**, so changing one without the other fails rather than
+silently diverging.
+
+Verified that the suites catch the original: reinstating the old comparison fails **10 of 20** in
+`governance-core` and **5 of 26** in the server.
+
+---
+
 ## Not findings — reviewed and accepted
 
 Recorded so the next reviewer does not re-open them.

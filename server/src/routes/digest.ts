@@ -3,6 +3,7 @@ import { db } from '../lib/db.js';
 import { requireAuth, type AuthedRequest } from '../lib/auth.js';
 import { sendSelfEmail } from '../lib/email.js';
 import { isSharedApp } from '../lib/roles.js';
+import { stalenessMessage, stalenessReason } from '../lib/staleness.js';
 
 export const digestRouter = Router();
 digestRouter.use(requireAuth);
@@ -21,8 +22,6 @@ interface DigestItem {
   message: string;
 }
 
-const TWO_YEARS_MS = 2 * 365 * 24 * 60 * 60 * 1000;
-
 function recordLabel(appId: string, data: any): string {
   return data.address || data.entityName || data.obligorRef || data.familyName || 'Unlabeled record';
 }
@@ -37,8 +36,15 @@ function computeDigest(rows: RecordRow[]): DigestItem[] {
 
     if (row.app_id === 'legacy-estate') {
       for (const b of data.beneficiaries ?? []) {
-        const stale = !b.lastVerified || Date.now() - new Date(b.lastVerified).getTime() > TWO_YEARS_MS;
-        if (stale) items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Beneficiary designation "${b.accountOrPolicy || 'unnamed'}" hasn't been verified in 2+ years` });
+        const reason = stalenessReason(b.lastVerified);
+        if (reason) {
+          items.push({
+            appId: row.app_id,
+            recordId: row.id,
+            recordLabel: label,
+            message: `Beneficiary designation "${b.accountOrPolicy || 'unnamed'}" ${stalenessMessage(reason)}`,
+          });
+        }
       }
     }
 
