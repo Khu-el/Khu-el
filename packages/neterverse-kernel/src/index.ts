@@ -15,4 +15,5 @@ export * from './leases.ts';
 export * from './registries.ts';
 export * from './connectors.ts';
 export * from './observations.ts';
+export * from './tasks.ts';
 export * from './audit.ts';

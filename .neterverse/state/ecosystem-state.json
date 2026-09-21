@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-10T23:26:24Z",
+  "as_of": "2026-09-21T00:00:00Z",
   "recorded_by": "CLAUDE_CODE",
   "classification": "PUBLIC",
   "identifier_policy": "This repository is public. Record identifiers, workspace IDs, file IDs and record contents stay in their private systems of record.",
@@ -91,7 +91,8 @@
     "bus": ".neterverse/",
     "kernel": "packages/neterverse-kernel (@nte/neterverse-kernel)",
     "state": "TESTED_LOCALLY",
-    "peer_runtime_state": "No Codex activity observed on this bus yet. The first handoff is open.",
-    "open_question": "Whether the control plane should live in a public repository at all. See ADR-0001."
+    "peer_runtime_state": "Still no Codex activity on this bus. ho_0001 went unclaimed from 2026-09-10 and was verified by CLAUDE_CODE instead, which is a weaker check than the independent peer review it asked for. ho_0002 reopens that role.",
+    "open_question": "Whether the control plane should live in a public repository at all. See ADR-0001.",
+    "verification_state": "PASS WITH CONDITIONS (AUD-KHU-002). Ten defects found and reproduced; seven cleared in code with regression tests, four left to the principal as architecture or policy. The verifier was the author, so independent verification is still owed."
   }
 }
