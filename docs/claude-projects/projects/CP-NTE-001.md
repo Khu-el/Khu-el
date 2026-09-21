@@ -93,10 +93,10 @@ repository, and do not move nameservers off Squarespace.
 
 VERIFICATION. The commands in CLAUDE.md are what CI runs: npm test, npm run typecheck,
 npm run build, npm run bus -- validate, npm run bus -- audit, npm run check:query-token and
-npm run projects. npm test covers every workspace with a suite — 182 tests across the kernel,
-server/ and the three Lane A apps. The UI is untested: components, tabs, stores and
-governance-core have no coverage. There is no linter. State what you actually ran and what it
-reaches; do not report "tests pass" as though it covered something it does not.
+npm run projects. Which workspaces have suites is recorded in CLAUDE.md's test table and it
+moves; read the table rather than a count quoted anywhere else, this knowledge base included.
+UI components, tabs and stores have no coverage. There is no linter. State what you actually ran
+and what it reaches; do not report "tests pass" as though it covered something it does not.
 
 THE CONTINUATION AUDIT IS FINDINGS, NOT A MANDATE. docs/continuation/ is a point-in-time audit
 dated 2026-09-21. Acting on anything in it is governed by the approval boundary above. Its

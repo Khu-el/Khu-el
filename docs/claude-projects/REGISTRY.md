@@ -10,12 +10,9 @@ Search this file first for any new project request: **SEARCH → READ → REUSE 
 | `CP-NTE-001` | Neterverse OS — Control Plane & Governance | `NTE` | `LANE_A` | `PUBLIC` | `DRAFT` | [CP-NTE-001](projects/CP-NTE-001.md) | ❓ not yet created |
 | `CP-NTE-002` | NTE Planning Tools — Lane A Apps & Backend | `NTE` | `LANE_A` | `PUBLIC` | `DRAFT` | [CP-NTE-002](projects/CP-NTE-002.md) | ❓ not yet created |
 | `CP-NTE-003` | Neterverse Administration Trust DAO — Public Portal | `NTE` | `LANE_A` | `PUBLIC` | `DRAFT` | [CP-NTE-003](projects/CP-NTE-003.md) | ❓ not yet created |
-| `CP-CCRLT-001` | Legacy & Estate — CCRLT (Lane B) | `CCRLT` 🔵 | `LANE_B` | `CONFIDENTIAL` | `DRAFT` | [CP-CCRLT-001](projects/CP-CCRLT-001.md) | ❓ not yet created |
+| `CP-CCRLT-001` | Legacy & Estate — CCRLT (Lane B) | `CCRLT` | `LANE_B` | `CONFIDENTIAL` | `DRAFT` | [CP-CCRLT-001](projects/CP-CCRLT-001.md) | ❓ not yet created |
 | `CP-PERS-001` | The Mental Performance Playbook | `PERS` | `PERSONAL` | `CONFIDENTIAL` | `DRAFT` | [CP-PERS-001](projects/CP-PERS-001.md) | ❓ not yet created |
 | `CP-DIGP-001` | Digital Product Release — Wave 1 | `DIGP` | `LANE_A` | `CONFIDENTIAL` | `PAUSED` | [CP-DIGP-001](projects/CP-DIGP-001.md) | ❓ not yet created |
-
-🔵 `CP-CCRLT-001`'s capacity code is **PROPOSED**, not settled — `CCRLT` or `HOR`. See that file's
-CAPACITY section. The lane is not in doubt.
 
 ## Status values
 

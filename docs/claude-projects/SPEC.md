@@ -1,6 +1,6 @@
 # 🗂️ Claude Project Specification v1
 
-**Status:** CANONICAL · **Version:** 1 · **Effective:** 2026-09-21 · **Owner:** Khu-el
+**Status:** CANONICAL · **Version:** 1.1 · **Effective:** 2026-09-21 · **Owner:** Khu-el
 **Supersedes:** none on record — no prior Claude Project definition exists in this or the sibling
 repositories as of the effective date.
 
@@ -126,7 +126,23 @@ manifest that lists any of them.
 values, and naming which secrets exist is genuinely useful knowledge. A file that records the
 *shape* of a secret is not a secret.
 
-### 4. Freshness is stated, not assumed
+### 4. A fact with a canonical home is cited, never copied
+
+If something is already recorded authoritatively somewhere — which workspaces have tests, which
+hostname serves which property, what a connector may not do — a project's instructions **name that
+source and say to read it.** They do not restate the fact.
+
+This is Executive OS §4 applied to instructions rather than to artifacts, and it was learned the
+expensive way: the first version of `CP-NTE-002` quoted a test count, and that count was wrong
+within a day, twice. A restated fact has no way to know it has gone stale, and the copy inside a
+knowledge base is read *more* confidently than the original precisely because it is close to
+hand.
+
+So: **"read the test table in `CLAUDE.md`"** ages well. **"there are 182 tests"** does not. Where
+a number genuinely must appear — a classification, a project ID — it belongs to this file and has
+no other home, which is what makes it safe.
+
+### 5. Freshness is stated, not assumed
 
 Every manifest records when the bundle was last built. An uploaded copy is
 `CURRENT_INTERNAL_MODEL` as of that date and nothing stronger — a file in a project knowledge base
@@ -190,4 +206,5 @@ Status values, matching the scheduled-task registry: `DRAFT` · `ACTIVE` · `PAU
 
 | ARTIFACT | VERSION | DATE | WHAT CHANGED | WHY | SOURCE | DECISION AFFECTED | NEXT REVIEW |
 |---|---|---|---|---|---|---|---|
+| `docs/claude-projects/SPEC.md` | 1.1 | 2026-09-21 | Added source rule 4 — a fact with a canonical home is cited, never copied | `CP-NTE-002`'s instructions quoted a test count that went stale twice in one day as suites landed. A restated fact cannot know it is stale, and a copy inside a knowledge base is trusted more than the original because it is closer to hand | Two observed drifts against `CLAUDE.md`'s test table, and `SOURCE_CONFLICTS.md` SC-04 recording the same class of drift | Whether a project's instructions may restate a fact recorded elsewhere | When a project's instructions are next found to have drifted from a canonical source |
 | `docs/claude-projects/SPEC.md` | 1.0 | 2026-09-21 | Initial codification of the Claude Project standard | Project knowledge was assumed by Executive OS §10 but had no definition, no registry and no rule about what may be loaded into it — so every project's knowledge base was an undocumented, unreviewable judgment call | Executive OS §10 (project knowledge and the approval boundary); SPEC v2's capacity and SEARCH → READ → REUSE → UPDATE rules | What may be loaded into a Claude Project, and under which capacity | On the next material change to the capacity table, the classification levels, or Executive OS §10 |
