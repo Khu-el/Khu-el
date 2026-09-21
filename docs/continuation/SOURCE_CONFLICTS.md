@@ -51,20 +51,31 @@ that the portfolio "agrees with the master registry" would be fabricated.
 
 | | |
 |---|---|
-| **Source A** | `Khu-el/Khu-el` PR [#4](https://github.com/Khu-el/Khu-el/pull/4), adding an `nte-command-center/` directory with 11 modules — CI green, open since 2026-09-06 |
+| **Source A** | `nte-command-center/` on `main` — 11 modules, **merged 2026-09-21 via PR [#4](https://github.com/Khu-el/Khu-el/pull/4)** |
 | **Source B** | `Khu-el/NTE-Command-Center`, a separate private repository, last pushed 2026-08-13 |
-| **Conflict** | Two artifacts carry the same name. Whether they are one system in two places, two generations, or unrelated is **⚪ UNKNOWN** — Source B was not opened. |
-| **Which controls** | ⚪ **Undetermined.** Naming one without reading the other would be a guess. |
-| **Human resolution required** | ✅ **Yes — before PR #4 merges.** |
+| **Conflict** | Two artifacts carry the same name. Whether they are one system in two places, two generations, or unrelated is **⚪ UNKNOWN** — Source B has never been opened. |
+| **Which controls** | 🔶 **Source A, by default rather than by decision.** It is on `main`; Source B's standing is still ⚪ UNKNOWN. |
+| **Human resolution required** | ✅ **Yes — and the cheap moment has passed.** |
 
-**Why it matters now.** PR #4 is large and green, so it is the likeliest next merge. Merging it
-while Source B remains authoritative for anything creates precisely the duplicate source of
-truth the continuity rule forbids — and the dates suggest the PR branch (Sept) is *newer* than
-the repository (Aug), which would make the repository the stale copy. **That is an inference
-from push dates alone, not a reading of either codebase.**
+**⚠️ Status changed 2026-09-21: PR #4 merged.** This was recorded as something to settle *before*
+that merge. It was not settled. The duplication is now realized rather than preventable, and the
+question is no longer "should this land" but "which of the two is authoritative, and what happens
+to the other."
 
-**Cheapest resolution:** open `Khu-el/NTE-Command-Center`, compare, and either record it as
-superseded or keep it and drop the directory from PR #4.
+Nothing about the merge answers that. Source B still exists and still has not been read, so anyone
+who finds it has no way to know whether it is superseded — which is the entire cost of a duplicate
+source of truth. The push dates suggest Source A is the newer, but **that remains an inference
+from dates alone, not a reading of either codebase.**
+
+**Resolution — unchanged in shape, higher in cost:** open `Khu-el/NTE-Command-Center`, compare it
+against `nte-command-center/` on `main`, then either archive the repository with a pointer to the
+directory, or record what the merged directory is missing if the repository turns out to hold
+something Source A does not.
+
+📎 **One consequence already visible.** `nte-command-center/` is deliberately not an npm workspace,
+so root `npm test` and `npm run typecheck` do not reach it — `command-center.yml` runs its suite
+separately. `inventory.json` now records it under `non_workspace_projects`, because an inventory
+that silently omits a whole project on `main` misrepresents the repository it claims to describe.
 
 ---
 
@@ -120,3 +131,36 @@ House of Ransom estate record. There is no per-app invitation, and the write is 
 overwrite rather than an append. Whether that is the intent is the principal's call; **no change
 was made** — this is a documented design decision, not a defect, and changing it would alter how
 a shared family workspace behaves.
+
+---
+
+## SC-07 — The scheduled-task registry is empty while Routines are firing
+
+| | |
+|---|---|
+| **Source A** | `docs/scheduled-tasks/REGISTRY.md` — the index of every task defined under SPEC v2. Its table reads `_none yet_`. |
+| **Source B** | The account's Routines list, 2026-09-21: **at least 20 enabled recurring Routines**, among them "💰 Financial Leakage Audit", "🏛 Rockefeller Structure Gap Audit", "🛡 Scheduled Task Health Watchdog", "📣 Crusade Content Queue" and "NTE Weekly Operations and Control Brief". |
+| **Conflict** | SPEC v2 states *"A task is not scheduled until it has a row here and a filled-in file in `tasks/`"* and *"No orphan tasks."* Every one of those Routines is firing without either. |
+| **Which controls** | **Source B for what is actually happening; Source A for what is governed.** The registry is not wrong about its own contents — it is simply not being used, which is the finding. |
+| **Human resolution required** | ✅ **Yes** |
+
+⚠️ **The count is a floor, not a total.** That listing was paginated and returned a
+`next_cursor` that was not followed, so **at least** 20 is verified and the true number is
+⚪ UNKNOWN. It also covers only enabled recurring Routines; paused and one-shot Routines were not
+counted.
+
+**Why this was not fixed here.** Writing a definition for an existing Routine means stating its
+mission, capacity, inputs, guardrails and success metric. Those are knowable only from whoever
+created it — inferring them from a Routine's name would be fabricating a governance record, which
+is the specific failure the registry exists to prevent. `ST-NTE-001`'s PROCESS therefore reports
+unregistered Routines as a finding and is explicitly forbidden from inventing definitions for them.
+
+📌 **Possible existing owner, not yet confirmed.** One of the Routines is named *"🛡 Scheduled Task
+Health Watchdog (daily 7:00 AM ET)"*. Under `SEARCH → READ → REUSE → UPDATE` that is the obvious
+candidate to own this reconciliation, and a second Routine covering the same mission should not be
+created before someone checks what it already does. Its definition is ⚪ UNKNOWN — it is one of the
+unregistered ones.
+
+**What a human needs to decide:** for each Routine, whether to write a definition and register it,
+retire it, or record it as deliberately out of scope. Until then the registry's `_none yet_` is
+accurate about itself and misleading about the account.

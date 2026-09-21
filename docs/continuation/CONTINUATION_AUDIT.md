@@ -47,12 +47,13 @@ report or from CI history.
 
 | Repository | Command | Result |
 |---|---|---|
-| `Khu-el/Khu-el` | `npm test` (all workspaces) | ✅ **245/245 pass** |
+| `Khu-el/Khu-el` | `npm test` (all *workspaces*) | ✅ **245/245 pass** |
 | ↳ | kernel | ✅ 98 |
 | ↳ | server auth (**new this session**) | ✅ 23 |
 | ↳ | three app `finance.ts` suites (**new this session**) | ✅ 61 |
 | ↳ | `governance-core` cache scoping + staleness (**new this session**) | ✅ 37 |
 | ↳ | server digest staleness (**new this session**) | ✅ 26 |
+| `Khu-el/Khu-el` | `nte-command-center/` | ⚪ **not run here** — not a workspace; `command-center.yml` runs its own vitest suite |
 | `Khu-el/Khu-el` | `npm run typecheck` | ✅ pass |
 | `Khu-el/Khu-el` | `npm run build` (all workspaces) | ✅ pass |
 | `Khu-el/Khu-el` | `npm run bus -- validate` | ✅ All registries valid |
@@ -132,22 +133,31 @@ commits to `claude/neterverse-continuation-audit-k0meuw`.
 
 | PR | Repo | Title | State |
 |---|---|---|---|
-| [#4](https://github.com/Khu-el/Khu-el/pull/4) | `Khu-el` | NTE Command Center: 11-module console | CI green (both workflows, 2026-09-18) |
-| [#5](https://github.com/Khu-el/Khu-el/pull/5) | `Khu-el` | Trust Stewardship Client Intake form | ⚠️ Untouched since 2026-09-06; base has moved; predates `verify.yml`, so no PR check has ever run on it |
-| [#9](https://github.com/Khu-el/Khu-el/pull/9) | `Khu-el` | Fix the Pages deploy workflow | 🔴 **Merge conflict** (`mergeable_state: dirty`) |
+| [#4](https://github.com/Khu-el/Khu-el/pull/4) | `Khu-el` | NTE Command Center: 11-module console | ✅ **Merged 2026-09-21** — see the duplication note below |
+| [#5](https://github.com/Khu-el/Khu-el/pull/5) | `Khu-el` | Trust Stewardship Client Intake form | ⚠️ Untouched since 2026-09-06; base has moved far; predates `verify.yml`, so no PR check has ever run on it |
+| [#9](https://github.com/Khu-el/Khu-el/pull/9) | `Khu-el` | Fix the Pages deploy workflow | 🔴 **Merge conflict** (`mergeable_state: dirty`), unchanged since 2026-09-17 |
+| [#16](https://github.com/Khu-el/Khu-el/pull/16) | `Khu-el` | Scheduled-task governance, inventory guard, ST-NTE-001 | Open, draft, green |
 | [#2](https://github.com/Khu-el/Neterverse_DAO/pull/2) | `Neterverse_DAO` | Point this repo at the canonical control plane | Open |
 | [#3](https://github.com/Khu-el/Neterverse_DAO/pull/3) | `Neterverse_DAO` | Link the portal into the domain property map | Open |
 | [#2](https://github.com/Khu-el/Mental-Alchemy/pull/2) | `Mental-Alchemy` | Point this repo at the control plane, and fence it off | Open |
 
-### ⚠️ A duplication risk worth resolving before PR #4 merges
+Merged during this audit's lifetime: **#11, #12, #13, #14, #15, #4**.
 
-PR #4 adds an `nte-command-center/` directory **inside `Khu-el/Khu-el`**, while a separate
-private repository **`Khu-el/NTE-Command-Center`** also exists. Whether these are the same
-system, two generations of it, or two unrelated things is **⚪ UNKNOWN** — the repository was not
-opened in this session, so no comparison was made.
+### ⚠️ The duplication PR #4 was flagged for — and merged without resolving
 
-This is exactly the "duplicate source of truth" the continuity rule warns against. Resolving it
-is a decision, not a cleanup: see `SOURCE_CONFLICTS.md` §3.
+`nte-command-center/` is now **on `main`**, while the separate private repository
+**`Khu-el/NTE-Command-Center`** also still exists. Whether these are the same system, two
+generations of it, or two unrelated things is **⚪ UNKNOWN** — the repository has never been
+opened, so no comparison has been made.
+
+**This audit recorded it as something to settle before #4 merged. It merged on 2026-09-21 without
+that happening.** The duplicate source of truth the continuity rule warns against is now realized
+rather than preventable. See `SOURCE_CONFLICTS.md` SC-03 and `HUMAN_ACTION_REQUIRED.md` #3.
+
+📎 `nte-command-center/` is deliberately **not** an npm workspace, so the root `npm test` and
+`npm run typecheck` figures in §2 **do not include it** — its suite runs from `command-center.yml`.
+`inventory.json` records it under `non_workspace_projects` so the gap is visible rather than
+silent.
 
 ---
 

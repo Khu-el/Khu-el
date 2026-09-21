@@ -7,7 +7,11 @@ Search this file first for any new task request: **SEARCH → READ → REUSE →
 
 | Task ID | Name | Capacity | Cadence | Status | Definition | Routine ID | Handoff → |
 |---------|------|----------|---------|--------|------------|------------|-----------|
-| _none yet_ | | | | | | | |
+| `ST-NTE-001` | Continuation Audit Drift Watch ⚠️ | `NTE` | Weekly · Mon 08:00 ET (`0 12 * * 1` UTC) | `ACTIVE` | [ST-NTE-001](tasks/ST-NTE-001.md) | `trig_012vVNu9cbBucVpWHAxYnQAe` | `SECURITY_FINDINGS.md` · `HUMAN_ACTION_REQUIRED.md` · principal |
+
+⚠️ `ST-NTE-001`'s Routine stores **no MCP connectors**, so its sessions run without GitHub and
+Routines tools. Two of its PROCESS steps are degraded as a result — see the KNOWN CONSTRAINT
+section in its definition. The task is genuinely scheduled; it is not fully equipped.
 
 ## Status values
 
@@ -25,7 +29,7 @@ are never reused and their history is findable.
 | `VZB`    | `ST-VZB-001` |
 | `REPR`   | `ST-REPR-001` |
 | `DIGP`   | `ST-DIGP-001` |
-| `NTE`    | `ST-NTE-001` |
+| `NTE`    | `ST-NTE-002` |
 | `HOR`    | `ST-HOR-001` |
 | `CCRLT`  | `ST-CCRLT-001` |
 | `MM`     | `ST-MM-001` |

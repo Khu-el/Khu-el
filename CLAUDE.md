@@ -68,6 +68,19 @@ Before creating, editing, or scheduling **any** recurring task, read
 3. Add the task to `REGISTRY.md` with its Routine ID once scheduled.
 4. Each run appends to the task file's Run Log and ends with exactly one final-output status.
 
+`npm run tasks` enforces the mechanical half on every pull request: a definition with no registry
+row (or the reverse), a required section left as template scaffolding, a missing UTC cron or local
+time, an `ACTIVE` task that names no Routine, and a "next sequence number" that would hand out an
+ID already in use.
+
+⚠️ **What it cannot see is the Routines API.** It cannot confirm that a recorded Routine ID names
+a Routine that exists, and it cannot notice a Routine firing with no definition here at all —
+which some currently do. How many, and which, is recorded in
+`docs/continuation/SOURCE_CONFLICTS.md` SC-07; read the count there rather than trusting one
+quoted here, because it moves and a copy of it has no way to know it has gone stale. Reconciling
+the two is `ST-NTE-001`'s job, not a validator's. **A green `npm run tasks` is not evidence that
+what is scheduled is what is registered.**
+
 One capacity per task. Never fabricate visual data. Do not manufacture an action when none
 is warranted. This is SPEC v2's `SEARCH → READ → REUSE → UPDATE` rule, and it is the same
 rule as Executive OS §4 (artifact-first continuity) applied to task definitions.
@@ -135,6 +148,9 @@ npm run bus -- validate         # is .neterverse/ state still valid
 npm run bus -- audit            # nothing unpublishable in committed bus state
 npm run projects                # are the Claude Project definitions valid
 npm run projects:build          # assemble the project knowledge bundles
+npm run tasks                   # scheduled-task definitions match REGISTRY.md
+npm run inventory               # regenerate docs/continuation/inventory.json
+npm run inventory:check         # ...and fail if the committed copy has drifted
 ```
 
 Per-app `npm run build` runs `tsc -b --noEmit && vite build` — **type errors fail the
@@ -142,9 +158,9 @@ build**, so run a build (or `typecheck`) before pushing.
 
 **These are also what CI runs.** `.github/workflows/verify.yml` runs `npm test`,
 `npm run typecheck`, `npm run build`, `bus validate` and `bus audit` on every pull
-request, `check:query-token` and `npm run projects`, plus two boundary checks that need no
-script: no tracked files under `.neterverse/live/`, and no committed `CNAME`. Steps are
-separate so a red run names
+request, plus `check:query-token`, `npm run projects`, `npm run tasks` and
+`npm run inventory:check`, and two boundary checks that need no script: no tracked files
+under `.neterverse/live/`, and no committed `CNAME`. Steps are separate so a red run names
 which guarantee broke. Nothing ran on a pull request before this workflow existed, so
 these checks are new *as enforcement*, not new as expectations.
 

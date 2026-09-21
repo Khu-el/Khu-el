@@ -1,11 +1,6 @@
 {
   "generated_by": "scripts/build-inventory.mjs",
-  "generated_at": "2026-09-21T14:41:17.609Z",
   "repository": "Khu-el/Khu-el",
-  "branch": "claude/neterverse-continuation-audit-k0meuw",
-  "commit": "bab52207c1ceaf78ef7d7e2aeb1baf1cad84aee1",
-  "tracked_file_count": 214,
-  "working_tree_clean": false,
   "root_scripts": [
     "build",
     "bus",
@@ -16,6 +11,10 @@
     "dev:notes-underwriting",
     "dev:server",
     "inventory",
+    "inventory:check",
+    "projects",
+    "projects:build",
+    "tasks",
     "test",
     "test:apps",
     "test:kernel",
@@ -159,10 +158,42 @@
   "untested_workspaces": [
     "apps/legacy-estate"
   ],
+  "non_workspace_projects": [
+    {
+      "path": "nte-command-center",
+      "name": "nte-command-center",
+      "scripts": [
+        "build",
+        "check",
+        "check:bundle",
+        "check:lanes",
+        "check:network",
+        "check:types",
+        "dev",
+        "predev",
+        "pretest",
+        "preview",
+        "single",
+        "test"
+      ],
+      "test_runner": "vitest run",
+      "reached_by_root_npm_test": false,
+      "reached_by_root_typecheck": false,
+      "note": "Not an npm workspace. Its checks run from its own workflow, not from the root scripts."
+    }
+  ],
   "linter": null,
   "notes": [
     "test_runner records whether a runner is configured, not whether the suite passes.",
     "Dated run results live in docs/continuation/CONTINUATION_AUDIT.md.",
-    "governance-core has no tsconfig of its own; it is typechecked through the apps that import its source."
-  ]
+    "governance-core has no tsconfig of its own; it is typechecked through the apps that import its source.",
+    "Regenerate with `npm run inventory`; `npm run inventory:check` fails when this file has drifted.",
+    "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
+    "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
+  ],
+  "generated_at": "2026-09-21T20:46:07.914Z",
+  "branch": "claude/neterverse-continuation-audit-k0meuw",
+  "commit": "8ee83c0674b172ebed554f2c24468563d6cf1854",
+  "working_tree_clean": false,
+  "tracked_file_count": 309
 }
