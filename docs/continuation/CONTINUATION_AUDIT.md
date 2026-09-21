@@ -73,19 +73,30 @@ say nothing about whether the app's logic is correct.
 
 ## 3. What changed in this session
 
-Three commits on `claude/neterverse-continuation-audit-k0meuw` in `Khu-el/Khu-el`. Both security
-findings are written up with evidence in `SECURITY_FINDINGS.md`.
+All four security findings are written up with evidence in `SECURITY_FINDINGS.md`.
+
+**Already merged, in [PR #12](https://github.com/Khu-el/Khu-el/pull/12):**
 
 | Commit | Change |
 |---|---|
-| `e87367d` | `?token=` accepted on the file-download route only, not on every route |
-| `71670bb` | A role is assigned by the deployment, never chosen by the person registering |
+| `e87367d` | `?token=` accepted on the file-download route only, not on every route (SF-01) |
+| `71670bb` | A role is assigned by the deployment, never chosen by the person registering (SF-02) |
 | `533a985` | `server/` gains a test runner and 23 tests over the running app |
 | `f71baf8` | This audit, the conflict register, the blocker list and the generated inventory |
 | `88d3ca3` | Calculators return `NaN` for a missing input instead of `0`, plus 61 tests across three apps |
-| `5334f2b` | The record cache is scoped per account instead of shared per browser, plus 17 tests |
-| *(this commit)* | An unreadable verification date counts as stale instead of verified, in both copies of the rule, plus 46 tests |
-| *(merge)* | `main` moved mid-session — PR #11 merged, hardening the kernel and taking its suite 59 → 98. Merged in and re-verified; the figures above are post-merge |
+| `372f0a4` | `main` moved mid-branch — PR #11 merged, hardening the kernel and taking its suite 59 → 98 |
+
+**Not in #12, and carried on this branch instead:**
+
+| Change |
+|---|
+| The record cache is scoped per account instead of shared per browser, plus 17 tests (SF-03) |
+| An unreadable verification date counts as stale instead of verified, in both copies of the rule, plus 46 tests (SF-04) |
+
+⚠️ **PR #12 merged at `372f0a4`, while its own description named a commit that came after it.**
+Both SF-03 and SF-04 were pushed to the branch after the merge had already happened, so the
+merged description overstates what landed: the cache-scoping fix it describes is **not** in
+`main`. It is in this branch, and the figures in §2 are for this tree, not for `main`.
 
 Nothing was changed in `Neterverse_DAO` or `Mental-Alchemy`: both pass their own checks, and no
 defect was found in either that would justify a change.
