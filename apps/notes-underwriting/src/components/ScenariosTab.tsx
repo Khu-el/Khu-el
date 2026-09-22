@@ -40,7 +40,7 @@ export function ScenariosTab({ note, onChange }: { note: Note; onChange: (n: Not
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Stat label="Probability-weighted recovery" value={fmtCurrency(weightedRecovery)} />
-        <Stat label="Probability-weighted time to resolve" value={`${weightedMonths.toFixed(1)} mo`} />
+        <Stat label="Probability-weighted time to resolve" value={Number.isFinite(weightedMonths) ? `${weightedMonths.toFixed(1)} mo` : '—'} />
         <Stat label="Acquisition price" value={fmtCurrency(note.data.acquisitionPrice)} />
         <Stat label="Implied annualized return" value={fmtPercent(irr)} sub="based on the weighted recovery & timeline above" />
       </div>

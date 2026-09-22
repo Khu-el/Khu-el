@@ -27,9 +27,9 @@ export function MemoTab({ note }: { note: Note }) {
         ]}
         lines={[
           { label: 'Acquisition price', value: fmtCurrency(d.acquisitionPrice) },
-          { label: 'Price as % of UPB', value: fmtPercent(d.upb > 0 ? d.acquisitionPrice / d.upb : 0) },
+          { label: 'Price as % of UPB', value: fmtPercent(d.upb > 0 ? d.acquisitionPrice / d.upb : NaN) },
           { label: 'Probability-weighted recovery', value: fmtCurrency(weightedRecovery) },
-          { label: 'Probability-weighted timeline', value: `${weightedMonths.toFixed(1)} months` },
+          { label: 'Probability-weighted timeline', value: Number.isFinite(weightedMonths) ? `${weightedMonths.toFixed(1)} months` : '—' },
           { label: 'Implied annualized return', value: fmtPercent(irr) },
           { label: 'Lien/perfection checklist', value: `${lienDone} / ${d.lienChecklist.length}` },
         ]}

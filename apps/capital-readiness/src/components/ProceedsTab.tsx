@@ -24,7 +24,7 @@ export function ProceedsTab({ raise, onChange }: { raise: Raise; onChange: (r: R
               <div className="col-span-3">
                 <NumberInput value={l.amount || ''} onChange={(e) => update(l.id, { amount: Number(e.target.value) })} />
               </div>
-              <div className="col-span-2 text-sm text-neutral-600">{fmtPercent(total > 0 ? l.amount / total : 0)}</div>
+              <div className="col-span-2 text-sm text-neutral-600">{fmtPercent(total > 0 ? l.amount / total : NaN)}</div>
               <div className="col-span-1">
                 <Button variant="danger" onClick={() => remove(l.id)}>
                   ×
