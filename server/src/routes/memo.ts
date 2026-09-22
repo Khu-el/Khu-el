@@ -1,29 +1,52 @@
 import { Router } from 'express';
 import { requireAuth, type AuthedRequest } from '../lib/auth.js';
-import { renderMemoPdf, type MemoPayload } from '../lib/pdf.js';
+import { asyncHandler } from '../lib/asyncHandler.js';
+import { renderMemoPdf, type MemoLine, type MemoPayload } from '../lib/pdf.js';
 import { sendSelfEmail } from '../lib/email.js';
 
 export const memoRouter = Router();
 memoRouter.use(requireAuth);
 
-function parseMemoPayload(body: any): MemoPayload | null {
-  if (!body?.title || !Array.isArray(body?.assumptions) || !Array.isArray(body?.lines)) return null;
-  return { title: String(body.title), assumptions: body.assumptions, lines: body.lines, notes: Array.isArray(body.notes) ? body.notes : [] };
+/**
+ * A line is `{ label, value }`. Anything else -- null, a bare string, a number
+ * -- is refused here rather than reaching PDFKit, where reading `.label` off
+ * `null` threw inside the renderer. A missing value renders as the em dash the
+ * apps use for "not entered", never as the word "undefined".
+ */
+function parseLines(items: unknown): MemoLine[] | null {
+  if (!Array.isArray(items)) return null;
+  const lines: MemoLine[] = [];
+  for (const item of items) {
+    if (!item || typeof item !== 'object') return null;
+    const { label, value } = item as Record<string, unknown>;
+    if (label === undefined || label === null) return null;
+    lines.push({ label: String(label), value: value === undefined || value === null ? '—' : String(value) });
+  }
+  return lines;
 }
 
-memoRouter.post('/memo/pdf', async (req: AuthedRequest, res) => {
+function parseMemoPayload(body: any): MemoPayload | null {
+  if (!body?.title) return null;
+  const assumptions = parseLines(body.assumptions);
+  const lines = parseLines(body.lines);
+  if (!assumptions || !lines) return null;
+  const notes = Array.isArray(body.notes) ? body.notes.filter((n: unknown) => n !== null && n !== undefined).map(String) : [];
+  return { title: String(body.title), assumptions, lines, notes };
+}
+
+memoRouter.post('/memo/pdf', asyncHandler(async (req: AuthedRequest, res) => {
   const memo = parseMemoPayload(req.body);
-  if (!memo) return res.status(400).json({ error: 'Expected { title, assumptions: [], lines: [], notes?: [] }' });
+  if (!memo) return res.status(400).json({ error: 'Expected { title, assumptions: [{ label, value }], lines: [{ label, value }], notes?: [] }' });
 
   const pdf = await renderMemoPdf(memo);
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `attachment; filename="${memo.title.replace(/[^a-z0-9-_ ]/gi, '').slice(0, 60) || 'memo'}.pdf"`);
   res.send(pdf);
-});
+}));
 
-memoRouter.post('/memo/email', async (req: AuthedRequest, res) => {
+memoRouter.post('/memo/email', asyncHandler(async (req: AuthedRequest, res) => {
   const memo = parseMemoPayload(req.body);
-  if (!memo) return res.status(400).json({ error: 'Expected { title, assumptions: [], lines: [], notes?: [] }' });
+  if (!memo) return res.status(400).json({ error: 'Expected { title, assumptions: [{ label, value }], lines: [{ label, value }], notes?: [] }' });
 
   const pdf = await renderMemoPdf(memo);
   const summary = [memo.title, '', ...memo.assumptions.map((a) => `${a.label}: ${a.value}`), '', ...memo.lines.map((l) => `${l.label}: ${l.value}`)].join('\n');
@@ -35,6 +58,6 @@ memoRouter.post('/memo/email', async (req: AuthedRequest, res) => {
     attachment: { filename: 'memo.pdf', content: pdf, contentType: 'application/pdf' },
   });
 
-  if (!result.sent) return res.status(501).json({ error: result.reason });
+  if (!result.sent) return res.status(result.status).json({ error: result.reason });
   res.json({ sent: true, to: req.user!.email });
-});
+}));

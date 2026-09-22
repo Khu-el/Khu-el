@@ -150,7 +150,8 @@
         "auth-bootstrap.test.ts",
         "auth-query-token.test.ts",
         "auth-roles.test.ts",
-        "digest-staleness.test.ts"
+        "digest-staleness.test.ts",
+        "robustness.test.ts"
       ],
       "dependency_count": 7
     }
@@ -191,9 +192,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-09-21T20:46:07.914Z",
-  "branch": "claude/neterverse-continuation-audit-k0meuw",
-  "commit": "8ee83c0674b172ebed554f2c24468563d6cf1854",
+  "generated_at": "2026-09-22T23:26:08.998Z",
+  "branch": "claude/github-repos-code-audit-dfdr4i",
+  "commit": "7949f7d30cc9386294a60584d797a105d25f327d",
   "working_tree_clean": false,
   "tracked_file_count": 309
 }

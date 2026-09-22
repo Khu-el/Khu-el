@@ -53,10 +53,19 @@ function canAccessRecord(row: RecordRow, user: { sub: string; role: string }) {
 }
 
 attachmentsRouter.post('/records/:recordId/attachments', requireAuth, upload.single('file'), (req: AuthedRequest, res) => {
+  // multer has already written the file by the time this runs, so every
+  // refusal below must remove it. The 404 path used to skip that, leaving up
+  // to 15MB on disk per request with nothing in the database pointing at it.
+  const discardUpload = () => {
+    if (req.file && existsSync(req.file.path)) unlinkSync(req.file.path);
+  };
   const record = getRecordOr404(req.params.recordId);
-  if (!record) return res.status(404).json({ error: 'Record not found' });
+  if (!record) {
+    discardUpload();
+    return res.status(404).json({ error: 'Record not found' });
+  }
   if (!canAccessRecord(record, req.user!) || !canWrite(req.user!.role as any)) {
-    if (req.file) unlinkSync(req.file.path);
+    discardUpload();
     return res.status(403).json({ error: 'Not permitted to attach files to this record' });
   }
   if (!req.file) return res.status(400).json({ error: 'No file uploaded (expected multipart field "file")' });

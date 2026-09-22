@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { Router } from 'express';
 import { db } from '../lib/db.js';
+import { asyncHandler } from '../lib/asyncHandler.js';
 import { hashPassword, requireAuth, signToken, verifyPassword, type AuthedRequest } from '../lib/auth.js';
 import { env } from '../lib/env.js';
 import { newId, nowIso } from '../lib/id.js';
@@ -46,7 +47,7 @@ function toPublicUser(row: UserRow) {
   return { id: row.id, email: row.email, displayName: row.display_name, role: row.role, createdAt: row.created_at };
 }
 
-authRouter.post('/register', async (req, res) => {
+authRouter.post('/register', asyncHandler(async (req, res) => {
   const { email, password, displayName, inviteCode } = req.body ?? {};
   if (!isValidInviteCode(inviteCode)) return res.status(403).json({ error: 'Invalid or missing invite code' });
   if (typeof email !== 'string' || !email.includes('@')) return res.status(400).json({ error: 'A valid email is required' });
@@ -67,20 +68,30 @@ authRouter.post('/register', async (req, res) => {
   const id = newId('user');
   const passwordHash = await hashPassword(password);
   const createdAt = nowIso();
-  db.prepare('INSERT INTO users (id, email, password_hash, display_name, role, created_at) VALUES (?, ?, ?, ?, ?, ?)').run(
-    id,
-    email.toLowerCase(),
-    passwordHash,
-    displayName.trim(),
-    chosenRole,
-    createdAt
-  );
+  try {
+    db.prepare('INSERT INTO users (id, email, password_hash, display_name, role, created_at) VALUES (?, ?, ?, ?, ?, ?)').run(
+      id,
+      email.toLowerCase(),
+      passwordHash,
+      displayName.trim(),
+      chosenRole,
+      createdAt
+    );
+  } catch (err) {
+    // The existence check above runs before the hash is awaited, so two
+    // registrations for one address can both pass it. The UNIQUE constraint
+    // is what actually decides; report the loser as the conflict it is.
+    if ((err as { code?: string }).code === 'ERR_SQLITE_ERROR' && /UNIQUE/i.test((err as Error).message)) {
+      return res.status(409).json({ error: 'An account with that email already exists' });
+    }
+    throw err;
+  }
 
   const token = signToken({ sub: id, email: email.toLowerCase(), role: chosenRole });
   res.status(201).json({ token, user: { id, email: email.toLowerCase(), displayName: displayName.trim(), role: chosenRole, createdAt } });
-});
+}));
 
-authRouter.post('/login', async (req, res) => {
+authRouter.post('/login', asyncHandler(async (req, res) => {
   const { email, password } = req.body ?? {};
   if (typeof email !== 'string' || typeof password !== 'string') return res.status(400).json({ error: 'Email and password are required' });
 
@@ -92,7 +103,7 @@ authRouter.post('/login', async (req, res) => {
 
   const token = signToken({ sub: row.id, email: row.email, role: row.role });
   res.json({ token, user: toPublicUser(row) });
-});
+}));
 
 authRouter.get('/me', requireAuth, (req: AuthedRequest, res) => {
   const row = db.prepare('SELECT * FROM users WHERE id = ?').get(req.user!.sub) as UserRow | undefined;

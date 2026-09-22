@@ -175,12 +175,12 @@ checked transitively through the apps that import its source.
 | Workspace | Test runner |
 |---|---|
 | `packages/neterverse-kernel` | ✅ `node --test` — 98 tests, `npm run test:kernel` |
-| `server/` | ✅ `node --test` — 49 tests (auth over the running app, plus the digest's staleness rule), `npm run test:server` |
+| `server/` | ✅ `node --test` — 62 tests (auth over the running app, the digest's staleness rule, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
 | `packages/governance-core` | ✅ `node --test` — 37 tests over the cache-key and staleness helpers |
 | `apps/legacy-estate` | ❌ none configured |
 
-`npm test` at the root runs every workspace that has a suite — 245 tests. **What is still
+`npm test` at the root runs every workspace that has a suite — 258 tests. **What is still
 untested is the UI**: components, tabs and stores have no coverage at all, and
 `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
 `governance-core`'s suites cover its cache-key and staleness helpers — **not** its components,
@@ -188,6 +188,11 @@ which remain uncovered along with every other component in the repo.
 
 **No linter is configured anywhere in this repo.** In a workspace with no runner, do not
 claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran.
+
+**Every async route handler in `server/` goes through `asyncHandler()`.** Express 4 ignores the
+promise an async handler returns, so a rejection after the first `await` is unhandled and Node
+exits the process — one malformed memo body took the backend down for every user. A new async
+route without the wrapper reintroduces that.
 
 The `server/` suite starts the real app on an ephemeral port and drives it over HTTP, so
 it covers routing, middleware order and the auth stack as they actually run. It builds
