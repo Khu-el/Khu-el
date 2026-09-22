@@ -27,7 +27,19 @@ committed.
 
 ---
 
-## 2. Decide PR #9 — it carries the rest of the Pages fix and is conflicted
+## 2. ~~Decide PR #9~~ — superseded: the change is ported onto a current branch
+
+> **Update 2026-09-22.** The principal asked for every workflow needing correction to be fixed.
+> PR #9's six-line change (`actions: read`, and the Node 24 majors of checkout, setup-node,
+> configure-pages, upload-pages-artifact and deploy-pages) is now carried by the
+> `claude/github-repos-code-audit-dfdr4i` pull request, with each action's major verified to
+> exist upstream and `actions: read` verified against `deploy-pages`' own use of the artifacts
+> API. What remains is a human decision: **close PR #9 as superseded** once that pull request
+> merges. Blocker #1 (enabling Pages in Settings) is unchanged and still gates any deploy.
+>
+> The original record follows, unchanged.
+
+### Original record
 
 | | |
 |---|---|

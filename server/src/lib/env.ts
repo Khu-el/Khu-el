@@ -68,7 +68,12 @@ export const env = {
    * able to confer authority over everyone else's records.
    */
   bootstrapAdminEmail: (process.env.BOOTSTRAP_ADMIN_EMAIL ?? '').trim().toLowerCase(),
-  corsOrigins: (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176').split(','),
+  // Trimmed, because "https://a.example, https://b.example" is the natural way
+  // to write a list and the untrimmed " https://b.example" matches no origin.
+  corsOrigins: (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean),
   smtp: {
     host: process.env.SMTP_HOST ?? '',
     port: Number(process.env.SMTP_PORT ?? 587),

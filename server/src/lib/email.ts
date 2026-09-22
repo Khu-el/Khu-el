@@ -32,14 +32,22 @@ export interface SendSelfEmailInput {
 export async function sendSelfEmail(input: SendSelfEmailInput) {
   const t = getTransporter();
   if (!t) {
-    return { sent: false, reason: 'SMTP is not configured on this server (set SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS/SMTP_FROM).' };
+    return { sent: false as const, status: 501, reason: 'SMTP is not configured on this server (set SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS/SMTP_FROM).' };
   }
-  await t.sendMail({
-    from: env.smtp.from,
-    to: input.to,
-    subject: input.subject,
-    text: input.text,
-    attachments: input.attachment ? [input.attachment] : undefined,
-  });
+  try {
+    await t.sendMail({
+      from: env.smtp.from,
+      to: input.to,
+      subject: input.subject,
+      text: input.text,
+      attachments: input.attachment ? [input.attachment] : undefined,
+    });
+  } catch (err) {
+    // A refused login or an unreachable mail host is an upstream failure, not
+    // a bug in the request. Say so, and keep the SMTP error in the server log
+    // rather than in the response.
+    console.error('[email] send failed:', err);
+    return { sent: false as const, status: 502, reason: 'The mail server could not deliver this message. Try again later.' };
+  }
   return { sent: true as const };
 }

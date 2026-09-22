@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { db } from '../lib/db.js';
+import { asyncHandler } from '../lib/asyncHandler.js';
 import { requireAuth, type AuthedRequest } from '../lib/auth.js';
 import { sendSelfEmail } from '../lib/email.js';
 import { isSharedApp } from '../lib/roles.js';
@@ -81,7 +82,7 @@ digestRouter.get('/', (req: AuthedRequest, res) => {
   res.json({ items });
 });
 
-digestRouter.post('/email', async (req: AuthedRequest, res) => {
+digestRouter.post('/email', asyncHandler(async (req: AuthedRequest, res) => {
   const items = computeDigest(rowsForUser(req.user!));
   const text =
     items.length === 0
@@ -89,6 +90,6 @@ digestRouter.post('/email', async (req: AuthedRequest, res) => {
       : items.map((i) => `[${i.appId}] ${i.recordLabel} — ${i.message}`).join('\n');
 
   const result = await sendSelfEmail({ to: req.user!.email, subject: '[NTE] Attention digest', text });
-  if (!result.sent) return res.status(501).json({ error: result.reason });
+  if (!result.sent) return res.status(result.status).json({ error: result.reason });
   res.json({ sent: true, to: req.user!.email, itemCount: items.length });
-});
+}));

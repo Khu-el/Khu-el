@@ -42,7 +42,7 @@ export function CapitalStackTab({ deal, onChange }: { deal: Deal; onChange: (d: 
               <div className="col-span-3">
                 <NumberInput value={s.amount || ''} onChange={(e) => updateSource(s.id, { amount: Number(e.target.value) })} />
               </div>
-              <div className="col-span-1 text-sm text-neutral-500">{fmtPercent(totalCost > 0 ? s.amount / totalCost : 0)}</div>
+              <div className="col-span-1 text-sm text-neutral-500">{fmtPercent(totalCost > 0 ? s.amount / totalCost : NaN)}</div>
               <div className="col-span-1">
                 <Button variant="danger" onClick={() => removeSource(s.id)}>
                   Remove

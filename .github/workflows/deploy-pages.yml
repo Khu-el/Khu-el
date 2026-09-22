@@ -6,6 +6,10 @@ on:
   workflow_dispatch: {}
 
 permissions:
+  # deploy-pages looks up this run's artifact through the Actions API. Once a
+  # workflow lists its permissions, every unlisted one is none, so it has to be
+  # granted here explicitly.
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -25,9 +29,9 @@ jobs:
       # just show "offline".
       VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -72,11 +76,23 @@ jobs:
       # AFTER the CNAME row resolves. See docs/DOMAIN_NETWORK.md.
       - name: Attach custom domain
         if: vars.PAGES_CUSTOM_DOMAIN != ''
-        run: echo "${{ vars.PAGES_CUSTOM_DOMAIN }}" > _site/CNAME
+        # Passed through the environment rather than interpolated into the
+        # script, and checked to be a bare hostname, so a stray space, scheme
+        # or quote in the variable fails the run instead of shipping a CNAME
+        # GitHub will not accept.
+        env:
+          PAGES_CUSTOM_DOMAIN: ${{ vars.PAGES_CUSTOM_DOMAIN }}
+        run: |
+          set -euo pipefail
+          if ! printf '%s' "$PAGES_CUSTOM_DOMAIN" | grep -Eq '^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$'; then
+            echo "::error::PAGES_CUSTOM_DOMAIN must be a bare hostname such as apps.excellencedistrict.org."
+            exit 1
+          fi
+          printf '%s\n' "$PAGES_CUSTOM_DOMAIN" > _site/CNAME
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -88,4 +104,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
