@@ -40,10 +40,11 @@ jobs:
 
       - run: npm ci
 
-      # Two suites: the kernel's, and the server's, which starts the real app on
-      # an ephemeral port and drives it over HTTP. Neither covers the four apps
-      # or governance-core, which still have no runner.
-      - name: Kernel and server test suites
+      # Every workspace suite: the kernel, the server (which starts the real app
+      # on an ephemeral port and drives it over HTTP), the three apps'
+      # finance.ts, and governance-core's helpers. legacy-estate has no runner,
+      # and no component anywhere is covered.
+      - name: Workspace test suites
         run: npm test
 
       # Covers the four apps, the server and the kernel. governance-core has no
