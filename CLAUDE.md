@@ -177,13 +177,13 @@ checked transitively through the apps that import its source.
 | `packages/neterverse-kernel` | ✅ `node --test` — 98 tests, `npm run test:kernel` |
 | `server/` | ✅ `node --test` — 68 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
-| `packages/governance-core` | ✅ `node --test` — 45 tests over the cache-key, staleness and pending-sync helpers |
+| `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
 | `apps/legacy-estate` | ❌ none configured |
 
-`npm test` at the root runs every workspace that has a suite — 272 tests. **What is still
+`npm test` at the root runs every workspace that has a suite — 283 tests. **What is still
 untested is the UI**: components, tabs and stores have no coverage at all, and
 `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
-`governance-core`'s suites cover its cache-key, staleness and pending-sync helpers — **not** its components,
+`governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,
 which remain uncovered along with every other component in the repo.
 
 **No linter is configured anywhere in this repo.** In a workspace with no runner, do not
@@ -305,6 +305,12 @@ writing a new primitive** — §4, artifact-first.
   caption "≥1.25x is a common lender floor" and reads as a failed deal, and a
   `probabilityWeightedRecovery` of `$0` reads as a total loss. Both were being shown for empty
   forms. Guard with `denominator > 0 ? … : NaN` and let it propagate.
+- **An empty number field is `null`, never `0`.** Record fields the user types are `MaybeNumber`
+  (`number | null`), wired as `value={toInputValue(x)}` and `onChange` → `fromInputValue(...)`.
+  Calculate through `knownFields(record)` or `known(x)`, which turn `null` into `NaN` so the rule
+  above carries it to `—`; total line items with `sumKnown()`. Reading `Number(e.target.value)`
+  stores `0` for a cleared field, and `x || ''` hides a typed `0` — both are how a blank ARV used
+  to compute a real-looking maximum offer.
 
 ## 🧾 One evidence vocabulary, four spellings
 

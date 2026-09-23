@@ -103,6 +103,7 @@
       "test_runner": "node --test",
       "test_files": [
         "cacheKey.test.ts",
+        "numbers.test.ts",
         "pendingSync.test.ts",
         "verification.test.ts"
       ],
@@ -194,9 +195,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-09-23T00:08:45.505Z",
+  "generated_at": "2026-09-23T00:15:20.750Z",
   "branch": "claude/github-repos-code-audit-dfdr4i",
-  "commit": "9a776bb9e00c5075c84fd4c40f9639b9ff4c63d9",
+  "commit": "14af9e2566b0e51209688c4f9496b4cad95832fd",
   "working_tree_clean": false,
-  "tracked_file_count": 311
+  "tracked_file_count": 315
 }

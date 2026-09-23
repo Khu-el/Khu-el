@@ -1,13 +1,13 @@
-import type { GovernedRecord } from '@nte/governance-core';
+import type { GovernedRecord, MaybeNumber } from '@nte/governance-core';
 
 export type WorkoutStatus = 'PERFORMING' | 'DELINQUENT' | 'IN_WORKOUT' | 'IN_FORECLOSURE' | 'REO' | 'RESOLVED';
 
 export interface RecoveryScenario {
   id: string;
   label: string;
-  probabilityPct: number;
-  recoveryAmount: number;
-  monthsToResolve: number;
+  probabilityPct: MaybeNumber;
+  recoveryAmount: MaybeNumber;
+  monthsToResolve: MaybeNumber;
 }
 
 export interface LienItem {
@@ -20,11 +20,11 @@ export interface NoteData {
   obligorRef: string;
   collateralDescription: string;
   lienPosition: string;
-  upb: number;
-  contractRatePct: number;
-  expectedMonthlyPayment: number;
-  discountRatePct: number;
-  acquisitionPrice: number;
+  upb: MaybeNumber;
+  contractRatePct: MaybeNumber;
+  expectedMonthlyPayment: MaybeNumber;
+  discountRatePct: MaybeNumber;
+  acquisitionPrice: MaybeNumber;
   workoutStatus: WorkoutStatus;
   statusNotes: string;
   lienChecklist: LienItem[];

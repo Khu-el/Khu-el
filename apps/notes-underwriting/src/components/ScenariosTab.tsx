@@ -1,4 +1,4 @@
-import { Card, NumberInput, Stat, TextInput } from '@nte/governance-core';
+import { Card, NumberInput, Stat, TextInput, fromInputValue, toInputValue, known, sumKnown } from '@nte/governance-core';
 import type { Note } from '../types';
 import { fmtCurrency, fmtPercent, impliedAnnualizedReturn, probabilityWeightedMonths, probabilityWeightedRecovery } from '../finance';
 
@@ -7,10 +7,11 @@ export function ScenariosTab({ note, onChange }: { note: Note; onChange: (n: Not
   const setScenarios = (next: typeof scenarios) => onChange({ ...note, data: { ...note.data, scenarios: next }, updatedAt: new Date().toISOString() });
   const update = (id: string, patch: Partial<(typeof scenarios)[number]>) => setScenarios(scenarios.map((s) => (s.id === id ? { ...s, ...patch } : s)));
 
-  const totalProb = scenarios.reduce((s, x) => s + x.probabilityPct, 0);
-  const weightedRecovery = probabilityWeightedRecovery(scenarios);
-  const weightedMonths = probabilityWeightedMonths(scenarios);
-  const irr = impliedAnnualizedReturn(note.data.acquisitionPrice, weightedRecovery, weightedMonths);
+  const totalProb = sumKnown(scenarios.map((x) => x.probabilityPct));
+  const weighted = scenarios.map((s) => ({ probabilityPct: s.probabilityPct ?? 0, recoveryAmount: known(s.recoveryAmount), monthsToResolve: known(s.monthsToResolve) }));
+  const weightedRecovery = probabilityWeightedRecovery(weighted);
+  const weightedMonths = probabilityWeightedMonths(weighted);
+  const irr = impliedAnnualizedReturn(known(note.data.acquisitionPrice), weightedRecovery, weightedMonths);
 
   return (
     <div className="space-y-4">
@@ -22,13 +23,13 @@ export function ScenariosTab({ note, onChange }: { note: Note; onChange: (n: Not
                 <TextInput value={s.label} onChange={(e) => update(s.id, { label: e.target.value })} />
               </div>
               <div className="col-span-2">
-                <NumberInput placeholder="Prob %" value={s.probabilityPct || ''} onChange={(e) => update(s.id, { probabilityPct: Number(e.target.value) })} />
+                <NumberInput placeholder="Prob %" value={toInputValue(s.probabilityPct)} onChange={(e) => update(s.id, { probabilityPct: fromInputValue(e.target.value) })} />
               </div>
               <div className="col-span-3">
-                <NumberInput placeholder="Recovery $" value={s.recoveryAmount || ''} onChange={(e) => update(s.id, { recoveryAmount: Number(e.target.value) })} />
+                <NumberInput placeholder="Recovery $" value={toInputValue(s.recoveryAmount)} onChange={(e) => update(s.id, { recoveryAmount: fromInputValue(e.target.value) })} />
               </div>
               <div className="col-span-3">
-                <NumberInput placeholder="Months to resolve" value={s.monthsToResolve || ''} onChange={(e) => update(s.id, { monthsToResolve: Number(e.target.value) })} />
+                <NumberInput placeholder="Months to resolve" value={toInputValue(s.monthsToResolve)} onChange={(e) => update(s.id, { monthsToResolve: fromInputValue(e.target.value) })} />
               </div>
             </div>
           ))}
@@ -41,7 +42,7 @@ export function ScenariosTab({ note, onChange }: { note: Note; onChange: (n: Not
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Stat label="Probability-weighted recovery" value={fmtCurrency(weightedRecovery)} />
         <Stat label="Probability-weighted time to resolve" value={Number.isFinite(weightedMonths) ? `${weightedMonths.toFixed(1)} mo` : '—'} />
-        <Stat label="Acquisition price" value={fmtCurrency(note.data.acquisitionPrice)} />
+        <Stat label="Acquisition price" value={fmtCurrency(known(note.data.acquisitionPrice))} />
         <Stat label="Implied annualized return" value={fmtPercent(irr)} sub="based on the weighted recovery & timeline above" />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { AssertionStatusBadge, Card, Field, NumberInput, Select, TextInput, type AssertionStatus } from '@nte/governance-core';
+import { AssertionStatusBadge, Card, Field, NumberInput, Select, TextInput, type AssertionStatus, fromInputValue, toInputValue } from '@nte/governance-core';
 import type { Raise } from '../types';
 
 export function EntityTab({ raise, onChange }: { raise: Raise; onChange: (r: Raise) => void }) {
@@ -44,10 +44,10 @@ export function EntityTab({ raise, onChange }: { raise: Raise; onChange: (r: Rai
 
       <Card title="Raise parameters">
         <Field label="Target raise">
-          <NumberInput value={d.targetRaise || ''} onChange={(e) => set({ targetRaise: Number(e.target.value) })} />
+          <NumberInput value={toInputValue(d.targetRaise)} onChange={(e) => set({ targetRaise: fromInputValue(e.target.value) })} />
         </Field>
         <Field label="Minimum raise">
-          <NumberInput value={d.minimumRaise || ''} onChange={(e) => set({ minimumRaise: Number(e.target.value) })} />
+          <NumberInput value={toInputValue(d.minimumRaise)} onChange={(e) => set({ minimumRaise: fromInputValue(e.target.value) })} />
         </Field>
         <Field label="Exemption track being considered" hint="Not a legal conclusion — confirm with securities counsel">
           <Select

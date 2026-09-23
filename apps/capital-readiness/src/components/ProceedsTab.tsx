@@ -1,14 +1,14 @@
-import { Button, Card, NumberInput, Stat, TextInput, newId } from '@nte/governance-core';
+import { Button, Card, NumberInput, Stat, TextInput, newId, fromInputValue, toInputValue, known, sumKnown } from '@nte/governance-core';
 import type { Raise } from '../types';
 import { fmtCurrency, fmtPercent } from '../finance';
 
 export function ProceedsTab({ raise, onChange }: { raise: Raise; onChange: (r: Raise) => void }) {
   const lines = raise.data.useOfProceeds;
-  const total = lines.reduce((s, l) => s + (l.amount || 0), 0);
-  const target = raise.data.targetRaise;
+  const total = sumKnown(lines.map((l) => l.amount));
+  const target = known(raise.data.targetRaise);
 
   const setLines = (next: typeof lines) => onChange({ ...raise, data: { ...raise.data, useOfProceeds: next }, updatedAt: new Date().toISOString() });
-  const add = () => setLines([...lines, { id: newId('use'), category: '', amount: 0 }]);
+  const add = () => setLines([...lines, { id: newId('use'), category: '', amount: null }]);
   const update = (id: string, patch: Partial<(typeof lines)[number]>) => setLines(lines.map((l) => (l.id === id ? { ...l, ...patch } : l)));
   const remove = (id: string) => setLines(lines.filter((l) => l.id !== id));
 
@@ -22,9 +22,9 @@ export function ProceedsTab({ raise, onChange }: { raise: Raise; onChange: (r: R
                 <TextInput placeholder="Category (e.g. inventory, marketing, hiring)" value={l.category} onChange={(e) => update(l.id, { category: e.target.value })} />
               </div>
               <div className="col-span-3">
-                <NumberInput value={l.amount || ''} onChange={(e) => update(l.id, { amount: Number(e.target.value) })} />
+                <NumberInput value={toInputValue(l.amount)} onChange={(e) => update(l.id, { amount: fromInputValue(e.target.value) })} />
               </div>
-              <div className="col-span-2 text-sm text-neutral-600">{fmtPercent(total > 0 ? l.amount / total : NaN)}</div>
+              <div className="col-span-2 text-sm text-neutral-600">{fmtPercent(total > 0 ? known(l.amount) / total : NaN)}</div>
               <div className="col-span-1">
                 <Button variant="danger" onClick={() => remove(l.id)}>
                   ×

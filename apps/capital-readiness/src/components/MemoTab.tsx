@@ -1,10 +1,10 @@
-import { DecisionMemo, ProfessionalReviewGate } from '@nte/governance-core';
+import { DecisionMemo, ProfessionalReviewGate, known, sumKnown } from '@nte/governance-core';
 import type { Raise } from '../types';
 import { fmtCurrency } from '../finance';
 
 export function MemoTab({ raise }: { raise: Raise }) {
   const d = raise.data;
-  const proceedsTotal = d.useOfProceeds.reduce((s, l) => s + l.amount, 0);
+  const proceedsTotal = sumKnown(d.useOfProceeds.map((l) => l.amount));
   const readinessVerified = d.readiness.filter((i) => i.status === 'VERIFIED').length;
   const offeringVerified = d.offeringReadiness.filter((i) => i.status === 'VERIFIED').length;
 
@@ -20,8 +20,8 @@ export function MemoTab({ raise }: { raise: Raise }) {
         assumptions={[
           { label: 'Entity formed?', value: d.entityFormed },
           { label: 'Exemption track (unconfirmed)', value: d.exemptionTrack },
-          { label: 'Target raise', value: fmtCurrency(d.targetRaise) },
-          { label: 'Minimum raise', value: fmtCurrency(d.minimumRaise) },
+          { label: 'Target raise', value: fmtCurrency(known(d.targetRaise)) },
+          { label: 'Minimum raise', value: fmtCurrency(known(d.minimumRaise)) },
         ]}
         lines={[
           { label: 'Cap table holders', value: String(d.capTable.length) },
