@@ -109,16 +109,16 @@ jobs:
           fi
           echo "No tracked files under .neterverse/live/."
 
-      # A checked-in CNAME takes effect the moment it merges. If the DNS record
-      # does not resolve yet, that moves the site off khu-el.github.io and
-      # serves nothing in its place. The deploy workflow writes _site/CNAME from
-      # the PAGES_CUSTOM_DOMAIN repository variable instead, so attaching the
-      # domain stays a deliberate act gated on DNS.
+      # Pages publishes from a GitHub Actions workflow, and in that mode GitHub
+      # ignores any CNAME file -- the custom domain is attached in Settings ->
+      # Pages. A committed CNAME would therefore do nothing except suggest to
+      # the next reader that a domain is attached when it is not, so it is
+      # refused rather than left to mislead.
       - name: No CNAME file is checked in
         run: |
           set -euo pipefail
           if git ls-files | grep -iE '(^|/)CNAME$'; then
-            echo "::error::A committed CNAME takes the site offline if the DNS record does not exist yet. Set the PAGES_CUSTOM_DOMAIN repository variable instead -- see docs/DOMAIN_NETWORK.md."
+            echo "::error::A CNAME file is ignored when Pages publishes from Actions. Attach a custom domain in Settings -> Pages instead -- see docs/DOMAIN_NETWORK.md."
             exit 1
           fi
           echo "No CNAME file tracked."

@@ -58,18 +58,23 @@ Two rules that break this if ignored:
 ### GitHub side, after the `apps` CNAME resolves
 
 Order matters here. Attaching a custom domain before DNS resolves takes the site off
-`khu-el.github.io` and serves nothing in its place.
+`khu-el.github.io/Khu-el/` and serves nothing in its place.
+
+The site publishes from a GitHub Actions workflow, and in that mode **GitHub ignores any `CNAME`
+file** — so the domain is attached in the repository settings, not by a file or a workflow step.
+(A `PAGES_CUSTOM_DOMAIN` variable that wrote `_site/CNAME` existed until 2026-09-23; it could never
+have attached anything and was removed.)
 
 1. Confirm `dig +short CNAME apps.excellencedistrict.org` returns the Pages target.
-2. **Settings → Secrets and variables → Actions → Variables** → `PAGES_CUSTOM_DOMAIN` =
-   `apps.excellencedistrict.org`. The Pages workflow writes `_site/CNAME` from this variable and
-   skips the step entirely while it is unset, which is why nothing breaks before step 1 is true.
-3. Re-run the workflow. Then **Settings → Pages** → wait for the DNS check to pass and tick
-   **Enforce HTTPS**. GitHub issues the certificate; allow up to an hour after propagation.
+2. **Settings → Pages → Custom domain** → `apps.excellencedistrict.org` → Save. Wait for the DNS
+   check to pass and tick **Enforce HTTPS**. GitHub issues the certificate; allow up to an hour
+   after propagation.
+3. Re-run "Deploy web apps to GitHub Pages". The apps are built for the path `configure-pages`
+   reports: `/Khu-el/...` before a custom domain, `/...` after one. Until this re-run, the site
+   is served at the new domain but the apps are still built for `/Khu-el/`, and render blank.
 
-To detach, clear the variable and re-run. The site returns to `khu-el.github.io` on the next
-deploy. There is no checked-in `CNAME` file on purpose — a file in the repo would take effect the
-moment it merged, before any of the above was true.
+To detach, clear the custom domain in the same settings page and re-run the workflow; the site
+returns to `khu-el.github.io/Khu-el/`.
 
 ### Fly side, after the `api` CNAME resolves
 
