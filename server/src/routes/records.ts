@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db } from '../lib/db.js';
 import { requireAuth, type AuthedRequest } from '../lib/auth.js';
 import { newId, nowIso } from '../lib/id.js';
-import { APP_IDS, canWrite, isSharedApp } from '../lib/roles.js';
+import { APP_IDS, canWrite, isSharedApp, type Role } from '../lib/roles.js';
 import { deleteAttachmentFilesForRecord } from './attachments.js';
 
 export const recordsRouter = Router();
@@ -37,14 +37,14 @@ function toApiRecord(row: RecordRow) {
   };
 }
 
-function canAccess(row: RecordRow, user: { sub: string; role: string }) {
+function canAccess(row: RecordRow, user: { sub: string; role: Role }) {
   if (row.owner_id === user.sub) return true;
   if (user.role === 'SYSTEM_ADMIN') return true;
   if (isSharedApp(row.app_id)) return true;
   return false;
 }
 
-function canMutate(row: RecordRow, user: { sub: string; role: string }) {
+function canMutate(row: RecordRow, user: { sub: string; role: Role }) {
   if (!canAccess(row, user)) return false;
   return canWrite(user.role);
 }
