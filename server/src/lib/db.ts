@@ -5,6 +5,7 @@ export const db = new DatabaseSync(env.dbPath);
 
 db.exec(`
   PRAGMA journal_mode = WAL;
+  PRAGMA foreign_keys = ON;
 
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,

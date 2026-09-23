@@ -1,6 +1,7 @@
 name: Deploy web apps to GitHub Pages
 
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch: {}
@@ -98,6 +99,7 @@ jobs:
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

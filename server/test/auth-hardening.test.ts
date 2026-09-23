@@ -45,6 +45,13 @@ describe('the token names the account; the database says what it may do', () => 
     const me = await call(server.url, '/api/auth/me', { token: reg.body.token });
     assert.equal(me.status, 401);
   });
+
+  test('an unrecognized database role is refused rather than treated as writable', async () => {
+    const reg = await register(server.url, 'broken-role@example.test');
+    db.prepare('UPDATE users SET role = ? WHERE id = ?').run('BROKEN_ROLE', reg.body.user.id);
+    const me = await call(server.url, '/api/auth/me', { token: reg.body.token });
+    assert.equal(me.status, 403);
+  });
 });
 
 describe('an unknown address is not faster than a wrong password', () => {
@@ -84,6 +91,13 @@ describe('failed sign-ins are limited per address', () => {
   test('another address is unaffected', async () => {
     await register(server.url, 'bystander@example.test');
     assert.equal((await login('bystander@example.test', 'test-password-123')).status, 200);
+  });
+
+  test('a successful login clears the client IP bucket as well as the address bucket', async () => {
+    await register(server.url, 'ip-reset@example.test');
+    for (let i = 0; i < 9; i++) assert.equal((await login('ip-reset@example.test', `wrong-${i}`)).status, 401);
+    assert.equal((await login('ip-reset@example.test', 'test-password-123')).status, 200);
+    assert.equal((await login('fresh-after-success@example.test', 'wrong-password')).status, 401);
   });
 });
 

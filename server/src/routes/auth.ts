@@ -7,7 +7,7 @@ import { hashPassword, requireAuth, signToken, verifyPassword, type AuthedReques
 import { env } from '../lib/env.js';
 import { newId, nowIso } from '../lib/id.js';
 import { FailureLimiter } from '../lib/rateLimit.js';
-import { type Role } from '../lib/roles.js';
+import { isRole, type Role } from '../lib/roles.js';
 
 /** Constant-time compare so a wrong guess can't be distinguished by response timing. */
 function isValidInviteCode(submitted: unknown): boolean {
@@ -67,11 +67,14 @@ interface UserRow {
   email: string;
   password_hash: string;
   display_name: string;
-  role: Role;
+  role: string;
   created_at: string;
 }
 
 function toPublicUser(row: UserRow) {
+  if (!isRole(row.role)) {
+    throw new Error(`User ${row.id} has unrecognized role ${JSON.stringify(row.role)}`);
+  }
   return { id: row.id, email: row.email, displayName: row.display_name, role: row.role, createdAt: row.created_at };
 }
 
@@ -143,9 +146,11 @@ authRouter.post('/login', asyncHandler(async (req, res) => {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
   loginByEmail.reset(emailKey);
+  loginByIp.reset(ipKey);
 
-  const token = signToken({ sub: row.id, email: row.email, role: row.role });
-  res.json({ token, user: toPublicUser(row) });
+  const user = toPublicUser(row);
+  const token = signToken({ sub: row.id, email: row.email, role: user.role });
+  res.json({ token, user });
 }));
 
 authRouter.get('/me', requireAuth, (req: AuthedRequest, res) => {
@@ -180,6 +185,11 @@ authRouter.patch('/me', requireAuth, (req: AuthedRequest, res) => {
 
 authRouter.get('/users', requireAuth, (_req: AuthedRequest, res) => {
   // Lightweight roster so a shared (Lane B) workspace can show "who's who" -- no emails beyond your own account's need.
-  const rows = db.prepare('SELECT id, display_name, role FROM users').all() as { id: string; display_name: string; role: Role }[];
-  res.json({ users: rows.map((r) => ({ id: r.id, displayName: r.display_name, role: r.role })) });
+  const rows = db.prepare('SELECT id, display_name, role FROM users').all() as { id: string; display_name: string; role: string }[];
+  res.json({
+    users: rows.map((r) => {
+      if (!isRole(r.role)) throw new Error(`User ${r.id} has unrecognized role ${JSON.stringify(r.role)}`);
+      return { id: r.id, displayName: r.display_name, role: r.role };
+    }),
+  });
 });

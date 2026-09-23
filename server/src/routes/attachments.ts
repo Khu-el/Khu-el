@@ -64,7 +64,7 @@ attachmentsRouter.post('/records/:recordId/attachments', requireAuth, upload.sin
     discardUpload();
     return res.status(404).json({ error: 'Record not found' });
   }
-  if (!canAccessRecord(record, req.user!) || !canWrite(req.user!.role as any)) {
+  if (!canAccessRecord(record, req.user!) || !canWrite(req.user!.role)) {
     discardUpload();
     return res.status(403).json({ error: 'Not permitted to attach files to this record' });
   }
@@ -72,10 +72,15 @@ attachmentsRouter.post('/records/:recordId/attachments', requireAuth, upload.sin
 
   const id = newId('att');
   const uploadedAt = nowIso();
-  db.prepare(
-    `INSERT INTO attachments (id, record_id, owner_id, stored_filename, original_name, mime_type, size_bytes, uploaded_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(id, record.id, req.user!.sub, req.file.filename, req.file.originalname, req.file.mimetype, req.file.size, uploadedAt);
+  try {
+    db.prepare(
+      `INSERT INTO attachments (id, record_id, owner_id, stored_filename, original_name, mime_type, size_bytes, uploaded_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(id, record.id, req.user!.sub, req.file.filename, req.file.originalname, req.file.mimetype, req.file.size, uploadedAt);
+  } catch (err) {
+    discardUpload();
+    throw err;
+  }
 
   res.status(201).json({
     attachment: { id, recordId: record.id, originalName: req.file.originalname, mimeType: req.file.mimetype, sizeBytes: req.file.size, uploadedAt },
@@ -106,7 +111,7 @@ attachmentsRouter.delete('/attachments/:id', requireAuth, (req: AuthedRequest, r
   const att = db.prepare('SELECT * FROM attachments WHERE id = ?').get(req.params.id) as unknown as AttachmentRow | undefined;
   if (!att) return res.status(404).json({ error: 'Attachment not found' });
   const record = getRecordOr404(att.record_id);
-  if (!record || !canAccessRecord(record, req.user!) || !canWrite(req.user!.role as any)) {
+  if (!record || !canAccessRecord(record, req.user!) || !canWrite(req.user!.role)) {
     return res.status(403).json({ error: 'Not permitted to delete this file' });
   }
 
