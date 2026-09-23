@@ -19,6 +19,7 @@ const assert = (await import('node:assert/strict')).default;
 const { readdirSync } = await import('node:fs');
 const { startTestServer, call, register, createRecord } = await import('./helpers.ts');
 const { createApp } = await import('../dist/app.js');
+const { db } = await import('../dist/lib/db.js');
 
 const server = await startTestServer(createApp());
 
@@ -90,6 +91,42 @@ describe('email without SMTP configured', () => {
   });
 });
 
+describe('digest data robustness', () => {
+  test('malformed stored JSON shapes are ignored rather than crashing the digest', async () => {
+    db.prepare('INSERT INTO records (id, app_id, owner_id, record_type, lane, assertion_status, reconciliation_status, data_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(
+        'rec_bad-shape',
+        'legacy-estate',
+        reg.body.user.id,
+        'estate',
+        'LANE_B',
+        'CURRENT_INTERNAL_MODEL',
+        'STAGED',
+        JSON.stringify({ data: { beneficiaries: { accountOrPolicy: 'not-an-array' } } }),
+        '2026-01-01T00:00:00.000Z',
+        '2026-01-01T00:00:00.000Z'
+      );
+    db.prepare('INSERT INTO records (id, app_id, owner_id, record_type, lane, assertion_status, reconciliation_status, data_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(
+        'rec_bad-json',
+        'deal-architect',
+        reg.body.user.id,
+        'deal',
+        'LANE_A',
+        'CURRENT_INTERNAL_MODEL',
+        'STAGED',
+        '{not valid json',
+        '2026-01-01T00:00:00.000Z',
+        '2026-01-01T00:00:00.000Z'
+      );
+
+    const res = await call(server.url, '/api/digest', { token });
+    assert.equal(res.status, 200);
+    assert.ok(Array.isArray(res.body.items));
+    await stillAlive();
+  });
+});
+
 describe('client errors are reported as client errors', () => {
   test('malformed JSON is a 400, not a 500', async () => {
     const res = await call(server.url, '/api/auth/login', {
@@ -117,6 +154,18 @@ describe('uploads', () => {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: form,
+    });
+
+    describe('sqlite foreign keys', () => {
+      test('an attachment cannot point at a record that does not exist', () => {
+        assert.throws(
+          () =>
+            db.prepare(
+              'INSERT INTO attachments (id, record_id, owner_id, stored_filename, original_name, mime_type, size_bytes, uploaded_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+            ).run('att_orphan', 'rec_missing', reg.body.user.id, 'x.bin', 'x.bin', 'application/octet-stream', 1, '2026-01-01T00:00:00.000Z'),
+          /FOREIGN KEY/i
+        );
+      });
     });
   }
 

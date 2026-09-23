@@ -76,7 +76,7 @@ describe('every other route ignores a query token', () => {
       method: 'POST',
       body: JSON.stringify({ title: 'x', assumptions: [], lines: [] }),
     },
-    { name: 'POST /api/digest/send', path: '/api/digest/send', method: 'POST' },
+    { name: 'POST /api/digest/email', path: '/api/digest/email', method: 'POST' },
   ];
 
   for (const c of cases) {
