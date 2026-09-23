@@ -175,12 +175,12 @@ checked transitively through the apps that import its source.
 | Workspace | Test runner |
 |---|---|
 | `packages/neterverse-kernel` | ✅ `node --test` — 98 tests, `npm run test:kernel` |
-| `server/` | ✅ `node --test` — 68 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
+| `server/` | ✅ `node --test` — 73 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
 | `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
 | `apps/legacy-estate` | ❌ none configured |
 
-`npm test` at the root runs every workspace that has a suite — 283 tests. **What is still
+`npm test` at the root runs every workspace that has a suite — 288 tests. **What is still
 untested is the UI**: components, tabs and stores have no coverage at all, and
 `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
 `governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,

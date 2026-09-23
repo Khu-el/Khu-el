@@ -155,18 +155,6 @@ describe('uploads', () => {
       headers: { Authorization: `Bearer ${token}` },
       body: form,
     });
-
-    describe('sqlite foreign keys', () => {
-      test('an attachment cannot point at a record that does not exist', () => {
-        assert.throws(
-          () =>
-            db.prepare(
-              'INSERT INTO attachments (id, record_id, owner_id, stored_filename, original_name, mime_type, size_bytes, uploaded_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-            ).run('att_orphan', 'rec_missing', reg.body.user.id, 'x.bin', 'x.bin', 'application/octet-stream', 1, '2026-01-01T00:00:00.000Z'),
-          /FOREIGN KEY/i
-        );
-      });
-    });
   }
 
   test('an upload to a record that does not exist leaves nothing on disk', async () => {
@@ -190,5 +178,19 @@ describe('uploads', () => {
     const res = await upload(rec.body.record.id, 15 * 1024 * 1024 + 1);
     assert.equal(res.status, 413);
     await stillAlive();
+  });
+});
+
+// This sat inside upload() above, after its `return`, so it never ran. It is
+// the only check that the foreign_keys pragma in lib/db.ts is actually on.
+describe('sqlite foreign keys', () => {
+  test('an attachment cannot point at a record that does not exist', () => {
+    assert.throws(
+      () =>
+        db.prepare(
+          'INSERT INTO attachments (id, record_id, owner_id, stored_filename, original_name, mime_type, size_bytes, uploaded_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+        ).run('att_orphan', 'rec_missing', reg.body.user.id, 'x.bin', 'x.bin', 'application/octet-stream', 1, '2026-01-01T00:00:00.000Z'),
+      /FOREIGN KEY/i
+    );
   });
 });
