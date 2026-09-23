@@ -46,7 +46,7 @@ function canAccess(row: RecordRow, user: { sub: string; role: string }) {
 
 function canMutate(row: RecordRow, user: { sub: string; role: string }) {
   if (!canAccess(row, user)) return false;
-  return canWrite(user.role as any);
+  return canWrite(user.role);
 }
 
 recordsRouter.get('/', (req: AuthedRequest, res) => {
@@ -66,7 +66,7 @@ recordsRouter.post('/', (req: AuthedRequest, res) => {
   const { appId, id, type, authority, data, evidenceRefs, reconciliationStatus } = req.body ?? {};
   if (!APP_IDS.includes(appId)) return res.status(400).json({ error: `appId must be one of ${APP_IDS.join(', ')}` });
   if (!type || !authority || data === undefined) return res.status(400).json({ error: 'type, authority, and data are required' });
-  if (!canWrite(req.user!.role as any)) return res.status(403).json({ error: 'Your role is read-only' });
+  if (!canWrite(req.user!.role)) return res.status(403).json({ error: 'Your role is read-only' });
 
   const recordId = typeof id === 'string' && id ? id : newId('rec');
   const existing = db.prepare('SELECT id FROM records WHERE id = ?').get(recordId);

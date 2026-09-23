@@ -117,3 +117,17 @@ describe('what a non-admin cannot reach', () => {
     assert.equal(stillThere.body.records.some((r: any) => r.id === recordId), true);
   });
 });
+
+describe('GET /api/auth/users', () => {
+  test('returns the lightweight roster without email addresses', async () => {
+    const one = await register(server.url, 'roster-one@example.test');
+    await register(server.url, 'roster-two@example.test');
+
+    const res = await call(server.url, '/api/auth/users', { token: one.body.token });
+    assert.equal(res.status, 200);
+    assert.ok(res.body.users.length >= 2);
+    assert.equal('email' in res.body.users[0], false);
+    assert.equal(typeof res.body.users[0].displayName, 'string');
+    assert.equal(typeof res.body.users[0].role, 'string');
+  });
+});

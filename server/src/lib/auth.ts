@@ -3,12 +3,18 @@ import jwt from 'jsonwebtoken';
 import type { NextFunction, Request, Response } from 'express';
 import { db } from './db.js';
 import { env } from './env.js';
-import type { Role } from './roles.js';
+import { isRole, type Role } from './roles.js';
 
 export interface AuthTokenPayload {
   sub: string;
   email: string;
   role: Role;
+}
+
+interface DbAuthRow {
+  id: string;
+  email: string;
+  role: string;
 }
 
 export function hashPassword(password: string) {
@@ -49,9 +55,13 @@ function authenticate(req: AuthedRequest, res: Response, next: NextFunction, tok
   // the old token went on carrying the old authority. A SYSTEM_ADMIN demoted
   // in the database stayed an admin until the token expired.
   const row = db.prepare('SELECT id, email, role FROM users WHERE id = ?').get(claims.sub) as
-    | { id: string; email: string; role: Role }
+    | DbAuthRow
     | undefined;
   if (!row) return res.status(401).json({ error: 'This account no longer exists' });
+  if (!isRole(row.role)) {
+    console.error('[auth] refusing account with unrecognized role', { userId: row.id, role: row.role });
+    return res.status(403).json({ error: 'This account is not permitted to sign in' });
+  }
 
   req.user = { sub: row.id, email: row.email, role: row.role };
   next();
