@@ -1,4 +1,4 @@
-import { AssertionStatusBadge, Button, Card, LaneBadge, NumberInput, Select, TextInput, newId } from '@nte/governance-core';
+import { AssertionStatusBadge, Button, Card, LaneBadge, NumberInput, Select, TextInput, newId, fromInputValue, toInputValue } from '@nte/governance-core';
 import type { AssertionStatus, Lane } from '@nte/governance-core';
 import type { BusinessInterest, Estate } from '../types';
 
@@ -18,7 +18,7 @@ const STATUS_OPTIONS = [
 export function BusinessInterestsTab({ estate, onChange }: { estate: Estate; onChange: (e: Estate) => void }) {
   const rows = estate.data.businessInterests;
   const setRows = (next: BusinessInterest[]) => onChange({ ...estate, data: { ...estate.data, businessInterests: next }, updatedAt: new Date().toISOString() });
-  const add = () => setRows([...rows, { id: newId('biz'), entityName: '', lane: 'UNCLASSIFIED', ownershipPct: 0, capacityOrOffice: '', assertionStatus: 'UNCLASSIFIED', evidenceNote: '' }]);
+  const add = () => setRows([...rows, { id: newId('biz'), entityName: '', lane: 'UNCLASSIFIED', ownershipPct: null, capacityOrOffice: '', assertionStatus: 'UNCLASSIFIED', evidenceNote: '' }]);
   const update = (id: string, patch: Partial<BusinessInterest>) => setRows(rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   const remove = (id: string) => setRows(rows.filter((r) => r.id !== id));
 
@@ -33,7 +33,7 @@ export function BusinessInterestsTab({ estate, onChange }: { estate: Estate; onC
           <div key={r.id} className="border border-neutral-200 rounded-lg p-3 grid md:grid-cols-6 gap-2 items-end">
             <TextInput placeholder="Entity name" value={r.entityName} onChange={(e) => update(r.id, { entityName: e.target.value })} />
             <Select value={r.lane} onChange={(v) => update(r.id, { lane: v as Lane })} options={LANE_OPTIONS} />
-            <NumberInput placeholder="Ownership %" value={r.ownershipPct || ''} onChange={(e) => update(r.id, { ownershipPct: Number(e.target.value) })} />
+            <NumberInput placeholder="Ownership %" value={toInputValue(r.ownershipPct)} onChange={(e) => update(r.id, { ownershipPct: fromInputValue(e.target.value) })} />
             <TextInput placeholder="Capacity / office (e.g. Minister, Member, Director)" value={r.capacityOrOffice} onChange={(e) => update(r.id, { capacityOrOffice: e.target.value })} />
             <Select value={r.assertionStatus} onChange={(v) => update(r.id, { assertionStatus: v as AssertionStatus })} options={STATUS_OPTIONS} />
             <Button variant="danger" onClick={() => remove(r.id)}>

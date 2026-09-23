@@ -1,4 +1,4 @@
-import { AssertionStatusBadge, Card, Field, NumberInput, TextInput, type AssertionStatus } from '@nte/governance-core';
+import { AssertionStatusBadge, Card, Field, NumberInput, TextInput, type AssertionStatus, fromInputValue, toInputValue } from '@nte/governance-core';
 import type { Deal } from '../types';
 
 export function IntakeTab({ deal, onChange }: { deal: Deal; onChange: (d: Deal) => void }) {
@@ -36,19 +36,19 @@ export function IntakeTab({ deal, onChange }: { deal: Deal; onChange: (d: Deal) 
       <Card title="Numbers">
         <div className="grid grid-cols-2 gap-3">
           <Field label="Asking price">
-            <NumberInput value={d.askingPrice || ''} onChange={(e) => set({ askingPrice: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(d.askingPrice)} onChange={(e) => set({ askingPrice: fromInputValue(e.target.value) })} />
           </Field>
           <Field label="ARV (after-repair value)">
-            <NumberInput value={d.arv || ''} onChange={(e) => set({ arv: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(d.arv)} onChange={(e) => set({ arv: fromInputValue(e.target.value) })} />
           </Field>
           <Field label="Repair estimate">
-            <NumberInput value={d.repairEstimate || ''} onChange={(e) => set({ repairEstimate: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(d.repairEstimate)} onChange={(e) => set({ repairEstimate: fromInputValue(e.target.value) })} />
           </Field>
           <Field label="Monthly rent (est.)">
-            <NumberInput value={d.monthlyRent || ''} onChange={(e) => set({ monthlyRent: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(d.monthlyRent)} onChange={(e) => set({ monthlyRent: fromInputValue(e.target.value) })} />
           </Field>
           <Field label="Monthly operating expenses" hint="Taxes, insurance, mgmt, maintenance reserve — not debt service">
-            <NumberInput value={d.monthlyExpenses || ''} onChange={(e) => set({ monthlyExpenses: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(d.monthlyExpenses)} onChange={(e) => set({ monthlyExpenses: fromInputValue(e.target.value) })} />
           </Field>
         </div>
         <Field label="Notes">

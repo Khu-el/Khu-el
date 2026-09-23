@@ -24,6 +24,9 @@ primary_region = "iad"                 # <-- change this to your nearest Fly reg
   PORT = "4000"
   NTE_DATA_DIR = "/data"
   NTE_UPLOADS_DIR = "/data/uploads"
+  # One proxy (Fly's edge) sits in front; the sign-in rate limits key on the
+  # client IP it forwards. See server/src/lib/env.ts.
+  TRUST_PROXY = "1"
 
 [[mounts]]
   source = "nte_data"

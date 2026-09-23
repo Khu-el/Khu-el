@@ -1,4 +1,4 @@
-import { Button, Card, NumberInput, Select, Stat, TextInput, newId } from '@nte/governance-core';
+import { Button, Card, NumberInput, Select, Stat, TextInput, newId, fromInputValue, toInputValue, known, sumKnown } from '@nte/governance-core';
 import type { Deal } from '../types';
 import { fmtCurrency, fmtPercent } from '../finance';
 
@@ -12,13 +12,13 @@ const TYPE_OPTIONS = [
 
 export function CapitalStackTab({ deal, onChange }: { deal: Deal; onChange: (d: Deal) => void }) {
   const stack = deal.data.capitalStack;
-  const total = stack.reduce((s, c) => s + (c.amount || 0), 0);
-  const totalCost = deal.data.askingPrice + deal.data.repairEstimate;
+  const total = sumKnown(stack.map((c) => c.amount));
+  const totalCost = known(deal.data.askingPrice) + known(deal.data.repairEstimate);
   const gap = totalCost - total;
 
   const setStack = (next: typeof stack) => onChange({ ...deal, data: { ...deal.data, capitalStack: next }, updatedAt: new Date().toISOString() });
 
-  const addSource = () => setStack([...stack, { id: newId('cap'), label: '', type: 'CASH', amount: 0 }]);
+  const addSource = () => setStack([...stack, { id: newId('cap'), label: '', type: 'CASH', amount: null }]);
   const updateSource = (id: string, patch: Partial<(typeof stack)[number]>) =>
     setStack(stack.map((s) => (s.id === id ? { ...s, ...patch } : s)));
   const removeSource = (id: string) => setStack(stack.filter((s) => s.id !== id));
@@ -40,9 +40,9 @@ export function CapitalStackTab({ deal, onChange }: { deal: Deal; onChange: (d: 
                 <Select value={s.type} onChange={(v) => updateSource(s.id, { type: v as (typeof stack)[number]['type'] })} options={TYPE_OPTIONS} />
               </div>
               <div className="col-span-3">
-                <NumberInput value={s.amount || ''} onChange={(e) => updateSource(s.id, { amount: Number(e.target.value) })} />
+                <NumberInput value={toInputValue(s.amount)} onChange={(e) => updateSource(s.id, { amount: fromInputValue(e.target.value) })} />
               </div>
-              <div className="col-span-1 text-sm text-neutral-500">{fmtPercent(totalCost > 0 ? s.amount / totalCost : NaN)}</div>
+              <div className="col-span-1 text-sm text-neutral-500">{fmtPercent(totalCost > 0 ? known(s.amount) / totalCost : NaN)}</div>
               <div className="col-span-1">
                 <Button variant="danger" onClick={() => removeSource(s.id)}>
                   Remove

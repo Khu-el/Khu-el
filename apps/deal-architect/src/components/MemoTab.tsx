@@ -1,15 +1,15 @@
-import { DecisionMemo, ProfessionalReviewGate } from '@nte/governance-core';
+import { DecisionMemo, ProfessionalReviewGate, knownFields, sumKnown, fmtPlain } from '@nte/governance-core';
 import type { Deal } from '../types';
 import { capRate, dscr, fmtCurrency, fmtPercent, fmtRatio, maxAllowableOffer, monthlyPayment, noi } from '../finance';
 
 export function MemoTab({ deal }: { deal: Deal }) {
-  const d = deal.data;
+  const d = knownFields(deal.data);
   const mao = maxAllowableOffer(d.arv, d.moaRule, d.repairEstimate);
   const annualNoi = noi(d.monthlyRent, d.monthlyExpenses);
   const cr = capRate(annualNoi, d.askingPrice);
   const annualDebtService = monthlyPayment(d.loanAmount, d.loanRatePct, d.loanTermMonths) * 12;
   const coverage = dscr(annualNoi, annualDebtService);
-  const stackTotal = d.capitalStack.reduce((s, c) => s + c.amount, 0);
+  const stackTotal = sumKnown(d.capitalStack.map((c) => c.amount));
   const totalCost = d.askingPrice + d.repairEstimate;
   const diligenceDone = d.diligence.filter((i) => i.done).length;
 
@@ -26,9 +26,9 @@ export function MemoTab({ deal }: { deal: Deal }) {
         assumptions={[
           { label: 'ARV', value: fmtCurrency(d.arv) },
           { label: 'Repair estimate', value: fmtCurrency(d.repairEstimate) },
-          { label: 'MAO rule', value: `${(d.moaRule * 100).toFixed(0)}%` },
+          { label: 'MAO rule', value: fmtPlain(Number.isFinite(d.moaRule) ? Math.round(d.moaRule * 100) : null, '%') },
           { label: 'Monthly rent (est.)', value: fmtCurrency(d.monthlyRent) },
-          { label: 'Financing', value: `${fmtCurrency(d.loanAmount)} @ ${d.loanRatePct}% / ${d.loanTermMonths}mo` },
+          { label: 'Financing', value: `${fmtCurrency(d.loanAmount)} @ ${fmtPlain(d.loanRatePct, '%')} / ${fmtPlain(d.loanTermMonths, 'mo')}` },
         ]}
         lines={[
           { label: 'Asking price', value: fmtCurrency(d.askingPrice) },

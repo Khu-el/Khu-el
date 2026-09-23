@@ -1,4 +1,4 @@
-import { Card, Field, NumberInput, Stat } from '@nte/governance-core';
+import { Card, Field, NumberInput, Stat, fromInputValue, toInputValue, knownFields } from '@nte/governance-core';
 import type { Deal } from '../types';
 import { amortizationSchedule, fmtCurrency, monthlyPayment } from '../finance';
 
@@ -6,10 +6,11 @@ export function SellerFinanceTab({ deal, onChange }: { deal: Deal; onChange: (d:
   const sf = deal.data.sellerFinance;
   const set = (patch: Partial<typeof sf>) =>
     onChange({ ...deal, data: { ...deal.data, sellerFinance: { ...sf, ...patch } }, updatedAt: new Date().toISOString() });
+  const v = knownFields(sf);
 
-  const principal = Math.max(0, sf.purchasePrice - sf.downPayment);
-  const pmt = monthlyPayment(principal, sf.annualRatePct, sf.termMonths);
-  const schedule = amortizationSchedule(principal, sf.annualRatePct, sf.termMonths, sf.balloonMonths || undefined);
+  const principal = Math.max(0, v.purchasePrice - v.downPayment);
+  const pmt = monthlyPayment(principal, v.annualRatePct, v.termMonths);
+  const schedule = amortizationSchedule(principal, v.annualRatePct, v.termMonths, v.balloonMonths || undefined);
   const finalRow = schedule[schedule.length - 1];
 
   return (
@@ -17,22 +18,22 @@ export function SellerFinanceTab({ deal, onChange }: { deal: Deal; onChange: (d:
       <Card title="Seller-carry term modeler" subtitle="Model becoming the bank on the seller side of a deal, or financing a buyer on your exit">
         <div className="grid md:grid-cols-3 gap-3">
           <Field label="Purchase price">
-            <NumberInput value={sf.purchasePrice || ''} onChange={(e) => set({ purchasePrice: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(sf.purchasePrice)} onChange={(e) => set({ purchasePrice: fromInputValue(e.target.value) })} />
           </Field>
           <Field label="Down payment">
-            <NumberInput value={sf.downPayment || ''} onChange={(e) => set({ downPayment: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(sf.downPayment)} onChange={(e) => set({ downPayment: fromInputValue(e.target.value) })} />
           </Field>
           <Field label="Note principal" hint="Purchase price minus down payment">
             <div className="text-sm font-medium py-1.5">{fmtCurrency(principal)}</div>
           </Field>
           <Field label="Interest rate (annual %)">
-            <NumberInput step="0.1" value={sf.annualRatePct || ''} onChange={(e) => set({ annualRatePct: Number(e.target.value) })} />
+            <NumberInput step="0.1" value={toInputValue(sf.annualRatePct)} onChange={(e) => set({ annualRatePct: fromInputValue(e.target.value) })} />
           </Field>
           <Field label="Amortization term (months)">
-            <NumberInput value={sf.termMonths || ''} onChange={(e) => set({ termMonths: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(sf.termMonths)} onChange={(e) => set({ termMonths: fromInputValue(e.target.value) })} />
           </Field>
           <Field label="Balloon due (months)" hint="0 = fully amortizing, no balloon">
-            <NumberInput value={sf.balloonMonths || ''} onChange={(e) => set({ balloonMonths: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(sf.balloonMonths)} onChange={(e) => set({ balloonMonths: fromInputValue(e.target.value) })} />
           </Field>
         </div>
       </Card>

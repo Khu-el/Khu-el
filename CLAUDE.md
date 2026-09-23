@@ -175,15 +175,15 @@ checked transitively through the apps that import its source.
 | Workspace | Test runner |
 |---|---|
 | `packages/neterverse-kernel` | ✅ `node --test` — 98 tests, `npm run test:kernel` |
-| `server/` | ✅ `node --test` — 62 tests (auth over the running app, the digest's staleness rule, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
+| `server/` | ✅ `node --test` — 68 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
-| `packages/governance-core` | ✅ `node --test` — 37 tests over the cache-key and staleness helpers |
+| `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
 | `apps/legacy-estate` | ❌ none configured |
 
-`npm test` at the root runs every workspace that has a suite — 258 tests. **What is still
+`npm test` at the root runs every workspace that has a suite — 283 tests. **What is still
 untested is the UI**: components, tabs and stores have no coverage at all, and
 `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
-`governance-core`'s suites cover its cache-key and staleness helpers — **not** its components,
+`governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,
 which remain uncovered along with every other component in the repo.
 
 **No linter is configured anywhere in this repo.** In a workspace with no runner, do not
@@ -254,7 +254,12 @@ here:
   required `userId` and keys its `localStorage` cache by it, purging any other account's copy of
   that cache when it opens. A shared key let the next person to sign in on a machine render the
   previous person's records — and three of the four apps are private per owner. Do not
-  reintroduce a fixed cache key.
+  reintroduce a fixed cache key. The list of records saved offline and not yet synced is scoped
+  the same way, under `<cacheKey>:pending`, so the purge does not read it as another account's.
+- **🪪 A token says who signed in, never what they may do.** `authenticate()` looks the user up
+  on every request and takes role and email from the database. A role an operator lowers, or an
+  account they delete, takes effect on the next request rather than when a 30-day token expires.
+  Do not go back to trusting the role claim inside the JWT.
 - **↔️ Lane A and Lane B never auto-connect.** A bridge (e.g. the Business Interests
   registry) records a *reference*, not a merge.
 - **🌐 This repository is public.** Live control-plane state stays in the gitignored
@@ -300,6 +305,12 @@ writing a new primitive** — §4, artifact-first.
   caption "≥1.25x is a common lender floor" and reads as a failed deal, and a
   `probabilityWeightedRecovery` of `$0` reads as a total loss. Both were being shown for empty
   forms. Guard with `denominator > 0 ? … : NaN` and let it propagate.
+- **An empty number field is `null`, never `0`.** Record fields the user types are `MaybeNumber`
+  (`number | null`), wired as `value={toInputValue(x)}` and `onChange` → `fromInputValue(...)`.
+  Calculate through `knownFields(record)` or `known(x)`, which turn `null` into `NaN` so the rule
+  above carries it to `—`; total line items with `sumKnown()`. Reading `Number(e.target.value)`
+  stores `0` for a cleared field, and `x || ''` hides a typed `0` — both are how a blank ARV used
+  to compute a real-looking maximum offer.
 
 ## 🧾 One evidence vocabulary, four spellings
 
@@ -339,7 +350,10 @@ They are recorded here so the next person doesn't assume the mapping is total.
 Frontends → GitHub Pages via `.github/workflows/deploy-pages.yml` (runs on push to `main`;
 served at the account root because the repo is `Khu-el/Khu-el`). Backend → `server/Dockerfile`
 + `fly.toml`, portable to any Docker host. Secrets (`JWT_SECRET`, SMTP, `CORS_ORIGINS`) are
-set on the platform — **never committed**. Full walkthrough is in `README.md`.
+set on the platform — **never committed**. `TRUST_PROXY` (in `fly.toml`, not a secret) must match
+the number of proxies in front of the server: the sign-in rate limits key on the client IP, and
+behind an untrusted proxy every request would share one IP and one person's failures would lock
+everyone out. Full walkthrough is in `README.md`.
 
 The intended destination is `apps.excellencedistrict.org` (frontends) and
 `api.excellencedistrict.org` (backend), with the Squarespace apex and Google Workspace mail left

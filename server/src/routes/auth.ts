@@ -1,10 +1,12 @@
-import { timingSafeEqual } from 'node:crypto';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
+import bcrypt from 'bcryptjs';
 import { Router } from 'express';
 import { db } from '../lib/db.js';
 import { asyncHandler } from '../lib/asyncHandler.js';
 import { hashPassword, requireAuth, signToken, verifyPassword, type AuthedRequest } from '../lib/auth.js';
 import { env } from '../lib/env.js';
 import { newId, nowIso } from '../lib/id.js';
+import { FailureLimiter } from '../lib/rateLimit.js';
 import { type Role } from '../lib/roles.js';
 
 /** Constant-time compare so a wrong guess can't be distinguished by response timing. */
@@ -32,6 +34,32 @@ function assignRoleAtRegistration(email: string): Role {
   return 'FAMILY_COUNCIL_MEMBER';
 }
 
+/**
+ * Failed sign-ins are limited per address and per client IP; failed invite
+ * codes per client IP. Either limit answers 429 with Retry-After until its
+ * 15-minute window closes. The per-address limit is what stops a password being
+ * guessed from many machines; the per-IP limits stop one machine spraying many
+ * addresses or invite codes. req.ip is only the real client when TRUST_PROXY is
+ * set to match the proxy in front of this server -- see lib/env.ts.
+ */
+const WINDOW_MS = 15 * 60 * 1000;
+const loginByEmail = new FailureLimiter(10, WINDOW_MS);
+const loginByIp = new FailureLimiter(30, WINDOW_MS);
+const inviteByIp = new FailureLimiter(10, WINDOW_MS);
+
+function tooMany(res: import('express').Response, retryAfterMs: number) {
+  res.setHeader('Retry-After', String(Math.ceil(retryAfterMs / 1000)));
+  return res.status(429).json({ error: 'Too many failed attempts. Try again later.' });
+}
+
+/**
+ * A real bcrypt hash of nothing anyone knows, compared against when the email
+ * has no account. Without it an unknown address was answered before bcrypt ran
+ * -- measurably faster than a wrong password -- which told anyone timing the
+ * responses which addresses have accounts.
+ */
+const DUMMY_HASH = bcrypt.hashSync(randomBytes(16).toString('hex'), 10);
+
 export const authRouter = Router();
 
 interface UserRow {
@@ -49,7 +77,13 @@ function toPublicUser(row: UserRow) {
 
 authRouter.post('/register', asyncHandler(async (req, res) => {
   const { email, password, displayName, inviteCode } = req.body ?? {};
-  if (!isValidInviteCode(inviteCode)) return res.status(403).json({ error: 'Invalid or missing invite code' });
+  const ipKey = `ip:${req.ip}`;
+  const wait = inviteByIp.retryAfterMs(ipKey);
+  if (wait > 0) return tooMany(res, wait);
+  if (!isValidInviteCode(inviteCode)) {
+    inviteByIp.recordFailure(ipKey);
+    return res.status(403).json({ error: 'Invalid or missing invite code' });
+  }
   if (typeof email !== 'string' || !email.includes('@')) return res.status(400).json({ error: 'A valid email is required' });
   if (typeof password !== 'string' || password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
   if (typeof displayName !== 'string' || !displayName.trim()) return res.status(400).json({ error: 'Display name is required' });
@@ -95,11 +129,20 @@ authRouter.post('/login', asyncHandler(async (req, res) => {
   const { email, password } = req.body ?? {};
   if (typeof email !== 'string' || typeof password !== 'string') return res.status(400).json({ error: 'Email and password are required' });
 
-  const row = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase()) as UserRow | undefined;
-  if (!row) return res.status(401).json({ error: 'Invalid email or password' });
+  const emailKey = `email:${email.toLowerCase()}`;
+  const ipKey = `ip:${req.ip}`;
+  const wait = Math.max(loginByEmail.retryAfterMs(emailKey), loginByIp.retryAfterMs(ipKey));
+  if (wait > 0) return tooMany(res, wait);
 
-  const valid = await verifyPassword(password, row.password_hash);
-  if (!valid) return res.status(401).json({ error: 'Invalid email or password' });
+  const row = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase()) as UserRow | undefined;
+  // Always run bcrypt, so an unknown address takes as long as a wrong password.
+  const valid = await verifyPassword(password, row?.password_hash ?? DUMMY_HASH);
+  if (!row || !valid) {
+    loginByEmail.recordFailure(emailKey);
+    loginByIp.recordFailure(ipKey);
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  loginByEmail.reset(emailKey);
 
   const token = signToken({ sub: row.id, email: row.email, role: row.role });
   res.json({ token, user: toPublicUser(row) });
