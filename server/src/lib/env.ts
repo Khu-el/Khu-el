@@ -56,6 +56,15 @@ function resolveInviteCode(): string {
 
 export const env = {
   port: Number(process.env.PORT ?? 4000),
+  /**
+   * How many proxies sit in front of this server, for Express's `trust proxy`.
+   * The sign-in rate limits key on the client IP; behind a proxy without this,
+   * every request appears to come from the proxy, and one person's failed
+   * attempts would lock everyone out. fly.toml sets 1 for Fly's edge proxy.
+   * Unset means 0: req.ip is the socket peer, which is right when nothing is in
+   * front, and cannot be spoofed with an X-Forwarded-For header.
+   */
+  trustProxy: Number(process.env.TRUST_PROXY ?? 0),
   dataDir,
   uploadsDir,
   dbPath: path.join(dataDir, 'nte.db'),

@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import type { NextFunction, Request, Response } from 'express';
+import { db } from './db.js';
 import { env } from './env.js';
 import type { Role } from './roles.js';
 
@@ -35,12 +36,25 @@ function authenticate(req: AuthedRequest, res: Response, next: NextFunction, tok
   if (!token) {
     return res.status(401).json({ error: 'Missing bearer token' });
   }
+  let claims: AuthTokenPayload;
   try {
-    req.user = jwt.verify(token, env.jwtSecret) as AuthTokenPayload;
-    next();
+    claims = jwt.verify(token, env.jwtSecret) as AuthTokenPayload;
   } catch {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
+
+  // The token proves who signed in; the database says who they are now. Role
+  // and email used to be read from the token alone, so for up to 30 days after
+  // an operator changed someone's role -- or deleted the account outright --
+  // the old token went on carrying the old authority. A SYSTEM_ADMIN demoted
+  // in the database stayed an admin until the token expired.
+  const row = db.prepare('SELECT id, email, role FROM users WHERE id = ?').get(claims.sub) as
+    | { id: string; email: string; role: Role }
+    | undefined;
+  if (!row) return res.status(401).json({ error: 'This account no longer exists' });
+
+  req.user = { sub: row.id, email: row.email, role: row.role };
+  next();
 }
 
 /**
