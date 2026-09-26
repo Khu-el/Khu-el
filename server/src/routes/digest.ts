@@ -13,6 +13,7 @@ interface RecordRow {
   id: string;
   app_id: string;
   owner_id: string;
+  record_type: string;
   data_json: string;
 }
 
@@ -41,7 +42,33 @@ function arrayValue(value: unknown): unknown[] {
 }
 
 function recordLabel(appId: string, data: Record<string, unknown>): string {
-  return String(data.address || data.entityName || data.obligorRef || data.familyName || 'Unlabeled record');
+  return String(data.address || data.entityName || data.obligorRef || data.familyName || data.displayName || 'Unlabeled record');
+}
+
+/**
+ * A CRM follow-up that needs a human today: past due, or a date nobody can
+ * read. Mirrors followUpState() in apps/financial-services-crm/src/crm.ts --
+ * only an exact YYYY-MM-DD is a date, and an unreadable one is never "fine".
+ */
+export function crmFollowUpReason(value: unknown, now = Date.now()): 'overdue' | 'unreadable' | null {
+  if (typeof value !== 'string' || value.trim() === '') return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!m) return 'unreadable';
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const date = new Date(y, mo - 1, d);
+  if (date.getFullYear() !== y || date.getMonth() !== mo - 1 || date.getDate() !== d) return 'unreadable';
+  const today = new Date(now);
+  return date.getTime() < new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() ? 'overdue' : null;
+}
+
+/** Do Not Contact, Withdrawn or suppressed: never put in front of anyone as a call to make. */
+function crmOutreachBlocked(data: Record<string, unknown>): boolean {
+  return (
+    data.consentStatus === 'Do Not Contact' ||
+    data.consentStatus === 'Withdrawn' ||
+    data.operationalLane === 'Suppressed' ||
+    data.contactStatus === 'Suppressed'
+  );
 }
 
 function computeDigest(rows: RecordRow[]): DigestItem[] {
@@ -81,6 +108,14 @@ function computeDigest(rows: RecordRow[]): DigestItem[] {
       if (total > 0 && verified < total) items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Offering readiness ${verified}/${total} professionally verified` });
     }
 
+    if (row.app_id === 'financial-services-crm' && row.record_type === 'FS_CONTACT') {
+      if (data.sensitiveDataPresent === true)
+        items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: 'Flagged as holding sensitive data — move it to a company-approved system' });
+      const reason = crmOutreachBlocked(data) ? null : crmFollowUpReason(data.nextFollowUp);
+      if (reason === 'overdue') items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Follow-up overdue (${String(data.nextFollowUp)})` });
+      if (reason === 'unreadable') items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: 'Follow-up date cannot be read — set a real date' });
+    }
+
     if (row.app_id === 'notes-underwriting') {
       const lienChecklist = arrayValue(data.lienChecklist);
       const total = lienChecklist.length;
@@ -93,8 +128,8 @@ function computeDigest(rows: RecordRow[]): DigestItem[] {
 }
 
 function rowsForUser(user: { sub: string; role: string }): RecordRow[] {
-  const shared = db.prepare(`SELECT id, app_id, owner_id, data_json FROM records WHERE app_id = 'legacy-estate'`).all() as unknown as RecordRow[];
-  const owned = db.prepare(`SELECT id, app_id, owner_id, data_json FROM records WHERE app_id != 'legacy-estate' AND owner_id = ?`).all(user.sub) as unknown as RecordRow[];
+  const shared = db.prepare(`SELECT id, app_id, owner_id, record_type, data_json FROM records WHERE app_id = 'legacy-estate'`).all() as unknown as RecordRow[];
+  const owned = db.prepare(`SELECT id, app_id, owner_id, record_type, data_json FROM records WHERE app_id != 'legacy-estate' AND owner_id = ?`).all(user.sub) as unknown as RecordRow[];
   return [...shared, ...owned];
 }
 

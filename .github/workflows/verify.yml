@@ -42,12 +42,12 @@ jobs:
 
       # Every workspace suite: the kernel, the server (which starts the real app
       # on an ephemeral port and drives it over HTTP), the three apps'
-      # finance.ts, and governance-core's helpers. legacy-estate has no runner,
+      # finance.ts, the CRM's rules and importer, and governance-core's helpers. legacy-estate has no runner,
       # and no component anywhere is covered.
       - name: Workspace test suites
         run: npm test
 
-      # Covers the four apps, the server and the kernel. governance-core has no
+      # Covers the five apps, the server and the kernel. governance-core has no
       # tsconfig of its own and is typechecked transitively through the apps
       # that import its source.
       - name: Type sweep

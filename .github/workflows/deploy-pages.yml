@@ -59,6 +59,11 @@ jobs:
         env:
           VITE_BASE_PATH: /legacy-estate/
 
+      - name: Build financial-services-crm
+        run: npm run build --workspace=apps/financial-services-crm
+        env:
+          VITE_BASE_PATH: /financial-services-crm/
+
       - name: Assemble _site
         run: |
           set -e
@@ -68,6 +73,7 @@ jobs:
           cp -r apps/capital-readiness/dist _site/capital-readiness
           cp -r apps/notes-underwriting/dist _site/notes-underwriting
           cp -r apps/legacy-estate/dist _site/legacy-estate
+          cp -r apps/financial-services-crm/dist _site/financial-services-crm
 
       # Attaching the custom domain is deliberately gated behind a repository
       # Variable rather than a checked-in CNAME file. A CNAME in the artifact
