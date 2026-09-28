@@ -1,0 +1,68 @@
+{
+  "handoff_id": "ho_0004",
+  "correlation_id": "pending_queue_2026_09_28",
+  "project_id": "prj-pending-queue-2026-09-28",
+  "task_id": "tsk_0005",
+  "parent_task_id": null,
+  "sender": "CLAUDE_CODE",
+  "recipient": "CLAUDE_CODE",
+  "lane": "PERSONAL",
+  "entity": "Private Administrator - own task tooling",
+  "capacity": "Private Administrator",
+  "risk_tier": "R2",
+  "objective": "Make the task workspace show real work: triage every open task read-only, propose a disposition for each, and prepare a gated script for the bulk changes.",
+  "current_state": "Read-only triage is authorized by the principal's 2026-09-28 governance ('start now, nothing archived until approved'). The 2026-09-28 sweep through the ClickUp connector returned well over 300 open tasks across three paged queries without exhausting pagination, so the true count is UNKNOWN. Two clusters dominate: daily and weekly cadence instances generated automatically since early September and never closed, and a batch of 200+ undated content-slot tasks created on 2026-09-28 inside a list whose parent folder was retired on 2026-09-10. The connector exposes no bulk operator (clickup_get_operators returned none enabled), so each change is one API call; that is why this is Code work rather than connector work.",
+  "verified_facts": [
+    "clickup_get_operators returned 'Enabled operators: none' on 2026-09-28",
+    "Two full pages (200 tasks) of a single workspace-wide query were returned with has_more still true",
+    "The content-slot batch carries no due date and no assignee",
+    "The recurring cadence instances date back to early September 2026 and are all in 'to do'"
+  ],
+  "sources": [
+    "clickup_filter_tasks and clickup_get_workspace_hierarchy results, 2026-09-28",
+    "Principal's governance session of 2026-09-28 (decision register item 22 and the 'start now without a ruling' list)"
+  ],
+  "assumptions": [
+    "INFERRED: cadence instances are created by a recurring automation outside ClickUp's own recurrence; which one is UNKNOWN",
+    "INFERRED: the content-slot batch was written by an importer into the retired list by mistake rather than by design"
+  ],
+  "decisions": [
+    "Read-only first. Every write is behind a dry-run manifest and an explicit --apply flag, and the principal approves the manifest list by list",
+    "Close, never delete. A status change is reversible; a deletion is not",
+    "The API token is read from the CLICKUP_API_TOKEN environment variable and is never written to disk in this repository",
+    "The script and its outputs stay out of this public repository; only this non-identifying packet is committed",
+    "The workspace spans several capacities. Triage reads across them but moves no task content between capacities; any relocation that would cross a lane or capacity boundary is marked ASK, which is the express authorization the Council protocol requires"
+  ],
+  "open_questions": [
+    "Where should the content-slot batch live, given the pending ruling on how The Excellence District, H.O.P.E. Dealers and Primerica relate (HDPR-002)?",
+    "Should stale cadence instances be closed, or should the generating automation be stopped first?",
+    "Should the list that serves as the content approval gate be excluded from triage writes entirely? Recommended: yes"
+  ],
+  "risks": [
+    "Closing instances that the Watchdog or a review reads as evidence of activity would change what those reviews report",
+    "A bulk move into the wrong capacity's list is a lane-firewall breach even if it is reversible",
+    "Rate limits: ClickUp throttles bulk calls; the script must back off rather than retry in a tight loop"
+  ],
+  "dependencies": [
+    "A ClickUp personal API token supplied by the principal at run time",
+    "HDPR-002 ruling before the content-slot batch is relocated"
+  ],
+  "required_output": [
+    "Disposition table (local, uncommitted) with a per-cluster summary returned to the principal",
+    "Dry-run script with --apply guard",
+    "A return handoff on this bus stating counts only"
+  ],
+  "human_gate": "Principal approves the dry-run manifest, list by list, before any write. HDPR-002 must be ruled before the content-slot batch moves.",
+  "last_action": "Swept the workspace read-only through the connector, confirmed no bulk operator exists, and scoped the work.",
+  "next_action": "Export every open task via the API to a local file, reconcile the count against 305, then draft the disposition table.",
+  "files_changed": [],
+  "commits": [],
+  "tests_run": [],
+  "test_results": [],
+  "deployment_state": "DESIGNED",
+  "rollback": "Nothing has been written to ClickUp. When writes are later approved, the manifest records each task's prior status and list so every change can be reversed from it.",
+  "lease_owner": "",
+  "lease_expiration": "",
+  "status": "OPEN",
+  "timestamp": "2026-09-28T23:08:02.303Z"
+}

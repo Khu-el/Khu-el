@@ -1,0 +1,27 @@
+{
+  "task_id": "tsk_0005",
+  "parent_task_id": null,
+  "title": "Read-only triage of the task workspace, with a gated cleanup script",
+  "objective": "Separate real open work from auto-generated noise in the principal's task workspace, propose a disposition for every open task, and prepare - but not run - the bulk changes that disposition implies.",
+  "lane": "PERSONAL",
+  "entity": "Private Administrator - own task tooling",
+  "capacity": "Private Administrator",
+  "risk_tier": "R2",
+  "preferred_runtime": "CLAUDE_CODE",
+  "resources": [
+    "ClickUp workspace (system of record, not this repository)"
+  ],
+  "blocked_by": [],
+  "human_gate": "Principal approves the dry-run manifest, list by list, before any status change, move or archive is written. Deletion is out of scope entirely.",
+  "acceptance": [
+    "An exact count of open tasks, reconciled against the 305 the principal's governance cites, with the difference explained",
+    "One proposed disposition per open task: KEEP, CLOSE-STALE-INSTANCE, RELOCATE, MERGE-DUPLICATE or ASK",
+    "The automation that keeps generating daily and weekly cadence instances identified, or marked UNKNOWN - closing instances without fixing the source only postpones the pile",
+    "A dry-run script that prints every change it would make and writes nothing unless run with an explicit --apply flag",
+    "Nothing committed to this public repository that names a list, folder, task or workspace identifier"
+  ],
+  "next_action": "Page every open task through the ClickUp API into a local, uncommitted file, then build the disposition table from it.",
+  "state": "QUEUED",
+  "created_at": "2026-09-28T23:08:02.297Z",
+  "updated_at": "2026-09-28T23:08:02.297Z"
+}
