@@ -1,0 +1,66 @@
+{
+  "handoff_id": "ho_0005",
+  "correlation_id": "pending_queue_2026_09_28",
+  "project_id": "prj-pending-queue-2026-09-28",
+  "task_id": "tsk_0006",
+  "parent_task_id": null,
+  "sender": "CLAUDE_CODE",
+  "recipient": "CLAUDE_CODE",
+  "lane": "LANE_A",
+  "entity": "Neterverse Trust Enterprise (NTE)",
+  "capacity": "Minister / Authorized Representative",
+  "risk_tier": "R2",
+  "objective": "Remove 'Inc.' and 'Corporation' designators attached to unformed Lane A entities wherever a reachable repository publishes or ships them, without asserting any new entity name.",
+  "current_state": "A first-pass search on 2026-09-28 found designators in two places. In this public repository, nte-command-center/seed/governance.json lines 94, 107, 114, 121 and 128 attach 'Inc.' to five Lane A entity names. In the private Khu-el/NTE-Command-Center repository, nte-agent-suite/constants/entities.ts line 17 gives the holding entity a 'Corporation' full name. The two files also disagree with each other on the names themselves, and both differ from the name set the principal holds privately. None of the Lane A entities is formed with the Georgia Secretary of State.",
+  "verified_facts": [
+    "grep over this repository: five 'Inc.' designators in nte-command-center/seed/governance.json (lines 94, 107, 114, 121, 128)",
+    "grep over Khu-el/NTE-Command-Center: one 'Corporation' designator in nte-agent-suite/constants/entities.ts line 17",
+    "Khu-el/Neterverse_DAO: no designator hits. Khu-el/Neterverse and Khu-el/NeterverseDAOBeacon-neterverse-mcp hold a README only",
+    "apps/capital-readiness/src/components/EntityTab.tsx line 14 mentions 'LLC, S-corp, C-corp' as a form-field hint; that is generic guidance, not an entity claim, and is out of scope"
+  ],
+  "sources": [
+    "grep -rnIE over working clones, 2026-09-28",
+    "Principal's standing reminder of 2026-09-10 on corporate designators"
+  ],
+  "assumptions": [
+    "INFERRED: a seed file in a public repository counts as outbound, because the repository is world-readable and its build deploys"
+  ],
+  "decisions": [
+    "Designators only. Canonical names for OPS and MFG are UNRESOLVED in the principal's gate register, so no entity is renamed in this task - that would assert a name the principal has not ruled",
+    "Filed as R2: prepare in full, do not release. A merge here publishes"
+  ],
+  "open_questions": [
+    "Does the principal count seed and constants files as 'outbound', or only customer-facing surfaces?",
+    "Should the two disagreeing name sets be reconciled to one source of truth once the ENTITY-NAMES ruling lands? That is a follow-on task, not this one",
+    "Repositories not reachable from this session (Mental-Alchemy, StructureGen, Marxman_SignalBot, and the NeterverseDAOBeacon organization) are UNKNOWN and need the same search"
+  ],
+  "risks": [
+    "Replacing a name with a different name would itself be a representation; the neutral-form rule exists to avoid that",
+    "The command-center seed may be read by tests that assert exact strings; run them before and after"
+  ],
+  "dependencies": [
+    "Push access to Khu-el/NTE-Command-Center for the second pull request"
+  ],
+  "required_output": [
+    "Full hit list with repository, path and line",
+    "One pull request per affected repository, unmerged",
+    "A return handoff on this bus"
+  ],
+  "human_gate": "Principal approves each pull request before merge.",
+  "last_action": "Ran the designator search across the five reachable repositories and recorded the hits.",
+  "next_action": "Re-run the search, including repositories newly reachable, then make designator-only edits on branch fix/unformed-entity-designators and run each repository's tests.",
+  "files_changed": [],
+  "commits": [],
+  "tests_run": [
+    "grep -rnIE designator search across five reachable repositories"
+  ],
+  "test_results": [
+    "6 designator hits in 2 files across 2 repositories"
+  ],
+  "deployment_state": "DESIGNED",
+  "rollback": "No file has been edited. Each future pull request is a text-only change that reverts cleanly.",
+  "lease_owner": "",
+  "lease_expiration": "",
+  "status": "OPEN",
+  "timestamp": "2026-09-28T23:08:05.077Z"
+}

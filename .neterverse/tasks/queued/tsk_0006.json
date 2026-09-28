@@ -1,0 +1,27 @@
+{
+  "task_id": "tsk_0006",
+  "parent_task_id": null,
+  "title": "Remove corporate designators from unformed Lane A entity names across the repositories",
+  "objective": "Bring every repository reference to the unformed Lane A entities into line with the principal's standing rule of 2026-09-10: no 'Inc.' or 'Corporation' on an organization that has not been incorporated.",
+  "lane": "LANE_A",
+  "entity": "Neterverse Trust Enterprise (NTE)",
+  "capacity": "Minister / Authorized Representative",
+  "risk_tier": "R2",
+  "preferred_runtime": "CLAUDE_CODE",
+  "resources": [
+    "nte-command-center/seed/governance.json",
+    "Khu-el/NTE-Command-Center: nte-agent-suite/constants/entities.ts"
+  ],
+  "blocked_by": [],
+  "human_gate": "Principal approves each pull request before merge. This repository is public and its Pages deploy runs on merge, so a merged change is a publication.",
+  "acceptance": [
+    "A hit list across every reachable repository for Inc, Incorporated, Corp, Corporation and LLC attached to a Lane A entity, with repository, path and line",
+    "Each designator removed or replaced with a neutral form such as '(formation pending)' - no new legal name asserted",
+    "Existing tests and builds for each touched repository still pass, including the command-center vitest suite this repo's command-center.yml runs",
+    "No merge. One pull request per repository, left for the principal"
+  ],
+  "next_action": "Re-run the designator search in every reachable repository, then open branch fix/unformed-entity-designators in each repository with a hit.",
+  "state": "QUEUED",
+  "created_at": "2026-09-28T23:08:05.075Z",
+  "updated_at": "2026-09-28T23:08:05.075Z"
+}
