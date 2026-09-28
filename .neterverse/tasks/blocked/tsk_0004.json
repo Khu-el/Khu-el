@@ -1,0 +1,26 @@
+{
+  "task_id": "tsk_0004",
+  "parent_task_id": null,
+  "title": "Diagnose the failing Validate check on the MCP runtime tool-inventory PR",
+  "objective": "Find why the Validate workflow fails on the pull request titled 'MCP: verify runtime tool inventory' in NeterverseDAOBeacon/demo-repository, and either fix it on a branch or recommend closing the PR, with evidence either way.",
+  "lane": "LANE_A",
+  "entity": "Neterverse Trust Enterprise (NTE)",
+  "capacity": "Minister / Authorized Representative",
+  "risk_tier": "R1",
+  "preferred_runtime": "CLAUDE_CODE",
+  "resources": [
+    "NeterverseDAOBeacon/demo-repository"
+  ],
+  "blocked_by": [],
+  "human_gate": "Principal grants the Claude GitHub App access to the NeterverseDAOBeacon organization, and rules Build Freeze scope. Any merge is the principal's.",
+  "acceptance": [
+    "The two annotations on the latest failed Validate run are quoted verbatim, with the step that produced them",
+    "Root cause stated as KNOWN (reproduced) or INFERRED (reasoned), never mixed",
+    "Either a fix on branch fix/ci-mcp-tool-inventory with a green Validate run, or a written recommendation to close the PR or archive the repository, with the reason",
+    "A handoff packet written back to .neterverse/handoffs/ on this bus"
+  ],
+  "next_action": "Blocked: Two requirements unmet: (1) this session's GitHub credential cannot reach the owning organization, so the repository, workflow and failing annotations are unread; (2) the Build Freeze scope ruling in the principal's Lane A gate register is still RULING REQUIRED, and a runtime tool-inventory check is plausibly OS work that ruling covers.",
+  "state": "BLOCKED",
+  "created_at": "2026-09-28T23:07:39.415Z",
+  "updated_at": "2026-09-28T23:07:39.417Z"
+}
