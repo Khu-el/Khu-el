@@ -1,27 +1,45 @@
 {
-  "as_of": "2026-09-10T23:26:24Z",
-  "note": "DEPLOYED and LIVE_VERIFIED are different states. Nothing reaches LIVE_VERIFIED without evidence that the live surface answered.",
+  "as_of": "2026-09-30T17:50:00Z",
+  "classification": "PUBLIC",
+  "note": "DEPLOYED and LIVE_VERIFIED are different states. Nothing reaches LIVE_VERIFIED without evidence that the live surface answered, and a surface that answers with a broken page is DEPLOYED, not LIVE_VERIFIED.",
   "entries": [
     {
-      "target": "Khu-el/Khu-el web/landing and app builds",
-      "surface": "GitHub Pages via .github/workflows/deploy-pages.yml on push to main",
-      "state": "UNKNOWN",
-      "evidence": "Not checked from this session. The workflow file exists; no run and no live fetch was verified.",
+      "target": "Khu-el/Khu-el web/landing",
+      "surface": "GitHub Pages project site at https://khu-el.github.io/Khu-el/",
+      "state": "LIVE_VERIFIED",
+      "evidence": "Fetched 2026-09-30T17:48Z from this session: HTTP 200, 7456 bytes, <title>NTE Web Apps</title>. Pages is enabled; the deploy workflow's push-to-main runs 15, 16 and 18 concluded success on 2026-09-22 and 2026-09-23.",
+      "lane": "LANE_A"
+    },
+    {
+      "target": "Khu-el/Khu-el app builds (deal-architect, capital-readiness, notes-underwriting, legacy-estate)",
+      "surface": "GitHub Pages project site, one directory per app under https://khu-el.github.io/Khu-el/",
+      "state": "DEPLOYED",
+      "evidence": "Deployed and answering, but the served build is broken. Fetched 2026-09-30T17:48Z: https://khu-el.github.io/Khu-el/deal-architect/ returns HTTP 200 and references /deal-architect/assets/index-B9WO4i6K.js, which returns HTTP 404; the same asset under /Khu-el/deal-architect/assets/ returns HTTP 200. The live apps therefore render blank. Not LIVE_VERIFIED.",
+      "blocked_on": "PR #19 corrected the build base path and merged to main at 2026-09-30T17:43Z, but its deploy run (workflow run #21 of the Deploy web apps to GitHub Pages workflow) was cancelled before the deploy job ran, so the fix is on main and not on the live site. See the workflow note below.",
       "lane": "LANE_A"
     },
     {
       "target": "Khu-el/Khu-el server",
-      "surface": "server/Dockerfile plus fly.toml",
+      "surface": "server/Dockerfile plus fly.toml; planned hostname api.excellencedistrict.org",
       "state": "UNKNOWN",
-      "evidence": "Configuration exists in the repository. No deployment and no health check was observed.",
+      "evidence": "Configuration exists in the repository. Probed 2026-09-30T17:49Z from this session: api.excellencedistrict.org resolved no A or AAAA record and the request did not connect, and apps.excellencedistrict.org resolved no record either. This container's network policy may restrict resolution, so this is evidence that the planned hostnames are not answering here, not proof that no deployment exists anywhere.",
       "lane": "LANE_A"
     },
     {
       "target": "@nte/neterverse-kernel",
       "surface": "Local workspace package; no deployment target",
       "state": "TESTED_LOCALLY",
-      "evidence": "43 tests pass under node --test in this session",
+      "evidence": "98 tests pass under `npm run test:kernel` on main at a6f07e2, run 2026-09-30 in this session. The earlier entry recorded 43, which was the count when the kernel was first committed.",
       "lane": "LANE_A"
+    }
+  ],
+  "workflow_notes": [
+    {
+      "subject": ".github/workflows/deploy-pages.yml",
+      "finding": "The workflow runs on both `pull_request` and `push: main`, and declares `concurrency: {group: pages, cancel-in-progress: true}`. A pull-request run therefore cancels an in-flight main deploy, although a pull-request run never deploys (its deploy job is gated on `github.event_name != 'pull_request'`). Run #21, the main deploy carrying PR #19's base-path fix, was cancelled this way two minutes after it started.",
+      "evidence": "Workflow file on main at a6f07e2; run #21 concluded `cancelled` at 2026-09-30T17:44:01Z, with pull-request runs #22 and #23 starting at 17:43:54Z and 17:45:29Z. Run numbers rather than run identifiers: the audit rule that protects this public repository cannot tell a nine-digit Actions run id from a workspace or record id, and it is right not to try.",
+      "status": "REPORTED_NOT_ACTED",
+      "reason": "Changing when this workflow publishes to a public website is a publish decision under the approval boundary, and the file is being actively edited by another contributor. Recorded here for the principal rather than pushed."
     }
   ]
 }
