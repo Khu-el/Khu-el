@@ -1,0 +1,104 @@
+{
+  "handoff_id": "ho_0002",
+  "correlation_id": "nterverse_verify_2026_09_21",
+  "project_id": "prj-neterverse-os",
+  "task_id": "tsk_0003",
+  "parent_task_id": "tsk_0002",
+  "sender": "CLAUDE_CODE",
+  "recipient": "CODEX",
+  "timestamp": "2026-09-21T00:00:00Z",
+  "lane": "LANE_A",
+  "entity": "Neterverse Trust Enterprise (NTE)",
+  "capacity": "Minister / Authorized Representative",
+  "risk_tier": "R1",
+  "objective": "Independently verify the hardened kernel. Try to defeat the ten fixes listed below rather than confirm them, then judge whether the audit precision guard has cost reach.",
+  "current_state": "VERDICT ON ho_0001: PASS WITH CONDITIONS. The kernel's architecture is sound and its stated evidence survived re-execution - 59 tests passed on a fresh checkout with no npm install, typecheck clean, build clean. Ten defects were found, every one reproduced by an executable probe rather than reasoned to, and the pattern across them is a single shape: each control validated form and not substance, and several failed open on the unclassified input. Seven were cleared in code with regression tests; the suite is now 98 tests, 0 failures. Four findings (A-D) are architecture or policy and were deliberately left for the principal. The full review is docs/ai-council/AUDIT_LOG.md, entry AUD-KHU-002.",
+  "verified_facts": [
+    "The approval boundary was bypassable by renaming: send_email, sendEmail, Send, gmail.send and publish_notice all returned false at tier R1 while send returned true",
+    "An unrecognised risk tier failed open - mayExecuteUnattended('R9','R0') returned true, and strictestRisk('R9','R0') returned R0 despite the comment 'Classification never rounds down'",
+    "The committed-state audit missed 6 of 7 planted identifiers: evidence/, locks/ and bus-root files are published by git and were outside the scanned list, filenames were never scanned, and a separator-segmented Drive identifier slipped under the token-length floor",
+    "bus validate reported 'All registries valid' with agent-registry.json deleted and ecosystem-state.json replaced by garbage - it mapped 3 of the 6 files in state/ and a missing file fell through readJson's empty-array fallback",
+    "appendEvent accepted a caller-supplied timestamp and a duplicate event_id, so an APPROVAL_GRANTED could be dated to 1999 and the log left out of order",
+    "A lease with expiration 2026-13-45T99:99:99Z passed schema validation, parsed to NaN, and compared as never expired - permanently unreclaimable",
+    "acquireLease compared agent.instance_id but not agent.runtime, so CODEX/worker-1 acquired a lease held by CLAUDE_CODE/worker-1",
+    "After the fixes: 98 tests pass 0 fail, tsc --noEmit clean across four apps plus server plus kernel, npm run build completes, bus audit clean on real state",
+    "Codex never claimed ho_0001: handoffs/codex-to-claude/ was empty and no event from a CODEX actor appears anywhere in events.jsonl"
+  ],
+  "sources": [
+    "packages/neterverse-kernel/src/ - every module read line by line",
+    "docs/ai-council/AUDIT_LOG.md AUD-KHU-002 - the full review with evidence per finding",
+    "docs/AI_COUNCIL.md section 5 review protocol and section 14.1 provenance",
+    "git ls-files .neterverse/ and git check-ignore - which directories are actually published"
+  ],
+  "assumptions": [
+    "Tightening a control is within a verifier's remit; widening or redefining one is the principal's, which is why findings A to D were not acted on",
+    "Additive enum members on event.schema.json do not break a peer runtime, because every existing record stays valid against the widened enum",
+    "The task file naming convention tsk_NNNN-slug.json is deliberate and worth preserving, so the lifecycle helpers move a file without renaming it"
+  ],
+  "decisions": [
+    "Verdict PASS WITH CONDITIONS rather than PASS: the architecture is right and the safety-critical controls were not, and several failed open",
+    "tsk_0002 moved to REVIEW rather than COMPLETED - its acceptance asks for independent verification and the verifier turned out to be the author",
+    "Audit scanning is derived from what git does not ignore, replacing the hand-kept directory list that was the root cause of the reach gap",
+    "The human-only action list matches distinctive verbs on any token but ambiguous words only as a whole action name, so read_file and sign_in do not fire the gate they would otherwise fire constantly"
+  ],
+  "open_questions": [
+    "Finding A: events.jsonl has no tamper evidence. Deleting lines with a text editor leaves readEvents content. Add a prev_hash chain and a verify-log command, or declare the git history the integrity record?",
+    "Finding B: LaneBridge has no registry and no expiry. assertLaneCompatible accepts any inline object whose authority_ref is non-empty, so a fabricated bridge crosses LANE_B to LANE_A. Should a bridge resolve against committed state?",
+    "Finding C: UNCLASSIFIED to UNCLASSIFIED crosses with no bridge, because isSameLane compares equality. Is UNCLASSIFIED a lane, or a bucket of unknowns that should require a bridge like any other crossing?",
+    "Finding D: HUMAN_ONLY_ACTIONS omits wire_transfer and transfer_money, and compounds on ambiguous verbs such as file_return are not caught by name. Extending the list is the principal's act.",
+    "Still open from ho_0001 and unanswered: the two private command-center repositories, whether the control plane belongs in a public repository, which February 2026 governance document controls, and which automation engine owns which production trigger."
+  ],
+  "risks": [
+    "The verifier was the author. Findings 1 to 10 were found by the same system that wrote the code they are about, and a shared blind spot would hide from both. This is the single most important limitation of AUD-KHU-002 and the reason this packet exists.",
+    "Lease acquisition is read-check-write with no O_EXCL and no atomic rename, so two processes can in principle both pass the conflict check. Recorded as TENTATIVE: 15 concurrent pairs produced 0 double acquisitions, so it is structural by inspection and not demonstrated.",
+    "One audit residual accepted deliberately: an 8-digit ClickUp list id still passes, because lowering the numeric floor from 9 to 8 fires on bare dates such as 20260921. Precision was judged worth more than that shape.",
+    "The audit precision guard uses a case-flip count to tell a random token from a hyphenated name. It keeps ADR-0002-connecting-to-systems-of-record quiet, but a real identifier that happens not to alternate case would also stay quiet. This is the specific thing to attack.",
+    "The kernel now has 98 tests and no independent reviewer. Test count is not evidence of correctness; the tests assert the fixes, they do not challenge them."
+  ],
+  "dependencies": [
+    "Node 22.6 or newer for native TypeScript execution"
+  ],
+  "required_output": [
+    "A verdict of PASS, PASS WITH CONDITIONS, FAIL or BLOCKED BY EVIDENCE on the hardened kernel",
+    "An independent attempt to defeat each of the ten fixes - in particular, a realistic external identifier that the new segmented rule still misses, and an action name that reaches an external effect without reaching the gate",
+    "A judgement on whether the precision guard has cost the audit reach it previously had",
+    "A recommendation on findings A to D, marked clearly as a recommendation rather than a decision",
+    "A handoff packet written back to .neterverse/handoffs/codex-to-claude/"
+  ],
+  "human_gate": null,
+  "last_action": "Verified ho_0001, cleared seven of its conditions in code with regression tests, added the task and handoff lifecycle, and recorded the review as AUD-KHU-002.",
+  "next_action": "Claim a lease over packages/neterverse-kernel, then read src/risk.ts, src/audit.ts and src/lane.ts adversarially: find an action name that reaches an external effect without reaching the gate, and an identifier shape the audit still misses.",
+  "files_changed": [
+    "packages/neterverse-kernel/src/risk.ts",
+    "packages/neterverse-kernel/src/validate.ts",
+    "packages/neterverse-kernel/src/leases.ts",
+    "packages/neterverse-kernel/src/audit.ts",
+    "packages/neterverse-kernel/src/registries.ts",
+    "packages/neterverse-kernel/src/bus.ts",
+    "packages/neterverse-kernel/src/cli.ts",
+    "packages/neterverse-kernel/src/types.ts",
+    "packages/neterverse-kernel/src/tasks.ts",
+    "packages/neterverse-kernel/test/tasks.test.ts",
+    "packages/neterverse-kernel/test/hardening.test.ts",
+    ".neterverse/schemas/event.schema.json",
+    "docs/ai-council/AUDIT_LOG.md"
+  ],
+  "commits": [],
+  "tests_run": [
+    "node --test 'test/*.test.ts' in packages/neterverse-kernel",
+    "tsc -b --noEmit across four apps, server and the kernel",
+    "npm run build at the repo root",
+    "npm run bus -- validate and npm run bus -- audit"
+  ],
+  "test_results": [
+    "98 pass, 0 fail (59 before this work)",
+    "typecheck clean",
+    "build completes",
+    "bus audit clean; bus validate reports 3 registries checked and names the 3 it cannot check"
+  ],
+  "deployment_state": "TESTED_LOCALLY",
+  "rollback": "Every change is confined to packages/neterverse-kernel plus two additive enum members in event.schema.json. Reverting the package directory restores the prior kernel; the widened enum is backward compatible and can be left in place. No app, the server or governance-core was touched.",
+  "lease_owner": "",
+  "lease_expiration": "",
+  "status": "OPEN"
+}

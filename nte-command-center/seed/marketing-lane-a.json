@@ -1,0 +1,88 @@
+{
+  "imprintNote": "Enterprise instance of module 04. This file shares no key with seed/marketing-practice.json, at any level — the two instances share code and never data. Calendar slots, asset states and ledger entries that are not in this workspace are UNKNOWN rather than filled.",
+
+  "imprintCalendar": {
+    "cadenceLabel": "Four-week publication window",
+    "columns": [
+      { "weekLabel": "Week 1", "slotList": [] },
+      { "weekLabel": "Week 2", "slotList": [] },
+      { "weekLabel": "Week 3", "slotList": [] },
+      { "weekLabel": "Week 4", "slotList": [] }
+    ],
+    "columnNote": "No scheduled slots are in this workspace. Four empty weeks is the honest state of a calendar nobody has filled; four invented posts would read as a running programme."
+  },
+
+  "imprintAssets": [
+    {
+      "assetRef": "PUB-001",
+      "assetName": "Neterverse Publishing",
+      "assetKind": "Imprint",
+      "assetImprint": "House",
+      "assetPalette": "enterprise",
+      "assetState": "UNKNOWN",
+      "assetRemark": "The publishing house itself. Catalog, releases and rights position are not in this workspace."
+    },
+    {
+      "assetRef": "PUB-002",
+      "assetName": "The Opportunity Architect",
+      "assetKind": "Imprint",
+      "assetImprint": "Opportunity Architect",
+      "assetPalette": "imprint",
+      "assetState": "UNKNOWN",
+      "assetRemark": "Carries its own palette — drafting-paper grey-green, survey ink, parcel teal. It does not inherit the enterprise navy and gold, and the token block it uses is its own rather than a variant."
+    },
+    {
+      "assetRef": "SLS-001",
+      "assetName": "Sales Bible",
+      "assetKind": "Book",
+      "assetImprint": "House",
+      "assetPalette": "enterprise",
+      "assetState": "UNKNOWN",
+      "assetRemark": "Head of the sales line. Build state not observable from this workspace."
+    },
+    {
+      "assetRef": "SLS-002",
+      "assetName": "Field Edition",
+      "assetKind": "Book",
+      "assetImprint": "House",
+      "assetPalette": "enterprise",
+      "assetState": "DRAFT",
+      "assetRemark": "Carried as NTE-SLS-2026-FIELD-001 in the release register at eight of nine gate points. The ten stage gates it defines drive the pipeline board in module 09."
+    },
+    {
+      "assetRef": "MOD-001",
+      "assetName": "48 Models deck",
+      "assetKind": "Deck",
+      "assetImprint": "Opportunity Architect",
+      "assetPalette": "imprint",
+      "assetState": "UNKNOWN",
+      "assetRemark": "Forty-eight models. Whether the deck is complete is not observable from this workspace."
+    },
+    {
+      "assetRef": "MOD-002",
+      "assetName": "Opportunity Model Selector",
+      "assetKind": "Tool",
+      "assetImprint": "Opportunity Architect",
+      "assetPalette": "imprint",
+      "assetState": "UNKNOWN",
+      "assetRemark": "Carried in the application register in module 05, where its build state is also UNKNOWN. The two rows agree because neither claims anything."
+    }
+  ],
+
+  "imprintLedger": [
+    {
+      "pubRef": "PL-000",
+      "pubDate": "UNKNOWN",
+      "pubChannel": "UNKNOWN",
+      "pubEntry": "No publication is recorded. Authoring a book is not publishing it, and this ledger records the second thing only."
+    }
+  ],
+
+  "imprintPalette": {
+    "paletteName": "Opportunity Architect",
+    "paletteSelector": "[data-imprint=\"opportunity-architect\"]",
+    "paletteNote": "Its own token block in src/ui/tokens.css, sharing no colour value with the enterprise palette. If it needed a navy or a gold it would be a variant of something else, which is what this block exists to prevent."
+  },
+
+  "imprintMeterLabel": "Outbound contacts this week"
+}

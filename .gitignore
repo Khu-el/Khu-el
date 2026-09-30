@@ -12,3 +12,13 @@ server/uploads/*
 .env
 .env.*
 !.env.example
+
+# Live control-plane observations. These carry account, workspace and file
+# identifiers and record content. This repository is public, so they are never
+# committed; `npm run bus -- audit` verifies the boundary held.
+.neterverse/live/
+
+# Assembled Claude Project knowledge bundles. Copies of files that already live
+# in these repositories, reassembled for upload -- committing them would create a
+# second copy that goes stale silently. Rebuild with `npm run projects:build`.
+build/

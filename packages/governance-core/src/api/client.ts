@@ -105,8 +105,10 @@ export async function apiPostBlob(path: string, body: unknown): Promise<Blob> {
 }
 
 export function apiDownloadUrl(path: string) {
-  // Downloads happen via <a href>, which can't set an Authorization header,
-  // so we pass the token as a query param the server also accepts for this one route.
+  // Downloads happen via <a href>, which can't set an Authorization header, so
+  // the token goes in the query string. The server accepts it on the file
+  // download route and nowhere else -- `npm run check:query-token` enforces
+  // that -- so do not reach for this helper to reach any other endpoint.
   const token = getToken();
   return `${getApiBaseUrl()}${path}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
 }

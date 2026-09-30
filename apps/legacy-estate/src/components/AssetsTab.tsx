@@ -1,4 +1,4 @@
-import { AssertionStatusBadge, Button, Card, NumberInput, Select, TextInput, newId } from '@nte/governance-core';
+import { AssertionStatusBadge, Button, Card, NumberInput, Select, TextInput, newId, fromInputValue, toInputValue } from '@nte/governance-core';
 import type { AssertionStatus, Lane } from '@nte/governance-core';
 import type { AssetItem, Estate } from '../types';
 
@@ -31,7 +31,7 @@ export function AssetsTab({ estate, onChange }: { estate: Estate; onChange: (e: 
   const add = () =>
     setAssets([
       ...assets,
-      { id: newId('asset'), name: '', assetType: 'REAL_PROPERTY', titledOwner: '', lane: 'UNCLASSIFIED', assertionStatus: 'UNCLASSIFIED', evidenceNote: '', estimatedValue: 0 },
+      { id: newId('asset'), name: '', assetType: 'REAL_PROPERTY', titledOwner: '', lane: 'UNCLASSIFIED', assertionStatus: 'UNCLASSIFIED', evidenceNote: '', estimatedValue: null },
     ]);
   const update = (id: string, patch: Partial<AssetItem>) => setAssets(assets.map((a) => (a.id === id ? { ...a, ...patch } : a)));
   const remove = (id: string) => setAssets(assets.filter((a) => a.id !== id));
@@ -46,7 +46,7 @@ export function AssetsTab({ estate, onChange }: { estate: Estate; onChange: (e: 
             </div>
             <Select value={a.assetType} onChange={(v) => update(a.id, { assetType: v as AssetItem['assetType'] })} options={TYPE_OPTIONS} />
             <TextInput placeholder="Titled owner" value={a.titledOwner} onChange={(e) => update(a.id, { titledOwner: e.target.value })} />
-            <NumberInput placeholder="Est. value" value={a.estimatedValue || ''} onChange={(e) => update(a.id, { estimatedValue: Number(e.target.value) })} />
+            <NumberInput placeholder="Est. value" value={toInputValue(a.estimatedValue)} onChange={(e) => update(a.id, { estimatedValue: fromInputValue(e.target.value) })} />
             <Button variant="danger" onClick={() => remove(a.id)}>
               Remove
             </Button>

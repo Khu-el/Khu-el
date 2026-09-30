@@ -46,10 +46,10 @@ export function useAuth() {
     }
   }, []);
 
-  const register = useCallback(async (email: string, password: string, displayName: string, role: Role, inviteCode: string) => {
+  const register = useCallback(async (email: string, password: string, displayName: string, inviteCode: string) => {
     setError(null);
     try {
-      const res = await api.post<AuthResponse>('/api/auth/register', { email, password, displayName, role, inviteCode }, { auth: false });
+      const res = await api.post<AuthResponse>('/api/auth/register', { email, password, displayName, inviteCode }, { auth: false });
       setToken(res.token);
       setUser(res.user);
       return true;
@@ -64,7 +64,7 @@ export function useAuth() {
     setUser(null);
   }, []);
 
-  const updateProfile = useCallback(async (patch: { displayName?: string; role?: Role }) => {
+  const updateProfile = useCallback(async (patch: { displayName?: string }) => {
     try {
       const res = await api.patch<{ user: ApiUser }>('/api/auth/me', patch);
       setUser(res.user);

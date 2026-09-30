@@ -1,11 +1,16 @@
 name: Deploy web apps to GitHub Pages
 
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch: {}
 
 permissions:
+  # deploy-pages looks up this run's artifact through the Actions API. Once a
+  # workflow lists its permissions, every unlisted one is none, so it has to be
+  # granted here explicitly.
+  actions: read
   contents: read
   pages: write
   id-token: write
@@ -19,14 +24,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Set this as a repository Variable (Settings > Secrets and variables >
-      # Actions > Variables) once the backend is deployed, e.g.
-      # https://your-chosen-app-name.fly.dev -- until then the built apps
-      # fall back to http://localhost:4000 and will just show "offline".
+      # Actions > Variables) once the backend is deployed. The planned value is
+      # https://api.excellencedistrict.org -- see docs/DOMAIN_NETWORK.md. Until
+      # it is set, the built apps fall back to http://localhost:4000 and will
+      # just show "offline".
       VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -63,18 +69,41 @@ jobs:
           cp -r apps/notes-underwriting/dist _site/notes-underwriting
           cp -r apps/legacy-estate/dist _site/legacy-estate
 
-      - uses: actions/configure-pages@v5
+      # Attaching the custom domain is deliberately gated behind a repository
+      # Variable rather than a checked-in CNAME file. A CNAME in the artifact
+      # takes effect the moment it deploys -- if the DNS record does not exist
+      # yet, that moves the site off khu-el.github.io and serves nothing in its
+      # place. Set PAGES_CUSTOM_DOMAIN to apps.excellencedistrict.org only
+      # AFTER the CNAME row resolves. See docs/DOMAIN_NETWORK.md.
+      - name: Attach custom domain
+        if: vars.PAGES_CUSTOM_DOMAIN != ''
+        # Passed through the environment rather than interpolated into the
+        # script, and checked to be a bare hostname, so a stray space, scheme
+        # or quote in the variable fails the run instead of shipping a CNAME
+        # GitHub will not accept.
+        env:
+          PAGES_CUSTOM_DOMAIN: ${{ vars.PAGES_CUSTOM_DOMAIN }}
+        run: |
+          set -euo pipefail
+          if ! printf '%s' "$PAGES_CUSTOM_DOMAIN" | grep -Eq '^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$'; then
+            echo "::error::PAGES_CUSTOM_DOMAIN must be a bare hostname such as apps.excellencedistrict.org."
+            exit 1
+          fi
+          printf '%s\n' "$PAGES_CUSTOM_DOMAIN" > _site/CNAME
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
   deploy:
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

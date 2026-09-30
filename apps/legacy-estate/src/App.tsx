@@ -39,13 +39,13 @@ const TABS = [
 export default function App() {
   return (
     <AuthGate appName="Legacy & Estate Coordination">
-      {({ user, logout }) => <LegacyEstate userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} onLogout={logout} />}
+      {({ user, logout }) => <LegacyEstate userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} userId={user.id} onLogout={logout} />}
     </AuthGate>
   );
 }
 
-function LegacyEstate({ userLabel, onLogout }: { userLabel: string; onLogout: () => void }) {
-  const { records: estates, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<EstateData>('legacy-estate', 'ccrlt-legacy-estate:estates', true);
+function LegacyEstate({ userLabel, userId, onLogout }: { userLabel: string; userId: string; onLogout: () => void }) {
+  const { records: estates, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<EstateData>('legacy-estate', 'ccrlt-legacy-estate:estates', true, userId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState('overview');
   const [newName, setNewName] = useState('');

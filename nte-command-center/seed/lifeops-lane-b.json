@@ -1,0 +1,112 @@
+{
+  "houseNote": "Household instance of module 08. Shares no key with the enterprise instance. Standing task rows ship empty where the source register is not in this workspace.",
+  "houseSystemsOfRecord": [
+    {
+      "recordDomain": "Household scheduling",
+      "recordSystem": "Google Calendar"
+    },
+    {
+      "recordDomain": "Household documents",
+      "recordSystem": "Google Drive"
+    }
+  ],
+  "houseSystemsNote": "One domain, one system, on this side too. The household keeps its own copies of nothing.",
+  "houseDomains": [
+    {
+      "areaRef": "H-1",
+      "areaName": null,
+      "areaTool": null,
+      "areaNumbersBarred": false
+    },
+    {
+      "areaRef": "H-2",
+      "areaName": null,
+      "areaTool": null,
+      "areaNumbersBarred": false
+    },
+    {
+      "areaRef": "H-3",
+      "areaName": null,
+      "areaTool": null,
+      "areaNumbersBarred": false
+    },
+    {
+      "areaRef": "H-4",
+      "areaName": null,
+      "areaTool": null,
+      "areaNumbersBarred": false
+    },
+    {
+      "areaRef": "H-5",
+      "areaName": "Health and training",
+      "areaTool": null,
+      "areaNumbersBarred": true,
+      "areaCadence": "Daily",
+      "areaNote": "A name and a cadence. Nothing else belongs in this console."
+    },
+    {
+      "areaRef": "H-6",
+      "areaName": null,
+      "areaTool": null,
+      "areaNumbersBarred": false
+    },
+    {
+      "areaRef": "H-7",
+      "areaName": null,
+      "areaTool": null,
+      "areaNumbersBarred": false
+    },
+    {
+      "areaRef": "H-8",
+      "areaName": null,
+      "areaTool": null,
+      "areaNumbersBarred": false
+    }
+  ],
+  "houseDomainsNote": "Eight areas. Seven names and every tool assignment are awaiting source.",
+  "houseCadences": [
+    "Daily",
+    "Weekly",
+    "Bi-weekly",
+    "Monthly",
+    "Quarterly"
+  ],
+  "houseTasks": [
+    {
+      "jobRef": "HS-01",
+      "jobName": null,
+      "jobCadence": null,
+      "jobRunTimes": null,
+      "jobOwner": null
+    },
+    {
+      "jobRef": "HS-02",
+      "jobName": null,
+      "jobCadence": null,
+      "jobRunTimes": null,
+      "jobOwner": null
+    },
+    {
+      "jobRef": "HS-03",
+      "jobName": null,
+      "jobCadence": null,
+      "jobRunTimes": null,
+      "jobOwner": null
+    },
+    {
+      "jobRef": "HS-04",
+      "jobName": null,
+      "jobCadence": null,
+      "jobRunTimes": null,
+      "jobOwner": null
+    }
+  ],
+  "houseTasksNote": "Four slots recorded on this side. Their content is not in this workspace.",
+  "houseCollision": {
+    "clashTitle": "S-01 means two different things",
+    "clashDetail": "The standing task register and a separate series both use S-01 onward. The collision is the same one the enterprise instance carries; it is shown here because a reference made on this side resolves against the same ambiguous set.",
+    "clashConsequence": "A reference that resolves to the wrong one looks like it resolved correctly.",
+    "clashResolution": "A renaming decision, made once, applied to both. Not made here.",
+    "clashState": "OPEN"
+  }
+}

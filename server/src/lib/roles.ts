@@ -17,6 +17,10 @@ export type Role = (typeof ROLES)[number];
 export const APP_IDS = ['deal-architect', 'capital-readiness', 'notes-underwriting', 'legacy-estate'] as const;
 export type AppId = (typeof APP_IDS)[number];
 
+export function isRole(role: string): role is Role {
+  return (ROLES as readonly string[]).includes(role);
+}
+
 /** legacy-estate is a shared single-family workspace; the other three are private per user. */
 export function isSharedApp(appId: string) {
   return appId === 'legacy-estate';

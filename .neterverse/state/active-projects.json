@@ -1,0 +1,44 @@
+{
+  "as_of": "2026-09-21T00:00:00Z",
+  "classification": "PUBLIC",
+  "note": "Project status only. Commercial and family-lane detail stays in its private system of record.",
+  "entries": [
+    {
+      "project_id": "prj-neterverse-os",
+      "name": "Neterverse OS - autonomous operations infrastructure",
+      "purpose": "One lane-aware control plane connecting identity, governance, knowledge, projects, AI, automation, software, evidence and approvals",
+      "lane": "LANE_A",
+      "entity": "NTE",
+      "status": "ACTIVE",
+      "owner": "principal",
+      "repositories": [
+        "Khu-el/Khu-el"
+      ],
+      "current_slice": "Kernel verification and the task lifecycle",
+      "state": "TESTED_LOCALLY",
+      "next_actions": [
+        "Decide findings A to D in AUD-KHU-002: event-log tamper evidence, a bridge registry, what UNCLASSIFIED means at a lane boundary, and whether to extend the human-only action list",
+        "Independent verification of the hardened kernel by a runtime that did not write it - tsk_0003 / ho_0002",
+        "Review the two private command-center repositories before building any further control-plane surface",
+        "Decide whether the control plane belongs in a public repository or a private one",
+        "Assign one owning automation engine per production trigger and write path"
+      ]
+    },
+    {
+      "project_id": "prj-commercial-release-wave-1",
+      "name": "First digital product release wave",
+      "purpose": "Bring the first product wave to a defensible commercial release",
+      "lane": "LANE_A",
+      "entity": "Operator attribution unresolved",
+      "status": "HOLD",
+      "owner": "principal",
+      "repositories": [],
+      "current_slice": "Evidence closure on the open gates",
+      "state": "BLOCKED",
+      "next_actions": [
+        "Close the open evidence gates per the checklist held in Drive"
+      ],
+      "note": "Referenced here only so the control plane knows this project exists and is on HOLD. Google Drive is the system of record; no gate detail, identifier or product name is duplicated into this public repository."
+    }
+  ]
+}

@@ -4,6 +4,7 @@ const CONFIG: Record<SyncStatusValue, { label: string; className: string }> = {
   idle: { label: '', className: '' },
   syncing: { label: 'Syncing…', className: 'text-neutral-400' },
   synced: { label: 'Synced', className: 'text-emerald-600' },
+  pending: { label: 'Unsynced changes — saved on this device, will retry', className: 'text-amber-600' },
   offline: { label: 'Offline — showing last saved copy', className: 'text-amber-600' },
 };
 

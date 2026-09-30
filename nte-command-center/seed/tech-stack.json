@@ -1,0 +1,178 @@
+{
+  "_note": "Seed only. Where a build status is not observable from this workspace it is UNKNOWN, not inferred. External-request counts are not seeded at all — the only count in this module comes from scripts/check-network.mjs, and it covers this repository alone. Document codes marked provisional were assigned by this console and are not carried from the source register.",
+
+  "securityHold": {
+    "id": "SH-01",
+    "docCode": "NTE-TECH-2026-SECHOLD-001",
+    "title": "Plaintext credential file in the synced vault",
+    "raisedBy": "NTE-GOV-2026-CANON-001",
+    "raised": "2026-08-12",
+    "condition": "Q-16",
+    "statement": "A file containing credentials in plaintext is present in a vault that syncs. Every device holding that sync holds the credentials, and every historical version of the sync holds them too. Rotation is required before removal, because deleting the file does not invalidate what it contained.",
+    "remediation": [
+      "Rotate every credential the file contains, at the issuing service.",
+      "Remove the file from the vault and from the sync provider's version history.",
+      "Confirm no other copy exists in a backup, an export, or a second device.",
+      "Move the credentials to a purpose-built store outside this repository. This console does not hold credentials and must never be given that job."
+    ],
+    "proof": null
+  },
+
+  "applications": [
+    {
+      "id": "console-a",
+      "docCode": "NTE-CTRL-2026-SURFACE-DET-001-A",
+      "title": "Enterprise console",
+      "surface": "lane-a",
+      "status": "UNKNOWN",
+      "externalRequests": null,
+      "notes": "Determined by the surface determination as one of two consoles, not fifteen. Build status not observable from this workspace."
+    },
+    {
+      "id": "console-b",
+      "docCode": "NTE-CTRL-2026-SURFACE-DET-001-B",
+      "title": "Household console",
+      "surface": "lane-b",
+      "status": "UNKNOWN",
+      "externalRequests": null,
+      "notes": "Second of the two determined consoles. Build status not observable from this workspace."
+    },
+    {
+      "id": "reference-dashboard",
+      "docCode": "NTE-TECH-2026-REFDASH-001",
+      "title": "Reference dashboard",
+      "surface": "lane-a",
+      "status": "UNKNOWN",
+      "externalRequests": null,
+      "docCodeProvisional": true,
+      "notes": "Named in the application inventory. Neither its source nor its hosting is in this workspace."
+    },
+    {
+      "id": "model-selector",
+      "docCode": "NTE-TECH-2026-MODELSEL-001",
+      "title": "Opportunity Model Selector",
+      "surface": "lane-a",
+      "status": "UNKNOWN",
+      "externalRequests": null,
+      "docCodeProvisional": true,
+      "notes": "Belongs to the 48 Models line in module 04. Build status not observable from this workspace."
+    },
+    {
+      "id": "desk-interface",
+      "docCode": "NTE-TECH-2026-DESK18-001",
+      "title": "18-desk interface",
+      "surface": "lane-a",
+      "status": "UNKNOWN",
+      "externalRequests": null,
+      "docCodeProvisional": true,
+      "notes": "Single-page interface covering eighteen desks. Build status not observable from this workspace."
+    },
+    {
+      "id": "ccenter",
+      "docCode": "NTE-TECH-2026-CCENTER-001",
+      "title": "This console",
+      "surface": "lane-a · lane-b · practice",
+      "status": "PARTIAL",
+      "externalRequests": "MEASURED",
+      "notes": "The only application in this register whose source is in this workspace, and therefore the only one whose external-request count is a measurement rather than a claim."
+    }
+  ],
+
+  "unifiedOs": {
+    "docCode": "NTE-TECH-2026-UNIOS-V2-001",
+    "title": "Unified OS V2",
+    "canonicalSource": {
+      "determination": "The in-thread build of 24 April is the canonical source. Later copies are not.",
+      "serverFiles": 38,
+      "clientFiles": "65+",
+      "schema": "Prisma, 35 tables",
+      "cicd": "Present in the canonical source",
+      "verified": "UNKNOWN"
+    },
+    "steps": [
+      {
+        "id": "UOS-1",
+        "title": "Export to a private repository and take a hash baseline",
+        "why": "An in-thread build has no history and no integrity check. Until it is exported and hashed there is nothing to deploy from and no way to tell later whether what was deployed is what was determined canonical.",
+        "proof": null
+      },
+      {
+        "id": "UOS-2",
+        "title": "Deploy",
+        "why": "Deployment asserts an external event. It is unreachable until the export carries proof, because deploying an unhashed in-thread build is how a canonical source is quietly replaced by a copy of itself.",
+        "requires": "UOS-1",
+        "proof": null
+      }
+    ]
+  },
+
+  "repoHealth": {
+    "cadence": "Bi-weekly",
+    "lastRun": "UNKNOWN",
+    "checks": [
+      "Build status",
+      "Dependency updates",
+      "Activation priority",
+      "Tech debt"
+    ],
+    "repositories": [
+      {
+        "id": "repo-ccenter",
+        "name": "This console",
+        "buildStatus": "PASSING",
+        "dependencyUpdates": "UNKNOWN",
+        "activationPriority": "Active — in build",
+        "techDebt": "Nine of eleven modules were stubs at the start of this build.",
+        "note": "The only row here that is observed. Build status means the three checks and the test suite pass in this workspace."
+      },
+      {
+        "id": "repo-unios",
+        "name": "Unified OS V2",
+        "buildStatus": "UNKNOWN",
+        "dependencyUpdates": "UNKNOWN",
+        "activationPriority": "Blocked on export and hash baseline",
+        "techDebt": "UNKNOWN",
+        "note": "No repository exists yet. That is the first step of the gate above, not a health finding."
+      },
+      {
+        "id": "repo-console-a",
+        "name": "Enterprise console",
+        "buildStatus": "UNKNOWN",
+        "dependencyUpdates": "UNKNOWN",
+        "activationPriority": "UNKNOWN",
+        "techDebt": "UNKNOWN",
+        "note": "Awaiting source. Not in this workspace."
+      },
+      {
+        "id": "repo-console-b",
+        "name": "Household console",
+        "buildStatus": "UNKNOWN",
+        "dependencyUpdates": "UNKNOWN",
+        "activationPriority": "UNKNOWN",
+        "techDebt": "UNKNOWN",
+        "note": "Awaiting source. Not in this workspace."
+      }
+    ]
+  },
+
+  "defects": [
+    {
+      "id": "D-01",
+      "title": "File-ID collision",
+      "severity": "open",
+      "detail": "One file identifier is recorded against two different documents. One of the two rows is wrong. Until it is resolved, any reference resolved through that identifier may fetch the wrong document, and a citation to it proves nothing.",
+      "reference": "14tj7L_lStV7fxXpi_unfqebvvfOU2vDj",
+      "resolution": "Open the identifier, determine which document it actually is, and correct the other row. Do not delete either row — correct one and record the supersession.",
+      "proof": null
+    },
+    {
+      "id": "D-02",
+      "title": "Seal assets — confirm before use",
+      "severity": "open",
+      "detail": "Seal assets exist in the document vault. Confirm the approved asset before any use. A seal is never recreated, redrawn, or regenerated — a recreated seal is a different seal, and every instrument carrying it is defective on that ground.",
+      "reference": "UNKNOWN",
+      "resolution": "Identify the approved seal asset and its file reference, and record it. Until then no instrument is sealed from this console.",
+      "proof": null
+    }
+  ]
+}

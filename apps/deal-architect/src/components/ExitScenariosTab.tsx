@@ -1,30 +1,30 @@
-import { Card, Field, NumberInput, Stat } from '@nte/governance-core';
+import { Card, Field, NumberInput, Stat, fromInputValue, toInputValue, type MaybeNumber, knownFields, known } from '@nte/governance-core';
 import { useState } from 'react';
 import type { Deal } from '../types';
 import { fmtCurrency, monthlyPayment, noi } from '../finance';
 
 export function ExitScenariosTab({ deal }: { deal: Deal }) {
-  const d = deal.data;
-  const [assignmentFee, setAssignmentFee] = useState(0);
-  const [marketingCost, setMarketingCost] = useState(0);
-  const [sellingCostPct, setSellingCostPct] = useState(8);
-  const [holdMonthsFlip, setHoldMonthsFlip] = useState(4);
-  const [monthlyHoldingCost, setMonthlyHoldingCost] = useState(0);
-  const [holdYearsRental, setHoldYearsRental] = useState(5);
+  const d = knownFields(deal.data);
+  const [assignmentFee, setAssignmentFee] = useState<MaybeNumber>(0);
+  const [marketingCost, setMarketingCost] = useState<MaybeNumber>(0);
+  const [sellingCostPct, setSellingCostPct] = useState<MaybeNumber>(8);
+  const [holdMonthsFlip, setHoldMonthsFlip] = useState<MaybeNumber>(4);
+  const [monthlyHoldingCost, setMonthlyHoldingCost] = useState<MaybeNumber>(0);
+  const [holdYearsRental, setHoldYearsRental] = useState<MaybeNumber>(5);
 
   // Wholesale
-  const wholesaleProfit = assignmentFee - marketingCost;
+  const wholesaleProfit = known(assignmentFee) - known(marketingCost);
 
   // Flip
-  const sellingCosts = d.arv * (sellingCostPct / 100);
-  const flipHoldingCosts = monthlyHoldingCost * holdMonthsFlip;
+  const sellingCosts = d.arv * (known(sellingCostPct) / 100);
+  const flipHoldingCosts = known(monthlyHoldingCost) * known(holdMonthsFlip);
   const flipProfit = d.arv - d.askingPrice - d.repairEstimate - sellingCosts - flipHoldingCosts;
 
   // BRRRR / long-term hold
   const annualNoi = noi(d.monthlyRent, d.monthlyExpenses);
   const annualDebtService = monthlyPayment(d.loanAmount, d.loanRatePct, d.loanTermMonths) * 12;
   const annualCashFlow = annualNoi - annualDebtService;
-  const totalHoldCashFlow = annualCashFlow * holdYearsRental;
+  const totalHoldCashFlow = annualCashFlow * known(holdYearsRental);
   const cashInvested = Math.max(0, d.askingPrice - d.loanAmount) + d.repairEstimate;
 
   return (
@@ -37,30 +37,30 @@ export function ExitScenariosTab({ deal }: { deal: Deal }) {
       <div className="grid md:grid-cols-3 gap-4">
         <Card title="1 — Wholesale / assign">
           <Field label="Assignment fee">
-            <NumberInput value={assignmentFee || ''} onChange={(e) => setAssignmentFee(Number(e.target.value))} />
+            <NumberInput value={toInputValue(assignmentFee)} onChange={(e) => setAssignmentFee(fromInputValue(e.target.value))} />
           </Field>
           <Field label="Marketing / dispo cost">
-            <NumberInput value={marketingCost || ''} onChange={(e) => setMarketingCost(Number(e.target.value))} />
+            <NumberInput value={toInputValue(marketingCost)} onChange={(e) => setMarketingCost(fromInputValue(e.target.value))} />
           </Field>
           <Stat label="Net profit" value={fmtCurrency(wholesaleProfit)} sub="Fastest exit, no capital deployed, no ongoing risk" />
         </Card>
 
         <Card title="2 — Buy, rehab, sell (flip)">
           <Field label="Selling costs (% of ARV)" hint="Commission + closing, combined">
-            <NumberInput value={sellingCostPct} onChange={(e) => setSellingCostPct(Number(e.target.value))} />
+            <NumberInput value={toInputValue(sellingCostPct)} onChange={(e) => setSellingCostPct(fromInputValue(e.target.value))} />
           </Field>
           <Field label="Hold period (months)">
-            <NumberInput value={holdMonthsFlip || ''} onChange={(e) => setHoldMonthsFlip(Number(e.target.value))} />
+            <NumberInput value={toInputValue(holdMonthsFlip)} onChange={(e) => setHoldMonthsFlip(fromInputValue(e.target.value))} />
           </Field>
           <Field label="Monthly holding cost" hint="Utilities, insurance, taxes, loan interest while vacant">
-            <NumberInput value={monthlyHoldingCost || ''} onChange={(e) => setMonthlyHoldingCost(Number(e.target.value))} />
+            <NumberInput value={toInputValue(monthlyHoldingCost)} onChange={(e) => setMonthlyHoldingCost(fromInputValue(e.target.value))} />
           </Field>
           <Stat label="Net profit" value={fmtCurrency(flipProfit)} sub={`ARV ${fmtCurrency(d.arv)} − price − repairs − selling − holding`} />
         </Card>
 
         <Card title="3 — BRRRR / long-term hold">
           <Field label="Hold period (years)">
-            <NumberInput value={holdYearsRental || ''} onChange={(e) => setHoldYearsRental(Number(e.target.value))} />
+            <NumberInput value={toInputValue(holdYearsRental)} onChange={(e) => setHoldYearsRental(fromInputValue(e.target.value))} />
           </Field>
           <Stat label="Annual cash flow" value={fmtCurrency(annualCashFlow)} sub="From the Calculators tab's rent/expense/loan inputs" />
           <div className="h-3" />

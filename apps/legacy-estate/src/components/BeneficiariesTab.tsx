@@ -1,12 +1,5 @@
-import { Button, Card, TextInput, newId } from '@nte/governance-core';
+import { Button, Card, TextInput, newId, stalenessLabel, stalenessReason } from '@nte/governance-core';
 import type { BeneficiaryDesignation, Estate } from '../types';
-
-function isStale(dateStr: string) {
-  if (!dateStr) return true;
-  const last = new Date(dateStr).getTime();
-  const twoYearsMs = 2 * 365 * 24 * 60 * 60 * 1000;
-  return Date.now() - last > twoYearsMs;
-}
 
 export function BeneficiariesTab({ estate, onChange }: { estate: Estate; onChange: (e: Estate) => void }) {
   const rows = estate.data.beneficiaries;
@@ -27,8 +20,10 @@ export function BeneficiariesTab({ estate, onChange }: { estate: Estate; onChang
             <Button variant="danger" onClick={() => remove(r.id)}>
               Remove
             </Button>
-            {isStale(r.lastVerified) && (
-              <p className="md:col-span-5 text-xs text-amber-700">Not verified in the last 2 years (or never) — worth a quick check with the carrier/custodian.</p>
+            {stalenessReason(r.lastVerified) && (
+              <p className="md:col-span-5 text-xs text-amber-700">
+                {stalenessLabel(stalenessReason(r.lastVerified))} — worth a quick check with the carrier/custodian.
+              </p>
             )}
           </div>
         ))}

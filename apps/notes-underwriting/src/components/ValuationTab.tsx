@@ -1,4 +1,4 @@
-import { Card, Field, NumberInput, Stat } from '@nte/governance-core';
+import { Card, Field, NumberInput, Stat, fromInputValue, toInputValue, type MaybeNumber, known, knownFields } from '@nte/governance-core';
 import type { Note } from '../types';
 import { fmtCurrency, fmtPercent, impliedAnnualizedReturn, presentValueOfStream } from '../finance';
 import { useState } from 'react';
@@ -6,30 +6,32 @@ import { useState } from 'react';
 export function ValuationTab({ note, onChange }: { note: Note; onChange: (n: Note) => void }) {
   const d = note.data;
   const set = (patch: Partial<typeof d>) => onChange({ ...note, data: { ...d, ...patch }, updatedAt: new Date().toISOString() });
-  const [remainingMonths, setRemainingMonths] = useState(360);
+  const [remainingMonths, setRemainingMonths] = useState<MaybeNumber>(360);
 
-  const pv = presentValueOfStream(d.expectedMonthlyPayment, remainingMonths, d.discountRatePct);
-  const pctOfUpb = d.upb > 0 ? d.acquisitionPrice / d.upb : 0;
-  const pctOfPv = pv > 0 ? d.acquisitionPrice / pv : 0;
-  const parIrr = impliedAnnualizedReturn(d.acquisitionPrice, d.upb, remainingMonths > 12 ? 12 : remainingMonths);
+  const v = knownFields(d);
+  const months = known(remainingMonths);
+  const pv = presentValueOfStream(v.expectedMonthlyPayment, months, v.discountRatePct);
+  const pctOfUpb = v.upb > 0 ? v.acquisitionPrice / v.upb : NaN;
+  const pctOfPv = pv > 0 ? v.acquisitionPrice / pv : NaN;
+  const parIrr = impliedAnnualizedReturn(v.acquisitionPrice, v.upb, months > 12 ? 12 : months);
 
   return (
     <div className="space-y-4">
       <Card title="Present-value model" subtitle="What the expected payment stream is worth today, at your required return">
         <div className="grid md:grid-cols-3 gap-3 mb-3">
           <Field label="Remaining months (approx.)">
-            <NumberInput value={remainingMonths || ''} onChange={(e) => setRemainingMonths(Number(e.target.value))} />
+            <NumberInput value={toInputValue(remainingMonths)} onChange={(e) => setRemainingMonths(fromInputValue(e.target.value))} />
           </Field>
           <Field label="Expected monthly payment">
-            <NumberInput value={d.expectedMonthlyPayment || ''} onChange={(e) => set({ expectedMonthlyPayment: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(d.expectedMonthlyPayment)} onChange={(e) => set({ expectedMonthlyPayment: fromInputValue(e.target.value) })} />
           </Field>
           <Field label="Discount rate (annual %)">
-            <NumberInput value={d.discountRatePct || ''} onChange={(e) => set({ discountRatePct: Number(e.target.value) })} />
+            <NumberInput value={toInputValue(d.discountRatePct)} onChange={(e) => set({ discountRatePct: fromInputValue(e.target.value) })} />
           </Field>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Stat label="Present value of stream" value={fmtCurrency(pv)} />
-          <Stat label="Acquisition price" value={fmtCurrency(d.acquisitionPrice)} />
+          <Stat label="Acquisition price" value={fmtCurrency(v.acquisitionPrice)} />
           <Stat label="Price as % of UPB" value={fmtPercent(pctOfUpb)} />
           <Stat label="Price as % of PV" value={fmtPercent(pctOfPv)} sub="under 100% = buying below the discounted value of the payments" />
         </div>

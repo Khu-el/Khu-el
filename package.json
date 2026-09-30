@@ -15,6 +15,17 @@
     "dev:notes-underwriting": "npm run dev --workspace=apps/notes-underwriting",
     "dev:legacy-estate": "npm run dev --workspace=apps/legacy-estate",
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "tsc -b --noEmit apps/deal-architect apps/capital-readiness apps/notes-underwriting apps/legacy-estate 2>/dev/null || true"
+    "typecheck": "tsc -b --noEmit apps/deal-architect apps/capital-readiness apps/notes-underwriting apps/legacy-estate server packages/neterverse-kernel",
+    "test": "npm test --workspaces --if-present",
+    "test:kernel": "npm test --workspace=packages/neterverse-kernel",
+    "test:server": "npm test --workspace=server",
+    "test:apps": "npm test --workspace=apps/deal-architect --workspace=apps/capital-readiness --workspace=apps/notes-underwriting",
+    "check:query-token": "node scripts/check-query-token.mjs",
+    "inventory": "node scripts/build-inventory.mjs",
+    "inventory:check": "node scripts/build-inventory.mjs --check",
+    "bus": "node packages/neterverse-kernel/src/cli.ts",
+    "projects": "node scripts/claude-projects.mjs --check",
+    "projects:build": "node scripts/claude-projects.mjs --build",
+    "tasks": "node scripts/scheduled-tasks.mjs"
   }
 }

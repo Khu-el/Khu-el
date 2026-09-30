@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { db } from '../lib/db.js';
+import { asyncHandler } from '../lib/asyncHandler.js';
 import { requireAuth, type AuthedRequest } from '../lib/auth.js';
 import { sendSelfEmail } from '../lib/email.js';
 import { isSharedApp } from '../lib/roles.js';
+import { stalenessMessage, stalenessReason } from '../lib/staleness.js';
 
 export const digestRouter = Router();
 digestRouter.use(requireAuth);
@@ -21,42 +23,68 @@ interface DigestItem {
   message: string;
 }
 
-const TWO_YEARS_MS = 2 * 365 * 24 * 60 * 60 * 1000;
+function safeJsonObject(json: string): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(json);
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
 
-function recordLabel(appId: string, data: any): string {
-  return data.address || data.entityName || data.obligorRef || data.familyName || 'Unlabeled record';
+function objectValue(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+}
+
+function arrayValue(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function recordLabel(appId: string, data: Record<string, unknown>): string {
+  return String(data.address || data.entityName || data.obligorRef || data.familyName || 'Unlabeled record');
 }
 
 function computeDigest(rows: RecordRow[]): DigestItem[] {
   const items: DigestItem[] = [];
 
   for (const row of rows) {
-    const body = JSON.parse(row.data_json);
-    const data = body.data ?? {};
+    const body = safeJsonObject(row.data_json);
+    const data = objectValue(body.data);
     const label = recordLabel(row.app_id, data);
 
     if (row.app_id === 'legacy-estate') {
-      for (const b of data.beneficiaries ?? []) {
-        const stale = !b.lastVerified || Date.now() - new Date(b.lastVerified).getTime() > TWO_YEARS_MS;
-        if (stale) items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Beneficiary designation "${b.accountOrPolicy || 'unnamed'}" hasn't been verified in 2+ years` });
+      for (const beneficiary of arrayValue(data.beneficiaries)) {
+        const b = objectValue(beneficiary);
+        const reason = stalenessReason(b.lastVerified);
+        if (reason) {
+          items.push({
+            appId: row.app_id,
+            recordId: row.id,
+            recordLabel: label,
+            message: `Beneficiary designation "${b.accountOrPolicy || 'unnamed'}" ${stalenessMessage(reason)}`,
+          });
+        }
       }
     }
 
     if (row.app_id === 'deal-architect') {
-      const total = (data.diligence ?? []).length;
-      const done = (data.diligence ?? []).filter((d: any) => d.done).length;
+      const diligence = arrayValue(data.diligence);
+      const total = diligence.length;
+      const done = diligence.filter((d) => objectValue(d).done).length;
       if (total > 0 && done < total) items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Diligence checklist ${done}/${total} complete` });
     }
 
     if (row.app_id === 'capital-readiness') {
-      const total = (data.offeringReadiness ?? []).length;
-      const verified = (data.offeringReadiness ?? []).filter((r: any) => r.status === 'VERIFIED').length;
+      const readiness = arrayValue(data.offeringReadiness);
+      const total = readiness.length;
+      const verified = readiness.filter((r) => objectValue(r).status === 'VERIFIED').length;
       if (total > 0 && verified < total) items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Offering readiness ${verified}/${total} professionally verified` });
     }
 
     if (row.app_id === 'notes-underwriting') {
-      const total = (data.lienChecklist ?? []).length;
-      const done = (data.lienChecklist ?? []).filter((d: any) => d.done).length;
+      const lienChecklist = arrayValue(data.lienChecklist);
+      const total = lienChecklist.length;
+      const done = lienChecklist.filter((d) => objectValue(d).done).length;
       if (total > 0 && done < total) items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Lien/perfection checklist ${done}/${total} complete` });
     }
   }
@@ -75,7 +103,7 @@ digestRouter.get('/', (req: AuthedRequest, res) => {
   res.json({ items });
 });
 
-digestRouter.post('/email', async (req: AuthedRequest, res) => {
+digestRouter.post('/email', asyncHandler(async (req: AuthedRequest, res) => {
   const items = computeDigest(rowsForUser(req.user!));
   const text =
     items.length === 0
@@ -83,6 +111,6 @@ digestRouter.post('/email', async (req: AuthedRequest, res) => {
       : items.map((i) => `[${i.appId}] ${i.recordLabel} — ${i.message}`).join('\n');
 
   const result = await sendSelfEmail({ to: req.user!.email, subject: '[NTE] Attention digest', text });
-  if (!result.sent) return res.status(501).json({ error: result.reason });
+  if (!result.sent) return res.status(result.status).json({ error: result.reason });
   res.json({ sent: true, to: req.user!.email, itemCount: items.length });
-});
+}));

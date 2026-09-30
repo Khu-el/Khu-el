@@ -5,12 +5,11 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
-import { requireAuth, type AuthedRequest } from '../lib/auth.js';
+import { requireAuth, requireAuthAllowingQueryToken, type AuthedRequest } from '../lib/auth.js';
 import { newId, nowIso } from '../lib/id.js';
 import { canWrite, isSharedApp } from '../lib/roles.js';
 
 export const attachmentsRouter = Router();
-attachmentsRouter.use(requireAuth);
 
 const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB — generous for scanned documents, still bounded
 
@@ -53,28 +52,42 @@ function canAccessRecord(row: RecordRow, user: { sub: string; role: string }) {
   return isSharedApp(row.app_id);
 }
 
-attachmentsRouter.post('/records/:recordId/attachments', upload.single('file'), (req: AuthedRequest, res) => {
+attachmentsRouter.post('/records/:recordId/attachments', requireAuth, upload.single('file'), (req: AuthedRequest, res) => {
+  // multer has already written the file by the time this runs, so every
+  // refusal below must remove it. The 404 path used to skip that, leaving up
+  // to 15MB on disk per request with nothing in the database pointing at it.
+  const discardUpload = () => {
+    if (req.file && existsSync(req.file.path)) unlinkSync(req.file.path);
+  };
   const record = getRecordOr404(req.params.recordId);
-  if (!record) return res.status(404).json({ error: 'Record not found' });
-  if (!canAccessRecord(record, req.user!) || !canWrite(req.user!.role as any)) {
-    if (req.file) unlinkSync(req.file.path);
+  if (!record) {
+    discardUpload();
+    return res.status(404).json({ error: 'Record not found' });
+  }
+  if (!canAccessRecord(record, req.user!) || !canWrite(req.user!.role)) {
+    discardUpload();
     return res.status(403).json({ error: 'Not permitted to attach files to this record' });
   }
   if (!req.file) return res.status(400).json({ error: 'No file uploaded (expected multipart field "file")' });
 
   const id = newId('att');
   const uploadedAt = nowIso();
-  db.prepare(
-    `INSERT INTO attachments (id, record_id, owner_id, stored_filename, original_name, mime_type, size_bytes, uploaded_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  ).run(id, record.id, req.user!.sub, req.file.filename, req.file.originalname, req.file.mimetype, req.file.size, uploadedAt);
+  try {
+    db.prepare(
+      `INSERT INTO attachments (id, record_id, owner_id, stored_filename, original_name, mime_type, size_bytes, uploaded_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(id, record.id, req.user!.sub, req.file.filename, req.file.originalname, req.file.mimetype, req.file.size, uploadedAt);
+  } catch (err) {
+    discardUpload();
+    throw err;
+  }
 
   res.status(201).json({
     attachment: { id, recordId: record.id, originalName: req.file.originalname, mimeType: req.file.mimetype, sizeBytes: req.file.size, uploadedAt },
   });
 });
 
-attachmentsRouter.get('/records/:recordId/attachments', (req: AuthedRequest, res) => {
+attachmentsRouter.get('/records/:recordId/attachments', requireAuth, (req: AuthedRequest, res) => {
   const record = getRecordOr404(req.params.recordId);
   if (!record) return res.status(404).json({ error: 'Record not found' });
   if (!canAccessRecord(record, req.user!)) return res.status(403).json({ error: 'Not permitted to view this record' });
@@ -85,7 +98,7 @@ attachmentsRouter.get('/records/:recordId/attachments', (req: AuthedRequest, res
   });
 });
 
-attachmentsRouter.get('/attachments/:id/download', (req: AuthedRequest, res) => {
+attachmentsRouter.get('/attachments/:id/download', requireAuthAllowingQueryToken, (req: AuthedRequest, res) => {
   const att = db.prepare('SELECT * FROM attachments WHERE id = ?').get(req.params.id) as unknown as AttachmentRow | undefined;
   if (!att) return res.status(404).json({ error: 'Attachment not found' });
   const record = getRecordOr404(att.record_id);
@@ -94,11 +107,11 @@ attachmentsRouter.get('/attachments/:id/download', (req: AuthedRequest, res) => 
   res.download(path.join(env.uploadsDir, att.stored_filename), att.original_name);
 });
 
-attachmentsRouter.delete('/attachments/:id', (req: AuthedRequest, res) => {
+attachmentsRouter.delete('/attachments/:id', requireAuth, (req: AuthedRequest, res) => {
   const att = db.prepare('SELECT * FROM attachments WHERE id = ?').get(req.params.id) as unknown as AttachmentRow | undefined;
   if (!att) return res.status(404).json({ error: 'Attachment not found' });
   const record = getRecordOr404(att.record_id);
-  if (!record || !canAccessRecord(record, req.user!) || !canWrite(req.user!.role as any)) {
+  if (!record || !canAccessRecord(record, req.user!) || !canWrite(req.user!.role)) {
     return res.status(403).json({ error: 'Not permitted to delete this file' });
   }
 

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "neterverse://schemas/capability.schema.json",
+  "title": "Capability registry entry",
+  "description": "A capability the runtime can actually exercise. CATALOG is not PRODUCTION and exposure is not verification.",
+  "type": "object",
+  "required": ["capability_id", "name", "class", "status", "observed_at"],
+  "additionalProperties": false,
+  "properties": {
+    "capability_id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "class": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["PRODUCTION", "PILOT", "CATALOG", "HOLD", "RETIRED", "UNKNOWN"] },
+    "evidence": { "type": "string" },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "observed_by": { "type": "string" },
+    "notes": { "type": "string" }
+  }
+}
