@@ -44,6 +44,32 @@ derived conditions on Sheet 5/4 that the document treats as findings in their ow
 The ledger rail reflects both: a sheet reads `filed` only when its required fields are answered
 *and* it contributes no derived open items.
 
+### How Sheet 5's statuses map to the repo's evidence vocabulary
+
+`CLAUDE.md` requires that evidence vocabularies be **mapped, not multiplied**. Sheet 5 asks the
+family plain questions rather than asking them to pick a governance enum, so its wording stays as
+it is — this table is the mapping, and where the two readings differ the stricter one wins.
+
+| Sheet 5 answer | `AssertionStatus` | Executive OS |
+| --- | --- | --- |
+| `Signed copy in hand` + execution page `Yes — signed and witnessed` | `EXTERNALLY_VERIFIED` | ✅ VERIFIED |
+| `Signed copy in hand` + execution page `Not seen` | `DOCUMENT_CLAIM` | 🟠 TENTATIVE |
+| `Signed copy in hand` + execution page `Yes — signature line blank` | `DOCUMENT_CLAIM` | 🟠 TENTATIVE |
+| `Believed to exist — not produced` | `DOCUMENT_CLAIM` | 🟠 TENTATIVE |
+| `Family unsure` | `UNCLASSIFIED` | ❓ UNKNOWN |
+| `Does not exist` · `Not applicable` | — (no claim to classify) | — |
+| Left blank | `UNCLASSIFIED` | ❓ UNKNOWN — not yet asked |
+
+Two notes, because the mapping is not total:
+
+- **A copy in hand is not `EXTERNALLY_VERIFIED` on its own.** Only the execution page promotes it.
+  That is the rule Sheet 5's own caution states, and it is why three of the five derived gap rules
+  above exist: the form refuses to let a named document read as a verified one.
+- **`PROFESSIONAL_REVIEW_REQUIRED` is not reachable from Sheet 5**, by design. It belongs to
+  Sheet 6, where "Refer to counsel — do not draft in house" and "Irrevocable trust — counsel
+  required" carry it. An intake interview records what exists; it does not decide that a document
+  is sound.
+
 ### Deliberately not collected
 
 Social Security numbers, account numbers, minors' dates of birth, and identity documents. Sheet 2
