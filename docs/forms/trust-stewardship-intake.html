@@ -436,6 +436,20 @@ var RECORDS = ["Will","Trust agreement","Trust amendments or restatements","Deed
 
 function el(id){ return document.getElementById(id); }
 
+/* An imported file names its fields by id, and an id is document-wide. Restoring
+   through a bare getElementById lets a corrupt or hand-edited export reach an
+   element that is not a form field at all — #importFile among them, and assigning
+   a non-empty string to a file input throws. That throw lands inside the
+   FileReader callback, after clearFields() has already run, so the interview is
+   left half-restored with no error shown. Only inputs, selects and textareas
+   inside #form are restorable. */
+var FIELD_TAGS = { INPUT:1, SELECT:1, TEXTAREA:1 };
+function formField(id){
+  var n = el(id);
+  if(!n || !FIELD_TAGS[n.tagName]) return null;
+  return (n.closest && n.closest("#form")) ? n : null;
+}
+
 /* ---------- field wiring ---------- */
 function allFields(){
   return document.querySelectorAll("#form input, #form textarea, #form select");
@@ -688,7 +702,7 @@ function restore(o, replace){
   while(propCount < want) addProperty();
   Object.keys(o).forEach(function(k){
     if(k === "__props") return;
-    var n = el(k); if(!n) return;
+    var n = formField(k); if(!n) return;
     if(n.type === "checkbox") n.checked = !!o[k]; else n.value = o[k] == null ? "" : String(o[k]);
   });
   bind(); refresh();

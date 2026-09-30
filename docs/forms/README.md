@@ -30,7 +30,7 @@ That is why it lives here rather than under `web/` with the deployed landing pag
 
 ### Open Items schedule
 
-Sheet 7 is generated, not typed. A row appears for every blank `data-req` field, and for four
+Sheet 7 is generated, not typed. A row appears for every blank `data-req` field, and for five
 derived conditions on Sheet 5/4 that the document treats as findings in their own right:
 
 | Condition | Open item |
