@@ -39,25 +39,37 @@ jobs:
 
       - run: npm ci
 
+      # Runs first because its base_path output decides where every app is
+      # built to live. This repository is Khu-el/Khu-el, which is a *project*
+      # site: GitHub serves it at https://khu-el.github.io/Khu-el/, not at the
+      # account root (that is reserved for a repository named khu-el.github.io).
+      # The apps used to be built for /deal-architect/ and so on, so the first
+      # successful deploy served four blank pages -- every script and stylesheet
+      # 404'd. base_path is "/Khu-el" today, and "" once a custom domain is
+      # attached in Settings -> Pages, so the builds follow wherever the site is
+      # actually served without editing this file.
+      - id: pages
+        uses: actions/configure-pages@v6
+
       - name: Build deal-architect
         run: npm run build --workspace=apps/deal-architect
         env:
-          VITE_BASE_PATH: /deal-architect/
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/deal-architect/
 
       - name: Build capital-readiness
         run: npm run build --workspace=apps/capital-readiness
         env:
-          VITE_BASE_PATH: /capital-readiness/
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/capital-readiness/
 
       - name: Build notes-underwriting
         run: npm run build --workspace=apps/notes-underwriting
         env:
-          VITE_BASE_PATH: /notes-underwriting/
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/notes-underwriting/
 
       - name: Build legacy-estate
         run: npm run build --workspace=apps/legacy-estate
         env:
-          VITE_BASE_PATH: /legacy-estate/
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/legacy-estate/
 
       - name: Assemble _site
         run: |
@@ -69,29 +81,12 @@ jobs:
           cp -r apps/notes-underwriting/dist _site/notes-underwriting
           cp -r apps/legacy-estate/dist _site/legacy-estate
 
-      # Attaching the custom domain is deliberately gated behind a repository
-      # Variable rather than a checked-in CNAME file. A CNAME in the artifact
-      # takes effect the moment it deploys -- if the DNS record does not exist
-      # yet, that moves the site off khu-el.github.io and serves nothing in its
-      # place. Set PAGES_CUSTOM_DOMAIN to apps.excellencedistrict.org only
-      # AFTER the CNAME row resolves. See docs/DOMAIN_NETWORK.md.
-      - name: Attach custom domain
-        if: vars.PAGES_CUSTOM_DOMAIN != ''
-        # Passed through the environment rather than interpolated into the
-        # script, and checked to be a bare hostname, so a stray space, scheme
-        # or quote in the variable fails the run instead of shipping a CNAME
-        # GitHub will not accept.
-        env:
-          PAGES_CUSTOM_DOMAIN: ${{ vars.PAGES_CUSTOM_DOMAIN }}
-        run: |
-          set -euo pipefail
-          if ! printf '%s' "$PAGES_CUSTOM_DOMAIN" | grep -Eq '^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$'; then
-            echo "::error::PAGES_CUSTOM_DOMAIN must be a bare hostname such as apps.excellencedistrict.org."
-            exit 1
-          fi
-          printf '%s\n' "$PAGES_CUSTOM_DOMAIN" > _site/CNAME
-
-      - uses: actions/configure-pages@v6
+      # There is no CNAME step. When Pages publishes from a GitHub Actions
+      # workflow, GitHub ignores any CNAME file in the artifact (see "Managing a
+      # custom domain for your GitHub Pages site" in the GitHub docs), so the
+      # step that used to write _site/CNAME from PAGES_CUSTOM_DOMAIN could never
+      # attach a domain. Attach it in Settings -> Pages -> Custom domain, after
+      # the DNS record resolves -- docs/DOMAIN_NETWORK.md has the order.
 
       - uses: actions/upload-pages-artifact@v5
         with:

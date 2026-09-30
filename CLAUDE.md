@@ -175,12 +175,12 @@ checked transitively through the apps that import its source.
 | Workspace | Test runner |
 |---|---|
 | `packages/neterverse-kernel` | ✅ `node --test` — 98 tests, `npm run test:kernel` |
-| `server/` | ✅ `node --test` — 68 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
+| `server/` | ✅ `node --test` — 73 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
 | `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
 | `apps/legacy-estate` | ❌ none configured |
 
-`npm test` at the root runs every workspace that has a suite — 283 tests. **What is still
+`npm test` at the root runs every workspace that has a suite — 288 tests. **What is still
 untested is the UI**: components, tabs and stores have no coverage at all, and
 `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
 `governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,
@@ -347,8 +347,12 @@ They are recorded here so the next person doesn't assume the mapping is total.
 
 ## 🚀 Deployment
 
-Frontends → GitHub Pages via `.github/workflows/deploy-pages.yml` (runs on push to `main`;
-served at the account root because the repo is `Khu-el/Khu-el`). Backend → `server/Dockerfile`
+Frontends → GitHub Pages via `.github/workflows/deploy-pages.yml` (runs on push to `main`),
+published at **`https://khu-el.github.io/Khu-el/`**. `Khu-el/Khu-el` is a *project* site — only a
+repository named `khu-el.github.io` is served at the account root — so each app is built for the
+base path `actions/configure-pages` reports (`/Khu-el` now, empty once a custom domain is attached).
+Do not hard-code `/deal-architect/`-style bases: the first live deploy did, and served four blank
+apps. Backend → `server/Dockerfile`
 + `fly.toml`, portable to any Docker host. Secrets (`JWT_SECRET`, SMTP, `CORS_ORIGINS`) are
 set on the platform — **never committed**. `TRUST_PROXY` (in `fly.toml`, not a secret) must match
 the number of proxies in front of the server: the sign-in rate limits key on the client IP, and
@@ -357,7 +361,7 @@ everyone out. Full walkthrough is in `README.md`.
 
 The intended destination is `apps.excellencedistrict.org` (frontends) and
 `api.excellencedistrict.org` (backend), with the Squarespace apex and Google Workspace mail left
-alone. `docs/DOMAIN_NETWORK.md` has the rows and the order. **Do not add a `CNAME` file to this
-repo** — the workflow writes `_site/CNAME` from the `PAGES_CUSTOM_DOMAIN` repository variable, so
-that attaching the domain stays a deliberate act gated on DNS actually resolving. A checked-in
-`CNAME` takes effect on merge and takes the site offline if the record does not exist yet.
+alone. `docs/DOMAIN_NETWORK.md` has the rows and the order. **A `CNAME` file does nothing here:**
+Pages publishing from Actions ignores it, so the domain is attached in Settings → Pages → Custom
+domain, after DNS resolves, followed by a re-run of the deploy. CI still refuses a committed `CNAME`,
+because it would suggest a domain is attached when it is not.

@@ -157,15 +157,17 @@ verified-by-rehearsal, not verified-by-build, until you run it once yourself.
 
 `.github/workflows/deploy-pages.yml` builds all four apps and a small landing page
 (`web/landing/index.html`) linking to them, and publishes the result to GitHub Pages in one shot.
-Because this repo is `Khu-el/Khu-el` (named exactly like the account), Pages serves it at the root
-of `https://khu-el.github.io/` rather than under a `/Khu-el/` prefix — the workflow and each app's
-`vite.config.ts` (`base: process.env.VITE_BASE_PATH`) are already set up for that:
+This repo is `Khu-el/Khu-el`, which GitHub treats as a *project* site: it is served under a
+`/Khu-el/` prefix. (Only a repository named `khu-el.github.io` is served at the account root —
+naming a repo after the account makes it the profile README, not the user site.) The workflow
+reads the prefix from `actions/configure-pages` and builds each app for it, so it follows the site
+if a custom domain is attached later:
 
-- `https://khu-el.github.io/` — the landing page
-- `https://khu-el.github.io/deal-architect/`
-- `https://khu-el.github.io/capital-readiness/`
-- `https://khu-el.github.io/notes-underwriting/`
-- `https://khu-el.github.io/legacy-estate/`
+- `https://khu-el.github.io/Khu-el/` — the landing page
+- `https://khu-el.github.io/Khu-el/deal-architect/`
+- `https://khu-el.github.io/Khu-el/capital-readiness/`
+- `https://khu-el.github.io/Khu-el/notes-underwriting/`
+- `https://khu-el.github.io/Khu-el/legacy-estate/`
 
 One-time setup, both in the repo's GitHub settings (not something I can click through for you):
 
@@ -177,7 +179,7 @@ One-time setup, both in the repo's GitHub settings (not something I can click th
    apps fall back to `http://localhost:4000` and just show "offline."
 3. Once you know the Pages URL is live, go back and run `fly secrets set
    CORS_ORIGINS=https://khu-el.github.io` (one origin covers all four apps + the landing page, since
-   they share a domain) and `fly deploy` again so the backend actually accepts requests from it.
+   they share a domain; an origin has no path, so the `/Khu-el/` prefix does not appear in it) and `fly deploy` again so the backend actually accepts requests from it.
 
 ### Putting it on excellencedistrict.org
 
@@ -187,11 +189,11 @@ the apex. [`docs/DOMAIN_NETWORK.md`](docs/DOMAIN_NETWORK.md) is the canonical ma
 add, the order to add them in, and the verification commands. None of it has been executed — DNS
 edits are on the human side of the approval boundary.
 
-The one thing worth knowing before reading that file: there is deliberately **no `CNAME` file in
-this repo**. The Pages workflow writes `_site/CNAME` from a `PAGES_CUSTOM_DOMAIN` repository
-variable, and skips the step while it is unset. A checked-in `CNAME` would attach the custom domain
-the moment it merged — which, before the DNS record resolves, takes the site off
-`khu-el.github.io` and serves nothing in its place.
+The one thing worth knowing before reading that file: **a `CNAME` file does nothing here.** When
+Pages publishes from a GitHub Actions workflow, GitHub ignores any `CNAME` file — in the repo or in
+the uploaded artifact. The custom domain is attached in **Settings → Pages → Custom domain**, and
+only after the DNS record resolves. (An earlier version of the workflow wrote `_site/CNAME` from a
+`PAGES_CUSTOM_DOMAIN` variable; it could never have attached anything and has been removed.)
 
 The workflow runs on every push to `main`, and can also be triggered by hand from the repo's Actions
 tab (`Deploy web apps to GitHub Pages` → Run workflow) — including from this branch, before merging,
