@@ -8,7 +8,17 @@ completed without the human step has been.
 
 ---
 
-## 1. Enable GitHub Pages — unblocks the entire frontend deployment
+## 1. ~~Enable GitHub Pages~~ — done 2026-09-23
+
+> **Update 2026-09-23.** Pages is enabled with source GitHub Actions: the deploy run for the #18
+> merge (`ed79826`) went green and published to **`https://khu-el.github.io/Khu-el/`** — not the
+> account root this entry predicted; see the corrected note below. That first deploy served the hub
+> but four blank apps, because they were built for `/deal-architect/` etc. and every asset 404'd
+> under `/Khu-el/`. The workflow now takes the base path from `actions/configure-pages`.
+>
+> The original record follows, unchanged except where marked.
+
+### Original record
 
 | | |
 |---|---|
@@ -17,13 +27,13 @@ completed without the human step has been.
 | **Exact blocker** | Every "Deploy web apps to GitHub Pages" run on `main` **since 2026-08-19** fails at `actions/configure-pages` with `Get Pages site failed … Not Found`. Pages has never been enabled for the repository. The four app builds themselves **succeed** — the failure is the publish step only. |
 | **Exact action** | Open **Settings → Pages** on `Khu-el/Khu-el` and set **Source** to **GitHub Actions** (not "Deploy from a branch"). |
 | **Where** | `https://github.com/Khu-el/Khu-el/settings/pages` |
-| **Afterwards** | The next push to `main` publishes to `https://khu-el.github.io/`. |
+| **Afterwards** | The next push to `main` publishes to `https://khu-el.github.io/`. *(Corrected 2026-09-23: `Khu-el/Khu-el` is a project site and publishes to `https://khu-el.github.io/Khu-el/`.)* |
 | **Verify** | The "Deploy web apps to GitHub Pages" run goes green and the run summary shows a `page_url`. Load the URL and check all four apps and the hub render. |
 
-⚠️ **Do not add a `CNAME` file to the repository to speed this up.** It takes effect on merge and
-takes the site offline if the DNS record does not resolve yet. The workflow writes `_site/CNAME`
-from the `PAGES_CUSTOM_DOMAIN` repository variable instead. CI fails the moment a `CNAME` is
-committed.
+⚠️ *(Corrected 2026-09-23.)* A `CNAME` file has no effect: GitHub ignores it when Pages publishes
+from an Actions workflow. A custom domain is attached in **Settings → Pages → Custom domain** after
+DNS resolves — see `docs/DOMAIN_NETWORK.md`. CI still refuses a committed `CNAME`, because one would
+suggest a domain is attached when it is not.
 
 ---
 
