@@ -70,6 +70,28 @@ human authorization for that specific action · ⛔️ BLOCKED — would cross a
 | Indeed | Nothing | ⛔️ | No property in this account has a hiring surface. |
 | Anthropic Economic Index | Background research only | ✅ | Describes observed Claude usage. It supports no claim about anyone's job or the labor market. |
 
+### 🚩 Infrastructure in use that no connector row covers
+
+Recorded 2026-10-02. This file calls itself the registry of *"every connector, tool, and plugin"*
+on the network. The services below are named in the Notion governance workspace as part of a live
+property, and **none of them had a row here.** They are listed so the gap is visible — listing is
+not authorization, and nothing here is wired to this repository.
+
+| Service | Serves | Verdict | Notes |
+|---|---|---|---|
+| Managed Postgres (via an ORM) | `Neterverse.tech` data store | 🟡 **Ungoverned** | Not the invite-only SQLite backend in `server/`. A second data store holding real records, outside this repository's access rules. |
+| Object storage (AWS S3) | Seal-suite image assets for `Neterverse.tech` | 🟡 **Ungoverned** | Bucket and region are recorded in Notion, deliberately not copied here — a bucket name is an infrastructure identifier and this repository is public. |
+| Card payments (Stripe) | `Neterverse.tech` checkout | ⛔️ **Money movement — §10** | `move_money`, `transact` and `purchase` are `HUMAN_ONLY_ACTIONS` in `packages/neterverse-kernel/src/risk.ts`. No automation in this account may touch it, and no session may be given its keys. |
+
+⚠️ **The point of these three rows is the gap, not the tools.** A live property that stores
+customer records and takes card payments sits entirely outside the boundary this file enforces
+— no lane assignment, no risk tier, no owning automation engine. That is a governance finding
+recorded in `docs/continuation/SOURCE_CONFLICTS.md` SC-09, not a proposal to connect anything.
+
+*Evidence: Notion `🏛️ Neterverse Trust Enterprise — 2026 Command Center`
+(`NTE-GOV-2026-CMD-001`), read 2026-09-18. 🟠 `DOCUMENT_CLAIM` — Notion states this stack; it
+was not probed.*
+
 ---
 
 ## 🧰 Tools and plugins

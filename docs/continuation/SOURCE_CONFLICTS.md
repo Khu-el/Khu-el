@@ -54,8 +54,34 @@ that the portfolio "agrees with the master registry" would be fabricated.
 | **Source A** | `nte-command-center/` on `main` — 11 modules, **merged 2026-09-21 via PR [#4](https://github.com/Khu-el/Khu-el/pull/4)** |
 | **Source B** | `Khu-el/NTE-Command-Center`, a separate private repository, last pushed 2026-08-13 |
 | **Conflict** | Two artifacts carry the same name. Whether they are one system in two places, two generations, or unrelated is **⚪ UNKNOWN** — Source B has never been opened. |
-| **Which controls** | 🔶 **Source A, by default rather than by decision.** It is on `main`; Source B's standing is still ⚪ UNKNOWN. |
-| **Human resolution required** | ✅ **Yes — and the cheap moment has passed.** |
+| **Which controls** | ✅ **Source A, by decision now rather than by default.** Source B was opened 2026-09-18 and is an older generation — see the update below. |
+| **Human resolution required** | 🟡 **Reduced to one action: archive Source B.** |
+
+> ### ✅ Update 2026-10-02 — Source B has now been opened
+>
+> `Khu-el/NTE-Command-Center` was attached and read. It is **not** a rival copy of Source A. It is
+> an earlier, unrelated build:
+>
+> | | Source B (`Khu-el/NTE-Command-Center`) | Source A (`nte-command-center/` on `main`) |
+> |---|---|---|
+> | Last commit | **2026-03-13** | 2026-09-21 (PR #4) |
+> | What it is | A Google AI Studio scaffold — *"Copy of Neterverse Trust Enterprise: Administration System"* — plus a nested `nte-agent-suite/` (React Native / Expo) | 11 governance modules, own test suite, own `CLAUDE.md` |
+> | Entity record | 7 entities hard-coded in `constants/entities.ts`, **no confidence marking** | 9 entities in `seed/governance.json`, each carrying `nameStatus` |
+> | Agent record | 20 agents in `constants/agents.ts` | — |
+>
+> **Source A supersedes it on every axis that matters.** Source B's entity names are a superseded
+> generation (SC-08), and its 20 agents are a subset of a 150+ catalog recorded in Notion. It holds
+> nothing Source A lacks except the agent prompts, which are a Notion artifact anyway.
+>
+> **The remaining action is small and clerical:** archive `Khu-el/NTE-Command-Center` on GitHub with
+> a pointer to `nte-command-center/`, so the next person who finds it knows it is superseded. That
+> is the §10 account action in `HUMAN_ACTION_REQUIRED.md` item 9. Until it is archived the cost SC-03
+> named is still being paid — a reader of Source B has no way to know it is stale.
+>
+> 📎 Its sibling `Khu-el/StructureGen` was opened at the same time and is unrelated to both: a
+> Gemini tool that *generates* proposed corporate structures. Its `Entity` type is design output,
+> not a record of anything that exists. Last commit **2025-12-21** — the oldest artifact in the
+> account.
 
 **⚠️ Status changed 2026-09-21: PR #4 merged.** This was recorded as something to settle *before*
 that merge. It was not settled. The duplication is now realized rather than preventable, and the
@@ -164,3 +190,97 @@ unregistered ones.
 **What a human needs to decide:** for each Routine, whether to write a definition and register it,
 retire it, or record it as deliberately out of scope. Until then the registry's `_none yet_` is
 accurate about itself and misleading about the account.
+
+---
+
+## SC-08 — The seven Lane A entities are named four different ways
+
+| | |
+|---|---|
+| **Source A** | `Khu-el/NTE-Command-Center` → `nte-agent-suite/constants/entities.ts`, **2026-03-13** |
+| **Source B** | Notion → *Entity-by-Entity Governance Map* (`NTE-GOV-2026-PGS-003`), **2026-03-22** |
+| **Source C** | Notion → *🏛️ Neterverse Trust Enterprise — 2026 Command Center* (`NTE-GOV-2026-CMD-001`), **2026-04-04** |
+| **Source D** | `nte-command-center/seed/governance.json` on `main`, **2026-09-21** |
+| **Conflict** | Four generations of names for the same seven entity codes. They are not variants of one name — several are unrelated words. |
+| **Which controls** | ✅ **Source D.** Newest, and the only one that records confidence per name. |
+| **Human resolution required** | ✅ **Yes — five names await the principal.** |
+
+**The divergence, code by code.** Only `IPI` is stable across all four.
+
+| Code | A (Mar 13) | B (Mar 22) | C (Apr 4) | **D (Sep 21) — controls** |
+|---|---|---|---|---|
+| GHC | General Holdings Corporation | NTE Global Holdings Co. | Governance & Holding | **Parent holding company** ✅ |
+| VEI | Venture Equity Institute | NTE Ventures & Equity Inc. | Ventures & Enterprise Investment | **Advisory Inc.** 🟠 provisional |
+| OPS | Operations Services Division | NTE Operations & Systems Inc. | Operational Services | **Operations & Systems Inc.** 🟠 provisional |
+| TFS | Trust Financial Services | NTE Trading & Finance Services | Trust & Fiduciary Services | **Treasury Services** ✅ |
+| IPI | Intellectual Property Institute | NTE IP & Licensing Inc. | Intellectual Property & Innovation | **IP & Licensing Inc.** ✅ |
+| NPE | NTE Publishing Enterprise | NTE Publishing & Education Inc. | Neterverse Publishing & Education | **Publishing & Education Inc.** 🟠 provisional |
+| QVI | Quantum Ventures International | NTE Quality & Verification Inc. | Quality & Value Infrastructure | **Quantum Vault Inc.** 🟠 provisional |
+
+**Functions moved too, not just labels.** `GHC` is *"credit remediation and consumer protection"*
+in Source B and *"holds the operating companies, does not operate"* in Source D. `TFS` went from
+trading and credit structuring to treasury only — Source D records that narrowing explicitly.
+Anyone who read Source B and acted on it was routing work to the wrong entity.
+
+**Source D is right to be unsettled, and says so.** Its own note: *"The determination was a hybrid
+across two naming sets, so the remaining names cannot be inherited by default."* That is this
+conflict, already diagnosed at the source. It marks `EDM`, `GHC`, `TFS`, `IPI` and `MFG` CONFIRMED
+and the other four PROVISIONAL with a reason each — `VEI` because *"the prior name reads as an
+investment vehicle to lenders and regulators."*
+
+**⚠️ Do not "correct" any downstream copy to a non-D name.** Source A's constants are the oldest
+generation; rewriting them to Source C would move them from one superseded set to another. They
+are superseded wholesale (SC-03), not in need of patching.
+
+### 🔑 Root cause — the registry built to prevent this is empty
+
+Notion holds **`04.01 Entities Registry — NTE/CCRLT`**, a database whose schema is purpose-built
+for exactly this: `Short Code`, `Lane`, `Entity Type`, `Trustee / Controlling Authority`, `Status`,
+and a `Source Basis` field whose options are *Documented · Inferred · Strategic · User-asserted
+private framework · Speculative · Requires verification*.
+
+**It returned zero rows on 2026-09-18.** So did its sibling `04.02 Roles & Capacities Registry`.
+
+That is the whole mechanism. Every document needing an entity list re-typed one from memory
+because the canonical list was never populated — four times, drifting each time. Populating it is
+the fix that stops a fifth generation, and its `Source Basis` field already encodes the evidence
+discipline this account requires. Blocked on the principal: see `HUMAN_ACTION_REQUIRED.md` item 10.
+
+📎 **Source D also carries two entities the other three omit entirely** — `EDM` (Equity of the
+Divine Ministries, trustee) and `MFG` (manufacturing, trading as the apparel brand). The set is
+**nine**, not seven. Any statement that Lane A has seven entities is a Source-A-through-C artifact.
+
+📎 **The trust's own name differs between sources.** Source B and Source A give *Christopher Chaz
+Ransom-**El** Living Trust*; Source C gives *Christopher Chaz Ransom Living Trust*. On an
+instrument naming the trust as a party that is not cosmetic. ⚪ UNKNOWN which is correct — only the
+trust instrument settles it, and it was not read.
+
+---
+
+## SC-09 — A live property that no file in this repository governs
+
+| | |
+|---|---|
+| **Source A** | `docs/DOMAIN_NETWORK.md` — *"the single source of truth for which hostname serves which property"*; `docs/CONNECTORS.md` — *"every connector, tool, and plugin"* |
+| **Source B** | Notion `NTE-GOV-2026-CMD-001`, read 2026-09-18: **`Neterverse.tech` — Built, Live** — Next.js, TypeScript, Tailwind, Stripe, Prisma, PostgreSQL, AWS S3 |
+| **Conflict** | Source A claims completeness. Source B names a live, revenue-taking property that appears in **neither** file — no hostname row, no connector row, no lane, no risk tier. |
+| **Which controls** | **Source B for what exists; Source A for what is governed.** Same shape as SC-07: the file is not wrong about its own contents, it is simply not covering the account. |
+| **Human resolution required** | ✅ **Yes** |
+
+**Why this one matters more than a missing row.** The boundary this repository enforces — invite-only
+registration, self-send-only email, no money movement, no third-party send — is enforced in
+`server/` and in `packages/neterverse-kernel/src/risk.ts`. A separate platform on a separate
+hostname with its own Postgres and its own payment processor inherits **none** of it. `move_money`,
+`transact` and `purchase` are `HUMAN_ONLY_ACTIONS` here; there, card payments are the product.
+
+That is not a defect in `Neterverse.tech` and nothing here says it should change. It means the
+sentence *"the backend can store your data, generate PDFs, and email you — it cannot move money"*
+describes `server/`, **not the account.** Both files now carry a flagged section saying so.
+
+📎 Also absent from both: `Khu-el/nte-agent-suite` (a separate repo, distinct from the
+`nte-agent-suite/` directory inside `Khu-el/NTE-Command-Center`), and the two private repos
+covered by SC-03.
+
+**What a human needs to decide:** whether `Neterverse.tech` comes onto this map and under this
+boundary, or is recorded as a deliberately separate network with its own governance. Either is
+defensible; the current state — unmapped and unmentioned — is the one that is not.

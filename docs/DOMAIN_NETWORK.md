@@ -119,7 +119,8 @@ something was edited that should not have been.
 
 ## 🗺️ The wider network
 
-Three repositories and one domain. They cross-link; they do not merge.
+Three repositories and one domain on the `excellencedistrict.org` network. They cross-link; they
+do not merge.
 
 | Property | Repo | Lane | Where it lives |
 |---|---|---|---|
@@ -127,6 +128,31 @@ Three repositories and one domain. They cross-link; they do not merge.
 | Shared backend | `Khu-el/Khu-el` `server/` | Serves both lanes, invite-only | `api.excellencedistrict.org` (planned) |
 | Neterverse Administration Trust DAO portal | `Khu-el/Neterverse_DAO` | Public-facing | Static `index.html`, not yet hosted |
 | The Mental Performance Playbook | `Khu-el/Mental-Alchemy` | `PERSONAL` | Local only — **deliberately unpublished** |
+
+### 🚩 Properties on a second network, not covered by the plan above
+
+Recorded 2026-10-02 from the Notion governance workspace, which is the system of record for
+governance and knowledge. **This file previously described itself as the map of every property
+and did not mention any of these.** They are listed so the gap is visible; none is on
+`excellencedistrict.org` and no row above changes.
+
+| Property | Where it lives | Status in Notion | Lane |
+|---|---|---|---|
+| `Neterverse.tech` platform | Its own hostname — Next.js, Postgres, object storage, card payments | **Live** | Lane A |
+| NTE Agent Suite | `Khu-el/nte-agent-suite` (separate repo, React Native / Expo) | Built | Lane A |
+| `Khu-el/NTE-Command-Center` | Private repo — superseded generation, see `SOURCE_CONFLICTS.md` SC-03 | — | Lane A |
+| `Khu-el/StructureGen` | Private repo — structure-design tool, last touched 2025-12 | — | Lane A |
+
+⚠️ **`Neterverse.tech` is live and takes payment, and nothing in this repository governs it.**
+Its hostname is not on this domain, its stack is not the Vite + React + Pages stack described
+above, and its data store is not the invite-only backend in `server/`. Whether it should be
+brought onto this map, or deliberately kept as a separate network, is the principal's decision —
+recorded in `docs/continuation/HUMAN_ACTION_REQUIRED.md`. Until it is decided, **this file is
+canonical for `excellencedistrict.org` only**, not for "every property in the account."
+
+*Evidence: Notion `🏛️ Neterverse Trust Enterprise — 2026 Command Center` (`NTE-GOV-2026-CMD-001`),
+read 2026-09-18. `EXTERNALLY_VERIFIED` as a record of what Notion states; the live status of the
+platform itself was not probed from this session and is 🟠 `DOCUMENT_CLAIM`.*
 
 **Mental Alchemy is not on the network and should not be added to it casually.** All of its state
 is browser `localStorage` with no account system, which is a feature. It appears on the hub as a

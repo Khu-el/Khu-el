@@ -182,3 +182,84 @@ a ✅ (§1).
 🟢 **Not urgent.** The task is genuinely scheduled and its first run on 2026-09-28 will do real
 work. This raises its ceiling; it does not unblock it. **The run must report the connector-dependent
 steps as ⚪ UNKNOWN rather than as passing** — that rule is written into the definition.
+
+---
+
+## 9. Archive `Khu-el/NTE-Command-Center`
+
+| | |
+|---|---|
+| **Project** | NTE Command Center — SC-03 |
+| **Service** | GitHub |
+| **Exact blocker** | Archiving a repository is an account action behind §10. The comparison SC-03 asked for is **done**: the repository was opened 2026-09-18 and is a superseded 2026-03-13 generation, holding nothing `nte-command-center/` on `main` lacks. |
+| **Exact action** | Settings → General → Danger Zone → **Archive this repository**. Put a line in its README first: *"Superseded by `nte-command-center/` in `Khu-el/Khu-el`. Retained for history."* |
+| **Where** | `https://github.com/Khu-el/NTE-Command-Center/settings` |
+| **Afterwards** | SC-03 closes. Until then a reader who finds it has no way to know it is stale — which is the whole cost SC-03 names. |
+| **Verify** | The repository shows the **Public archive** / **Archived** banner. |
+
+🟢 **Low urgency, low cost, and it ends a standing conflict.** Consider `Khu-el/StructureGen`
+(last commit 2025-12-21) at the same time — it is unrelated to both command centers and nothing
+in the account references it.
+
+---
+
+## 10. Populate the Notion entity and capacity registries
+
+| | |
+|---|---|
+| **Project** | Entity governance — SC-08 |
+| **Service** | Notion → `04.01 Entities Registry — NTE/CCRLT`, `04.02 Roles & Capacities Registry` |
+| **Exact blocker** | Two things. **(a)** `docs/CONNECTORS.md` records Notion as `write_authorized: false` — reads are authorized, writes are not. **(b)** Four of the nine entity names are not settled (item 11), so a row written today would record a provisional name as though it were a decision. |
+| **Why it matters most** | Both databases have complete, well-designed schemas and **zero rows.** That is the root cause of SC-08: four generations of entity names exist because the canonical list was never filled in, so every document re-typed one from memory. `04.01` even carries a `Source Basis` field whose options already encode this account's evidence discipline. |
+| **Exact action** | Grant write authorization for these two databases specifically — not a blanket Notion write — and settle item 11. Then a session can populate `04.01` from `nte-command-center/seed/governance.json`, carrying each entity's `nameStatus` into `Source Basis` (`CONFIRMED` → `Documented`, `PROVISIONAL` → `Requires verification`). |
+| **Afterwards** | A fifth naming generation becomes impossible: every downstream copy cites one row. |
+| **Verify** | `04.01` returns nine rows; each `PROVISIONAL` name carries `Source Basis: Requires verification` rather than `Documented`. |
+
+⚠️ **Do not let this be done as a bulk paste of the April 2026 Notion names.** Those are the third
+of four generations — see SC-08's table. `seed/governance.json` is the controlling source.
+
+---
+
+## 11. Confirm or reject four provisional entity names
+
+| | |
+|---|---|
+| **Project** | Entity governance — SC-08 |
+| **Service** | — a decision, not a system |
+| **Exact blocker** | `nte-command-center/seed/governance.json` marks four of nine entity names `PROVISIONAL`, each with a stated reason. Only the principal can confirm a name. |
+| **Exact action** | For each, confirm the recommendation or supply the correct name: |
+
+| Code | Recommended name | Why it is unsettled, per the source |
+|---|---|---|
+| `VEI` | **Advisory Inc.** | *"The prior name reads as an investment vehicle to lenders and regulators."* |
+| `OPS` | **Operations & Systems Inc.** | *"Recommended, not confirmed. The determination was a hybrid across two naming sets."* |
+| `NPE` | **Publishing & Education Inc.**, with a digital and AI division | *"Recommended as one entity with a division, not split into a second entity."* |
+| `QVI` | **Quantum Vault Inc.** | *"The enforcement reading of this entity collides with an excluded line and was rejected."* |
+
+| | |
+|---|---|
+| **Afterwards** | Item 10 unblocks, and `seed/governance.json` can flip those four to `CONFIRMED`. |
+| **Verify** | No entity in `seed/governance.json` carries `nameStatus: PROVISIONAL`. |
+
+📎 **A second, smaller naming question rides along.** Sources disagree on whether the Lane B trust
+is the *Christopher Chaz Ransom **Living Trust*** or the *Christopher Chaz Ransom-**El** Living
+Trust*. Only the trust instrument settles it, and no session has read one. On an instrument naming
+the trust as a party this is not cosmetic.
+
+---
+
+## 12. Decide whether `Neterverse.tech` comes under this repository's boundary
+
+| | |
+|---|---|
+| **Project** | Network governance — SC-09 |
+| **Service** | — a decision |
+| **Exact blocker** | Notion records `Neterverse.tech` as **Live**, on its own hostname, with its own Postgres, object storage and card payments. `docs/DOMAIN_NETWORK.md` and `docs/CONNECTORS.md` both claimed completeness and neither mentioned it. |
+| **Why it matters** | The boundary enforced here — invite-only, self-send-only, no money movement — lives in `server/` and `packages/neterverse-kernel/src/risk.ts`. A separate platform inherits none of it. `move_money`, `transact` and `purchase` are `HUMAN_ONLY_ACTIONS` here; there, card payments are the product. |
+| **Exact action** | Choose one: **(a)** bring it onto the map and under the boundary, which means a lane, a risk tier, an owning automation engine and a connector row each for its data store, object storage and payment processor; or **(b)** record it as a deliberately separate network with its own governance, and narrow both files' scope sentences to say so. |
+| **Afterwards** | SC-09 closes. Both files now carry a flagged section, so the gap is visible either way — but a flag is a description of a problem, not a decision. |
+| **Verify** | Neither file claims to cover "every property" while a live property sits outside it. |
+
+🟡 **Both options are defensible. The current state — unmapped and unmentioned — is the one that
+is not.** No change was made to `Neterverse.tech` and none is proposed; this is about what these
+two files claim.
