@@ -199,7 +199,7 @@ steps as ⚪ UNKNOWN rather than as passing** — that rule is written into the 
 🟢 **Not urgent.** The automation is running. This only removes its dependence on one session.
 ---
 
-## 10. Archive `Khu-el/NTE-Command-Center`
+## 10. Archive `Khu-el/NTE-Command-Center` and `Khu-el/StructureGen` — approved 2026-10-02
 
 | | |
 |---|---|
@@ -211,9 +211,24 @@ steps as ⚪ UNKNOWN rather than as passing** — that rule is written into the 
 | **Afterwards** | SC-03 closes. Until then a reader who finds it has no way to know it is stale — which is the whole cost SC-03 names. |
 | **Verify** | The repository shows the **Public archive** / **Archived** banner. |
 
-🟢 **Low urgency, low cost, and it ends a standing conflict.** Consider `Khu-el/StructureGen`
-(last commit 2025-12-21) at the same time — it is unrelated to both command centers and nothing
-in the account references it.
+**Second repository, same action — `Khu-el/StructureGen`:**
+
+| | |
+|---|---|
+| **Exact blocker** | Same §10 account action. |
+| **Exact action** | Settings → General → Danger Zone → **Archive this repository**. README line: *"Archived 2026-10-02. A structure-design tool; its output is proposed structures, not a record of entities that exist. Superseded for entity-of-record purposes by the NTE Entity Registry in Notion."* |
+| **Where** | `https://github.com/Khu-el/StructureGen/settings` |
+| **Verify** | The repository shows the **Archived** banner. |
+
+✅ **Both approved by the principal on 2026-10-02.** They remain listed here because archiving is a
+console action no session can perform — there is no archive tool in this session's GitHub surface,
+and `create_repository` / `fork_repository` are not substitutes.
+
+🟢 **Low urgency, low cost, and it ends a standing conflict.** `StructureGen`'s last commit is
+2025-12-21, it is unrelated to both command centers, and nothing in the account references it.
+
+⚠️ **Read the README line before pasting it.** It is a claim about supersession, and a wrong one
+committed to a repository outlives the session that wrote it.
 
 ---
 
