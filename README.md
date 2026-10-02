@@ -1,6 +1,6 @@
 # NTE Web Apps
 
-Four private planning tools, built as a shared-package monorepo, backed by one self-hosted
+Four private planning tools and a relationship CRM, built as a shared-package monorepo, backed by one self-hosted
 backend. Each app turns a specific area of deal/finance/estate work into disciplined calculators,
 checklists, and draft decision memos — instead of hype.
 
@@ -48,6 +48,7 @@ apps/deal-architect/        App 1 — Real estate deal intelligence
 apps/capital-readiness/     App 2 — Entity & offering-readiness diligence
 apps/notes-underwriting/    App 3 — Distressed-debt / note underwriting analysis
 apps/legacy-estate/         App 4 — CCRLT / House of Ransom family estate coordination (Lane B)
+apps/financial-services-crm/ App 5 — The Excellence District Financial Services CRM
 
 server/                     Shared backend for all four apps (Express + SQLite)
 
@@ -172,6 +173,7 @@ if a custom domain is attached later:
 - `https://khu-el.github.io/Khu-el/capital-readiness/`
 - `https://khu-el.github.io/Khu-el/notes-underwriting/`
 - `https://khu-el.github.io/Khu-el/legacy-estate/`
+- `https://khu-el.github.io/Khu-el/financial-services-crm/`
 
 One-time setup, both in the repo's GitHub settings (not something I can click through for you):
 
@@ -211,6 +213,36 @@ Pages actually being enabled on the repository first.
 is safe to hand out without opening the shared Legacy & Estate workspace to strangers — share the
 code only with people who should actually see family records.
 
+## The Excellence District Financial Services CRM
+
+`apps/financial-services-crm` is the operating system from *The Excellence District Financial
+Services CRM* workbook, rebuilt as an app on the shared backend. Every sheet has a home: the
+Contact Master, Activity Log, Appointment Pipeline, Recruiting Funnel, Licensing Tracker, Field
+Training, Referral Engine and Weekly Scoreboard are tabs; the Dashboard and CRM Command Center are
+one **Command Center**; the Scripts Library, Objection Matrix, Compliance Notes and Data Dictionary
+are the **Playbook**. The dropdown lists are `src/types.ts`, verbatim.
+
+It is **private per owner**, like Deal Architect — not a shared workspace. The workbook's own
+governance rules are enforced in code, not just written down:
+
+- **Neutral import.** Contacts arrive Unqualified / Not Established / Not Assessed. The importer
+  reads the workbook (`.xlsx`, in the browser, no dependency) or a Google Contacts CSV.
+- **Upsert by Google Resource Name; never merge on a name; never delete.** A re-import refreshes
+  identity fields and leaves lane, consent, notes and follow-ups alone. Shared emails and phones
+  are flagged for review, never merged.
+- **Consent gates outreach.** Do Not Contact, Withdrawn and Suppressed contacts never appear in a
+  follow-up queue or the digest, and cannot have an attempt started from their record.
+- **Commercial lanes need an expressed interest,** and notes that look like an SSN, account or
+  policy number are flagged at once.
+- **Ratios with no denominator show "—", not 0%** (the workbook's `IF(E5=0,0,…)` read as a failed
+  day when nothing had been logged).
+
+**No contact data is committed.** The repo is public; the workbook's contacts are loaded by the
+owner through the Import tab after signing in. They are stored on the backend under the owner's
+account, and a copy is cached in that browser's `localStorage` (scoped to the signed-in account and
+purged when a different account signs in there) so the app works offline. Sign out on a shared
+machine.
+
 ## The shared governance model
 
 Every record in every app carries an `AuthorityContext` and an `AssertionStatus`
@@ -231,6 +263,7 @@ npm run dev:deal-architect      # terminal 2
 npm run dev:capital-readiness   # terminal 3
 npm run dev:notes-underwriting  # terminal 4
 npm run dev:legacy-estate       # terminal 5
+npm run dev:financial-services-crm  # terminal 6
 ```
 
 Register a separate account per app the first time you open it (accounts are shared across apps —
@@ -257,6 +290,8 @@ those up like you would any real data.
   (`apps/capital-readiness`)
 - No debt collection, borrower contact, or foreclosure action (`apps/notes-underwriting`)
 - No automatic trust amendment, asset retitling, or beneficiary change (`apps/legacy-estate`)
+- No calling, texting, emailing, or task-creation toward a contact, and no storage of regulated client data
+  — SSNs, account or policy numbers, underwriting detail (`apps/financial-services-crm`)
 - No brokerage, lending, or title-conclusion logic (`apps/deal-architect`)
 - No email recipient other than the signed-in user's own address, anywhere in the system
 - No automatic/scheduled outbound email — every send (memo, digest) is a human clicking a button in

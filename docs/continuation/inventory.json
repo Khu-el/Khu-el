@@ -7,6 +7,7 @@
     "check:query-token",
     "dev:capital-readiness",
     "dev:deal-architect",
+    "dev:financial-services-crm",
     "dev:legacy-estate",
     "dev:notes-underwriting",
     "dev:server",
@@ -55,6 +56,25 @@
       "test_runner": "node --test",
       "test_files": [
         "finance.test.ts"
+      ],
+      "dependency_count": 3
+    },
+    {
+      "path": "apps/financial-services-crm",
+      "name": "nte-financial-services-crm",
+      "private": true,
+      "scripts": [
+        "build",
+        "dev",
+        "preview",
+        "test"
+      ],
+      "has_typecheck": true,
+      "has_build": true,
+      "test_runner": "node --test",
+      "test_files": [
+        "crm.test.ts",
+        "importer.test.ts"
       ],
       "dependency_count": 3
     },
@@ -153,6 +173,7 @@
         "auth-hardening.test.ts",
         "auth-query-token.test.ts",
         "auth-roles.test.ts",
+        "digest-crm.test.ts",
         "digest-staleness.test.ts",
         "robustness.test.ts"
       ],
@@ -195,9 +216,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-09-23T00:15:20.750Z",
-  "branch": "claude/github-repos-code-audit-dfdr4i",
-  "commit": "14af9e2566b0e51209688c4f9496b4cad95832fd",
+  "generated_at": "2026-09-26T22:31:43.033Z",
+  "branch": "claude/excellence-district-crm-2973vl",
+  "commit": "b7ed5f992056a6f476b097ea69fa909892bd1d2d",
   "working_tree_clean": false,
-  "tracked_file_count": 315
+  "tracked_file_count": 344
 }
