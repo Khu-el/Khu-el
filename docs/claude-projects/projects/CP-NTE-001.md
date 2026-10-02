@@ -158,7 +158,7 @@ proof the repository still says it. Where a conclusion turns on current text, re
 - **`.neterverse/events/events.jsonl`** — an append-only event log. Useful to query in the repo,
   poor as ambient knowledge: it grows without bound and its oldest rows are the least relevant.
 - **`package-lock.json`** — 185 KB of resolved dependency metadata with no governance content.
-- **The four apps' source** — they belong to `CP-NTE-002` and `CP-CCRLT-001`. The control plane
+- **The five apps' source** — they belong to `CP-NTE-002` and `CP-CCRLT-001`. The control plane
   needs the governance *vocabulary* (`types.ts`), not every screen that renders it.
 - **`server/`** — same reason. The backend's approval boundary is described in `CLAUDE.md` and
   Executive OS §14, which are both here; the implementation belongs with the apps it serves.

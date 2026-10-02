@@ -48,7 +48,7 @@ project.
 
 ## 🚫 WHAT THIS PROJECT MUST NOT ABSORB
 
-- **The three Lane A apps and their deal, entity or note records.** `CP-NTE-002` holds those. The
+- **The four Lane A apps and their deal, entity, note or CRM contact records.** `CP-NTE-002` holds those. The
   Business Interests tab records a *reference* to a Lane A interest; it is not an import channel,
   and this project is not one either.
 - **Commercial release-gate material.** `CP-DIGP-001`, Lane A.
@@ -138,8 +138,8 @@ app and no linter. State what you actually ran.
 
 ### 🚫 Deliberately excluded
 
-- **The three Lane A apps** — `apps/deal-architect`, `apps/capital-readiness`,
-  `apps/notes-underwriting`. The defining exclusion of this project.
+- **The four Lane A apps** — `apps/deal-architect`, `apps/capital-readiness`,
+  `apps/notes-underwriting`, `apps/financial-services-crm`. The defining exclusion of this project.
 - **Actual estate records** — beneficiary names, asset schedules, document contents, account
   numbers. They are `CONFIDENTIAL` and belong in the app and in Drive. A knowledge base is a copy,
   and a copy of an estate record is a second place it can leak from. Load a specific document into
