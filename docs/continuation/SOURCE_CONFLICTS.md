@@ -483,7 +483,7 @@ Neither is a reason not to do it. Both are reasons it is a small migration rathe
 | | |
 |---|---|
 | **Why this exists** | The principal asked (2026-10-02) that the workspaces be searched through before deciding which owns entity records, having stated the split as **governance instruments vs operating layer**. This records what the search found. |
-| **Which controls** | ⚪ **None of them, on the present evidence.** |
+| **Which controls** | ⚪ **None of them for *names*.** For *legal form*, the IRS EIN notice is the only externally verified artifact — and it covers one entity. |
 | **Human resolution required** | ✅ **Yes — and partly by a licensed professional, not by a session** |
 
 ### The account's own System of Record Map does not put entity records in Notion
@@ -551,9 +551,42 @@ this instrument are already telling the same story.
 | "Entity/Asset List" (Drive) | 34 unrelated names, unedited AI draft, superseded architecture | ❌ **Not a record.** Should not be linked as a foundational instrument |
 | Governing-system instruments (Drive) | A further set of code expansions | 🟠 Contradicts the other two on function |
 
-**No document locating each entity's formation — articles, charter, or trust instrument — was
-found.** Those are what would evidence legal form, and their absence is why every other source can
-disagree without any of them being refutable.
+> ### ⚠️ Corrected 2026-10-02 — this paragraph was wrong
+>
+> It originally read: *"No document locating each entity's formation — articles, charter, or trust
+> instrument — was found."* **That is false.** A targeted Drive search found formation-type
+> instruments in quantity, including for entities this entry implied had none:
+>
+> | Entity | Instrument located |
+> |---|---|
+> | CCRLT | `Declaration of Trust Under Agreement`, dated **2021-04-14** — specific and dated |
+> | EDM | Bylaws |
+> | House of Ransom | Bylaws (several revisions) |
+> | NTE | Bylaws (several versions), master trust indenture |
+> | GHC | Operating agreement **and** corporate bylaws, under *Neterverse Global Holdings* |
+> | NAT | Private trust agreement |
+> | QVI | `Private Articles of Establishment`, under *Quantum Vault* |
+> | NPE | Founding charter, under *NTE Publishing* |
+> | TFS | Formation instrument and charter, under *Divine Treasury* |
+>
+> The first search looked for a single consolidated registry and concluded from its absence that
+> the underlying instruments were absent too. They are not; they are per-entity and spread across
+> Drive. **The error was mine, not the account's.**
+
+**What is actually absent is narrower, and it is what matters.** Every instrument located is a
+**privately authored `.docx`** — several are titled `Template`. None carries a state filing stamp, a
+registration or charter number, or any other mark of **external registration**. Titles run to
+*Private Articles of Establishment*, *Pure Trust*, *Private Ecclesiastical Embassy Charter*.
+
+That places them at 🟠 `DOCUMENT_CLAIM` — **stronger than this entry first said, and still not
+`EXTERNALLY_VERIFIED`.** An instrument the principal authored evidences what the trust *asserts*,
+not that any external authority has registered or recognised it. The single `EXTERNALLY_VERIFIED`
+artifact in the account remains the IRS EIN notice, and it still covers one entity.
+
+**Which is exactly what the live registry already says.** `Legal Form Status: Reconciliation
+Required` on every operating corporation is not a gap in the record — it is the record, correctly
+reporting that internal formation and external legal form have not been reconciled. The registry
+was right before this search and is right after it.
 
 ### What a human needs to decide
 
@@ -562,8 +595,9 @@ disagree without any of them being refutable.
 2. **Unlink or relabel the "Entity/Asset List"** from FOUNDATIONAL INSTRUMENTS. It is a superseded
    AI draft presented as live governance, and anyone reading the hub in good faith would take it
    for a record.
-3. **Locate the formation documents, or record that there are none.** Until then
-   `Legal Form Status: Reconciliation Required` is the honest value, and the live registry already
-   says so.
+3. ~~**Locate the formation documents, or record that there are none.**~~ ✅ **Done 2026-10-02** —
+   they exist, per-entity, across Drive. See the correction above. The open part is narrower:
+   **is any of them externally registered?** Nothing located shows a filing stamp or registration
+   number, and that question is for a professional, not a session.
 4. Only then does correcting `seed/governance.json` mean anything — it would otherwise be copied
    from whichever projection was read last, which is how six versions came to exist.
