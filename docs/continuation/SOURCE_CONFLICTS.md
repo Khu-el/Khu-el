@@ -388,11 +388,53 @@ system of record does not, and it is the stricter reading.
 
 | # | Question | Status |
 |---|---|---|
-| 1 | **Is Source B the only Notion workspace now, or do both exist?** If Source A is still live somewhere, which is canonical — this session cannot see it, so it cannot answer. | 🔴 **Open** |
+| 1 | **Do both workspaces exist?** | ✅ **Answered 2026-10-02 — yes, both.** |
 | 2 | **`NPE` — Private Equity or Publishing & Education?** | ✅ **Decided 2026-10-02** |
 | 3 | **`VEI` — is the seal correctly seated on NTE Virtual Solutions Inc.?** | ✅ **Decided 2026-10-02** |
 | 4 | **What code does the publishing / education entity take?** | ✅ **Decided 2026-10-02 — `NPU`** |
-| 5 | Once the above settle, **`seed/governance.json` is corrected from the registry**, per the console rule. That is the direction of travel; the reverse is what this entry exists to prevent. | ⏳ **Blocked on question 1 alone** |
+| 5 | Once the above settle, **`seed/governance.json` is corrected from the registry**, per the console rule. That is the direction of travel; the reverse is what this entry exists to prevent. | ⏳ **Blocked on question 6** |
+| 6 | **Which workspace is canonical for entity records?** Both exist; this session reaches only one. | 🔴 **Open — and it gates every write** |
+
+### 🔎 Re-verified 2026-10-02, later the same day
+
+The principal confirmed Source A's workspace **still exists**. That answers existence and sharpens
+the problem rather than closing it: **both workspaces are live, and this session can reach only
+one of them.**
+
+Re-checked rather than assumed, because connectors had been dropping and reconnecting all session
+and a stale failure is not evidence:
+
+| Probe | Result |
+|---|---|
+| Source A's `04.01` registry, by ID | ❌ `object_not_found` — twice, hours apart |
+| Source B's `NTE Entity Registry`, by ID | ✅ Fetched twice, hours apart, **byte-identical** |
+| Teamspace listing | ⚠️ Returns a **different teamspace name** than on 2026-09-18 |
+
+**So the connection is stable, not flapping.** Source B reads reproducibly; Source A does not read
+at all. This is one connection pointed at one workspace, and it is not the workspace read on
+2026-09-18 — not an intermittent fault that a retry would clear.
+
+### 🚫 Why this blocks the write rather than merely delaying it
+
+The write grant is scoped to a registry **in Source B**, and Source B is the only workspace this
+session can reach. That is fine if Source B is canonical and **wrong if Source A is** — in which
+case the write would land in the non-authoritative copy of exactly the record this conflict is
+about, and the two would diverge further rather than reconcile.
+
+A session cannot settle this by reading, because it cannot read Source A to compare. **Question 6
+is therefore the gate on every remaining action in SC-10**, and it is the principal's alone:
+
+- **If Source B is canonical** — the write proceeds under the existing grant, and `seed/governance.json`
+  is corrected from it.
+- **If Source A is canonical** — nothing proceeds until this session's Notion connection is pointed
+  at Source A, or granted access to it. The grant would then name a registry in the wrong workspace
+  and must be re-scoped before use.
+- **If both are canonical for different things** — that split has to be stated before either is
+  written to, because "entity records" currently exists in both.
+
+⚠️ **Do not resolve this by picking the reachable one.** Reachability is an artifact of how this
+session is connected, not evidence of authority. Treating "the one I can see" as canonical is the
+failure mode SC-10 exists to record.
 
 ### ✅ Decisions taken 2026-10-02
 
