@@ -365,10 +365,39 @@ system of record does not, and it is the stricter reading.
 
 ### What a human needs to decide
 
-1. **Is Source B the only Notion workspace now, or do both exist?** If Source A is still live
-   somewhere, which is canonical — and this session cannot see it, so it cannot answer.
-2. **`NPE` — Private Equity or Publishing & Education?** And if both are real, the publishing
-   function needs its own code and its own row.
-3. **`VEI` — is the seal correctly seated on NTE Virtual Solutions Inc.?**
-4. Once 1–3 settle, **`seed/governance.json` is corrected from the registry**, per the console rule.
-   That is the direction of travel; the reverse is what this entry exists to prevent.
+| # | Question | Status |
+|---|---|---|
+| 1 | **Is Source B the only Notion workspace now, or do both exist?** If Source A is still live somewhere, which is canonical — this session cannot see it, so it cannot answer. | 🔴 **Open** |
+| 2 | **`NPE` — Private Equity or Publishing & Education?** | ✅ **Decided 2026-10-02** |
+| 3 | **`VEI` — is the seal correctly seated on NTE Virtual Solutions Inc.?** | ✅ **Decided 2026-10-02** |
+| 4 | **What code does the publishing / education entity take?** | 🔴 **Open** — raised by decision 2 |
+| 5 | Once the above settle, **`seed/governance.json` is corrected from the registry**, per the console rule. That is the direction of travel; the reverse is what this entry exists to prevent. | ⏳ Blocked on 1 and 4 |
+
+### ✅ Decisions taken 2026-10-02
+
+**`NPE` means Neterverse Private Equity.** The registry row is correct and the seed's *Publishing &
+Education Inc.* is wrong. Recorded `USER-REPORTED` — a decision about intent, so no external
+verification applies.
+
+**This creates a gap rather than closing one.** The publishing and education function is real — it
+owns Neterverse University and the EDM Study Pack — and it now has **no code and no entity of
+record**. It needs both. Until it has them, any instrument for that function has no entity to carry
+a document code, which the `[ENTITY]-[FAMILY]-[YEAR]-[MODULE]-[SEQ]` format makes a hard stop rather
+than an inconvenience.
+
+**The `VEI` code becomes `VSI`,** tracking *NTE Virtual Solutions Inc.* rather than the retired
+*Ventures & Equity* reading. Recorded `USER-REPORTED`.
+
+⚠️ **`VEI` → `VSI` is not a row edit, and should not be done as one.** In the registry `Seal Set`
+is a **select property**, so `VEI` is an option shared across rows, not a value on one row.
+Renaming it touches the schema of a maintained database. Two consequences to settle before anyone
+executes it:
+
+1. **A seal asset carries the old code.** The seal sets are named artifacts with image assets
+   attached to entity rows. A code change without a regenerated seal leaves instruments sealed `VEI`
+   while the registry says `VSI` — a mismatch the Release Gate's seal-stack point exists to catch.
+2. **Instruments already issued under `VEI` keep that code.** Document codes are historical facts.
+   The change is prospective; it does not rewrite issued instruments, and the Document Code Registry
+   is append-only by its own rule.
+
+Neither is a reason not to do it. Both are reasons it is a small migration rather than a rename.
