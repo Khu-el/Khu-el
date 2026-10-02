@@ -183,9 +183,23 @@ a ✅ (§1).
 work. This raises its ceiling; it does not unblock it. **The run must report the connector-dependent
 steps as ⚪ UNKNOWN rather than as passing** — that rule is written into the definition.
 
+## 9. ~~Attach connectors to the ST-OTHER-001 Routine~~ — worked around 2026-10-02; optional hardening remains
+
+| | |
+|---|---|
+| **Project** | Scheduled task `ST-OTHER-001` — Executive OS Network Integrity Watch |
+| **Service** | Claude Routines |
+| **What happened** | The first Routine (`trig_01BD3YpYapyhpN1pLMuv8rT1`) was created with no connectors, because `create_trigger` refused a `connectors` argument for this organization. It was disabled, then deleted. |
+| **Workaround in place** | `trig_01QcstfQGZxqqARauciMntX8` is **session-bound**: it fires into the defining session, which holds Notion + ClickUp. It is live, with its first run on 2026-10-04 at 19:46 UTC. |
+| **Remaining risk** | If that session is archived or its connectors are revoked, runs end 🧱 BLOCKED BY. |
+| **Optional action** | In `claude.ai` → Routines, create a fresh-session Routine with Notion + ClickUp attached, using the same cron (`46 19 * * 0`) and the definition's PROCESS. Then delete `trig_01QcstfQGZxqqARauciMntX8` and update the ID in the definition and `REGISTRY.md`. |
+| **Authority already given** | Notion + ClickUp grant, additive link edits, and the Sunday 15:46 ET cadence, all approved by the principal on 2026-10-02. |
+| **Verify** | A `Network Integrity Watch — <date>` row appears in the Executive OS Knowledge Registry after each Sunday run. |
+
+🟢 **Not urgent.** The automation is running. This only removes its dependence on one session.
 ---
 
-## 9. Archive `Khu-el/NTE-Command-Center`
+## 10. Archive `Khu-el/NTE-Command-Center`
 
 | | |
 |---|---|
@@ -203,24 +217,38 @@ in the account references it.
 
 ---
 
-## 10. Populate the Notion entity and capacity registries
+## 11. Populate the Notion entity and capacity registries
 
 | | |
 |---|---|
 | **Project** | Entity governance — SC-08 |
 | **Service** | Notion → `04.01 Entities Registry — NTE/CCRLT`, `04.02 Roles & Capacities Registry` |
-| **Exact blocker** | Two things. **(a)** `docs/CONNECTORS.md` records Notion as `write_authorized: false` — reads are authorized, writes are not. **(b)** Four of the nine entity names are not settled (item 11), so a row written today would record a provisional name as though it were a decision. |
+| **Exact blocker** | Two things. **(a)** `docs/CONNECTORS.md` records Notion as `write_authorized: false` — reads are authorized, writes are not. **(b)** Four of the nine entity names are not settled (item 12), so a row written today would record a provisional name as though it were a decision. |
 | **Why it matters most** | Both databases have complete, well-designed schemas and **zero rows.** That is the root cause of SC-08: four generations of entity names exist because the canonical list was never filled in, so every document re-typed one from memory. `04.01` even carries a `Source Basis` field whose options already encode this account's evidence discipline. |
-| **Exact action** | Grant write authorization for these two databases specifically — not a blanket Notion write — and settle item 11. Then a session can populate `04.01` from `nte-command-center/seed/governance.json`, carrying each entity's `nameStatus` into `Source Basis` (`CONFIRMED` → `Documented`, `PROVISIONAL` → `Requires verification`). |
+| **Exact action** | Grant write authorization for these two databases specifically — not a blanket Notion write — and settle item 12. Then a session can populate `04.01` from `nte-command-center/seed/governance.json`, carrying each entity's `nameStatus` into `Source Basis` (`CONFIRMED` → `Documented`, `PROVISIONAL` → `Requires verification`). |
 | **Afterwards** | A fifth naming generation becomes impossible: every downstream copy cites one row. |
 | **Verify** | `04.01` returns nine rows; each `PROVISIONAL` name carries `Source Basis: Requires verification` rather than `Documented`. |
 
 ⚠️ **Do not let this be done as a bulk paste of the April 2026 Notion names.** Those are the third
 of four generations — see SC-08's table. `seed/governance.json` is the controlling source.
 
+📎 **Related but not the same task — do not merge them.** `ST-OTHER-001` (Executive OS Network
+Integrity Watch) already runs weekly against Notion and already holds the connectors. It maintains
+the **navigation layer** — which index page links to which command center — and its definition is
+explicit that it reads registry *metadata* only and never reasons over record contents. Populating
+`04.01` with entity rows **is** record content, so it belongs to a capacity that may write them,
+not to `OTHER:SYSTEMS`. The overlap worth using is narrower: that task is already looking at these
+registries weekly, so it is the cheapest place to **notice** `04.01` is still empty and say so.
+
+📌 **One authorization fact to confirm rather than assume.** `ST-OTHER-001` writes additive
+navigation links to Notion, while the connector registry records Notion as `write_authorized:
+false`. Either the flag is stale or that task's writes are a scoped exception. Whichever it is,
+it is the principal's to state — a session must not infer a broader write grant from the existence
+of a narrower one.
+
 ---
 
-## 11. Confirm or reject four provisional entity names
+## 12. Confirm or reject four provisional entity names
 
 | | |
 |---|---|
@@ -238,7 +266,7 @@ of four generations — see SC-08's table. `seed/governance.json` is the control
 
 | | |
 |---|---|
-| **Afterwards** | Item 10 unblocks, and `seed/governance.json` can flip those four to `CONFIRMED`. |
+| **Afterwards** | Item 11 unblocks, and `seed/governance.json` can flip those four to `CONFIRMED`. |
 | **Verify** | No entity in `seed/governance.json` carries `nameStatus: PROVISIONAL`. |
 
 📎 **A second, smaller naming question rides along.** Sources disagree on whether the Lane B trust
@@ -248,7 +276,7 @@ the trust as a party this is not cosmetic.
 
 ---
 
-## 12. Decide whether `Neterverse.tech` comes under this repository's boundary
+## 13. Decide whether `Neterverse.tech` comes under this repository's boundary
 
 | | |
 |---|---|

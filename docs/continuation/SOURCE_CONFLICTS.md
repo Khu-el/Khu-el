@@ -75,7 +75,7 @@ that the portfolio "agrees with the master registry" would be fabricated.
 >
 > **The remaining action is small and clerical:** archive `Khu-el/NTE-Command-Center` on GitHub with
 > a pointer to `nte-command-center/`, so the next person who finds it knows it is superseded. That
-> is the §10 account action in `HUMAN_ACTION_REQUIRED.md` item 9. Until it is archived the cost SC-03
+> is the §10 account action in `HUMAN_ACTION_REQUIRED.md` item 10. Until it is archived the cost SC-03
 > named is still being paid — a reader of Source B has no way to know it is stale.
 >
 > 📎 Its sibling `Khu-el/StructureGen` was opened at the same time and is unrelated to both: a
@@ -244,7 +244,7 @@ private framework · Speculative · Requires verification*.
 That is the whole mechanism. Every document needing an entity list re-typed one from memory
 because the canonical list was never populated — four times, drifting each time. Populating it is
 the fix that stops a fifth generation, and its `Source Basis` field already encodes the evidence
-discipline this account requires. Blocked on the principal: see `HUMAN_ACTION_REQUIRED.md` item 10.
+discipline this account requires. Blocked on the principal: see `HUMAN_ACTION_REQUIRED.md` item 11.
 
 📎 **Source D also carries two entities the other three omit entirely** — `EDM` (Equity of the
 Divine Ministries, trustee) and `MFG` (manufacturing, trading as the apparel brand). The set is
