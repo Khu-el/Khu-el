@@ -183,17 +183,17 @@ a ✅ (§1).
 work. This raises its ceiling; it does not unblock it. **The run must report the connector-dependent
 steps as ⚪ UNKNOWN rather than as passing** — that rule is written into the definition.
 
-## 9. Attach connectors to the ST-OTHER-001 Routine and enable it
+## 9. ~~Attach connectors to the ST-OTHER-001 Routine~~ — worked around 2026-10-02; optional hardening remains
 
 | | |
 |---|---|
 | **Project** | Scheduled task `ST-OTHER-001` — Executive OS Network Integrity Watch |
 | **Service** | Claude Routines |
-| **Exact blocker** | The Routine (`trig_01BD3YpYapyhpN1pLMuv8rT1`) was created on 2026-10-02 with **no connectors**. The create call refused a `connectors` argument for this organization. Unlike `ST-NTE-001`, this task has nothing to do without them: every input is in Notion. It was **disabled immediately** so it would not post a blocked report every Sunday. |
-| **Authority already given** | On 2026-10-02 the principal approved a **Notion + ClickUp** grant, **additive link edits** to the Knowledge Index and its category hubs, and a **Sunday 15:46 ET** cadence. Only the mechanical attachment is missing. |
-| **Exact action** | In the Routines UI, open the Routine, attach **Notion** and **ClickUp**, and enable it. If an existing Routine can't take connectors, create a new one there with the same prompt and cron (`46 19 * * 0`), delete `trig_01BD3YpYapyhpN1pLMuv8rT1`, and record the new ID. Then set the task's Status to `ACTIVE` in its definition and in `docs/scheduled-tasks/REGISTRY.md`. |
-| **Where** | `claude.ai` → Routines |
-| **Verify** | The first run creates a `Network Integrity Watch — <date>` row in the Executive OS Knowledge Registry with registry row counts, rather than ending 🧱 BLOCKED BY. |
+| **What happened** | The first Routine (`trig_01BD3YpYapyhpN1pLMuv8rT1`) was created with no connectors, because `create_trigger` refused a `connectors` argument for this organization. It was disabled, then deleted. |
+| **Workaround in place** | `trig_01QcstfQGZxqqARauciMntX8` is **session-bound**: it fires into the defining session, which holds Notion + ClickUp. It is live, with its first run on 2026-10-04 at 19:46 UTC. |
+| **Remaining risk** | If that session is archived or its connectors are revoked, runs end 🧱 BLOCKED BY. |
+| **Optional action** | In `claude.ai` → Routines, create a fresh-session Routine with Notion + ClickUp attached, using the same cron (`46 19 * * 0`) and the definition's PROCESS. Then delete `trig_01QcstfQGZxqqARauciMntX8` and update the ID in the definition and `REGISTRY.md`. |
+| **Authority already given** | Notion + ClickUp grant, additive link edits, and the Sunday 15:46 ET cadence, all approved by the principal on 2026-10-02. |
+| **Verify** | A `Network Integrity Watch — <date>` row appears in the Executive OS Knowledge Registry after each Sunday run. |
 
-🟢 **Not urgent.** The baseline gap closure was done by hand on 2026-10-02, so the index is
-currently complete. This keeps it complete as the registries grow.
+🟢 **Not urgent.** The automation is running. This only removes its dependence on one session.

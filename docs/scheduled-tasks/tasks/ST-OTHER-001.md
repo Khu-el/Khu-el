@@ -8,8 +8,8 @@
 | 🏷️ Name         | Executive OS Network Integrity Watch |
 | 🧑‍💼 Capacity    | `OTHER:SYSTEMS` |
 | 📆 Defined      | 2026-10-02 |
-| 🔧 Status       | `DRAFT` |
-| 🔗 Routine ID   | `trig_01BD3YpYapyhpN1pLMuv8rT1` |
+| 🔧 Status       | `ACTIVE` |
+| 🔗 Routine ID   | `trig_01QcstfQGZxqqARauciMntX8` |
 
 ## 🎯 MISSION
 
@@ -46,20 +46,22 @@ Navigation does not transfer authority between capacities, and this task must ne
 
 ## ⚠️ KNOWN CONSTRAINT ON THIS ROUTINE
 
-**The Routine exists but is disabled, and it holds no connectors.** It was created on 2026-10-02
-from a session that could not pass connector grants: the create call refused a `connectors`
-argument for this organization, and the Routine stored none. With no Notion connector, every step
-of PROCESS fails at step 2. The stored prompt has a pre-check that would end each run
-🧱 BLOCKED BY. Leaving it enabled would only generate a weekly blocked report, so it was disabled
-the same minute.
+**The Routine is session-bound.** It fires into the session that defined the task, not into a fresh
+one, and that is deliberate:
 
-**Remedy (principal):** in the `claude.ai` Routines UI, open this Routine, attach the **Notion** and
-**ClickUp** connectors (the grant approved on 2026-10-02), enable it, then change this file's
-Status to `ACTIVE` and update `REGISTRY.md`. If the UI cannot attach connectors to an existing
-Routine, create a new one there with the same prompt and cron, delete this one, and record the new ID.
-Recorded in `../../continuation/HUMAN_ACTION_REQUIRED.md`.
+| Attempt | Result |
+|---|---|
+| Fresh-session Routine (`trig_01BD3YpYapyhpN1pLMuv8rT1`, 2026-10-02) | Created with **no connectors**: the create call refused a `connectors` argument for this organization, and a fresh session would have had no Notion access. Disabled the same minute, then **deleted** once the replacement existed. |
+| Session-bound Routine (`trig_01QcstfQGZxqqARauciMntX8`, 2026-10-02) | **Live.** Each run resumes the defining session, which already holds the Notion and ClickUp connectors. |
 
-**Same root cause as `ST-NTE-001`.** Both Routines lack connectors for the same reason.
+**Trade-off:** the task depends on that one session staying available. If it is archived, or its
+connectors are revoked, the run cannot read Notion and **must end 🧱 BLOCKED BY**. It must never
+report zero gaps.
+
+**Optional hardening (principal):** create a fresh-session Routine in the `claude.ai` Routines UI
+with Notion + ClickUp attached, using the same cron and the PROCESS below. Then delete
+`trig_01QcstfQGZxqqARauciMntX8` and record the new ID here and in `REGISTRY.md`. Tracked in
+`../../continuation/HUMAN_ACTION_REQUIRED.md` #9.
 
 ## 📥 INPUTS
 
