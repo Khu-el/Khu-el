@@ -202,7 +202,7 @@ accurate about itself and misleading about the account.
 | **Source C** | Notion → *🏛️ Neterverse Trust Enterprise — 2026 Command Center* (`NTE-GOV-2026-CMD-001`), **2026-04-04** |
 | **Source D** | `nte-command-center/seed/governance.json` on `main`, **2026-09-21** |
 | **Conflict** | Four generations of names for the same seven entity codes. They are not variants of one name — several are unrelated words. |
-| **Which controls** | ✅ **Source D.** Newest, and the only one that records confidence per name. |
+| **Which controls** | ⚠️ **Superseded by SC-10 on 2026-10-02 — this row was wrong.** It read "Source D, newest and the only one that records confidence per name." A fifth source exists: a live, populated entity registry in the Notion workspace reachable today. `nte-command-center/CLAUDE.md` is explicit that Notion is the system of record for registers and that **the console is corrected from it, never the reverse** — so Source D never controlled. See SC-10. |
 | **Human resolution required** | ✅ **Yes — five names await the principal.** |
 
 **The divergence, code by code.** Only `IPI` is stable across all four.
@@ -284,3 +284,91 @@ covered by SC-03.
 **What a human needs to decide:** whether `Neterverse.tech` comes onto this map and under this
 boundary, or is recorded as a deliberately separate network with its own governance. Either is
 defensible; the current state — unmapped and unmentioned — is the one that is not.
+
+---
+
+## SC-10 — The Notion workspace read on 2026-09-18 is not the one reachable on 2026-10-02
+
+| | |
+|---|---|
+| **Source A** | The Notion workspace read 2026-09-18: hub `🏛️ Neterverse Trust Enterprise — 2026 Command Center`, containing `04.01 Entities Registry — NTE/CCRLT` and `04.02 Roles & Capacities Registry`, **both with zero rows** |
+| **Source B** | The Notion workspace reachable 2026-10-02: hub `Chaz Executive OS — Knowledge Index`, containing `NTE Entity Registry` under `NTE Command OS — Executive Dashboard`, **populated with 12 rows and actively maintained** |
+| **Conflict** | Every page ID in Source A now returns `object_not_found`, and the workspace identifier differs. `04.01` and `04.02` do not exist in Source B. Source B's registry is not an empty schema waiting to be filled — it has brand assets attached, review dates, open-matter counts and eight configured views. |
+| **Which controls** | ✅ **Source B.** It is what this session can actually reach and read, and it is maintained. |
+| **Human resolution required** | ✅ **Yes — and it invalidates a decision already taken.** |
+
+### ⛔️ What this stopped
+
+On 2026-10-02 the principal authorized a scoped Notion write **to populate an empty registry from
+`seed/governance.json`**, and confirmed four entity names the seed marked `PROVISIONAL`.
+
+**Neither action was carried out, and neither should be without a fresh decision.** The premise of
+both — that the canonical registry was empty and the seed was the best available source — is false:
+
+- There is no empty registry to populate. The registry that exists is fuller than the seed.
+- `nte-command-center/CLAUDE.md` states the rule directly: *"When the console and the system of
+  record disagree, the system of record governs and the console is corrected — never the other way
+  round,"* with Notion named as the system of record for registers. Writing seed names into Notion
+  would invert that rule.
+
+The authorization is recorded in `connector-registry.json` with the write on hold. **No Notion write
+has been made.**
+
+### The names disagree, and two of them are different businesses
+
+| Code | `seed/governance.json` (console) | **`NTE Entity Registry` (system of record)** | |
+|---|---|---|---|
+| EDM | Equity of the Divine Ministries | Equity of the Divine Ministries | ✅ agree |
+| QVI | Quantum Vault Inc. | Quantum Vault Inc. | ✅ agree |
+| IPI | IP & Licensing Inc. | NTE IP & Licensing Inc. | 🟡 prefix only |
+| OPS | Operations & Systems Inc. | NTE Operations Inc. | 🟡 wording |
+| TFS | Treasury Services | NTE Treasury & Fiduciary Services Inc. | 🟡 wording |
+| GHC | Parent holding company | NTE Global Holdings Corporation | 🟡 wording |
+| MFG | Manufacturing, trading as the apparel brand | NTE Manufacturing Inc. \| Sui Generis | 🟡 wording |
+| **VEI** | **Advisory Inc.** | **NTE Virtual Solutions Inc.** | 🚨 **different business** |
+| **NPE** | **Publishing & Education Inc.** | **Neterverse Private Equity Corporation** | 🚨 **different business** |
+
+The last two are not naming variants. The registry's `Function` fields put VEI on *"digital service
+delivery, web/app infrastructure, AI-enabled workflows"* and NPE on *"private equity strategy,
+investment pipeline, deal flow, capital deployment."* Confirming the seed's names would have
+relabelled a digital-services company as advisory and a private-equity company as a publisher.
+
+📌 **`NPE` is genuinely ambiguous and that is worth settling once.** It is a correct initialism for
+**N**eterverse **P**rivate **E**quity *and* for **N**TE **P**ublishing & **E**ducation. Both
+businesses are real in this account — the publishing side owns NVU and the EDM Study Pack. **The
+registry has no row for a publishing or education entity at all**, so that function currently has
+no entity of record.
+
+📌 **`VEI` may be mis-seated in the registry itself.** The code expands cleanly to *Ventures &
+Equity Inc.* and not at all to *Virtual Solutions*, yet the `VEI` seal is assigned to NTE Virtual
+Solutions Inc. Flagged as an observation for the principal, not resolved here.
+
+### ✅ One open question this closes
+
+The Lane B trust is **`Christopher Chaz Ransom-El Living Trust`** — with the `-El`. The system of
+record spells it that way, trustee `House of Ransom`, seal set `CCRLT`. SC-08's note that this was
+⚪ UNKNOWN is resolved.
+
+### 📋 What the registry says about its own reliability
+
+Read the registry's own columns before treating any row as settled:
+
+- **`Legal Form Status: Reconciliation Required`** on every operating corporation — GHC, VEI, OPS,
+  TFS, IPI, NPE and MFG. The registry is telling its readers that external legal form is unverified.
+- **`9 Figure Vision`** carries `Authority Evidence: Conflicting`, `Primary Capacity: N/A`, **9 open
+  matters**, and the note *"Reconciliation required — historical records identify different
+  member/trustee/governance forms across periods."* It has a dedicated **🚨 Authority Conflicts**
+  view, so this is a tracked condition, not an oversight.
+
+**Nothing in this repository should assert a verified legal form for any of these entities.** The
+system of record does not, and it is the stricter reading.
+
+### What a human needs to decide
+
+1. **Is Source B the only Notion workspace now, or do both exist?** If Source A is still live
+   somewhere, which is canonical — and this session cannot see it, so it cannot answer.
+2. **`NPE` — Private Equity or Publishing & Education?** And if both are real, the publishing
+   function needs its own code and its own row.
+3. **`VEI` — is the seal correctly seated on NTE Virtual Solutions Inc.?**
+4. Once 1–3 settle, **`seed/governance.json` is corrected from the registry**, per the console rule.
+   That is the direction of travel; the reverse is what this entry exists to prevent.

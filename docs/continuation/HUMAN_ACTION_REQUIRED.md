@@ -217,7 +217,7 @@ in the account references it.
 
 ---
 
-## 11. Populate the Notion entity and capacity registries
+## 11. ~~Populate the Notion entity and capacity registries~~ — premise invalid; reopened as SC-10
 
 | | |
 |---|---|
@@ -228,6 +228,23 @@ in the account references it.
 | **Exact action** | Grant write authorization for these two databases specifically — not a blanket Notion write — and settle item 12. Then a session can populate `04.01` from `nte-command-center/seed/governance.json`, carrying each entity's `nameStatus` into `Source Basis` (`CONFIRMED` → `Documented`, `PROVISIONAL` → `Requires verification`). |
 | **Afterwards** | A fifth naming generation becomes impossible: every downstream copy cites one row. |
 | **Verify** | `04.01` returns nine rows; each `PROVISIONAL` name carries `Source Basis: Requires verification` rather than `Documented`. |
+
+> ### ⛔️ Update 2026-10-02 — do not action items 11 and 12 as written
+>
+> The principal authorized the scoped write and confirmed all four names on 2026-10-02. **Neither was
+> carried out.** Both rest on a premise that checking the live workspace disproved: the registry they
+> name (`04.01`) no longer exists, and the registry that does exist is **already populated and
+> maintained**, not empty. It also disagrees with two of the four confirmed names on what the entity
+> *does* — `VEI` is a digital-services company there, not advisory; `NPE` is a private-equity
+> company, not a publisher.
+>
+> `nte-command-center/CLAUDE.md` makes the direction of correction explicit: Notion is the system of
+> record for registers, and *"the console is corrected from it, never the other way round."* So the
+> seed is corrected from the registry, not the registry from the seed.
+>
+> **`SOURCE_CONFLICTS.md` SC-10 carries the full comparison and the four questions that must settle
+> first.** The write authorization stands and is recorded in `connector-registry.json`; it is on hold,
+> not withdrawn.
 
 ⚠️ **Do not let this be done as a bulk paste of the April 2026 Notion names.** Those are the third
 of four generations — see SC-08's table. `seed/governance.json` is the controlling source.
@@ -248,7 +265,7 @@ of a narrower one.
 
 ---
 
-## 12. Confirm or reject four provisional entity names
+## 12. ~~Confirm or reject four provisional entity names~~ — two of the four are contradicted by the system of record
 
 | | |
 |---|---|
