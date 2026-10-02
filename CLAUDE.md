@@ -113,7 +113,7 @@ controlling standard — all six projects list the standards.
 
 ## 🧬 What this repo is
 
-A npm-workspaces monorepo: **four private planning tools + one shared backend**, plus the
+A npm-workspaces monorepo: **four private planning tools + a relationship CRM + one shared backend**, plus the
 `Khu-el` GitHub profile README.
 
 ```
@@ -123,7 +123,8 @@ apps/deal-architect/        Real-estate deal intelligence
 apps/capital-readiness/     Entity & offering-readiness diligence
 apps/notes-underwriting/    Distressed-debt / note underwriting
 apps/legacy-estate/         CCRLT / House of Ransom family estate (Lane B, shared workspace)
-server/                     Express + SQLite backend shared by all four
+apps/financial-services-crm/ The Excellence District Financial Services CRM (private per owner)
+server/                     Express + SQLite backend shared by all five
 web/landing/                Static landing page published to GitHub Pages
 .neterverse/                Claude Code ↔ Codex collaboration bus — read its README first
 .neterverse/live/           Connector observations — gitignored, never committed
@@ -137,9 +138,9 @@ JWT + PDFKit (server).
 ```bash
 npm install                     # repo root — installs every workspace
 npm run dev:server              # backend on :4000
-npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:legacy-estate
+npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:legacy-estate / dev:financial-services-crm
 npm run build                   # all apps + server
-npm run typecheck               # tsc sweep: four apps + server + kernel
+npm run typecheck               # tsc sweep: five apps + server + kernel
 npm test                        # every workspace suite (test:kernel / test:server / test:apps run a subset)
 npm run check:query-token       # ?token= stays limited to the file-download route
 npm run bus -- status           # what the control plane knows
@@ -166,7 +167,7 @@ these checks are new *as enforcement*, not new as expectations.
 
 ⚠️ `npm run typecheck` used to end in `2>/dev/null || true` and therefore **could not
 fail** — it reported success on genuine type errors. That is fixed; if you are working
-from a memory of it passing, re-run it. The sweep covers the four apps, `server/` and
+from a memory of it passing, re-run it. The sweep covers the five apps, `server/` and
 `packages/neterverse-kernel`; `governance-core` has no `tsconfig.json` of its own and is
 checked transitively through the apps that import its source.
 
@@ -175,12 +176,13 @@ checked transitively through the apps that import its source.
 | Workspace | Test runner |
 |---|---|
 | `packages/neterverse-kernel` | ✅ `node --test` — 98 tests, `npm run test:kernel` |
-| `server/` | ✅ `node --test` — 73 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
+| `server/` | ✅ `node --test` — 81 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule and CRM follow-up items, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
+| `apps/financial-services-crm` | ✅ `node --test` — 53 tests over `crm.ts` (consent gate, duplicates, follow-up dates, ratios) and the importer (xlsx/csv reading, upsert rules), also in `npm run test:apps` |
 | `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
 | `apps/legacy-estate` | ❌ none configured |
 
-`npm test` at the root runs every workspace that has a suite — 288 tests. **What is still
+`npm test` at the root runs every workspace that has a suite — 349 tests. **What is still
 untested is the UI**: components, tabs and stores have no coverage at all, and
 `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
 `governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,
@@ -241,8 +243,13 @@ here:
   boot — while a `SYSTEM_ADMIN` reads and deletes every user's records in every app, across
   both lanes. Do not add a role field to a client form or an API promotion route.
 - **⛔️ Scoped-out by design:** features that would turn Capital Readiness into an
-  investor-solicitation tool or Notes Underwriting into a debt-collection tool. Each app
-  has its own "do not build" list — read it before adding features there.
+  investor-solicitation tool or Notes Underwriting into a debt-collection tool, or that would
+  let the Financial Services CRM call, text, email or create tasks for a contact, or hold
+  regulated client data (SSNs, account/policy numbers, underwriting detail). Each app has its
+  own "do not build" list — read it before adding features there.
+- **📇 No contact data in this repo.** The CRM's contacts are real people. They are imported by
+  the signed-in owner through the app, stored on the backend under their account and cached in that
+  browser's account-scoped `localStorage`; test fixtures are synthetic. Never commit a workbook, CSV export, or seed file with real names or numbers.
 - **📅 A date we cannot read is not a verification.** `stalenessReason()` resolves to stale on
   every branch unless a real instant says otherwise — `missing`, `unparseable`, `in-the-future`
   or `expired`. The old `Date.now() - new Date(s).getTime() > window` compared against `NaN` and

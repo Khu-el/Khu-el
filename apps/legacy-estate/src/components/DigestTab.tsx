@@ -8,6 +8,15 @@ interface DigestItem {
   message: string;
 }
 
+/**
+ * Today's date on this device's calendar. CRM follow-up dates are days on the
+ * owner's calendar; the server runs in UTC, so it is told which day it is here.
+ */
+function localToday(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 export function DigestTab() {
   const [items, setItems] = useState<DigestItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +25,7 @@ export function DigestTab() {
 
   const load = useCallback(async () => {
     try {
-      const res = await api.get<{ items: DigestItem[] }>('/api/digest');
+      const res = await api.get<{ items: DigestItem[] }>(`/api/digest?today=${localToday()}`);
       setItems(res.items);
       setError(null);
     } catch (e) {
@@ -32,7 +41,7 @@ export function DigestTab() {
     setSending(true);
     setEmailStatus(null);
     try {
-      const res = await api.post<{ sent: boolean; to: string; itemCount: number }>('/api/digest/email');
+      const res = await api.post<{ sent: boolean; to: string; itemCount: number }>('/api/digest/email', { today: localToday() });
       setEmailStatus(`Sent ${res.itemCount} item(s) to ${res.to}.`);
     } catch (e) {
       setEmailStatus(e instanceof ApiError ? e.message : 'Could not send the digest email.');

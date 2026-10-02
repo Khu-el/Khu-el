@@ -14,6 +14,7 @@ COPY apps/deal-architect/package.json apps/deal-architect/package.json
 COPY apps/capital-readiness/package.json apps/capital-readiness/package.json
 COPY apps/notes-underwriting/package.json apps/notes-underwriting/package.json
 COPY apps/legacy-estate/package.json apps/legacy-estate/package.json
+COPY apps/financial-services-crm/package.json apps/financial-services-crm/package.json
 COPY server/package.json server/package.json
 RUN npm ci
 
