@@ -3,9 +3,10 @@ import { emptyData } from './defaults';
 import { RECORD_TYPES, type EntityDataMap, type EntityKind } from './types';
 
 /**
- * Every CRM record is a GovernedRecord. The lane is UNCLASSIFIED on purpose:
- * which governance lane this business belongs to has not been decided, and
- * guessing would be the ❓ → ✅ degradation CLAUDE.md forbids.
+ * Every CRM record is a GovernedRecord in Lane A: The Excellence District
+ * Financial Services is an enterprise operation (the principal's decision,
+ * 2026-10-02). It shares nothing with Lane B -- a family-estate reference to
+ * this business would be a reference, never a merge.
  */
 export function createRecord<K extends EntityKind>(
   kind: K,
@@ -17,7 +18,7 @@ export function createRecord<K extends EntityKind>(
     id: newId(`fs${kind.slice(0, 3)}`),
     type: RECORD_TYPES[kind],
     authority: {
-      lane: 'UNCLASSIFIED',
+      lane: 'LANE_A',
       principalId: 'local-user',
       actingOfficeId: 'financial-services-crm-app',
       capacity: 'preparer',
