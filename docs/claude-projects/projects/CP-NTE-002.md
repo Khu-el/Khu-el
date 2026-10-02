@@ -13,10 +13,11 @@
 
 ## 🎯 MISSION
 
-Build and maintain the three Lane A planning tools — **Deal Architect** (real-estate deal
-intelligence), **Capital Readiness** (entity and offering-readiness diligence) and **Notes
-Underwriting** (distressed-debt and note underwriting) — together with the shared
-`@nte/governance-core` package and the Express + SQLite backend all four apps use.
+Build and maintain the four Lane A apps — **Deal Architect** (real-estate deal intelligence),
+**Capital Readiness** (entity and offering-readiness diligence), **Notes Underwriting**
+(distressed-debt and note underwriting) and the **Excellence District Financial Services CRM**
+(contacts, activity, recruiting, licensing and field-training pipeline) — together with the shared
+`@nte/governance-core` package and the Express + SQLite backend every app uses.
 
 The work here is product and engineering: new tabs, new calculators, new checklist gates, shared
 UI primitives, backend routes. The reason it needs a loaded project is that every one of those
@@ -25,8 +26,10 @@ type system, not a style guide.
 
 ## 🧑‍💼 CAPACITY
 
-`NTE` — Lane A. These three apps serve enterprise and controlled commercial activity under the
-trust. Shared with `CP-NTE-001`, which is deliberate: they are the same capacity, split by *kind
+`NTE` — Lane A. These four apps serve enterprise and controlled commercial activity under the
+trust. The CRM joined on 2026-10-02 on the principal's decision that The Excellence District
+Financial Services is an NTE, Lane A operation — extended here rather than given a parallel
+project, per the spec's reuse rule. Shared with `CP-NTE-001`, which is deliberate: they are the same capacity, split by *kind
 of work* rather than by authority. The control plane project reasons about governance; this one
 writes application code under it. Splitting them keeps each knowledge base small enough to be
 useful without either one blending a capacity.
@@ -41,11 +44,14 @@ useful without either one blending a capacity.
   data those tools hold belongs to whoever is using them, in the app's own storage.
 - **Investor lists, accreditation records, or borrower contact information.** Loading them would
   supply exactly the raw material the two scoped-out feature sets were designed to make impossible.
+- **The CRM's contacts, in any form.** No workbook, Google Contacts export, CSV export or
+  screenshot of the app with real names in it. The contacts are real people who never agreed to be
+  in a knowledge base; the project holds the CRM's code and playbook, never its records.
 
 ## 📝 DESCRIPTION
 
-Engineering project for the three Lane A NTE planning tools, the shared governance-core package
-and the invite-only Express/SQLite backend. Scenario calculators and diligence checklists with an
+Engineering project for the four Lane A NTE apps (three planning tools and a relationship CRM),
+the shared governance-core package and the invite-only Express/SQLite backend. Scenario calculators and diligence checklists with an
 architectural boundary on what the backend may touch.
 
 ## 🧾 CUSTOM INSTRUCTIONS
@@ -57,8 +63,8 @@ CONTROLLING STANDARDS. docs/EXECUTIVE_OS.md, docs/AI_COUNCIL.md, and the repo la
 CLAUDE.md. Where they appear to disagree, the stricter reading wins. A task-specific instruction
 from the principal overrides all of them.
 
-SCOPE. Three apps — deal-architect, capital-readiness, notes-underwriting — plus
-packages/governance-core and server/. The fourth app, legacy-estate, is Lane B and is NOT part of
+SCOPE. Four apps — deal-architect, capital-readiness, notes-underwriting and
+financial-services-crm — plus packages/governance-core and server/. The fourth app, legacy-estate, is Lane B and is NOT part of
 this project. If a request touches it, say so and stop rather than editing it here. Lane A and
 Lane B never auto-connect; the Business Interests registry records a reference, never a merge.
 
@@ -99,7 +105,10 @@ Do not add a code path for filing, signing, transacting, publishing or represent
 externally. Specifically scoped out and not to be built: investor contact, accreditation
 verification or offering-document generation in capital-readiness; debt collection, borrower
 contact or foreclosure action in notes-underwriting; brokerage, lending or title-conclusion logic
-in deal-architect.
+in deal-architect; calling, texting, emailing or creating tasks for a contact, or holding
+regulated client data (SSNs, account or policy numbers, underwriting or medical detail), in
+financial-services-crm. The CRM's contacts are real people: never ask for, paste or commit them,
+and keep test fixtures synthetic.
 
 VERIFICATION. Per-app build runs tsc -b --noEmit && vite build, so type errors fail the build.
 Run npm run typecheck or a build before pushing.
@@ -139,11 +148,13 @@ JWT_SECRET, SMTP settings and CORS_ORIGINS are set on the platform and never com
 | Khu-el/Khu-el | apps/deal-architect/src/ | App 1 — real-estate deal intelligence | `PUBLIC` |
 | Khu-el/Khu-el | apps/capital-readiness/src/ | App 2 — entity and offering-readiness diligence | `PUBLIC` |
 | Khu-el/Khu-el | apps/notes-underwriting/src/ | App 3 — distressed-debt and note underwriting | `PUBLIC` |
+| Khu-el/Khu-el | apps/financial-services-crm/src/ | App 5 — the Excellence District Financial Services CRM: code and playbook content, no records | `PUBLIC` |
 | Khu-el/Khu-el | server/src/ | The shared backend, where the send and role boundaries are enforced in code | `PUBLIC` |
 | Khu-el/Khu-el | server/test/ | The 23 tests over the running app, covering the two authorization boundaries | `PUBLIC` |
 | Khu-el/Khu-el | apps/deal-architect/test/ | The finance.ts suite for app 1 | `PUBLIC` |
 | Khu-el/Khu-el | apps/capital-readiness/test/ | The finance.ts suite for app 2 | `PUBLIC` |
 | Khu-el/Khu-el | apps/notes-underwriting/test/ | The finance.ts suite for app 3 | `PUBLIC` |
+| Khu-el/Khu-el | apps/financial-services-crm/test/ | The CRM rules and importer suites, on synthetic fixtures | `PUBLIC` |
 | Khu-el/Khu-el | docs/continuation/SECURITY_FINDINGS.md | The two fixed authorization defects, with before and after evidence | `PUBLIC` |
 | Khu-el/Khu-el | server/.env.example | Which secrets exist, without their values | `PUBLIC` |
 | Khu-el/Khu-el | package.json | Workspace layout and the scripts CI runs | `PUBLIC` |
@@ -175,7 +186,8 @@ JWT_SECRET, SMTP settings and CORS_ORIGINS are set on the platform and never com
 - Any change to `packages/governance-core/src/types.ts`. This is the highest-value trigger in the
   file: the type vocabulary is what the whole project reasons from.
 - A new or changed shared component or API hook in `governance-core`.
-- A new tab, calculator or checklist in any of the three Lane A apps.
+- A new tab, calculator or checklist in any of the four Lane A apps, or a change to the CRM's
+  import rules or playbook content (`src/data.ts`).
 - Any change to `server/src/` that touches auth, email or the record routes.
 - A new or changed test suite **only if it changes what a contributor should run** — the
   instructions cite `CLAUDE.md`'s table rather than copying counts, so a count moving is not a
@@ -186,6 +198,6 @@ JWT_SECRET, SMTP settings and CORS_ORIGINS are set on the platform and never com
 
 | Field | Value |
 |-------|-------|
-| Defined by | Claude Code, 2026-09-21 |
+| Defined by | Claude Code, 2026-09-21 · extended by Claude Code on 2026-10-02 to cover `apps/financial-services-crm`, on the principal's capacity decision (`NTE`) |
 | Reviewed by | ⚪ UNKNOWN — not yet reviewed by the principal or a peer contributor |
 | Evidence for the source list | Direct file listing and read of `Khu-el/Khu-el` at commit `5848e75`, this session. The scoped-out feature list is quoted from `README.md` "What's deliberately not here" and `CLAUDE.md` hard boundaries — `EXTERNALLY_VERIFIED` as to the repository's own text |
