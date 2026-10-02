@@ -475,3 +475,95 @@ executes it:
    is append-only by its own rule.
 
 Neither is a reason not to do it. Both are reasons it is a small migration rather than a rename.
+
+---
+
+## SC-11 — Entity records are not settled in any system, and Drive is the least settled of them
+
+| | |
+|---|---|
+| **Why this exists** | The principal asked (2026-10-02) that the workspaces be searched through before deciding which owns entity records, having stated the split as **governance instruments vs operating layer**. This records what the search found. |
+| **Which controls** | ⚪ **None of them, on the present evidence.** |
+| **Human resolution required** | ✅ **Yes — and partly by a licensed professional, not by a session** |
+
+### The account's own System of Record Map does not put entity records in Notion
+
+The `Chaz Executive OS — Knowledge Index` states it directly:
+
+> **Google Drive — Record Truth:** authoritative files, final artifacts, evidence, archives.
+> **Notion — Knowledge Truth:** SOPs, distilled research, reference notes, curricula and decision lessons.
+
+So under the principal's split, the **governance-instrument** side lives in Drive and the Notion
+registries — in *either* workspace — are **Knowledge Truth projections, not the record.** This
+supersedes SC-10's reliance on `nte-command-center/CLAUDE.md`, which named Notion the system of
+record for registers. Where the two disagree, the live Executive OS map is both newer and the one
+the account actually navigates by. **SC-10's question 6 does not have a Notion answer.**
+
+### What Drive actually holds — a sixth list, and a seventh set of functions
+
+**The document the governance hub links as the "NTE Entity & Asset Registry" is not a registry.**
+Its real title is *"Neterverse Trust Enterprise: Entity/Asset List"*. It lists **34 "entities"** —
+a trust bank, a filing authority, a licensing board, an embassy protocol authority, an arbitration
+chamber, a public trust claims agency, a sovereign equity treasury — **none of which uses any of
+the entity codes**, and all of which belong to the DAO / blockchain / NFT / IPFS architecture the
+2026 Command Center records as **superseded**.
+
+🚨 **It is also an unedited AI draft, and says so.** It opens *"Below is the most comprehensive
+list of entities…"* and ends mid-word with *"…please let me know, and I will facilitate the process
+accordi"*. A chat response was pasted into a document, and that document is linked under
+**FOUNDATIONAL INSTRUMENTS with status "Live."** `nte-command-center/CLAUDE.md` names this exact
+failure: *"Authoring an artifact never proves execution, signature, filing, service, payment,
+deployment, licensing, or outcome."*
+
+**A separate Drive governing instrument gives the codes different functions again:** `QVI` as
+*Quality Verification & Intelligence*, `GHC` as *Enforcement & Legal Posture*, `TFS` as *Digital
+Security*, plus a code (`PA`) that appears in no other source. That is a **fifth expansion of
+`QVI`** and it contradicts both the seed (`GHC` = non-operating holding) and the live Notion
+registry (`GHC` = holdings and governance).
+
+### ✅ The one externally verified artifact, and the question it raises
+
+Drive holds a genuine **IRS EIN assignment notice** (CP 575 E, Form SS-4, dated August 2022). It is
+the **only `EXTERNALLY_VERIFIED` entity fact located anywhere in this account** — everything else is
+`DOCUMENT_CLAIM` or weaker.
+
+It assigns the EIN to **one entity: EDM**. The instrument then adds, as an internal annotation,
+*"Entity (Secondary): All Lane A Entities (GHC | VEI | OPS | TFS | IPI | NPE | QVI | MFG)."*
+
+🚨 **An EIN is issued to one entity. The IRS did not assign eight others.** Whether those eight are
+divisions operating under EDM's EIN, separate entities needing their own, or names without legal
+form is **`PROFESSIONAL_REVIEW_REQUIRED`** — a question for a CPA or tax attorney, and explicitly
+not one a session may answer or infer. It is also the likeliest reason the live registry carries
+`Legal Form Status: Reconciliation Required` on **every** operating corporation: the registry and
+this instrument are already telling the same story.
+
+*The EIN, the name control and the private postal address appearing in these instruments are
+**deliberately not reproduced here.** This repository is public and they are account identifiers.*
+
+### Where that leaves the entity question
+
+| Source | What it is | Status |
+|---|---|---|
+| IRS EIN notice (Drive) | One EIN, issued to EDM | ✅ `EXTERNALLY_VERIFIED` — and covers **one** entity |
+| `NTE Entity Registry` (Notion, reachable) | 12 rows, maintained, confidence-marked | 🟡 Knowledge Truth projection — the **most internally coherent** artifact, but not the record |
+| `04.01` / `04.02` (Notion, unreachable) | Empty schemas | ⚪ No content |
+| `seed/governance.json` | 9 codes, `nameStatus` per entry | 🟠 Console copy; corrected *from* the record, never into it |
+| "Entity/Asset List" (Drive) | 34 unrelated names, unedited AI draft, superseded architecture | ❌ **Not a record.** Should not be linked as a foundational instrument |
+| Governing-system instruments (Drive) | A further set of code expansions | 🟠 Contradicts the other two on function |
+
+**No document locating each entity's formation — articles, charter, or trust instrument — was
+found.** Those are what would evidence legal form, and their absence is why every other source can
+disagree without any of them being refutable.
+
+### What a human needs to decide
+
+1. **Professional review of the EIN position** before any entity name is used on an external
+   instrument. One verified EIN, nine asserted entities.
+2. **Unlink or relabel the "Entity/Asset List"** from FOUNDATIONAL INSTRUMENTS. It is a superseded
+   AI draft presented as live governance, and anyone reading the hub in good faith would take it
+   for a record.
+3. **Locate the formation documents, or record that there are none.** Until then
+   `Legal Form Status: Reconciliation Required` is the honest value, and the live registry already
+   says so.
+4. Only then does correcting `seed/governance.json` mean anything — it would otherwise be copied
+   from whichever projection was read last, which is how six versions came to exist.
