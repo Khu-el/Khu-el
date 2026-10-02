@@ -308,7 +308,7 @@ the trust as a party this is not cosmetic.
 
 ---
 
-## 13. Decide whether `Neterverse.tech` comes under this repository's boundary
+## 13. ~~Decide whether `Neterverse.tech` comes under this repository's boundary~~ — decided 2026-10-02
 
 | | |
 |---|---|
@@ -320,6 +320,21 @@ the trust as a party this is not cosmetic.
 | **Afterwards** | SC-09 closes. Both files now carry a flagged section, so the gap is visible either way — but a flag is a description of a problem, not a decision. |
 | **Verify** | Neither file claims to cover "every property" while a live property sits outside it. |
 
-🟡 **Both options are defensible. The current state — unmapped and unmentioned — is the one that
-is not.** No change was made to `Neterverse.tech` and none is proposed; this is about what these
+> ### ✅ Decided 2026-10-02 — a separate network with its own governance
+>
+> The principal chose option (b). `Neterverse.tech` is **not** brought under this repository's
+> boundary. Both files were narrowed instead: `DOMAIN_NETWORK.md` is canonical *for
+> `excellencedistrict.org` only*, `CONNECTORS.md` *for connectors reachable from this repository*.
+> SC-09 is closed.
+>
+> **Nothing was done to the platform** — no DNS, no hosting, no database, no payment configuration.
+> The decision changed what two documents claim, not what runs.
+>
+> **The only thing still worth doing here is nothing.** Governance for that network lives wherever
+> its owner puts it. This repository should not be read as evidence that it has any, and a future
+> session should not "fix" the gap by quietly pulling it back onto this map — that would reverse a
+> decision, not complete one.
+
+🟡 **Both options were defensible. The state that was not — unmapped and unmentioned — is the one
+this item ended.** No change was made to `Neterverse.tech` and none was proposed; this was about what these
 two files claim.

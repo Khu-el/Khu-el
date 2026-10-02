@@ -1,8 +1,17 @@
 # 🔌 CONNECTORS.md — connectors, tools, and plugins on the domain network
 
-**Canonical file.** Companion to [`docs/DOMAIN_NETWORK.md`](DOMAIN_NETWORK.md), which maps
-hostnames. This one maps capabilities: what is connected, to which property, and what each one is
-and is not allowed to do.
+**Canonical file — for connectors reachable from this repository.** Companion to
+[`docs/DOMAIN_NETWORK.md`](DOMAIN_NETWORK.md), which maps hostnames on `excellencedistrict.org`.
+This one maps capabilities: what an agent session working *here* can connect to, to which property,
+and what each one is and is not allowed to do.
+
+🚩 **It is not an inventory of every service the account uses, and no longer claims to be.** The
+principal decided on 2026-10-02 that `Neterverse.tech` is a **deliberately separate network with
+its own governance**; its data store, object storage and payment processor are governed there, not
+by this file or by the boundary in `server/` and `packages/neterverse-kernel/src/risk.ts`. That
+decision closed `SOURCE_CONFLICTS.md` SC-09. The rows below describing that stack stay as a
+**pointer**, so nobody reads this file's silence as "nothing else exists" — they are not an
+authorization and nothing here is wired to it.
 
 ---
 

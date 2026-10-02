@@ -1,9 +1,16 @@
 # 🌐 DOMAIN_NETWORK.md — the excellencedistrict.org property map
 
-**Canonical file.** This is the single source of truth for which hostname serves which property
-across `Khu-el/Khu-el`, `Khu-el/Neterverse_DAO`, and `Khu-el/Mental-Alchemy`. The sibling repos
-link here rather than keeping their own copy (Executive OS §4 — artifact-first continuity; one
-map, not three).
+**Canonical file — for `excellencedistrict.org` only.** This is the single source of truth for
+which hostname on **that domain** serves which property, across `Khu-el/Khu-el`,
+`Khu-el/Neterverse_DAO`, and `Khu-el/Mental-Alchemy`. The sibling repos link here rather than
+keeping their own copy (Executive OS §4 — artifact-first continuity; one map, not three).
+
+🚩 **It is not a map of every property in the account, and no longer claims to be.** The principal
+decided on 2026-10-02 that `Neterverse.tech` is a **deliberately separate network with its own
+governance** — not on this domain, not under this repository's boundary, and not this file's to
+describe beyond the pointer below. That decision closed `SOURCE_CONFLICTS.md` SC-09. Before adding
+a property here, check it is actually on `excellencedistrict.org`; if it is not, this is the wrong
+file.
 
 Companion file: [`docs/CONNECTORS.md`](CONNECTORS.md) — the connector, tool, and plugin registry
 for the same network.

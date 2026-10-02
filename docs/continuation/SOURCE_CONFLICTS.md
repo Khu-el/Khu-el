@@ -265,7 +265,28 @@ trust instrument settles it, and it was not read.
 | **Source B** | Notion `NTE-GOV-2026-CMD-001`, read 2026-09-18: **`Neterverse.tech` — Built, Live** — Next.js, TypeScript, Tailwind, Stripe, Prisma, PostgreSQL, AWS S3 |
 | **Conflict** | Source A claims completeness. Source B names a live, revenue-taking property that appears in **neither** file — no hostname row, no connector row, no lane, no risk tier. |
 | **Which controls** | **Source B for what exists; Source A for what is governed.** Same shape as SC-07: the file is not wrong about its own contents, it is simply not covering the account. |
-| **Human resolution required** | ✅ **Yes** |
+| **Human resolution required** | ✅ **RESOLVED 2026-10-02** — see below |
+
+> ### ✅ Closed 2026-10-02 — recorded as a separate network
+>
+> The principal decided `Neterverse.tech` is a **deliberately separate network with its own
+> governance**: not on `excellencedistrict.org`, not under this repository's boundary, and not
+> this repository's to govern. Recorded `USER-REPORTED`.
+>
+> **What changed here:** both files stopped claiming completeness. `DOMAIN_NETWORK.md` is now
+> canonical *for `excellencedistrict.org` only*; `CONNECTORS.md` is canonical *for connectors
+> reachable from this repository*. The rows describing the `Neterverse.tech` stack stay as a
+> **pointer**, so a reader does not take either file's silence for "nothing else exists."
+>
+> **What did not change:** nothing was done to the platform. No DNS, no hosting, no database, no
+> payment configuration. The decision is about what these two files claim, not about what runs.
+>
+> ⚠️ **The consequence the decision accepts, stated plainly.** The boundary this repository
+> enforces — invite-only, self-send-only, no money movement — covers `server/` and the apps in
+> this monorepo. It does **not** cover a separate platform holding customer records and taking
+> card payments. That is now a recorded, deliberate division rather than an unnoticed gap, which
+> is the whole of what SC-09 asked for. Governance for that network lives wherever its owner puts
+> it; **this repository should not be read as evidence that it has any.**
 
 **Why this one matters more than a missing row.** The boundary this repository enforces — invite-only
 registration, self-send-only email, no money movement, no third-party send — is enforced in
@@ -370,8 +391,8 @@ system of record does not, and it is the stricter reading.
 | 1 | **Is Source B the only Notion workspace now, or do both exist?** If Source A is still live somewhere, which is canonical — this session cannot see it, so it cannot answer. | 🔴 **Open** |
 | 2 | **`NPE` — Private Equity or Publishing & Education?** | ✅ **Decided 2026-10-02** |
 | 3 | **`VEI` — is the seal correctly seated on NTE Virtual Solutions Inc.?** | ✅ **Decided 2026-10-02** |
-| 4 | **What code does the publishing / education entity take?** | 🔴 **Open** — raised by decision 2 |
-| 5 | Once the above settle, **`seed/governance.json` is corrected from the registry**, per the console rule. That is the direction of travel; the reverse is what this entry exists to prevent. | ⏳ Blocked on 1 and 4 |
+| 4 | **What code does the publishing / education entity take?** | ✅ **Decided 2026-10-02 — `NPU`** |
+| 5 | Once the above settle, **`seed/governance.json` is corrected from the registry**, per the console rule. That is the direction of travel; the reverse is what this entry exists to prevent. | ⏳ **Blocked on question 1 alone** |
 
 ### ✅ Decisions taken 2026-10-02
 
@@ -384,6 +405,17 @@ owns Neterverse University and the EDM Study Pack — and it now has **no code a
 record**. It needs both. Until it has them, any instrument for that function has no entity to carry
 a document code, which the `[ENTITY]-[FAMILY]-[YEAR]-[MODULE]-[SEQ]` format makes a hard stop rather
 than an inconvenience.
+
+**The publishing and education entity takes the code `NPU`** — Neterverse Publishing &
+University. It sits beside `NPE` without colliding, and the `U` ties it to Neterverse
+University, which is the function's most concrete asset. Recorded `USER-REPORTED`.
+
+⚠️ **`NPU` is a code without a row.** No entity for this function exists in the registry yet, so
+the code names something that is not there. Creating that row is a **new entity in the system of
+record**, not a correction to an existing one — a larger act than the scoped grant contemplated,
+and it needs the entity's legal name, lane, trustee, primary capacity and seal set, none of which
+has been stated. Until the row exists, `NPU` is reserved, not usable: an instrument coded `NPU-…`
+would reference an entity with no record.
 
 **The `VEI` code becomes `VSI`,** tracking *NTE Virtual Solutions Inc.* rather than the retired
 *Ventures & Equity* reading. Recorded `USER-REPORTED`.
