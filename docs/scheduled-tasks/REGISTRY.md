@@ -8,10 +8,15 @@ Search this file first for any new task request: **SEARCH → READ → REUSE →
 | Task ID | Name | Capacity | Cadence | Status | Definition | Routine ID | Handoff → |
 |---------|------|----------|---------|--------|------------|------------|-----------|
 | `ST-NTE-001` | Continuation Audit Drift Watch ⚠️ | `NTE` | Weekly · Mon 08:00 ET (`0 12 * * 1` UTC) | `ACTIVE` | [ST-NTE-001](tasks/ST-NTE-001.md) | `trig_012vVNu9cbBucVpWHAxYnQAe` | `SECURITY_FINDINGS.md` · `HUMAN_ACTION_REQUIRED.md` · principal |
+| `ST-OTHER-001` | Executive OS Network Integrity Watch ⚠️ | `OTHER` | Weekly · Sun 15:46 ET (`46 19 * * 0` UTC) | `DRAFT` | [ST-OTHER-001](tasks/ST-OTHER-001.md) | `trig_01BD3YpYapyhpN1pLMuv8rT1` (disabled) | Executive OS Knowledge Registry · ClickUp 00 DO NOW · Sunday War Council |
 
 ⚠️ `ST-NTE-001`'s Routine stores **no MCP connectors**, so its sessions run without GitHub and
 Routines tools. Two of its PROCESS steps are degraded as a result — see the KNOWN CONSTRAINT
 section in its definition. The task is genuinely scheduled; it is not fully equipped.
+
+⚠️ `ST-OTHER-001` has the same cause: its Routine was created with no connectors and was
+**disabled immediately**, because without Notion it can do nothing but report itself blocked. It
+stays `DRAFT` until connectors are attached from the `claude.ai` Routines UI.
 
 ## Status values
 
@@ -33,4 +38,4 @@ are never reused and their history is findable.
 | `HOR`    | `ST-HOR-001` |
 | `CCRLT`  | `ST-CCRLT-001` |
 | `MM`     | `ST-MM-001` |
-| `OTHER`  | `ST-OTHER-001` |
+| `OTHER`  | `ST-OTHER-002` |
