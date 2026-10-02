@@ -119,6 +119,42 @@
       ],
       "last_verified": "2026-09-11T06:50:00Z",
       "notes": "No send is authorized from any automation. Sending is R3 and stops at the human gate."
+    },
+    {
+      "connector_id": "supabase",
+      "name": "Supabase",
+      "role": "Private runtime store for orchestrated jobs: job and step state, leases, approvals, artifacts, hash-chained events and audit log (ADR-0003)",
+      "system_of_record_for": [
+        "job state",
+        "job approvals",
+        "job audit chain"
+      ],
+      "verification_state": "LIVE_VERIFIED",
+      "verification_method": "Project listing, table listing, migration listing and security advisors all returned on 2026-10-02; currency tracked by live observation",
+      "access": "READ_WRITE",
+      "write_authorized": true,
+      "lane_scope": [
+        "LANE_A"
+      ],
+      "last_verified": "2026-10-02T22:20:00Z",
+      "notes": "Write authorized ONLY through the job runner's jr_* functions, by the ST-NTE-002 worker and by sessions acting on the principal's own instruction. No raw table writes, no schema change without a migration a human reviewed. jr_decide_approval is never called by a Routine. Project identifiers are not recorded in this public repository."
+    },
+    {
+      "connector_id": "linear",
+      "name": "Linear",
+      "role": "Issue tracking workspace - connected, no task uses it",
+      "system_of_record_for": [
+        "issue tracking (unused by any task)"
+      ],
+      "verification_state": "LIVE_VERIFIED",
+      "verification_method": "Team listing returned on 2026-10-02",
+      "access": "READ_WRITE",
+      "write_authorized": false,
+      "lane_scope": [
+        "LANE_A"
+      ],
+      "last_verified": "2026-10-02T22:20:00Z",
+      "notes": "A third task tracker beside ClickUp and docs/scheduled-tasks. Per SPEC v2 SEARCH -> READ -> REUSE -> UPDATE, nothing should be routed here until the principal decides which tracker is canonical."
     }
   ],
   "freshness": "Each connector carries a freshness budget in packages/neterverse-kernel/src/connectors.ts. Past that budget the control plane reports the entry as stale rather than presenting an old reading as current."
