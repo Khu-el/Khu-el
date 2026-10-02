@@ -15,9 +15,16 @@ permissions:
   pages: write
   id-token: write
 
+# Pull-request runs only build; they never deploy. They used to share the one
+# `pages` group with cancel-in-progress, so a PR opened or pushed while a main
+# deploy was running cancelled it -- that is how the deploy of the #19 merge was
+# lost, a minute after it started, to an unrelated PR's build. Each PR now has a
+# group of its own (a newer push to the same PR still cancels the older build),
+# and runs that deploy queue behind each other instead of being cancelled, so a
+# deploy that has started always finishes.
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: ${{ github.event_name == 'pull_request' && format('pages-pr-{0}', github.ref) || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
