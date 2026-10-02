@@ -1,30 +1,35 @@
 import { useState } from 'react';
-import { Button, Card, Stat } from '@nte/governance-core';
+import { Button, Card, Stat, type SaveOutcome } from '@nte/governance-core';
 import { contactsToRows, parseContacts, planImport, type ImportPlan, type ParsedContacts } from '../importer';
 import { parseCsv, readXlsx, toCsv } from '../sheets';
 import { createRecord, patchRecord } from '../store';
-import type { Contact } from '../types';
+import type { Contact, ContactData } from '../types';
 
 interface Props {
   contacts: Contact[];
-  onAdd: (c: Contact) => Promise<void>;
-  onUpdate: (c: Contact) => Promise<void>;
+  onAdd: (c: Contact) => Promise<SaveOutcome>;
+  onUpdate: (c: Contact) => Promise<SaveOutcome>;
 }
 
-type Stage = { kind: 'idle' } | { kind: 'reading' } | { kind: 'preview'; file: string; parsed: ParsedContacts; plan: ImportPlan } | { kind: 'applying'; done: number; total: number } | { kind: 'done'; created: number; updated: number; file: string };
+type Stage = { kind: 'idle' } | { kind: 'reading' } | { kind: 'preview'; file: string; parsed: ParsedContacts; plan: ImportPlan } | { kind: 'applying'; done: number; total: number } | { kind: 'done'; file: string; tally: Tally };
+
+/** Per-outcome counts, so the result reports what was saved rather than what was planned. */
+type Tally = { created: number; updated: number; pending: number; refused: number; skipped: number };
 
 /** Run `tasks` with at most `limit` in flight, reporting progress. */
-async function pooled(tasks: (() => Promise<void>)[], limit: number, onProgress: (n: number) => void) {
+async function pooled<R>(tasks: (() => Promise<R>)[], limit: number, onProgress: (n: number) => void): Promise<R[]> {
+  const results: R[] = new Array(tasks.length);
   let next = 0;
   let done = 0;
   const worker = async () => {
     while (next < tasks.length) {
-      const task = tasks[next++];
-      await task();
+      const i = next++;
+      results[i] = await tasks[i]();
       onProgress(++done);
     }
   };
   await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, worker));
+  return results;
 }
 
 export function ImportTab({ contacts, onAdd, onUpdate }: Props) {
@@ -48,26 +53,49 @@ export function ImportTab({ contacts, onAdd, onUpdate }: Props) {
     }
   };
 
-  const apply = async (file: string, plan: ImportPlan) => {
+  /**
+   * Re-plan against the contacts as they are now, not as they were at preview:
+   * someone may have edited a contact in the meantime. An update then patches
+   * only the identity fields the file changed onto the live record, so a lane,
+   * consent or note set after the preview is never overwritten by a stale copy.
+   */
+  const apply = async (file: string, parsed: ParsedContacts) => {
     const byId = new Map(contacts.map((c) => [c.id, c]));
+    const plan = planImport(
+      contacts.map((c) => ({ id: c.id, data: c.data })),
+      parsed.contacts
+    );
     const importedOn = new Date().toISOString().slice(0, 10);
-    const tasks: (() => Promise<void>)[] = [
-      ...plan.creates.map((data) => () =>
-        onAdd(
+    type Result = { kind: 'create' | 'update'; outcome: SaveOutcome } | { kind: 'skip' };
+    const tasks: (() => Promise<Result>)[] = [
+      ...plan.creates.map((data) => async (): Promise<Result> => ({
+        kind: 'create',
+        outcome: await onAdd(
           createRecord('contact', data, {
             sourceRef: `Contact import · ${file} · ${importedOn}`,
             evidence: { sourceSystem: 'UPLOAD', sourceDate: importedOn, description: `Imported from ${file}`, classification: 'CONFIDENTIAL' },
           })
-        )
-      ),
-      ...plan.updates.flatMap((u) => {
-        const existing = byId.get(u.id);
-        return existing ? [() => onUpdate(patchRecord(existing, u.data))] : [];
+        ),
+      })),
+      ...plan.updates.map((u) => async (): Promise<Result> => {
+        const live = byId.get(u.id);
+        if (!live) return { kind: 'skip' };
+        const patch: Partial<ContactData> = { syncStatus: u.data.syncStatus, syncError: u.data.syncError };
+        for (const f of u.changed) patch[f] = u.data[f];
+        return { kind: 'update', outcome: await onUpdate(patchRecord(live, patch)) };
       }),
     ];
     setStage({ kind: 'applying', done: 0, total: tasks.length });
-    await pooled(tasks, 4, (done) => setStage({ kind: 'applying', done, total: tasks.length }));
-    setStage({ kind: 'done', created: plan.creates.length, updated: plan.updates.length, file });
+    const results = await pooled(tasks, 4, (done) => setStage({ kind: 'applying', done, total: tasks.length }));
+    const tally: Tally = { created: 0, updated: 0, pending: 0, refused: 0, skipped: 0 };
+    for (const r of results) {
+      if (r.kind === 'skip') tally.skipped++;
+      else if (r.outcome === 'refused') tally.refused++;
+      else if (r.outcome === 'pending') tally.pending++;
+      else if (r.kind === 'create') tally.created++;
+      else tally.updated++;
+    }
+    setStage({ kind: 'done', file, tally });
   };
 
   const exportCsv = () => {
@@ -121,7 +149,7 @@ export function ImportTab({ contacts, onAdd, onUpdate }: Props) {
             )}
             {stage.parsed.flaggedSensitive > 0 && (
               <p className="text-sm text-rose-800 bg-rose-50 border border-rose-300 rounded-md px-3 py-2">
-                {stage.parsed.flaggedSensitive} contact(s) have notes that look like regulated data and will be flagged “Sensitive data present” for you to clean up.
+                {stage.parsed.flaggedSensitive} contact(s) had notes that look like regulated data. Those notes will not be imported; the contacts are flagged “Sensitive data present” so you can confirm the record lives in the company-approved system.
               </p>
             )}
             {stage.plan.updates.length > 0 && (
@@ -137,7 +165,7 @@ export function ImportTab({ contacts, onAdd, onUpdate }: Props) {
               </details>
             )}
             <div className="flex gap-2">
-              <Button disabled={stage.plan.creates.length + stage.plan.updates.length === 0} onClick={() => apply(stage.file, stage.plan)}>
+              <Button disabled={stage.plan.creates.length + stage.plan.updates.length === 0} onClick={() => apply(stage.file, stage.parsed)}>
                 Import {stage.plan.creates.length + stage.plan.updates.length} change(s)
               </Button>
               <Button variant="secondary" onClick={() => setStage({ kind: 'idle' })}>
@@ -153,9 +181,26 @@ export function ImportTab({ contacts, onAdd, onUpdate }: Props) {
           </p>
         )}
         {stage.kind === 'done' && (
-          <p className="text-sm text-emerald-800 bg-emerald-50 border border-emerald-300 rounded-md px-3 py-2 mt-3">
-            Imported from {stage.file}: {stage.created} created, {stage.updated} updated. If you are offline, they are saved on this device and will sync when the server is reachable.
-          </p>
+          <div className="mt-3 space-y-2">
+            <p className="text-sm text-emerald-800 bg-emerald-50 border border-emerald-300 rounded-md px-3 py-2">
+              Imported from {stage.file}: {stage.tally.created} created and {stage.tally.updated} updated on the server.
+            </p>
+            {stage.tally.pending > 0 && (
+              <p className="text-sm text-amber-800 bg-amber-50 border border-amber-300 rounded-md px-3 py-2">
+                {stage.tally.pending} saved on this device only — the server could not be reached. They will sync automatically when it can.
+              </p>
+            )}
+            {stage.tally.refused > 0 && (
+              <p className="text-sm text-rose-800 bg-rose-50 border border-rose-300 rounded-md px-3 py-2">
+                {stage.tally.refused} refused by the server and not saved. They will not be retried; run the import again once the cause is fixed.
+              </p>
+            )}
+            {stage.tally.skipped > 0 && (
+              <p className="text-sm text-neutral-600 bg-neutral-50 border border-neutral-300 rounded-md px-3 py-2">
+                {stage.tally.skipped} contact(s) were deleted while the import ran and were not recreated.
+              </p>
+            )}
+          </div>
         )}
       </Card>
 

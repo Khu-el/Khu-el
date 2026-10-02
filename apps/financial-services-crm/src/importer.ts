@@ -146,7 +146,7 @@ export interface ParsedContacts {
   skippedEmpty: number;
   /** Values that were not on the field's list and were replaced by the neutral default. */
   unrecognizedValues: number;
-  /** Rows whose notes looked like they held regulated data; flagged, not dropped. */
+  /** Rows whose notes looked like regulated data. The notes are not imported; the contact is flagged. */
   flaggedSensitive: number;
 }
 
@@ -188,7 +188,15 @@ export function toDayString(raw: string): string {
     return s;
   }
   const us = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
-  if (us) return `${us[3]}-${us[1].padStart(2, '0')}-${us[2].padStart(2, '0')}`;
+  if (us) {
+    // Only a real calendar day is rewritten; "13/45/2026" stays as typed rather
+    // than becoming an ISO-shaped string the file never contained.
+    const [mo, d, y] = [Number(us[1]), Number(us[2]), Number(us[3])];
+    const dt = new Date(y, mo - 1, d);
+    if (dt.getFullYear() === y && dt.getMonth() === mo - 1 && dt.getDate() === d)
+      return `${us[3]}-${us[1].padStart(2, '0')}-${us[2].padStart(2, '0')}`;
+    return s;
+  }
   // Kept as typed. followUpState() reports it as unreadable rather than guessing.
   return s;
 }
@@ -252,7 +260,12 @@ export function parseContacts(book: Workbook): ParsedContacts {
         skippedEmpty++;
         continue;
       }
-      if (!c.sensitiveDataPresent && detectSensitive(c.notes).length > 0) {
+      // Regulated data never enters the CRM, not even for one save: the notes
+      // are replaced before planning, so nothing downstream can persist them.
+      // The flag stays up so a human confirms the record is held where it belongs.
+      const found = detectSensitive(c.notes);
+      if (found.length > 0) {
+        c.notes = `[Notes not imported: they looked like they contained ${found.join(', ')}. Keep that in the company-approved system.]`;
         c.sensitiveDataPresent = true;
         flaggedSensitive++;
       }
@@ -273,9 +286,11 @@ export function parseContacts(book: Workbook): ParsedContacts {
 
 // ── Planning ─────────────────────────────────────────────────────────────────
 
+export type IdentityField = (typeof IDENTITY_FIELDS)[number];
+
 export interface ImportPlan {
   creates: ContactData[];
-  updates: { id: string; data: ContactData; changed: string[] }[];
+  updates: { id: string; data: ContactData; changed: IdentityField[] }[];
   unchanged: number;
   /** Rows repeating a Google Resource Name already seen earlier in the same file. */
   repeatedInFile: number;

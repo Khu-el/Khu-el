@@ -238,7 +238,10 @@ governance rules are enforced in code, not just written down:
   day when nothing had been logged).
 
 **No contact data is committed.** The repo is public; the workbook's contacts are loaded by the
-owner through the Import tab after signing in, and live only in their account on the backend.
+owner through the Import tab after signing in. They are stored on the backend under the owner's
+account, and a copy is cached in that browser's `localStorage` (scoped to the signed-in account and
+purged when a different account signs in there) so the app works offline. Sign out on a shared
+machine.
 
 ## The shared governance model
 

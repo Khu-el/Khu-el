@@ -142,6 +142,15 @@ describe('follow-up timing', () => {
     });
   }
 
+  test('the owner\'s local midnight is the boundary, on both sides of it', () => {
+    const lastMinute = new Date(2026, 8, 26, 23, 59).getTime();
+    const firstMinute = new Date(2026, 8, 27, 0, 1).getTime();
+    assert.equal(followUpState('2026-09-26', lastMinute), 'today');
+    assert.equal(followUpState('2026-09-26', firstMinute), 'overdue');
+    assert.equal(followUpState('2026-09-27', lastMinute), 'this-week');
+    assert.equal(followUpState('2026-09-27', firstMinute), 'today');
+  });
+
   test('a follow-up later this week does not need attention yet', () => {
     assert.equal(needsFollowUp('this-week'), false);
   });

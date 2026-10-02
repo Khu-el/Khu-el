@@ -9,6 +9,13 @@ import type { AppId } from './types';
 export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'pending' | 'offline';
 
 /**
+ * What became of one save: on the server, queued on this device for a retry,
+ * or refused by the server (not queued -- it will not be retried). A caller
+ * saving many records reports these, rather than the last status it saw.
+ */
+export type SaveOutcome = 'synced' | 'pending' | 'refused';
+
+/**
  * Records are cached in localStorage (so the app still works offline / mid-flight)
  * and synced against the backend whenever authenticated. The cache is the
  * fallback, never the source of truth once a session is live -- except for a
@@ -91,15 +98,16 @@ export function useSyncedRecords<T>(appId: AppId, cacheKey: string, isAuthentica
 
   /** After a failed save: queue it if the failure was transient, and say which it was. */
   const onSaveFailed = useCallback(
-    (record: GovernedRecord<T>, e: unknown) => {
+    (record: GovernedRecord<T>, e: unknown): SaveOutcome => {
       if (isTransientFailure(e)) {
         markPending(record.id, true);
         setSyncError('Saved on this device. It will sync when the server can be reached.');
         setStatus('pending');
-      } else {
-        setSyncError(e instanceof Error ? e.message : 'The server refused this change.');
-        setStatus('offline');
+        return 'pending';
       }
+      setSyncError(e instanceof Error ? e.message : 'The server refused this change.');
+      setStatus('offline');
+      return 'refused';
     },
     [markPending]
   );
@@ -176,28 +184,30 @@ export function useSyncedRecords<T>(appId: AppId, cacheKey: string, isAuthentica
   }, [isAuthenticated, refresh]);
 
   const addRecord = useCallback(
-    async (record: GovernedRecord<T>) => {
+    async (record: GovernedRecord<T>): Promise<SaveOutcome> => {
       setRecords((prev) => [record, ...prev]);
       try {
         acceptSaved(record, await push(record, false));
         setSyncError(null);
         setStatus(Object.keys(pendingRef.current).length > 0 ? 'pending' : 'synced');
+        return 'synced';
       } catch (e) {
-        onSaveFailed(record, e);
+        return onSaveFailed(record, e);
       }
     },
     [setRecords, acceptSaved, push, onSaveFailed]
   );
 
   const updateRecord = useCallback(
-    async (record: GovernedRecord<T>) => {
+    async (record: GovernedRecord<T>): Promise<SaveOutcome> => {
       setRecords((prev) => prev.map((r) => (r.id === record.id ? record : r)));
       try {
         acceptSaved(record, await push(record, true));
         setSyncError(null);
         setStatus(Object.keys(pendingRef.current).length > 0 ? 'pending' : 'synced');
+        return 'synced';
       } catch (e) {
-        onSaveFailed(record, e);
+        return onSaveFailed(record, e);
       }
     },
     [setRecords, acceptSaved, push, onSaveFailed]

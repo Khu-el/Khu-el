@@ -176,13 +176,13 @@ checked transitively through the apps that import its source.
 | Workspace | Test runner |
 |---|---|
 | `packages/neterverse-kernel` | ✅ `node --test` — 98 tests, `npm run test:kernel` |
-| `server/` | ✅ `node --test` — 77 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule and CRM follow-up items, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
+| `server/` | ✅ `node --test` — 81 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule and CRM follow-up items, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
-| `apps/financial-services-crm` | ✅ `node --test` — 51 tests over `crm.ts` (consent gate, duplicates, follow-up dates, ratios) and the importer (xlsx/csv reading, upsert rules), also in `npm run test:apps` |
+| `apps/financial-services-crm` | ✅ `node --test` — 53 tests over `crm.ts` (consent gate, duplicates, follow-up dates, ratios) and the importer (xlsx/csv reading, upsert rules), also in `npm run test:apps` |
 | `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
 | `apps/legacy-estate` | ❌ none configured |
 
-`npm test` at the root runs every workspace that has a suite — 343 tests. **What is still
+`npm test` at the root runs every workspace that has a suite — 349 tests. **What is still
 untested is the UI**: components, tabs and stores have no coverage at all, and
 `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
 `governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,
@@ -248,8 +248,8 @@ here:
   regulated client data (SSNs, account/policy numbers, underwriting detail). Each app has its
   own "do not build" list — read it before adding features there.
 - **📇 No contact data in this repo.** The CRM's contacts are real people. They are imported by
-  the signed-in owner through the app and live in their account on the backend; test fixtures are
-  synthetic. Never commit a workbook, CSV export, or seed file with real names or numbers.
+  the signed-in owner through the app, stored on the backend under their account and cached in that
+  browser's account-scoped `localStorage`; test fixtures are synthetic. Never commit a workbook, CSV export, or seed file with real names or numbers.
 - **📅 A date we cannot read is not a verification.** `stalenessReason()` resolves to stale on
   every branch unless a real instant says otherwise — `missing`, `unparseable`, `in-the-future`
   or `expired`. The old `Date.now() - new Date(s).getTime() > window` compared against `NaN` and

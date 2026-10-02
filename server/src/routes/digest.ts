@@ -45,20 +45,48 @@ function recordLabel(appId: string, data: Record<string, unknown>): string {
   return String(data.address || data.entityName || data.obligorRef || data.familyName || data.displayName || 'Unlabeled record');
 }
 
+/** A real calendar day written exactly as YYYY-MM-DD, or null. Pure date arithmetic: no time zone involved. */
+function calendarDay(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!m) return null;
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const date = new Date(Date.UTC(y, mo - 1, d));
+  if (date.getUTCFullYear() !== y || date.getUTCMonth() !== mo - 1 || date.getUTCDate() !== d) return null;
+  return m[0];
+}
+
+const DAY_MS = 86_400_000;
+
+/**
+ * "Today" for the CRM digest, as a calendar day in the owner's time zone.
+ *
+ * A follow-up date is a day on the owner's calendar, and the CRM's own
+ * followUpState() reads it in the owner's browser. The server runs in UTC, so
+ * near midnight its own date can be a day off theirs. The client therefore
+ * sends its local date; it is accepted only if it is a real day within one
+ * day of the server's UTC date (every time zone on Earth is), and without it
+ * the server falls back to the UTC date.
+ */
+export function ownerToday(claimed: unknown, now = Date.now()): string {
+  const utc = new Date(now).toISOString().slice(0, 10);
+  const day = calendarDay(claimed);
+  if (!day) return utc;
+  return Math.abs(Date.parse(`${day}T00:00:00Z`) - Date.parse(`${utc}T00:00:00Z`)) <= DAY_MS ? day : utc;
+}
+
 /**
  * A CRM follow-up that needs a human today: past due, or a date nobody can
  * read. Mirrors followUpState() in apps/financial-services-crm/src/crm.ts --
  * only an exact YYYY-MM-DD is a date, and an unreadable one is never "fine".
+ * Both sides compare calendar days, so the answer does not depend on the
+ * server's clock zone: `today` is the owner's date (see ownerToday).
  */
-export function crmFollowUpReason(value: unknown, now = Date.now()): 'overdue' | 'unreadable' | null {
+export function crmFollowUpReason(value: unknown, today: string): 'overdue' | 'unreadable' | null {
   if (typeof value !== 'string' || value.trim() === '') return null;
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
-  if (!m) return 'unreadable';
-  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
-  const date = new Date(y, mo - 1, d);
-  if (date.getFullYear() !== y || date.getMonth() !== mo - 1 || date.getDate() !== d) return 'unreadable';
-  const today = new Date(now);
-  return date.getTime() < new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() ? 'overdue' : null;
+  const day = calendarDay(value);
+  if (!day) return 'unreadable';
+  return day < today ? 'overdue' : null;
 }
 
 /** Do Not Contact, Withdrawn or suppressed: never put in front of anyone as a call to make. */
@@ -71,7 +99,7 @@ function crmOutreachBlocked(data: Record<string, unknown>): boolean {
   );
 }
 
-function computeDigest(rows: RecordRow[]): DigestItem[] {
+function computeDigest(rows: RecordRow[], today: string): DigestItem[] {
   const items: DigestItem[] = [];
 
   for (const row of rows) {
@@ -111,7 +139,7 @@ function computeDigest(rows: RecordRow[]): DigestItem[] {
     if (row.app_id === 'financial-services-crm' && row.record_type === 'FS_CONTACT') {
       if (data.sensitiveDataPresent === true)
         items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: 'Flagged as holding sensitive data — move it to a company-approved system' });
-      const reason = crmOutreachBlocked(data) ? null : crmFollowUpReason(data.nextFollowUp);
+      const reason = crmOutreachBlocked(data) ? null : crmFollowUpReason(data.nextFollowUp, today);
       if (reason === 'overdue') items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Follow-up overdue (${String(data.nextFollowUp)})` });
       if (reason === 'unreadable') items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: 'Follow-up date cannot be read — set a real date' });
     }
@@ -134,12 +162,12 @@ function rowsForUser(user: { sub: string; role: string }): RecordRow[] {
 }
 
 digestRouter.get('/', (req: AuthedRequest, res) => {
-  const items = computeDigest(rowsForUser(req.user!));
+  const items = computeDigest(rowsForUser(req.user!), ownerToday(req.query.today));
   res.json({ items });
 });
 
 digestRouter.post('/email', asyncHandler(async (req: AuthedRequest, res) => {
-  const items = computeDigest(rowsForUser(req.user!));
+  const items = computeDigest(rowsForUser(req.user!), ownerToday(req.body?.today));
   const text =
     items.length === 0
       ? 'Nothing needs attention right now — all tracked checklists are complete and beneficiary designations are current.'

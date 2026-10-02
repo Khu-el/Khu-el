@@ -153,6 +153,12 @@ export function weekStartOf(ms: number): string {
 
 export type FollowUpState = 'none' | 'unreadable' | 'overdue' | 'today' | 'this-week' | 'later';
 
+/**
+ * A follow-up date is a day on the owner's calendar, so it is read in the
+ * time zone of the browser the owner is using. The server's digest uses the
+ * same rule with the date this browser reports (server/src/routes/digest.ts,
+ * ownerToday), so the two cannot disagree across midnight.
+ */
 export function followUpState(date: string, now: number): FollowUpState {
   if (!date.trim()) return 'none';
   const t = parseDay(date);

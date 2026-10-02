@@ -128,9 +128,21 @@ describe('mapping the CRM Contact Master sheet', () => {
     assert.equal(bo.consentStatus, 'Do Not Contact');
   });
 
-  test('notes that look like regulated data flag the contact rather than being imported silently', async () => {
+  test('notes that look like regulated data are not imported at all, and the contact is flagged', async () => {
     const parsed = parseContacts(await readXlsx(workbook('x', true)));
-    assert.equal(parsed.contacts[1].sensitiveDataPresent, true);
+    const bo = parsed.contacts[1];
+    assert.equal(bo.sensitiveDataPresent, true);
+    assert.equal(parsed.flaggedSensitive, 1);
+    assert.doesNotMatch(bo.notes, /123-45-6789/, 'the SSN must not reach the plan, so it cannot be saved');
+    assert.match(bo.notes, /not imported/);
+    const plan = planImport([], parsed.contacts);
+    assert.ok(plan.creates.every((c) => !/\d{3}-\d{2}-\d{4}/.test(c.notes)));
+  });
+
+  test('a row the file already marked sensitive is still redacted', () => {
+    const rows = parseCsv('Name,Notes,Sensitive Data Present\nAl,SSN 987-65-4321,TRUE\n');
+    const parsed = parseContacts([{ name: 'x.csv', rows }]);
+    assert.doesNotMatch(parsed.contacts[0].notes, /987-65-4321/);
     assert.equal(parsed.flaggedSensitive, 1);
   });
 });
@@ -173,6 +185,9 @@ describe('dates from a spreadsheet', () => {
     assert.equal(toDayString('10/1/2026'), '2026-10-01');
     assert.equal(toDayString('46296'), '2026-10-01');
     assert.equal(toDayString('next Tuesday'), 'next Tuesday', 'not guessed; followUpState reports it unreadable');
+    assert.equal(toDayString('13/45/2026'), '13/45/2026', 'an impossible US date is kept as typed, not rewritten');
+    assert.equal(toDayString('2/30/2026'), '2/30/2026');
+    assert.equal(toDayString('2/29/2028'), '2028-02-29');
     assert.equal(toDayString('12'), '12');
   });
 });

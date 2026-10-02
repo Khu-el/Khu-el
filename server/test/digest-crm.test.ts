@@ -11,7 +11,7 @@ const env = configureTestEnv();
 const { test, before, after, describe } = await import('node:test');
 const assert = (await import('node:assert/strict')).default;
 const { createApp } = await import('../dist/app.js');
-const { crmFollowUpReason } = await import('../dist/routes/digest.js');
+const { crmFollowUpReason, ownerToday } = await import('../dist/routes/digest.js');
 
 const server = await startTestServer(createApp());
 after(async () => {
@@ -76,13 +76,42 @@ describe('CRM items in the digest', () => {
 });
 
 describe('follow-up date rule', () => {
-  const NOW = new Date(2026, 8, 26, 12).getTime();
   test('mirrors the client: only YYYY-MM-DD is a date, and an unreadable one needs attention', () => {
-    assert.equal(crmFollowUpReason('2026-09-25', NOW), 'overdue');
-    assert.equal(crmFollowUpReason('2026-09-26', NOW), null);
-    assert.equal(crmFollowUpReason('9/25/2026', NOW), 'unreadable');
-    assert.equal(crmFollowUpReason('2026-02-30', NOW), 'unreadable');
-    assert.equal(crmFollowUpReason('', NOW), null);
-    assert.equal(crmFollowUpReason(42, NOW), null);
+    const today = '2026-09-26';
+    assert.equal(crmFollowUpReason('2026-09-25', today), 'overdue');
+    assert.equal(crmFollowUpReason('2026-09-26', today), null);
+    assert.equal(crmFollowUpReason('9/25/2026', today), 'unreadable');
+    assert.equal(crmFollowUpReason('2026-02-30', today), 'unreadable');
+    assert.equal(crmFollowUpReason('', today), null);
+    assert.equal(crmFollowUpReason(42, today), null);
+  });
+});
+
+describe("the owner's calendar decides, not the server's clock", () => {
+  // 2026-09-27 03:30 UTC is still 2026-09-26 23:30 in New York (UTC-4).
+  const SERVER_NOW = Date.parse('2026-09-27T03:30:00Z');
+
+  test('the owner\'s date is used on both sides of their midnight', () => {
+    const beforeMidnight = ownerToday('2026-09-26', SERVER_NOW);
+    const afterMidnight = ownerToday('2026-09-27', SERVER_NOW);
+    assert.equal(crmFollowUpReason('2026-09-26', beforeMidnight), null, 'due today for the owner, not overdue');
+    assert.equal(crmFollowUpReason('2026-09-26', afterMidnight), 'overdue');
+  });
+
+  test('without a date from the client, the server falls back to UTC', () => {
+    assert.equal(ownerToday(undefined, SERVER_NOW), '2026-09-27');
+  });
+
+  test('a claimed date more than a day from UTC, or not a real day, is ignored', () => {
+    assert.equal(ownerToday('2026-09-29', SERVER_NOW), '2026-09-27');
+    assert.equal(ownerToday('2026-09-31', SERVER_NOW), '2026-09-27');
+    assert.equal(ownerToday('tomorrow', SERVER_NOW), '2026-09-27');
+    assert.equal(ownerToday('2026-09-28', SERVER_NOW), '2026-09-28', 'UTC+14 can be a day ahead');
+  });
+
+  test('the digest route honours ?today', async () => {
+    const res = await call(server.url, '/api/digest?today=2999-01-01', { token: owner });
+    // 2999 is out of range, so the server's own date applies and the far-future follow-up stays out.
+    assert.equal(res.body.items.some((i: { recordId: string }) => i.recordId === 'c_future'), false);
   });
 });
