@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-30T17:50:00Z",
+  "as_of": "2026-10-02T19:30:00Z",
   "classification": "PUBLIC",
   "note": "DEPLOYED and LIVE_VERIFIED are different states. Nothing reaches LIVE_VERIFIED without evidence that the live surface answered, and a surface that answers with a broken page is DEPLOYED, not LIVE_VERIFIED.",
   "entries": [
@@ -7,15 +7,14 @@
       "target": "Khu-el/Khu-el web/landing",
       "surface": "GitHub Pages project site at https://khu-el.github.io/Khu-el/",
       "state": "LIVE_VERIFIED",
-      "evidence": "Fetched 2026-09-30T17:48Z from this session: HTTP 200, 7456 bytes, <title>NTE Web Apps</title>. Pages is enabled; the deploy workflow's push-to-main runs 15, 16 and 18 concluded success on 2026-09-22 and 2026-09-23.",
+      "evidence": "Fetched 2026-10-02T19:28Z from this session: HTTP 200, <title>NTE Web Apps</title>. Pages is enabled; push-to-main deploys have concluded success since 2026-09-22, most recently run #37 on 2026-10-02T19:23Z for main at ff8a7d7.",
       "lane": "LANE_A"
     },
     {
-      "target": "Khu-el/Khu-el app builds (deal-architect, capital-readiness, notes-underwriting, legacy-estate)",
+      "target": "Khu-el/Khu-el app builds (deal-architect, capital-readiness, notes-underwriting, legacy-estate, financial-services-crm)",
       "surface": "GitHub Pages project site, one directory per app under https://khu-el.github.io/Khu-el/",
-      "state": "DEPLOYED",
-      "evidence": "Deployed and answering, but the served build is broken. Fetched 2026-09-30T17:48Z: https://khu-el.github.io/Khu-el/deal-architect/ returns HTTP 200 and references /deal-architect/assets/index-B9WO4i6K.js, which returns HTTP 404; the same asset under /Khu-el/deal-architect/assets/ returns HTTP 200. The live apps therefore render blank. Not LIVE_VERIFIED.",
-      "blocked_on": "PR #19 corrected the build base path and merged to main at 2026-09-30T17:43Z, but its deploy run (workflow run #21 of the Deploy web apps to GitHub Pages workflow) was cancelled before the deploy job ran, so the fix is on main and not on the live site. See the workflow note below.",
+      "state": "LIVE_VERIFIED",
+      "evidence": "Fetched 2026-10-02T19:28Z from this session. All five apps return HTTP 200 with their own title, and each one's referenced script and stylesheet return 200 at the /Khu-el/<app>/assets/ path the HTML names. Previously DEPLOYED and not LIVE_VERIFIED: the served build referenced its assets one path level too high, so every app rendered blank. PR #19 corrected the base path, and run #26 on 2026-09-30T17:55Z was the first main deploy to carry it to the site.",
       "lane": "LANE_A"
     },
     {
@@ -29,17 +28,17 @@
       "target": "@nte/neterverse-kernel",
       "surface": "Local workspace package; no deployment target",
       "state": "TESTED_LOCALLY",
-      "evidence": "98 tests pass under `npm run test:kernel` on main at a6f07e2, run 2026-09-30 in this session. The earlier entry recorded 43, which was the count when the kernel was first committed.",
+      "evidence": "98 tests pass under `npm run test:kernel`, run 2026-10-02 in this session on this branch merged up to main at ff8a7d7.",
       "lane": "LANE_A"
     }
   ],
   "workflow_notes": [
     {
       "subject": ".github/workflows/deploy-pages.yml",
-      "finding": "The workflow runs on both `pull_request` and `push: main`, and declares `concurrency: {group: pages, cancel-in-progress: true}`. A pull-request run therefore cancels an in-flight main deploy, although a pull-request run never deploys (its deploy job is gated on `github.event_name != 'pull_request'`). Run #21, the main deploy carrying PR #19's base-path fix, was cancelled this way two minutes after it started.",
-      "evidence": "Workflow file on main at a6f07e2; run #21 concluded `cancelled` at 2026-09-30T17:44:01Z, with pull-request runs #22 and #23 starting at 17:43:54Z and 17:45:29Z. Run numbers rather than run identifiers: the audit rule that protects this public repository cannot tell a nine-digit Actions run id from a workspace or record id, and it is right not to try.",
-      "status": "REPORTED_NOT_ACTED",
-      "reason": "Changing when this workflow publishes to a public website is a publish decision under the approval boundary, and the file is being actively edited by another contributor. Recorded here for the principal rather than pushed."
+      "finding": "The workflow ran on both `pull_request` and `push: main` under one `pages` concurrency group with cancel-in-progress, so a pull-request build that can never deploy cancelled a main deploy that can. Run #21, the main deploy carrying PR #19's base-path fix, was cancelled this way two minutes after it started, which is why the four apps stayed blank after the fix merged.",
+      "evidence": "Observed 2026-09-30T17:50Z: run #21 concluded `cancelled` at 17:44:01Z with pull-request runs #22 and #23 starting at 17:43:54Z and 17:45:29Z. Run numbers rather than run identifiers: the audit rule that protects this public repository cannot tell a nine-digit Actions run id from a workspace or record id, and it is right not to try.",
+      "status": "RESOLVED",
+      "resolution": "Fixed on main by PR #23 (merged 2026-10-02T18:42Z), not by this session: pull-request runs now take a per-ref group and keep cancel-in-progress, while deploying runs queue behind each other instead of being cancelled. Recorded here as REPORTED_NOT_ACTED while it was open, because changing when this workflow publishes to a public website is a publish decision under the approval boundary."
     }
   ]
 }
