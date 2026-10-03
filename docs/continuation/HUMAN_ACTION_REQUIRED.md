@@ -8,6 +8,29 @@ completed without the human step has been.
 
 ---
 
+> ### 📌 Standing instruction from the principal, 2026-10-03
+>
+> **"Disregard all undone manual tasks."** Given alongside a grant of Drive write access, which
+> closed the one item that grant unblocked (SC-11 recommendation 2 — the Entity/Asset List is
+> renamed).
+>
+> **What that changes:** the open items below are **no longer to be raised as blockers** by a
+> session picking this up. Do not re-surface them as asks, do not schedule check-ins against them,
+> and do not treat them as gating other work.
+>
+> **What it does not change:** the items stay recorded. An instruction to stop chasing a task is
+> not evidence the underlying condition was resolved, and deleting the record would make the next
+> reader believe it was. Each remains true until something changes it.
+>
+> ⚠️ **One of them is a finding, not a task, and is called out here because the distinction
+> matters.** The EIN position — one externally verified EIN issued to one entity, with eight more
+> annotated as "secondary" — sits at `PROFESSIONAL_REVIEW_REQUIRED` in
+> `SOURCE_CONFLICTS.md` SC-11. A session was never going to perform it, and deprioritising the
+> *chasing* of it does not lower its status. It is recorded, it is not being raised, and it is
+> still what it was.
+
+---
+
 ## 1. ~~Enable GitHub Pages~~ — done 2026-09-23
 
 > **Update 2026-09-23.** Pages is enabled with source GitHub Actions: the deploy run for the #18
@@ -197,3 +220,144 @@ steps as ⚪ UNKNOWN rather than as passing** — that rule is written into the 
 | **Verify** | A `Network Integrity Watch — <date>` row appears in the Executive OS Knowledge Registry after each Sunday run. |
 
 🟢 **Not urgent.** The automation is running. This only removes its dependence on one session.
+---
+
+## 10. Archive `Khu-el/NTE-Command-Center` and `Khu-el/StructureGen` — approved 2026-10-02
+
+| | |
+|---|---|
+| **Project** | NTE Command Center — SC-03 |
+| **Service** | GitHub |
+| **Exact blocker** | Archiving a repository is an account action behind §10. The comparison SC-03 asked for is **done**: the repository was opened 2026-09-18 and is a superseded 2026-03-13 generation, holding nothing `nte-command-center/` on `main` lacks. |
+| **Exact action** | Settings → General → Danger Zone → **Archive this repository**. Put a line in its README first: *"Superseded by `nte-command-center/` in `Khu-el/Khu-el`. Retained for history."* |
+| **Where** | `https://github.com/Khu-el/NTE-Command-Center/settings` |
+| **Afterwards** | SC-03 closes. Until then a reader who finds it has no way to know it is stale — which is the whole cost SC-03 names. |
+| **Verify** | The repository shows the **Public archive** / **Archived** banner. |
+
+**Second repository, same action — `Khu-el/StructureGen`:**
+
+| | |
+|---|---|
+| **Exact blocker** | Same §10 account action. |
+| **Exact action** | Settings → General → Danger Zone → **Archive this repository**. README line: *"Archived 2026-10-02. A structure-design tool; its output is proposed structures, not a record of entities that exist. Superseded for entity-of-record purposes by the NTE Entity Registry in Notion."* |
+| **Where** | `https://github.com/Khu-el/StructureGen/settings` |
+| **Verify** | The repository shows the **Archived** banner. |
+
+✅ **Both approved by the principal on 2026-10-02.** They remain listed here because archiving is a
+console action no session can perform — there is no archive tool in this session's GitHub surface,
+and `create_repository` / `fork_repository` are not substitutes.
+
+🟢 **Low urgency, low cost, and it ends a standing conflict.** `StructureGen`'s last commit is
+2025-12-21, it is unrelated to both command centers, and nothing in the account references it.
+
+⚠️ **Read the README line before pasting it.** It is a claim about supersession, and a wrong one
+committed to a repository outlives the session that wrote it.
+
+---
+
+## 11. ~~Populate the Notion entity and capacity registries~~ — premise invalid; reopened as SC-10
+
+| | |
+|---|---|
+| **Project** | Entity governance — SC-08 |
+| **Service** | Notion → `04.01 Entities Registry — NTE/CCRLT`, `04.02 Roles & Capacities Registry` |
+| **Exact blocker** | Two things. **(a)** `docs/CONNECTORS.md` records Notion as `write_authorized: false` — reads are authorized, writes are not. **(b)** Four of the nine entity names are not settled (item 12), so a row written today would record a provisional name as though it were a decision. |
+| **Why it matters most** | Both databases have complete, well-designed schemas and **zero rows.** That is the root cause of SC-08: four generations of entity names exist because the canonical list was never filled in, so every document re-typed one from memory. `04.01` even carries a `Source Basis` field whose options already encode this account's evidence discipline. |
+| **Exact action** | Grant write authorization for these two databases specifically — not a blanket Notion write — and settle item 12. Then a session can populate `04.01` from `nte-command-center/seed/governance.json`, carrying each entity's `nameStatus` into `Source Basis` (`CONFIRMED` → `Documented`, `PROVISIONAL` → `Requires verification`). |
+| **Afterwards** | A fifth naming generation becomes impossible: every downstream copy cites one row. |
+| **Verify** | `04.01` returns nine rows; each `PROVISIONAL` name carries `Source Basis: Requires verification` rather than `Documented`. |
+
+> ### ⛔️ Update 2026-10-02 — do not action items 11 and 12 as written
+>
+> The principal authorized the scoped write and confirmed all four names on 2026-10-02. **Neither was
+> carried out.** Both rest on a premise that checking the live workspace disproved: the registry they
+> name (`04.01`) no longer exists, and the registry that does exist is **already populated and
+> maintained**, not empty. It also disagrees with two of the four confirmed names on what the entity
+> *does* — `VEI` is a digital-services company there, not advisory; `NPE` is a private-equity
+> company, not a publisher.
+>
+> `nte-command-center/CLAUDE.md` makes the direction of correction explicit: Notion is the system of
+> record for registers, and *"the console is corrected from it, never the other way round."* So the
+> seed is corrected from the registry, not the registry from the seed.
+>
+> **`SOURCE_CONFLICTS.md` SC-10 carries the full comparison and the four questions that must settle
+> first.** The write authorization stands and is recorded in `connector-registry.json`; it is on hold,
+> not withdrawn.
+
+⚠️ **Do not let this be done as a bulk paste of the April 2026 Notion names.** Those are the third
+of four generations — see SC-08's table. `seed/governance.json` is the controlling source.
+
+📎 **Related but not the same task — do not merge them.** `ST-OTHER-001` (Executive OS Network
+Integrity Watch) already runs weekly against Notion and already holds the connectors. It maintains
+the **navigation layer** — which index page links to which command center — and its definition is
+explicit that it reads registry *metadata* only and never reasons over record contents. Populating
+`04.01` with entity rows **is** record content, so it belongs to a capacity that may write them,
+not to `OTHER:SYSTEMS`. The overlap worth using is narrower: that task is already looking at these
+registries weekly, so it is the cheapest place to **notice** `04.01` is still empty and say so.
+
+📌 **One authorization fact to confirm rather than assume.** `ST-OTHER-001` writes additive
+navigation links to Notion, while the connector registry records Notion as `write_authorized:
+false`. Either the flag is stale or that task's writes are a scoped exception. Whichever it is,
+it is the principal's to state — a session must not infer a broader write grant from the existence
+of a narrower one.
+
+---
+
+## 12. ~~Confirm or reject four provisional entity names~~ — two of the four are contradicted by the system of record
+
+| | |
+|---|---|
+| **Project** | Entity governance — SC-08 |
+| **Service** | — a decision, not a system |
+| **Exact blocker** | `nte-command-center/seed/governance.json` marks four of nine entity names `PROVISIONAL`, each with a stated reason. Only the principal can confirm a name. |
+| **Exact action** | For each, confirm the recommendation or supply the correct name: |
+
+| Code | Recommended name | Why it is unsettled, per the source |
+|---|---|---|
+| `VEI` | **Advisory Inc.** | *"The prior name reads as an investment vehicle to lenders and regulators."* |
+| `OPS` | **Operations & Systems Inc.** | *"Recommended, not confirmed. The determination was a hybrid across two naming sets."* |
+| `NPE` | **Publishing & Education Inc.**, with a digital and AI division | *"Recommended as one entity with a division, not split into a second entity."* |
+| `QVI` | **Quantum Vault Inc.** | *"The enforcement reading of this entity collides with an excluded line and was rejected."* |
+
+| | |
+|---|---|
+| **Afterwards** | Item 11 unblocks, and `seed/governance.json` can flip those four to `CONFIRMED`. |
+| **Verify** | No entity in `seed/governance.json` carries `nameStatus: PROVISIONAL`. |
+
+📎 **A second, smaller naming question rides along.** Sources disagree on whether the Lane B trust
+is the *Christopher Chaz Ransom **Living Trust*** or the *Christopher Chaz Ransom-**El** Living
+Trust*. Only the trust instrument settles it, and no session has read one. On an instrument naming
+the trust as a party this is not cosmetic.
+
+---
+
+## 13. ~~Decide whether `Neterverse.tech` comes under this repository's boundary~~ — decided 2026-10-02
+
+| | |
+|---|---|
+| **Project** | Network governance — SC-09 |
+| **Service** | — a decision |
+| **Exact blocker** | Notion records `Neterverse.tech` as **Live**, on its own hostname, with its own Postgres, object storage and card payments. `docs/DOMAIN_NETWORK.md` and `docs/CONNECTORS.md` both claimed completeness and neither mentioned it. |
+| **Why it matters** | The boundary enforced here — invite-only, self-send-only, no money movement — lives in `server/` and `packages/neterverse-kernel/src/risk.ts`. A separate platform inherits none of it. `move_money`, `transact` and `purchase` are `HUMAN_ONLY_ACTIONS` here; there, card payments are the product. |
+| **Exact action** | Choose one: **(a)** bring it onto the map and under the boundary, which means a lane, a risk tier, an owning automation engine and a connector row each for its data store, object storage and payment processor; or **(b)** record it as a deliberately separate network with its own governance, and narrow both files' scope sentences to say so. |
+| **Afterwards** | SC-09 closes. Both files now carry a flagged section, so the gap is visible either way — but a flag is a description of a problem, not a decision. |
+| **Verify** | Neither file claims to cover "every property" while a live property sits outside it. |
+
+> ### ✅ Decided 2026-10-02 — a separate network with its own governance
+>
+> The principal chose option (b). `Neterverse.tech` is **not** brought under this repository's
+> boundary. Both files were narrowed instead: `DOMAIN_NETWORK.md` is canonical *for
+> `excellencedistrict.org` only*, `CONNECTORS.md` *for connectors reachable from this repository*.
+> SC-09 is closed.
+>
+> **Nothing was done to the platform** — no DNS, no hosting, no database, no payment configuration.
+> The decision changed what two documents claim, not what runs.
+>
+> **The only thing still worth doing here is nothing.** Governance for that network lives wherever
+> its owner puts it. This repository should not be read as evidence that it has any, and a future
+> session should not "fix" the gap by quietly pulling it back onto this map — that would reverse a
+> decision, not complete one.
+
+🟡 **Both options were defensible. The state that was not — unmapped and unmentioned — is the one
+this item ended.** No change was made to `Neterverse.tech` and none was proposed; this was about what these
+two files claim.

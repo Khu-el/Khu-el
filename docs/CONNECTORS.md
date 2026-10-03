@@ -1,8 +1,17 @@
 # 🔌 CONNECTORS.md — connectors, tools, and plugins on the domain network
 
-**Canonical file.** Companion to [`docs/DOMAIN_NETWORK.md`](DOMAIN_NETWORK.md), which maps
-hostnames. This one maps capabilities: what is connected, to which property, and what each one is
-and is not allowed to do.
+**Canonical file — for connectors reachable from this repository.** Companion to
+[`docs/DOMAIN_NETWORK.md`](DOMAIN_NETWORK.md), which maps hostnames on `excellencedistrict.org`.
+This one maps capabilities: what an agent session working *here* can connect to, to which property,
+and what each one is and is not allowed to do.
+
+🚩 **It is not an inventory of every service the account uses, and no longer claims to be.** The
+principal decided on 2026-10-02 that `Neterverse.tech` is a **deliberately separate network with
+its own governance**; its data store, object storage and payment processor are governed there, not
+by this file or by the boundary in `server/` and `packages/neterverse-kernel/src/risk.ts`. That
+decision closed `SOURCE_CONFLICTS.md` SC-09. The rows below describing that stack stay as a
+**pointer**, so nobody reads this file's silence as "nothing else exists" — they are not an
+authorization and nothing here is wired to it.
 
 ---
 
@@ -51,7 +60,7 @@ Added 2026-10-02 after a live probe found both connected and neither listed here
 
 | Connector | Serves | Verdict | Notes |
 |---|---|---|---|
-| Google Drive | Evidence capture for all apps | 🟡 | Reading source documents is fine. Sharing a file changes who can see it — that is a §10 publish action. |
+| Google Drive | Evidence capture for all apps; **Record Truth** per the Executive OS map | 🟡 **Write authorized 2026-10-03** | Reading source documents is fine. Writing is now authorized and has been exercised once — a rename declaring a superseded AI draft for what it is (`SOURCE_CONFLICTS.md` SC-11). **Sharing a file changes who can see it — still a §10 publish action, and a write grant is not a share grant.** Trashing is not authorized at all: Drive can trash a file and cannot restore one. |
 | Notion | Neterverse DAO portal, task registry | 🟡 | The portal's "Notion Portal (Coming Soon)" link has no destination yet. Creating one is a publish decision, not a wiring decision. |
 | Firecrawl | Research under §5 | ✅ | Web and paper search. Forum and social results may *identify* an issue; they never *establish* one. |
 | Canva · ElevenLabs · vidIQ | Public-facing material | 🟡 | Generation is free; distribution is not. Nothing goes out under the principal's name without authorization. |
@@ -78,6 +87,28 @@ Added 2026-10-02 after a live probe found both connected and neither listed here
 | Wix · Shopify · Floot | Nothing currently | ⛔️ for this network | The apex is Squarespace-hosted and the apps are Vite + React on Pages. Introducing a fourth hosting stack fragments a network this file exists to consolidate (§9 — strengthen the ecosystem rather than starting another project). |
 | Indeed | Nothing | ⛔️ | No property in this account has a hiring surface. |
 | Anthropic Economic Index | Background research only | ✅ | Describes observed Claude usage. It supports no claim about anyone's job or the labor market. |
+
+### 🚩 Infrastructure in use that no connector row covers
+
+Recorded 2026-10-02. This file calls itself the registry of *"every connector, tool, and plugin"*
+on the network. The services below are named in the Notion governance workspace as part of a live
+property, and **none of them had a row here.** They are listed so the gap is visible — listing is
+not authorization, and nothing here is wired to this repository.
+
+| Service | Serves | Verdict | Notes |
+|---|---|---|---|
+| Managed Postgres (via an ORM) | `Neterverse.tech` data store | 🟡 **Ungoverned** | Not the invite-only SQLite backend in `server/`. A second data store holding real records, outside this repository's access rules. |
+| Object storage (AWS S3) | Seal-suite image assets for `Neterverse.tech` | 🟡 **Ungoverned** | Bucket and region are recorded in Notion, deliberately not copied here — a bucket name is an infrastructure identifier and this repository is public. |
+| Card payments (Stripe) | `Neterverse.tech` checkout | ⛔️ **Money movement — §10** | `move_money`, `transact` and `purchase` are `HUMAN_ONLY_ACTIONS` in `packages/neterverse-kernel/src/risk.ts`. No automation in this account may touch it, and no session may be given its keys. |
+
+⚠️ **The point of these three rows is the gap, not the tools.** A live property that stores
+customer records and takes card payments sits entirely outside the boundary this file enforces
+— no lane assignment, no risk tier, no owning automation engine. That is a governance finding
+recorded in `docs/continuation/SOURCE_CONFLICTS.md` SC-09, not a proposal to connect anything.
+
+*Evidence: Notion `🏛️ Neterverse Trust Enterprise — 2026 Command Center`
+(`NTE-GOV-2026-CMD-001`), read 2026-09-18. 🟠 `DOCUMENT_CLAIM` — Notion states this stack; it
+was not probed.*
 
 ---
 
