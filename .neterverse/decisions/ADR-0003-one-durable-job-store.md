@@ -130,6 +130,15 @@ counts of jobs by status in `metrics`, identifiers (if any) in `detail`, which n
   with the token, without JWT, for about ten minutes. It was then replaced with a `410` stub
   behind JWT and deleted again. No request to it during that window is recorded; ⚪ UNKNOWN
   whether any was made.
+- ⚠️ **A second contributor is building on the runner (2026-10-03).** An actor recorded as
+  `chatgpt` applied five `neterverse_orchestrator_v1_*` migrations to the runner's project. They
+  add a `deterministic` step kind, a `system` domain, an execution graph, and step readiness and
+  priority. It then ran its own validation workers. This is consistent with decision 1, since it
+  extends the one store and does not start another. But decision 4 assumed a single worker: the
+  shared claim function now offers every non-approval step to every worker, so two fleets
+  would take each other's work. `ST-NTE-002` is paused until the claim contract says which
+  worker owns which steps. That is the open coordination item, and it is AI Council §10
+  territory: neither contributor should settle it alone.
 - ⚠️ **Open, for the principal:** the "Excellence District Production" project is no longer
   paused (`ACTIVE_HEALTHY`, 2026-10-03). Its relationship to the documented SQLite backend in
   `server/` is still ⚪ UNKNOWN. Two backends for the same apps would be a second conflict of the
