@@ -8,6 +8,29 @@ completed without the human step has been.
 
 ---
 
+> ### 📌 Standing instruction from the principal, 2026-10-03
+>
+> **"Disregard all undone manual tasks."** Given alongside a grant of Drive write access, which
+> closed the one item that grant unblocked (SC-11 recommendation 2 — the Entity/Asset List is
+> renamed).
+>
+> **What that changes:** the open items below are **no longer to be raised as blockers** by a
+> session picking this up. Do not re-surface them as asks, do not schedule check-ins against them,
+> and do not treat them as gating other work.
+>
+> **What it does not change:** the items stay recorded. An instruction to stop chasing a task is
+> not evidence the underlying condition was resolved, and deleting the record would make the next
+> reader believe it was. Each remains true until something changes it.
+>
+> ⚠️ **One of them is a finding, not a task, and is called out here because the distinction
+> matters.** The EIN position — one externally verified EIN issued to one entity, with eight more
+> annotated as "secondary" — sits at `PROFESSIONAL_REVIEW_REQUIRED` in
+> `SOURCE_CONFLICTS.md` SC-11. A session was never going to perform it, and deprioritising the
+> *chasing* of it does not lower its status. It is recorded, it is not being raised, and it is
+> still what it was.
+
+---
+
 ## 1. ~~Enable GitHub Pages~~ — done 2026-09-23
 
 > **Update 2026-09-23.** Pages is enabled with source GitHub Actions: the deploy run for the #18

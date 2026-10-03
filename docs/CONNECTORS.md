@@ -60,7 +60,7 @@ Added 2026-10-02 after a live probe found both connected and neither listed here
 
 | Connector | Serves | Verdict | Notes |
 |---|---|---|---|
-| Google Drive | Evidence capture for all apps | 🟡 | Reading source documents is fine. Sharing a file changes who can see it — that is a §10 publish action. |
+| Google Drive | Evidence capture for all apps; **Record Truth** per the Executive OS map | 🟡 **Write authorized 2026-10-03** | Reading source documents is fine. Writing is now authorized and has been exercised once — a rename declaring a superseded AI draft for what it is (`SOURCE_CONFLICTS.md` SC-11). **Sharing a file changes who can see it — still a §10 publish action, and a write grant is not a share grant.** Trashing is not authorized at all: Drive can trash a file and cannot restore one. |
 | Notion | Neterverse DAO portal, task registry | 🟡 | The portal's "Notion Portal (Coming Soon)" link has no destination yet. Creating one is a publish decision, not a wiring decision. |
 | Firecrawl | Research under §5 | ✅ | Web and paper search. Forum and social results may *identify* an issue; they never *establish* one. |
 | Canva · ElevenLabs · vidIQ | Public-facing material | 🟡 | Generation is free; distribution is not. Nothing goes out under the principal's name without authorization. |

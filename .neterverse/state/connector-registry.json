@@ -37,14 +37,14 @@
       "verification_state": "LIVE_VERIFIED",
       "verification_method": "File listing and file read both returned; currency now tracked by live observation",
       "access": "READ_WRITE",
-      "write_authorized": false,
+      "write_authorized": true,
       "lane_scope": [
         "LANE_A",
         "LANE_B",
         "PERSONAL"
       ],
       "last_verified": "2026-09-11T06:50:00Z",
-      "notes": "Read-only in this session. Drive remains the system of record; file identifiers are not recorded in this public repository."
+      "notes": "Write authorized by the principal 2026-10-03. Exercised once: the document the governance hub linked as the NTE Entity & Asset Registry was RENAMED IN PLACE to declare it a superseded, unedited AI draft rather than a registry - see SOURCE_CONFLICTS.md SC-11. The rename keeps the file's link, so every existing reference still resolves and now announces what it is. No content was changed, moved or trashed. No Google Docs editor connector is attached to this session, so an in-body notice is not possible from here; a rename is the whole of what Drive alone can do. Drive remains the system of record for authoritative files per the Executive OS map, and file identifiers are not recorded in this public repository."
     },
     {
       "connector_id": "clickup",

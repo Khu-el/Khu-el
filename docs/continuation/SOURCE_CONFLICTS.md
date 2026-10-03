@@ -592,9 +592,23 @@ was right before this search and is right after it.
 
 1. **Professional review of the EIN position** before any entity name is used on an external
    instrument. One verified EIN, nine asserted entities.
-2. **Unlink or relabel the "Entity/Asset List"** from FOUNDATIONAL INSTRUMENTS. It is a superseded
-   AI draft presented as live governance, and anyone reading the hub in good faith would take it
-   for a record.
+2. ~~**Unlink or relabel the "Entity/Asset List"** from FOUNDATIONAL INSTRUMENTS.~~ ✅ **Done
+   2026-10-03**, once the principal granted Drive write. The document was **renamed in place** to
+   `[SUPERSEDED — NOT A REGISTRY] … unedited AI draft, May 2025, superseded DAO/blockchain
+   architecture`. The rename keeps the file's link, so the hub's link and every other reference
+   still resolve — and now announce what they point at. **No content was changed, moved or
+   trashed**, per this account's own rule to *"cure conflicts by amendment rather than silent
+   rewrite."*
+
+   ⚠️ **A rename is the whole of what Drive alone can do.** No Google Docs editor connector is
+   attached to this session, so the body still opens *"Below is the most comprehensive list of
+   entities…"* with no notice above it. **Anyone who opens the file past the title still meets an
+   AI draft presented as governance.** Attaching the Google Docs connector would let a session put
+   a notice at the top of the body; until then the title is the only warning, and it is carrying
+   the whole load.
+
+   📎 The document was last modified **May 2025** — roughly seventeen months before this rename.
+   Its staleness was not visible from the hub, which listed it as "Live".
 3. ~~**Locate the formation documents, or record that there are none.**~~ ✅ **Done 2026-10-02** —
    they exist, per-entity, across Drive. See the correction above. The open part is narrower:
    **is any of them externally registered?** Nothing located shows a filing stamp or registration
