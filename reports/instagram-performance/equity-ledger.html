@@ -576,6 +576,16 @@ function score(list){
   return list;
 }
 
+/* Guards score(): a malformed saved entry would throw on p.likes and halt startup. */
+function usablePosts(list){
+  return list.filter(function(p){
+    return p && typeof p === "object" && !Array.isArray(p) &&
+      ["reach","likes","comments","shares","saves","follows"].every(function(k){
+        return typeof p[k] === "number" && isFinite(p[k]);
+      });
+  });
+}
+
 /* ===================== parsing ===================== */
 function splitLine(line, delim){
   var out=[], cur="", q=false;
@@ -923,8 +933,9 @@ bind();
 var stored = null;
 try{ stored = JSON.parse(localStorage.getItem("equity-ledger") || "null"); }catch(e){}
 if(stored && Array.isArray(stored.posts)){
-  commit(stored.posts.slice(), "");
-  setSaveState("Loaded from this browser — " + stored.posts.length + " posts", false);
+  var saved = usablePosts(stored.posts);
+  commit(saved, "");
+  setSaveState("Loaded from this browser — " + saved.length + " posts", false);
 } else {
   commit(examples(), "");
   setSaveState("Working locally — example set loaded", false);
@@ -943,8 +954,9 @@ if(stored && Array.isArray(stored.posts)){
       var snap = await dbNS.doc("ledger/current").get();
       var d = snap && snap.exists ? snap.data() : null;
       if(d && Array.isArray(d.posts)){
-        commit(d.posts.slice(), "");
-        setSaveState("Loaded your saved record — " + d.posts.length + " posts", true);
+        var kept = usablePosts(d.posts);
+        commit(kept, "");
+        setSaveState("Loaded your saved record — " + kept.length + " posts", true);
       } else {
         setSaveState("Ready to save — example set loaded", true);
       }
