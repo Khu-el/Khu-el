@@ -565,8 +565,8 @@ function score(list){
     p.ep = p.likes + p.comments*3 + p.shares*5 + p.saves*5 + p.follows*10;
     p.epk = p.reach > 0 ? (p.ep / p.reach) * 1000 : 0;
   });
-  var maxEpk = Math.max.apply(null, list.map(function(p){return p.epk;}).concat([1]));
-  var maxReach = Math.max.apply(null, list.map(function(p){return p.reach;}).concat([1]));
+  var maxEpk = Math.max.apply(null, list.map(function(p){return p.epk;}).concat([0]));
+  var maxReach = Math.max.apply(null, list.map(function(p){return p.reach;}).concat([0]));
   list.forEach(function(p){
     var e = maxEpk ? p.epk/maxEpk : 0;
     var r = maxReach ? Math.sqrt(p.reach/maxReach) : 0;
@@ -587,19 +587,22 @@ function usablePosts(list){
 }
 
 /* ===================== parsing ===================== */
-function splitLine(line, delim){
-  var out=[], cur="", q=false;
-  for(var i=0;i<line.length;i++){
-    var c=line[i];
+function splitRecords(text, delim){
+  var rows=[], cur=[], val="", q=false;
+  for(var i=0;i<text.length;i++){
+    var c=text[i];
     if(q){
-      if(c==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else q=false; }
-      else cur+=c;
-    } else if(c==='"'){ q=true; }
-    else if(c===delim){ out.push(cur); cur=""; }
-    else cur+=c;
+      if(c==='"'){ if(text[i+1]==='"'){ val+='"'; i++; } else q=false; }
+      else val+=c;
+    }
+    else if(c==='"'){ q=true; }
+    else if(c===delim){ cur.push(val); val=""; }
+    else if(c==="\n"){ cur.push(val); rows.push(cur); cur=[]; val=""; }
+    else if(c==="\r"){ }
+    else val+=c;
   }
-  out.push(cur);
-  return out.map(function(s){return s.trim();});
+  if(val.length||cur.length){ cur.push(val); rows.push(cur); }
+  return rows.filter(function(r){ return r.some(function(v){ return v.trim().length; }); });
 }
 function findCol(headers, patterns){
   for(var p=0;p<patterns.length;p++){
@@ -610,10 +613,11 @@ function findCol(headers, patterns){
   return -1;
 }
 function parsePaste(text){
-  var lines = text.split(/\r?\n/).filter(function(l){ return l.trim().length; });
-  if(lines.length < 2) throw new Error("Needs a header row and at least one post row.");
-  var delim = (lines[0].split("\t").length > lines[0].split(",").length) ? "\t" : ",";
-  var headers = splitLine(lines[0], delim).map(function(h){ return h.toLowerCase(); });
+  var first = (text.split(/\r?\n/)[0] || "");
+  var delim = (first.split("\t").length > first.split(",").length) ? "\t" : ",";
+  var recs = splitRecords(text, delim);
+  if(recs.length < 2) throw new Error("Needs a header row and at least one post row.");
+  var headers = recs[0].map(function(h){ return h.toLowerCase(); });
   var col = {
     title:   findCol(headers,["description","caption","title","post text","content"]),
     type:    findCol(headers,["post type","media type","format","type"]),
@@ -629,8 +633,8 @@ function parsePaste(text){
   };
   if(col.reach === -1 && col.views === -1) throw new Error("No reach or views column found in that header row.");
   var out = [];
-  for(var i=1;i<lines.length;i++){
-    var c = splitLine(lines[i], delim);
+  for(var i=1;i<recs.length;i++){
+    var c = recs[i];
     if(c.length < 2) continue;
     var g = function(k){ return col[k] >= 0 && col[k] < c.length ? c[col[k]] : ""; };
     var reach = num(g("reach")), views = num(g("views"));
@@ -695,16 +699,16 @@ function renderDossiers(){
         '</div>'+
       '</div>'+
       '<div class="fields">'+
-        '<div class="field"><label class="eyebrow">Angle</label>'+
-          '<select data-f="angle">'+opts(ANGLES,p.angle)+'</select></div>'+
-        '<div class="field"><label class="eyebrow">Hook archetype <i>first 3–5 sec</i></label>'+
-          '<select data-f="hook">'+opts(HOOKS,p.hook)+'</select></div>'+
-        '<div class="field"><label class="eyebrow">Topic</label>'+
-          '<input type="text" data-f="topic" value="'+esc(p.topic)+'" placeholder="e.g. Bank credit mechanics"></div>'+
-        '<div class="field"><label class="eyebrow">Title hook <i>on-screen headline</i></label>'+
-          '<input type="text" data-f="titleHook" value="'+esc(p.titleHook)+'" placeholder="e.g. WHO FUNDED THE LOAN?"></div>'+
-        '<div class="field full"><label class="eyebrow">Why it worked <i>run the five checks in Article VI</i></label>'+
-          '<textarea data-f="why" placeholder="Which of the five fired — retention, saves, shares, the gap, or conversion? Name it, then say what to repeat.">'+esc(p.why)+'</textarea></div>'+
+        '<div class="field"><label class="eyebrow" for="f_angle_'+p.id+'">Angle</label>'+
+          '<select id="f_angle_'+p.id+'" data-f="angle">'+opts(ANGLES,p.angle)+'</select></div>'+
+        '<div class="field"><label class="eyebrow" for="f_hook_'+p.id+'">Hook archetype <i>first 3–5 sec</i></label>'+
+          '<select id="f_hook_'+p.id+'" data-f="hook">'+opts(HOOKS,p.hook)+'</select></div>'+
+        '<div class="field"><label class="eyebrow" for="f_topic_'+p.id+'">Topic</label>'+
+          '<input id="f_topic_'+p.id+'" type="text" data-f="topic" value="'+esc(p.topic)+'" placeholder="e.g. Bank credit mechanics"></div>'+
+        '<div class="field"><label class="eyebrow" for="f_title_'+p.id+'">Title hook <i>on-screen headline</i></label>'+
+          '<input id="f_title_'+p.id+'" type="text" data-f="titleHook" value="'+esc(p.titleHook)+'" placeholder="e.g. WHO FUNDED THE LOAN?"></div>'+
+        '<div class="field full"><label class="eyebrow" for="f_why_'+p.id+'">Why it worked <i>run the five checks in Article VI</i></label>'+
+          '<textarea id="f_why_'+p.id+'" data-f="why" placeholder="Which of the five fired — retention, saves, shares, the gap, or conversion? Name it, then say what to repeat.">'+esc(p.why)+'</textarea></div>'+
       '</div>'+
       '<div class="dossier-foot">'+
         '<button class="btn ghost ai" data-id="'+p.id+'" hidden>Draft this with Claude</button>'+
@@ -769,9 +773,9 @@ async function draftWithClaude(e){
 }
 
 /* ===================== render: patterns ===================== */
-function bars(target, rows){
+function bars(target, rows, note){
   var el = $(target);
-  if(!rows.length){ el.innerHTML = '<p class="hint">Assign fields in Article IV and this fills in.</p>'; return; }
+  if(!rows.length){ el.innerHTML = '<p class="hint">'+esc(note || "Assign fields in Article IV and this fills in.")+'</p>'; return; }
   var max = Math.max.apply(null, rows.map(function(r){return r.v;}).concat([1]));
   el.innerHTML = rows.map(function(r){
     return '<div class="patrow"><div class="nm">'+esc(r.n)+' <span class="hint mono">&times;'+r.c+'</span></div>'+
@@ -790,10 +794,17 @@ function group(keyFn, nameFn){
     .sort(function(a,b){ return b.v - a.v; });
 }
 function nameOf(list,k){ var f = list.filter(function(o){return o.k===k;})[0]; return f?f.n:k; }
+var MIN_PATTERN = 4;
 function renderPatterns(){
-  bars("patAngle", group(function(p){return p.angle;}, function(k){return nameOf(ANGLES,k);}));
-  bars("patHook",  group(function(p){return p.hook;},  function(k){return nameOf(HOOKS,k);}));
-  bars("patFormat",group(function(p){return p.type;},  function(k){return k;}));
+  var counted = function(f){ return posts.filter(function(p){ return p[f]; }).length; };
+  var short = function(c){
+    var left = MIN_PATTERN - c;
+    return c ? left + " more dossier" + (left === 1 ? "" : "s") + " and this fills in — a pattern needs " + MIN_PATTERN + "." : null;
+  };
+  var a = counted("angle"), h = counted("hook"), f = posts.length;
+  bars("patAngle",  a >= MIN_PATTERN ? group(function(p){return p.angle;}, function(k){return nameOf(ANGLES,k);}) : [], short(a));
+  bars("patHook",   h >= MIN_PATTERN ? group(function(p){return p.hook;},  function(k){return nameOf(HOOKS,k);})  : [], short(h));
+  bars("patFormat", f >= MIN_PATTERN ? group(function(p){return p.type;},  function(k){return k;})                : [], short(f));
 }
 
 /* ===================== render: header stats ===================== */
@@ -821,6 +832,9 @@ function renderReference(){
 }
 
 /* ===================== persistence ===================== */
+/* Remote writes stay closed until the first database read lands, so a queued
+   boot save cannot overwrite a stored ledger before it has been read. */
+var remoteReady = false;
 function setSaveState(text, live){
   $("saveState").textContent = text;
   $("saveDot").className = "dot" + (live ? " live" : "");
@@ -831,15 +845,17 @@ function queueSave(){
 }
 async function save(){
   var body = {posts:posts, savedAt:new Date().toISOString()};
-  try{ localStorage.setItem("equity-ledger", JSON.stringify(body)); }catch(e){}
-  if(dbNS){
+  var localOk = true;
+  try{ localStorage.setItem("equity-ledger", JSON.stringify(body)); }catch(e){ localOk = false; }
+  if(dbNS && remoteReady){
     try{
       await dbNS.doc("ledger/current").set(body);
       setSaveState("Saved — " + posts.length + " posts on the record", true);
       return;
     }catch(e){}
   }
-  setSaveState("Saved in this browser — " + posts.length + " posts", false);
+  setSaveState(localOk ? "Saved in this browser — " + posts.length + " posts"
+                       : "Not saved — this browser blocked local storage", false);
 }
 function commit(list, msg){
   posts = score(list);
@@ -906,7 +922,22 @@ function bind(){
     ["mTitle","mReach","mViews","mLikes","mComments","mShares","mSaves","mFollows"].forEach(function(k){ $(k).value = ""; });
     commit(list, "Row added.");
   });
-  $("btnExamples").addEventListener("click", function(){ commit(examples(), "Example set reloaded — these are not your figures."); });
+  var examplesArmed = false;
+  $("btnExamples").addEventListener("click", function(){
+    var hasOwn = posts.some(function(p){ return !p.ex; });
+    if(hasOwn && !examplesArmed){
+      examplesArmed = true;
+      this.textContent = "Confirm — replace your record";
+      this.classList.add("seal");
+      var self = this;
+      setTimeout(function(){ examplesArmed = false; self.textContent = "Reload example set"; self.classList.remove("seal"); }, 4000);
+      return;
+    }
+    examplesArmed = false;
+    this.textContent = "Reload example set";
+    this.classList.remove("seal");
+    commit(examples(), "Example set reloaded — these are not your figures.");
+  });
   var clearArmed = false;
   $("btnClear").addEventListener("click", function(){
     if(!clearArmed){
@@ -953,6 +984,7 @@ if(stored && Array.isArray(stored.posts)){
     try{
       var snap = await dbNS.doc("ledger/current").get();
       var d = snap && snap.exists ? snap.data() : null;
+      remoteReady = true;
       if(d && Array.isArray(d.posts)){
         var kept = usablePosts(d.posts);
         commit(kept, "");
@@ -960,7 +992,7 @@ if(stored && Array.isArray(stored.posts)){
       } else {
         setSaveState("Ready to save — example set loaded", true);
       }
-    }catch(e){}
+    }catch(e){ remoteReady = true; }
   }
 })();
 
