@@ -143,6 +143,7 @@ npm run build                   # all apps + server
 npm run typecheck               # tsc sweep: five apps + server + kernel
 npm test                        # every workspace suite (test:kernel / test:server / test:apps run a subset)
 npm run check:query-token       # ?token= stays limited to the file-download route
+npm run check:live              # the live Pages site serves every app and the assets it names
 npm run bus -- status           # what the control plane knows
 npm run bus -- connectors       # live connector health and staleness
 npm run bus -- validate         # is .neterverse/ state still valid
@@ -372,3 +373,10 @@ alone. `docs/DOMAIN_NETWORK.md` has the rows and the order. **A `CNAME` file doe
 Pages publishing from Actions ignores it, so the domain is attached in Settings → Pages → Custom
 domain, after DNS resolves, followed by a re-run of the deploy. CI still refuses a committed `CNAME`,
 because it would suggest a domain is attached when it is not.
+
+**A green `deploy` job is not evidence the site works** — the blank-apps deploy above was green.
+After every deploy, the workflow's `live-check` job runs `npm run check:live` against the URL Pages
+reports: the landing page, every app under `apps/`, and every script and stylesheet each app's HTML
+names must return 200, with retries while the CDN catches up. An app added to `apps/` but not to the
+workflow fails it. Pull-request runs build and stop; they share no concurrency group with deploys,
+because one that did cancelled the deploy of #19 (fixed in #23).
