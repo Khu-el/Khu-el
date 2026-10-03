@@ -8,7 +8,7 @@
 | 🏷️ Name         | Job Runner Worker |
 | 🧑‍💼 Capacity    | `NTE` |
 | 📆 Defined      | 2026-10-02 |
-| 🔧 Status       | `ACTIVE` |
+| 🔧 Status       | `PAUSED` |
 | 🔗 Routine ID   | `trig_015PsN5cjfDwgLDUq3oZzKrP` |
 
 ## 🔌 HOW IT IS SCHEDULED
@@ -28,13 +28,32 @@ session:
 Two earlier attempts on 2026-10-02 were refused: once over the `connectors` parameter, and once
 by the session's permission classifier before the principal authorized Routine creation.
 
-⚠️ **A manual fire does not use the bound session.** `fire_trigger` starts a *fresh* session
-(origin `force_run_trigger`), which has no Supabase connector. Both acceptance fires on 2026-10-03
-did this and ended, correctly, 🧱 BLOCKED BY: Supabase connector not present. That shows the
-guardrail works: no false health, no writes. **Whether the scheduled firing is delivered into the
-bound session is ⚪ UNKNOWN until the first scheduled run** (01:35 UTC, 2026-10-03), and that run
-is the real acceptance test. `ST-OTHER-001` relies on the same unproven mechanism. Do not test this
-task with a manual fire.
+✅ **Scheduled delivery is verified.** The first scheduled run (2026-10-03 01:35Z) was delivered
+into the bound worker session. It loaded Supabase, found nothing to claim, and logged `worker_run`
+event #26. The runner's hash chain is intact: #26's `previous_hash` equals #25's `record_hash`.
+The principal also attached the Supabase connector to the Routine itself in the Routines UI
+(recorded at 00:54Z), so the Routine no longer depends on the session alone.
+Manual fires still start a fresh session (origin `force_run_trigger`). The two on 2026-10-03,
+made before the connector was attached, ended 🧱 BLOCKED BY as designed.
+
+⏸️ **PAUSED 2026-10-03 01:46Z: a second worker fleet now shares the queue.** Between 01:18 and
+01:23Z another contributor, recorded in the runner as `chatgpt`, applied five migrations
+(`neterverse_orchestrator_v1_*` and `coherence_private_rls_policies`). It then ran its own
+`validation-worker-A…D` against a new job. The rewritten `jr_claim_next_step` now hands **any**
+non-approval, non-human step (including the new `deterministic` kind and the `system` domain)
+to **any** worker. Under this definition's PROCESS step 4, this worker would claim those steps
+and fail them permanently as `out_of_scope`, breaking the other contributor's jobs. So this
+session paused its own Routine before the 02:35Z run. It has made no claim on any job.
+
+**To resume**, one of these is needed, and it is a coordination decision rather than a fix
+either side should make alone (AI Council §10):
+
+1. the claim function gains a worker-kind or agent filter, so this worker only receives
+   `model`/`finalize` steps for its own agents' domains; or
+2. this worker's PROCESS hands back out-of-scope claims with `jr_fail_step(..., transient:true,
+   retry_at:=now())` instead of failing them. That costs the other job an attempt, so it is
+   the weaker option; or
+3. the principal designates one worker fleet for the queue and retires the other.
 
 ⚠️ **If the worker session is archived, every run ends 🧱 BLOCKED BY.** The durable remedy is the
 same as `ST-OTHER-001`'s HUMAN_ACTION_REQUIRED #9: re-create the Routine at
@@ -281,3 +300,5 @@ Every run ends with exactly one of:
 | 2026-10-02 | — | — | — | Definition created (`DRAFT`) |
 | 2026-10-03 00:35Z | 🧱 BLOCKED BY | Manual acceptance fire. It ran in a fresh session, not the bound one, and was interrupted before starting | Routine `last_fired_at`; no `worker_run` event | Delivery behaviour of manual fires found |
 | 2026-10-03 00:36Z | 🧱 BLOCKED BY | Manual retry. Fresh session with no Supabase connector, reported correctly | Run session result: "Supabase connector not present" | Guardrail confirmed; scheduled delivery still unverified |
+| 2026-10-03 01:35Z | ✅ NO ACTION REQUIRED | **First scheduled run: PASS.** Delivered into the bound session; 0 claimable steps; no pending approvals or failures | Runner `events` #26 `worker_run` (all counts 0), chain-linked to #25 | Scheduled delivery verified |
+| 2026-10-03 01:46Z | ⏸️ PAUSED | Paused by the defining session: the shared claim function would hand this worker another contributor's steps | Routine `enabled=false`; 5 new `neterverse_orchestrator_v1_*` migrations; audit rows from `chatgpt` and `validation-worker-A…D` | Needs a coordination decision; see the PAUSED note above |
