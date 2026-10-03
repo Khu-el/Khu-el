@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { makeBus, CLAUDE } from './helpers.ts';
 import {
@@ -142,4 +142,16 @@ test('the public projection carries no detail and no metrics', (t) => {
   assert.ok(!serialized.includes('owner@example.com'));
   assert.ok(!serialized.includes('spaces'), 'even metrics stay out of committed state');
   assert.ok(serialized.includes('clickup'));
+});
+
+test('every declared connector has a registry entry, and every entry is declared', () => {
+  // connectors.ts holds the freshness budgets; connector-registry.json holds
+  // what each connector may do. A connector in one and not the other either
+  // cannot be observed or is observed with no recorded permissions.
+  const registry = JSON.parse(
+    readFileSync(join(import.meta.dirname, '../../../.neterverse/state/connector-registry.json'), 'utf8'),
+  ) as { entries: Array<{ connector_id: string }> };
+  const declared = CONNECTORS.map((c) => c.connector_id).sort();
+  const registered = registry.entries.map((e) => e.connector_id).sort();
+  assert.deepEqual(registered, declared);
 });

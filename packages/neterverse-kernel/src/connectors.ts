@@ -80,6 +80,24 @@ export const CONNECTORS: readonly ConnectorDeclaration[] = [
     lane_scope: ['LANE_A'],
     write_authorized: false,
   },
+  {
+    // ADR-0003: the private runtime store for jobs. Writes go through the
+    // runner's own jr_* functions only, never through raw table writes.
+    connector_id: 'supabase',
+    name: 'Supabase',
+    system_of_record_for: ['job state', 'job approvals', 'job audit chain'],
+    freshness_minutes: 240,
+    lane_scope: ['LANE_A'],
+    write_authorized: true,
+  },
+  {
+    connector_id: 'linear',
+    name: 'Linear',
+    system_of_record_for: ['issue tracking (unused by any task)'],
+    freshness_minutes: 1440,
+    lane_scope: ['LANE_A'],
+    write_authorized: false,
+  },
 ];
 
 export function findConnector(connectorId: string): ConnectorDeclaration | undefined {
