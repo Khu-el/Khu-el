@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Equity Ledger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -228,6 +233,8 @@ footer.colophon{
 .dot.live{background:var(--good)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+</head>
+<body>
 
 <div class="wrap">
 
@@ -834,7 +841,11 @@ function commit(list, msg){
 /* ===================== exports ===================== */
 function csv(){
   var head = ["Rank","Post","Type","Date","Reach","Views","Likes","Comments","Shares","Saves","Follows","EP per 1k","Index","Angle","Hook","Topic","Title hook","Why it worked"];
-  var q = function(v){ return '"' + String(v==null?"":v).replace(/"/g,'""') + '"'; };
+  var q = function(v){
+    var s = String(v==null?"":v);
+    if(typeof v === "string" && /^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return '"' + s.replace(/"/g,'""') + '"';
+  };
   var rows = posts.map(function(p,i){
     return [i+1,p.title,p.type,p.date,p.reach,p.views,p.likes,p.comments,p.shares,p.saves,p.follows,
       p.epk.toFixed(2),p.index,nameOf(ANGLES,p.angle),nameOf(HOOKS,p.hook),p.topic,p.titleHook,p.why].map(q).join(",");
@@ -909,8 +920,15 @@ function bind(){
 
 renderReference();
 bind();
-commit(examples(), "");
-setSaveState("Working locally — example set loaded", false);
+var stored = null;
+try{ stored = JSON.parse(localStorage.getItem("equity-ledger") || "null"); }catch(e){}
+if(stored && Array.isArray(stored.posts)){
+  commit(stored.posts.slice(), "");
+  setSaveState("Loaded from this browser — " + stored.posts.length + " posts", false);
+} else {
+  commit(examples(), "");
+  setSaveState("Working locally — example set loaded", false);
+}
 
 (async function(){
   if(!window.claude || typeof window.claude.use !== "function") return;
@@ -924,7 +942,7 @@ setSaveState("Working locally — example set loaded", false);
     try{
       var snap = await dbNS.doc("ledger/current").get();
       var d = snap && snap.exists ? snap.data() : null;
-      if(d && Array.isArray(d.posts) && d.posts.length){
+      if(d && Array.isArray(d.posts)){
         commit(d.posts.slice(), "");
         setSaveState("Loaded your saved record — " + d.posts.length + " posts", true);
       } else {
@@ -936,3 +954,5 @@ setSaveState("Working locally — example set loaded", false);
 
 })();
 </script>
+</body>
+</html>
