@@ -65,7 +65,7 @@ Chosen over the alternatives because it needs **no new infrastructure and no new
 
 | Option | Why not now |
 |---|---|
-| Edge function + `pg_cron` calling a model API | Needs a model API key set as a project secret (a human step), `pg_cron` enabled, and an edge function — both existing ones run with `verify_jwt: false`, which is itself unreviewed |
+| Edge function + `pg_cron` calling a model API | Needs a model API key set as a project secret (a human step), `pg_cron` enabled, and a new edge function. The two that existed when this was decided ran with `verify_jwt: false` and had not been reviewed; both have since been deleted (see Consequences) |
 | An always-on worker on Fly or similar | The backend has never been deployed (HUMAN_ACTION_REQUIRED #6) |
 | Activepieces (the runner names it as an actor) | Not connected to this account; ⚪ UNKNOWN whether it exists anywhere |
 
@@ -117,13 +117,21 @@ counts of jobs by status in `metrics`, identifiers (if any) in `detail`, which n
 - ⚠️ Two event logs now exist — bus `events.jsonl` (control-plane changes) and runner `events`
   (job lifecycle). They record different things; do not merge them.
 - ✅ **The two RC test edge functions are gone.** `coherence-rc-gates` and
-  `coherence-rc-runtime-gates` were temporary validation harnesses (their own source said to
-  remove them after validation, which finished 2026-09-26). They ran without JWT verification
-  and could start a database load test on request. The principal deleted both from the dashboard
-  on 2026-10-02/03, and both slugs return `404`, confirmed on 2026-10-03 by an independent check.
-  For the record: a Claude Code redeploy briefly recreated `coherence-rc-runtime-gates` after
-  that deletion. It was neutralised within minutes and then deleted again.
+  `coherence-rc-runtime-gates` both return `404`, confirmed by an independent check on
+  2026-10-03 (`VERIFIED`). The principal deleted them from the Supabase dashboard on 2026-10-02/03
+  (`USER-REPORTED`). What they were, as Claude Code read their source through the Supabase
+  connector (`get_edge_function`) on 2026-10-02 (🟠 `DOCUMENT-STATED`, since the source no longer
+  exists to re-read): validation harnesses that described themselves as temporary, to be removed
+  or disabled after validation; deployed 2026-09-26 per their `created_at` (`SYSTEM-RECORDED`);
+  running with `verify_jwt: false` behind a query-string token; and on request creating test rows
+  in the project database, up to a 2,000-event load test.
+  **Exposure, for the record:** after the principal's deletion, a Claude Code redeploy recreated
+  `coherence-rc-runtime-gates` with its original source, so that endpoint was again reachable
+  with the token, without JWT, for about ten minutes. It was then replaced with a `410` stub
+  behind JWT and deleted again. No request to it during that window is recorded; ⚪ UNKNOWN
+  whether any was made.
 - ⚠️ **Open, for the principal:** the "Excellence District Production" project is no longer
   paused (`ACTIVE_HEALTHY`, 2026-10-03). Its relationship to the documented SQLite backend in
   `server/` is still ⚪ UNKNOWN. Two backends for the same apps would be a second conflict of the
-  kind this ADR closes, so it needs a decision before either is deployed.
+  kind this ADR closes, so it needs a decision before either one serves the apps. Whether the production project serves
+  anything today is ⚪ UNKNOWN.

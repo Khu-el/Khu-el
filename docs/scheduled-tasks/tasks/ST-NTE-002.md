@@ -8,36 +8,47 @@
 | 🏷️ Name         | Job Runner Worker |
 | 🧑‍💼 Capacity    | `NTE` |
 | 📆 Defined      | 2026-10-02 |
-| 🔧 Status       | `DRAFT` |
-| 🔗 Routine ID   | `trig_…` (fill in after scheduling) |
+| 🔧 Status       | `ACTIVE` |
+| 🔗 Routine ID   | `trig_015PsN5cjfDwgLDUq3oZzKrP` |
 
-## 🧱 SCHEDULING BLOCKER
+## 🔌 HOW IT IS SCHEDULED
 
-Two attempts to create this Routine from the defining session, 2026-10-02, both refused:
+**Session-bound, like `ST-OTHER-001`.** This organization refuses a `connectors` parameter on a
+Routine created from a session, so a fresh-session Routine would run without Supabase and end
+🧱 BLOCKED BY every hour. Instead, on 2026-10-03 (at the principal's instruction), the defining
+session:
 
-| Attempt | Result |
-|---|---|
-| Fresh session per fire, `connectors: ["Supabase"]` | ❌ `the connectors parameter is not available for this organization` |
-| Fresh session per fire, no connectors parameter | ❌ Refused by the session's auto-mode permission classifier |
+1. created a **dedicated worker session**, whose first turn was a read-only readiness check. It
+   loaded the Supabase tools and `list_projects` returned the runner's project as `ACTIVE_HEALTHY`.
+   In that session the tools are named `mcp__<uuid>__*` and not `mcp__Supabase__*`, so the prompt
+   loads them by keyword;
+2. created Routine `trig_015PsN5cjfDwgLDUq3oZzKrP` bound to that session. The server anchored the
+   hourly cron to the creation minute, so it is stored as `35 * * * *`.
 
-So the task is `DRAFT`: every section is filled, and nothing is firing. **Remedy (a human
-step):** create the Routine in the `claude.ai` Routines UI with the Supabase connector attached,
-cron `0 * * * *`, a fresh session on each fire, and the prompt below verbatim. Then record its
-`trig_…` ID here and in `REGISTRY.md`, and set the status to `ACTIVE`.
+Two earlier attempts on 2026-10-02 were refused: once over the `connectors` parameter, and once
+by the session's permission classifier before the principal authorized Routine creation.
 
-⚠️ **Do not schedule it without the Supabase connector.** `ST-NTE-001` was scheduled without
-connectors and its connector-dependent steps have been degraded ever since. This worker has no
-steps that work without Supabase; it would end 🧱 BLOCKED BY every hour.
+⚠️ **A manual fire does not use the bound session.** `fire_trigger` starts a *fresh* session
+(origin `force_run_trigger`), which has no Supabase connector. Both acceptance fires on 2026-10-03
+did this and ended, correctly, 🧱 BLOCKED BY: Supabase connector not present. That shows the
+guardrail works: no false health, no writes. **Whether the scheduled firing is delivered into the
+bound session is ⚪ UNKNOWN until the first scheduled run** (01:35 UTC, 2026-10-03), and that run
+is the real acceptance test. `ST-OTHER-001` relies on the same unproven mechanism. Do not test this
+task with a manual fire.
 
-Verified before recording this, read-only: in a session holding the Supabase connector, the
-connecting role can execute `jr_claim_next_step`, `jr_complete_step` and
-`job_runner_private.append_event`, and the queue held 0 claimable steps and 1 completed job
-(the smoke test).
+⚠️ **If the worker session is archived, every run ends 🧱 BLOCKED BY.** The durable remedy is the
+same as `ST-OTHER-001`'s HUMAN_ACTION_REQUIRED #9: re-create the Routine at
+https://claude.ai/code/routines with the Supabase connector attached and a fresh session per fire,
+using the prompt below, then update the Routine ID here and in `REGISTRY.md`.
+
+⚠️ **Each firing adds a turn to one long-lived session.** Context compaction keeps that bounded,
+but a run reads its continuity from the runner's `worker_run` events, never from the session's
+memory of earlier turns.
 
 ### 🤖 Routine prompt (verbatim)
 
 ```text
-You are ST-NTE-002, the Job Runner Worker. Definition: docs/scheduled-tasks/tasks/ST-NTE-002.md and .neterverse/decisions/ADR-0003-one-durable-job-store.md in Khu-el/Khu-el. Do not edit any repository. Use ONLY the Supabase connector (load its tools with ToolSearch, e.g. "select:mcp__Supabase__list_projects,mcp__Supabase__execute_sql"). If no Supabase tools are available, end with 🧱 BLOCKED BY: Supabase connector not present in this session. Use no other connector or tool that reaches outside this session.
+Hourly firing of ST-NTE-002, the Job Runner Worker. Definition: docs/scheduled-tasks/tasks/ST-NTE-002.md and .neterverse/decisions/ADR-0003-one-durable-job-store.md in Khu-el/Khu-el. Do not edit any repository. Use ONLY the Supabase connector. Load its tools with ToolSearch by keyword (e.g. query "supabase execute_sql list_projects"): in this session they may be named mcp__Supabase__* or mcp__<uuid>__* (server "supabase"), so use whichever loads. If no Supabase tools load, end with 🧱 BLOCKED BY: Supabase connector not present in this session. Use no other connector or tool that reaches outside this session.
 
 1. list_projects → pick the project named "Neterverse Coherence RC". If it is missing or not ACTIVE_HEALTHY, end with 🧱 BLOCKED BY and the reason.
 2. Continuity: select payload, occurred_at from public.events where event_type='worker_run' order by sequence desc limit 1.
@@ -47,7 +58,7 @@ You are ST-NTE-002, the Job Runner Worker. Definition: docs/scheduled-tasks/task
 6. Record success with dollar-quoted JSON: select public.jr_complete_step('<step.id>'::uuid, 'ccr-st-nte-002', '<lease_token>'::uuid, $j${"summary":"..."}$j$::jsonb, '<step_key>', '<step_key>.json', $j${...artifact...}$j$::jsonb, null); On a transient error use jr_fail_step with "transient":true and retry_at = now() + (5 * 2^attempt_count) minutes.
 7. select id, title, current_step_key, updated_at from public.jobs where status='awaiting_approval'; and jobs with status='failed' updated since the previous worker_run.
 8. Log the run (counts only, no content): select job_runner_private.append_event(null, 'worker_run', jsonb_build_object('worker','ccr-st-nte-002','claimed',N,'completed',N,'failed',N,'refused',N,'awaiting_approval',N));
-9. End with exactly one line-led status: ⚖️ DECISION REQUIRED (list each pending approval or failed/refused job: title, id, step, reason), 🧱 BLOCKED BY, or ✅ NO ACTION REQUIRED (nothing claimed, nothing pending). Do not manufacture an action.
+9. End with exactly one line-led status: ⚖️ DECISION REQUIRED (list each pending approval or failed/refused job: title, id, step, reason), 🧱 BLOCKED BY, or ✅ NO ACTION REQUIRED (nothing claimed, nothing pending). Do not manufacture an action. Keep the reply short.
 
 NEVER: call jr_decide_approval, jr_cancel_job or jr_resume_job; run raw INSERT/UPDATE/DELETE on runner tables or any DDL; send, publish, post, file, sign or pay; run lane_b, personal, licensed, R3 or R4 work.
 ```
@@ -75,9 +86,9 @@ declared scope rather than adopting that job's capacity. It runs no `lane_b`, `p
 | Field              | Value |
 |--------------------|-------|
 | Cadence            | Hourly |
-| Local time         | Every hour. The server anchors an hourly cron to the creation minute, so `0` means "the minute it was created" |
+| Local time         | Every hour at :35 (the minute the Routine was created; the server anchors hourly crons to it) |
 | Timezone           | UTC (hourly; no local-time drift to record) |
-| UTC cron           | `0 * * * *` |
+| UTC cron           | `35 * * * *` |
 | Condition          | Unconditional. An empty queue is a one-query run that ends ✅ NO ACTION REQUIRED |
 | Start date         | 2026-10-02 |
 | End date           | *N/A — runs until replaced by an event-driven worker (ADR-0003 §4)* |
@@ -267,4 +278,6 @@ Every run ends with exactly one of:
 
 | Run date (AS-OF) | Final output | Changed / closed / carried / failed / irrelevant | Proof | Notes |
 |------------------|--------------|--------------------------------------------------|-------|-------|
-| | | | | Definition created 2026-10-02 |
+| 2026-10-02 | — | — | — | Definition created (`DRAFT`) |
+| 2026-10-03 00:35Z | 🧱 BLOCKED BY | Manual acceptance fire. It ran in a fresh session, not the bound one, and was interrupted before starting | Routine `last_fired_at`; no `worker_run` event | Delivery behaviour of manual fires found |
+| 2026-10-03 00:36Z | 🧱 BLOCKED BY | Manual retry. Fresh session with no Supabase connector, reported correctly | Run session result: "Supabase connector not present" | Guardrail confirmed; scheduled delivery still unverified |
