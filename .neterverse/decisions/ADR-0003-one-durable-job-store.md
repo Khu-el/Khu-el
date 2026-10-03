@@ -135,3 +135,6 @@ counts of jobs by status in `metrics`, identifiers (if any) in `detail`, which n
   `server/` is still ⚪ UNKNOWN. Two backends for the same apps would be a second conflict of the
   kind this ADR closes, so it needs a decision before either one serves the apps. Whether the production project serves
   anything today is ⚪ UNKNOWN.
+  **→ Closed by ADR-0004 (2026-10-03):** the project is a member-portal scaffold for a different
+  audience, not a second backend for these apps; the principal chose to build it out. The framing
+  above is kept as written.

@@ -36,6 +36,7 @@ does.
 | *MX on the apex* | Mail for `khuel@excellencedistrict.org` | Google Workspace | ✅ Live and routing |
 | `apps.excellencedistrict.org` | The four NTE planning tools + hub | GitHub Pages, this repo | ❓ Planned — record not yet created |
 | `api.excellencedistrict.org` | The shared Express/SQLite backend | Fly.io, `server/` | ❓ Planned — backend not yet deployed |
+| *(none — `*.supabase.co`)* | The Excellence District member portal's backend (ADR-0004) | Supabase, "The Excellence District Production" project | 🟡 Project live; portal schema hardening not yet applied. No hostname on this domain is planned — the frontend is served from Pages beside the other apps at `/member-portal/` |
 
 **The apex is deliberately left alone.** The A records, the `www` CNAME, the five Google MX rows,
 and the `google-site-verification` TXT all stay exactly as they are. Moving the apex to GitHub
@@ -82,6 +83,13 @@ have attached anything and was removed.)
 
 To detach, clear the custom domain in the same settings page and re-run the workflow; the site
 returns to `khu-el.github.io/Khu-el/`.
+
+**Then move the member portal's auth links (ADR-0004).** Supabase Auth sends confirmation and reset
+links only to its Site URL or an allow-listed redirect, and **silently falls back to the Site URL**
+for anything else. In the Supabase dashboard → **Authentication → URL Configuration**, set the Site
+URL to `https://apps.excellencedistrict.org/member-portal/` and add
+`https://apps.excellencedistrict.org/**` to the redirect URLs — keep `https://khu-el.github.io/Khu-el/**`
+as well, for the same fallback reason as `CORS_ORIGINS` below.
 
 ### Fly side, after the `api` CNAME resolves
 
@@ -133,6 +141,7 @@ do not merge.
 |---|---|---|---|
 | NTE hub + four planning tools | `Khu-el/Khu-el` | Lane A, plus Lane B in Legacy & Estate | `apps.excellencedistrict.org` (planned) |
 | Shared backend | `Khu-el/Khu-el` `server/` | Serves both lanes, invite-only | `api.excellencedistrict.org` (planned) |
+| The Excellence District member portal | `Khu-el/Khu-el` `apps/member-portal` + Supabase | Lane A, invited members; never reads `server/` | `/member-portal/` beside the apps; backend on `*.supabase.co` |
 | Neterverse Administration Trust DAO portal | `Khu-el/Neterverse_DAO` | Public-facing | Static `index.html`, not yet hosted |
 | The Mental Performance Playbook | `Khu-el/Mental-Alchemy` | `PERSONAL` | Local only — **deliberately unpublished** |
 

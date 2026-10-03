@@ -49,6 +49,8 @@ apps/capital-readiness/     App 2 — Entity & offering-readiness diligence
 apps/notes-underwriting/    App 3 — Distressed-debt / note underwriting analysis
 apps/legacy-estate/         App 4 — CCRLT / House of Ransom family estate coordination (Lane B)
 apps/financial-services-crm/ App 5 — The Excellence District Financial Services CRM
+apps/member-portal/         The Excellence District Member Portal — invite-only, on Supabase,
+                             not on server/ (see its README and ADR-0004)
 
 server/                     Shared backend for all four apps (Express + SQLite)
 
@@ -174,6 +176,9 @@ if a custom domain is attached later:
 - `https://khu-el.github.io/Khu-el/notes-underwriting/`
 - `https://khu-el.github.io/Khu-el/legacy-estate/`
 - `https://khu-el.github.io/Khu-el/financial-services-crm/`
+- `https://khu-el.github.io/Khu-el/member-portal/` — reads `ED_SUPABASE_URL` and
+  `ED_SUPABASE_PUBLISHABLE_KEY` (repository Variables) at build time and says "not connected" until
+  both are set. Its launch steps are in [`apps/member-portal/README.md`](apps/member-portal/README.md).
 
 One-time setup, both in the repo's GitHub settings (not something I can click through for you):
 
@@ -264,6 +269,7 @@ npm run dev:capital-readiness   # terminal 3
 npm run dev:notes-underwriting  # terminal 4
 npm run dev:legacy-estate       # terminal 5
 npm run dev:financial-services-crm  # terminal 6
+npm run dev:member-portal       # no server/ needed — it talks to Supabase
 ```
 
 Register a separate account per app the first time you open it (accounts are shared across apps —
@@ -292,6 +298,8 @@ those up like you would any real data.
 - No automatic trust amendment, asset retitling, or beneficiary change (`apps/legacy-estate`)
 - No calling, texting, emailing, or task-creation toward a contact, and no storage of regulated client data
   — SSNs, account or policy numbers, underwriting detail (`apps/financial-services-crm`)
+- No email, SMS, push or post sent from the member portal, no payments, and no sign-up without an
+  invite (`apps/member-portal`)
 - No brokerage, lending, or title-conclusion logic (`apps/deal-architect`)
 - No email recipient other than the signed-in user's own address, anywhere in the system
 - No automatic/scheduled outbound email — every send (memo, digest) is a human clicking a button in
