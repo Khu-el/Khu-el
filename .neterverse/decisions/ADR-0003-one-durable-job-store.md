@@ -116,7 +116,14 @@ counts of jobs by status in `metrics`, identifiers (if any) in `detail`, which n
 - ✅ The bus stops carrying a promise it could not keep (durable private job state in a public repo).
 - ⚠️ Two event logs now exist — bus `events.jsonl` (control-plane changes) and runner `events`
   (job lifecycle). They record different things; do not merge them.
-- ⚠️ **Open, for the principal:** the two edge functions `coherence-rc-gates` and
-  `coherence-rc-runtime-gates` run without JWT verification and were not inspected; the paused
-  "Excellence District Production" project's relationship to the documented SQLite backend is
-  ⚪ UNKNOWN.
+- ✅ **The two RC test edge functions are gone.** `coherence-rc-gates` and
+  `coherence-rc-runtime-gates` were temporary validation harnesses (their own source said to
+  remove them after validation, which finished 2026-09-26). They ran without JWT verification
+  and could start a database load test on request. The principal deleted both from the dashboard
+  on 2026-10-02/03, and both slugs return `404`, confirmed on 2026-10-03 by an independent check.
+  For the record: a Claude Code redeploy briefly recreated `coherence-rc-runtime-gates` after
+  that deletion. It was neutralised within minutes and then deleted again.
+- ⚠️ **Open, for the principal:** the "Excellence District Production" project is no longer
+  paused (`ACTIVE_HEALTHY`, 2026-10-03). Its relationship to the documented SQLite backend in
+  `server/` is still ⚪ UNKNOWN. Two backends for the same apps would be a second conflict of the
+  kind this ADR closes, so it needs a decision before either is deployed.

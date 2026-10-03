@@ -44,7 +44,7 @@ Added 2026-10-02 after a live probe found both connected and neither listed here
 
 | Connector | Serves | Verdict | Notes |
 |---|---|---|---|
-| Supabase | The orchestration job runner (ADR-0003) | 🟡 | **The one durable store for orchestrated jobs.** Writes only through the runner's `jr_*` functions — never raw table writes, never ad-hoc DDL. `jr_decide_approval` runs only on the principal's own words in a live session; no Routine calls it. Project identifiers stay out of this repo. ⚠️ Two edge functions in the same project run with `verify_jwt: false` and were not reviewed; a second, paused project's purpose is ⚪ UNKNOWN. |
+| Supabase | The orchestration job runner (ADR-0003) | 🟡 | **The one durable store for orchestrated jobs.** Writes only through the runner's `jr_*` functions — never raw table writes, never ad-hoc DDL. `jr_decide_approval` runs only on the principal's own words in a live session; no Routine calls it. Project identifiers stay out of this repo. Two temporary test edge functions that ran without JWT verification were deleted 2026-10-02/03 (ADR-0003). A second project, "Excellence District Production", is active and its purpose is ⚪ UNKNOWN. |
 | Linear | Nothing yet | 🟡 | Connected with one team; no task uses it. A third tracker beside ClickUp and `docs/scheduled-tasks/` — SPEC v2's SEARCH → READ → REUSE → UPDATE says pick one before routing anything here. |
 
 ### Documents, research, and visuals
