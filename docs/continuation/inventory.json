@@ -9,6 +9,7 @@
     "dev:deal-architect",
     "dev:financial-services-crm",
     "dev:legacy-estate",
+    "dev:member-portal",
     "dev:notes-underwriting",
     "dev:server",
     "inventory",
@@ -92,6 +93,24 @@
       "test_runner": null,
       "test_files": [],
       "dependency_count": 3
+    },
+    {
+      "path": "apps/member-portal",
+      "name": "nte-member-portal",
+      "private": true,
+      "scripts": [
+        "build",
+        "dev",
+        "preview",
+        "test"
+      ],
+      "has_typecheck": true,
+      "has_build": true,
+      "test_runner": "node --test",
+      "test_files": [
+        "logic.test.ts"
+      ],
+      "dependency_count": 4
     },
     {
       "path": "apps/notes-underwriting",
@@ -216,9 +235,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-09-26T22:31:43.033Z",
-  "branch": "claude/excellence-district-crm-2973vl",
-  "commit": "b7ed5f992056a6f476b097ea69fa909892bd1d2d",
+  "generated_at": "2026-10-03T02:44:38.964Z",
+  "branch": "claude/excellence-district-portal",
+  "commit": "22cba9e0d3336df05f977c6b074d785dc98be9d6",
   "working_tree_clean": false,
-  "tracked_file_count": 344
+  "tracked_file_count": 397
 }
