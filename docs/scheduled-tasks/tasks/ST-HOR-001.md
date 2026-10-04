@@ -227,9 +227,7 @@ the red-team check.
 
 ## 🔄 STATE UPDATE
 
-The family action ledger receives the week's closed rows and any new action with its owner and
-window. The exception register is **read, never written** by this task — moving an exception is
-counsel-gated work, not bulletin work.
+The scheduled run does not write to the family action ledger. It includes proposed closures and new actions with owners and windows in the draft bulletin; a human records Council-approved changes in the ledger after the 09:00 meeting. The exception register is **read, never written** by this task — moving an exception is counsel-gated work, not bulletin work.
 
 ## 🤝 HANDOFF
 
