@@ -174,20 +174,28 @@ export async function listAllWeeks(userId: string): Promise<ActionPlanWeek[]> {
   return unwrap(await requireClient().from('action_plan_weeks').select('*').eq('user_id', userId)) as ActionPlanWeek[];
 }
 
-/** Creates the plan, then its four weeks. If the weeks fail, the plan is removed so no half-plan is left behind. */
+/**
+ * Creates the plan and its four weeks in one database transaction
+ * (public.create_action_plan), so no plan is ever left without its weeks.
+ * clientRef is an idempotency key made once per form: a retry after a lost
+ * response returns the plan the first attempt created instead of a duplicate.
+ * The plan belongs to the signed-in user; the function takes no user id.
+ */
 export async function createPlan(
-  userId: string,
   input: { goal: string; title: string; pathway_key: string | null; start_date: string },
   weeks: WeekDraft[],
+  clientRef: string,
 ): Promise<ActionPlan> {
-  const client = requireClient();
-  const plan = unwrap(await client.from('action_plans').insert({ user_id: userId, ...input }).select('*').single()) as ActionPlan;
-  const res = await client.from('action_plan_weeks').insert(weeks.map((w) => ({ ...w, plan_id: plan.id, user_id: userId })));
-  if (res.error) {
-    await client.from('action_plans').delete().eq('id', plan.id);
-    throw res.error;
-  }
-  return plan;
+  return unwrap(
+    await requireClient().rpc('create_action_plan', {
+      p_goal: input.goal,
+      p_title: input.title,
+      p_pathway_key: input.pathway_key,
+      p_start_date: input.start_date,
+      p_weeks: weeks,
+      p_client_ref: clientRef,
+    }),
+  ) as ActionPlan;
 }
 
 export async function updatePlan(planId: string, patch: Partial<Pick<ActionPlan, 'title' | 'goal' | 'status'>>): Promise<void> {
@@ -223,8 +231,36 @@ export async function fileSupportRequest(
   if (res.error && (res.error as { code?: string }).code !== '23505') throw res.error;
 }
 
+/** The most notifications listNotifications returns. */
+export const NOTIFICATION_LIST_LIMIT = 100;
+
+/**
+ * Unread first (newest first), then the newest read ones, NOTIFICATION_LIST_LIMIT
+ * in all. Unread come first so an older unread one is never pushed out of the
+ * list by newer read ones; countUnreadNotifications gives the exact total.
+ */
 export async function listNotifications(userId: string): Promise<Notification[]> {
-  return unwrap(await requireClient().from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(100)) as Notification[];
+  const client = requireClient();
+  const unread = unwrap(
+    await client.from('notifications').select('*').eq('user_id', userId).is('read_at', null).order('created_at', { ascending: false }).limit(NOTIFICATION_LIST_LIMIT),
+  ) as Notification[];
+  const room = NOTIFICATION_LIST_LIMIT - unread.length;
+  const read =
+    room > 0
+      ? (unwrap(
+          await client.from('notifications').select('*').eq('user_id', userId).not('read_at', 'is', null).order('created_at', { ascending: false }).limit(room),
+        ) as Notification[])
+      : [];
+  return [...unread, ...read];
+}
+
+/** The exact number of unread notifications, however many there are. */
+export async function countUnreadNotifications(userId: string): Promise<number> {
+  const res = await requireClient().from('notifications').select('id', { count: 'exact', head: true }).eq('user_id', userId).is('read_at', null);
+  if (res.error) throw res.error;
+  // A count the server did not report is unknown, never zero.
+  if (typeof res.count !== 'number') throw { message: 'The unread count was not returned.' };
+  return res.count;
 }
 
 export async function markNotificationRead(id: string): Promise<void> {

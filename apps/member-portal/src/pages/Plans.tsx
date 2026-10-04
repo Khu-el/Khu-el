@@ -7,6 +7,7 @@ import { Button, Card, Field, Select, Stat, TextInput } from '@nte/governance-co
 import { usePortal } from '../context';
 import { createPlan, deletePlan, getPlan, listAllWeeks, listPathways, listPlans, setPlanStatus, updatePlan, updateWeek } from '../data/api';
 import { Badge, Empty, ErrorNote, Loading, Notice, TextArea, formatDateTime, useLoad } from '../components/common';
+import { refPerContent } from '../logic/ids';
 import { currentWeek, defaultWeeks, parseDay, planProgress, todayIn, weekRange } from '../logic/plans';
 import { fmtPercent } from '../logic/progress';
 import { href } from '../logic/routes';
@@ -218,6 +219,8 @@ function NewPlanForm({
   const [pathwayId, setPathwayId] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  // Idempotency key: resubmitting the same plan after a lost response cannot create a second one.
+  const [planRefFor] = useState(refPerContent);
 
   const options = [{ value: '', label: 'No pathway' }, ...pathways.map((p) => ({ value: p.id, label: p.title }))];
   const hint = pathwaysLoading
@@ -240,7 +243,8 @@ function NewPlanForm({
     setSaving(true);
     setError(null);
     try {
-      const plan = await createPlan(userId, { goal: g, title: t, pathway_key: pathway ? pathway.id : null, start_date: startDate }, defaultWeeks(g, pathway?.title ?? null));
+      const planInput = { goal: g, title: t, pathway_key: pathway ? pathway.id : null, start_date: startDate };
+      const plan = await createPlan(planInput, defaultWeeks(g, pathway?.title ?? null), planRefFor(JSON.stringify(planInput)));
       navigate({ name: 'plan', planId: plan.id });
     } catch (err) {
       setError(err);

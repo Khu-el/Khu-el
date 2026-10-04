@@ -7,6 +7,7 @@ import { Button, Card, Field, TextInput } from '@nte/governance-core';
 import { usePortal } from '../context';
 import { createBlueprint, createPlan, deleteBlueprint, listBlueprints, listPathways, updateBlueprint } from '../data/api';
 import { Badge, Empty, ErrorNote, Loading, Notice, TextArea, formatDateTime, useLoad } from '../components/common';
+import { refPerContent } from '../logic/ids';
 import { matchPathways, pathwaySnapshot, type PathwayMatch } from '../logic/pathways';
 import { defaultWeeks, todayIn } from '../logic/plans';
 import { href } from '../logic/routes';
@@ -314,6 +315,8 @@ function BlueprintItem({ blueprint, onChanged }: { blueprint: OpportunityBluepri
   const [busy, setBusy] = useState<null | 'notes' | 'delete' | 'plan'>(null);
   const busyRef = useRef(false);
   const [error, setError] = useState<unknown>(null);
+  // Idempotency key for "Start 30-day plan": a retry cannot create a second plan.
+  const [planRefFor] = useState(refPerContent);
   const [notesSaved, setNotesSaved] = useState(false);
 
   // Fresh rows from the database replace the draft.
@@ -355,11 +358,8 @@ function BlueprintItem({ blueprint, onChanged }: { blueprint: OpportunityBluepri
 
   const startPlan = () =>
     run('plan', async () => {
-      const plan = await createPlan(
-        userId,
-        { goal: blueprint.goal, title: PLAN_TITLE, pathway_key: blueprint.pathway_key, start_date: todayIn(timezone) },
-        defaultWeeks(blueprint.goal, title),
-      );
+      const planInput = { goal: blueprint.goal, title: PLAN_TITLE, pathway_key: blueprint.pathway_key, start_date: todayIn(timezone) };
+      const plan = await createPlan(planInput, defaultWeeks(blueprint.goal, title), planRefFor(JSON.stringify(planInput)));
       navigate({ name: 'plan', planId: plan.id });
     });
 

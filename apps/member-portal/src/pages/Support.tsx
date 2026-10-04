@@ -6,6 +6,7 @@ import { useRef, useState, type FormEvent } from 'react';
 import { Button, Card, Field, Select, TextInput } from '@nte/governance-core';
 import { usePortal } from '../context';
 import { fileSupportRequest, listMySupport } from '../data/api';
+import { newRef } from '../logic/ids';
 import { isValidEmail, normalizeEmail } from '../logic/invites';
 import type { ErrorLike } from '../logic/errors';
 import { Badge, Empty, ErrorNote, Loading, Notice, TextArea, formatDateTime, useLoad } from '../components/common';
@@ -54,20 +55,6 @@ function statusTone(s: string): 'slate' | 'amber' | 'green' {
 /** ErrorNote renders `message` verbatim for anything that is not an RLS refusal. */
 function asError(message: string): ErrorLike {
   return { message };
-}
-
-/**
- * A fresh idempotency key for one filled-in form. crypto.randomUUID needs a
- * secure context; the fallback builds a v4 UUID from getRandomValues.
- */
-function newRef(): string {
-  const c = globalThis.crypto;
-  if (typeof c?.randomUUID === 'function') return c.randomUUID();
-  const b = c.getRandomValues(new Uint8Array(16));
-  b[6] = (b[6] & 0x0f) | 0x40;
-  b[8] = (b[8] & 0x3f) | 0x80;
-  const h = Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
-  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
 }
 
 export function Support() {

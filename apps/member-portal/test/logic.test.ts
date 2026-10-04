@@ -155,6 +155,10 @@ test('text: only http(s) URLs are linkable; slugs are URL-safe', () => {
   assert.equal(safeUrl('https://example.org/a'), 'https://example.org/a');
   assert.equal(slugify('  Budget Basics: Week 1! '), 'budget-basics-week-1');
   assert.equal(slugify('Café & Crédit'), 'cafe-credit');
+  // Cut at 60 on a separator: the slug still ends on a letter or digit.
+  const long = slugify(`${'a'.repeat(59)} b`);
+  assert.equal(long, 'a'.repeat(59));
+  assert.ok(!slugify(`${'word '.repeat(20)}`).endsWith('-'));
 });
 
 test('routes: parse and format round-trip', () => {

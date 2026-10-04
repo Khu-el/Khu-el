@@ -3,7 +3,7 @@ import { NotLegalOrFinancialAdviceFooter } from '@nte/governance-core';
 import { hasStoredSession, supabase } from './supabase';
 import { useSession } from './auth/useSession';
 import { PortalContext, can, type PortalContextValue } from './context';
-import { getProfile, getStaffRole, listNotifications } from './data/api';
+import { countUnreadNotifications, getProfile, getStaffRole } from './data/api';
 import { href, isAuthFragment, parseRoute, type Route } from './logic/routes';
 import type { Profile, StaffRole } from './types';
 import { ErrorNote, Loading, Notice } from './components/common';
@@ -177,10 +177,10 @@ function SignedIn({
 
   const refreshUnread = useCallback(() => {
     const seq = ++unreadSeq.current;
-    listNotifications(userId)
-      .then((n) => {
+    countUnreadNotifications(userId)
+      .then((count) => {
         if (seq !== unreadSeq.current) return;
-        setUnreadCount(n.filter((x) => !x.read_at).length);
+        setUnreadCount(count);
         setUnreadFailed(false);
       })
       .catch(() => {

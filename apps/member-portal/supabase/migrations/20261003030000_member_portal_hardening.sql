@@ -7,8 +7,9 @@
 --   2. Narrows client grants: RLS stays the gate, but anon/authenticated lose the
 --      privileges no policy ever needed (TRUNCATE, REFERENCES, TRIGGER, and anon
 --      writes on member tables).
---   3. Fixes two policy gaps: a member could set status/staff_note on their own
---      support request, and could rewrite a notification's title/body.
+--   3. Fixes three policy gaps: a member could set status/staff_note on their own
+--      support request, and could rewrite a notification's title/body; staff
+--      could rewrite any column of a member's support request, not just triage it.
 --   4. Invite-only, fail-closed sign-up: a BEFORE INSERT trigger on auth.users
 --      refuses any account without a matching, unexpired, unused invite code.
 --      Staff issue codes through an RPC that returns the code once and sends
@@ -21,6 +22,10 @@
 --   6. In-app notifications when staff update a member's support request.
 --   7. Lessons can carry their own body text, so content can live in the portal.
 --   8. Missing updated_at triggers on member_state and integration_status.
+--   9. Plan creation is one transaction: public.create_action_plan inserts the
+--      plan and its four weeks together, with an idempotency key, so a lost
+--      response or a failed week insert can no longer leave a half plan or a
+--      duplicate.
 --
 -- Roles: support  = triage support requests
 --        editor   = + edit the content catalog
@@ -124,6 +129,13 @@ create policy support_requests_owner_insert on public.support_requests
 --     PATCH touching title/body is refused before RLS is consulted.
 revoke update on table public.notifications from authenticated;
 grant update (read_at) on table public.notifications to authenticated;
+
+-- 3c. Staff triage a request; they do not rewrite it. support_requests_staff_update
+--     checks only that the caller is staff, so the column grant is what keeps
+--     user_id, subject, message, contact details and external_ref as the member
+--     wrote them. Members have no UPDATE policy on this table at all.
+revoke update on table public.support_requests from authenticated;
+grant update (status, staff_note) on table public.support_requests to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Staff roles
@@ -463,3 +475,81 @@ drop trigger if exists integration_status_set_updated_at on public.integration_s
 create trigger integration_status_set_updated_at
   before update on public.integration_status
   for each row execute function public.set_updated_at();
+
+-- ---------------------------------------------------------------------------
+-- 9. Atomic, idempotent plan creation. The client used to insert the plan and
+--    then its weeks in two requests, deleting the plan if the weeks failed --
+--    best effort, so a lost response or a failed clean-up left a plan with no
+--    weeks, and a retry made a second plan. client_ref is a key the client
+--    makes once per form (the same pattern as support_requests.external_ref).
+-- ---------------------------------------------------------------------------
+alter table public.action_plans add column if not exists client_ref uuid;
+create unique index if not exists action_plans_user_client_ref_uidx
+  on public.action_plans(user_id, client_ref)
+  where client_ref is not null;
+
+-- SECURITY INVOKER: it runs as the member, so the owner RLS policies on both
+-- tables still decide what it may write. The plan always belongs to the caller.
+create or replace function public.create_action_plan(
+  p_goal        text,
+  p_title       text,
+  p_pathway_key text,
+  p_start_date  date,
+  p_weeks       jsonb,
+  p_client_ref  uuid default null
+)
+returns public.action_plans
+language plpgsql
+volatile
+security invoker
+set search_path = ''
+as $$
+declare
+  v_uid  uuid := (select auth.uid());
+  v_plan public.action_plans;
+begin
+  if v_uid is null then
+    raise exception 'not signed in' using errcode = '42501';
+  end if;
+  if jsonb_typeof(p_weeks) is distinct from 'array' or jsonb_array_length(p_weeks) <> 4 then
+    raise exception 'a plan has exactly four weeks' using errcode = '22023';
+  end if;
+
+  -- A retry of a request that already succeeded returns that plan.
+  if p_client_ref is not null then
+    select * into v_plan
+      from public.action_plans p
+     where p.user_id = v_uid and p.client_ref = p_client_ref;
+    if found then
+      return v_plan;
+    end if;
+  end if;
+
+  begin
+    insert into public.action_plans (user_id, goal, title, pathway_key, start_date, client_ref)
+    values (v_uid,
+            p_goal,
+            coalesce(nullif(btrim(p_title), ''), '30-Day District Action Plan'),
+            p_pathway_key,
+            coalesce(p_start_date, current_date),
+            p_client_ref)
+    returning * into v_plan;
+  exception when unique_violation then
+    -- Two concurrent attempts with one key: the other one created it.
+    select * into v_plan
+      from public.action_plans p
+     where p.user_id = v_uid and p.client_ref = p_client_ref;
+    return v_plan;
+  end;
+
+  -- In the same transaction: if any week is refused (week_number outside 1-4,
+  -- a repeat, a missing title), the plan above is rolled back with it.
+  insert into public.action_plan_weeks (plan_id, user_id, week_number, title, action_text)
+  select v_plan.id, v_uid, (w ->> 'week_number')::smallint, w ->> 'title', w ->> 'action_text'
+    from jsonb_array_elements(p_weeks) as w;
+
+  return v_plan;
+end;
+$$;
+revoke all on function public.create_action_plan(text, text, text, date, jsonb, uuid) from public, anon;
+grant execute on function public.create_action_plan(text, text, text, date, jsonb, uuid) to authenticated;

@@ -155,8 +155,9 @@ export function LearnHome() {
         <Empty>No learning tracks have been published yet. They will appear here when they are added.</Empty>
       ) : (
         groups.map((g) => (
-          <section key={g.pillar} className="space-y-3" aria-labelledby={`pillar-${g.pillar}`}>
-            <h2 id={`pillar-${g.pillar}`} className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          // Pillar names contain spaces, which an id cannot; the section is named directly.
+          <section key={g.pillar} className="space-y-3" aria-label={g.pillar}>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
               {g.pillar}
             </h2>
             <ul className="grid gap-3 sm:grid-cols-2">

@@ -127,6 +127,8 @@ export interface ActionPlan {
   pathway_key: string | null;
   status: PlanStatus;
   start_date: string; // YYYY-MM-DD
+  /** Idempotency key from the form that created it (create_action_plan). */
+  client_ref?: string | null;
   created_at: string;
   updated_at: string;
 }

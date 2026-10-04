@@ -75,5 +75,7 @@ export function slugify(title: string): string {
     .replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .slice(0, 60);
+    .slice(0, 60)
+    // Cutting at 60 can end on a separator; a slug never ends with a dash.
+    .replace(/-+$/, '');
 }

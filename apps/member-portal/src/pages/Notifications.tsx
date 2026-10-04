@@ -4,13 +4,10 @@
 import { useEffect, useState } from 'react';
 import { Button, Card } from '@nte/governance-core';
 import { usePortal } from '../context';
-import { listNotifications, markAllNotificationsRead, markNotificationRead } from '../data/api';
+import { NOTIFICATION_LIST_LIMIT, countUnreadNotifications, listNotifications, markAllNotificationsRead, markNotificationRead } from '../data/api';
 import { href, parseRoute } from '../logic/routes';
 import { Badge, Empty, ErrorNote, Loading, Notice, formatDateTime, useLoad } from '../components/common';
 import type { Notification } from '../types';
-
-/** listNotifications returns at most this many, newest first. */
-const LIST_LIMIT = 100;
 
 /**
  * Only in-portal links ("#/support") are ever rendered as links. Anything else
@@ -25,17 +22,24 @@ function internalHref(actionUrl: string | null): string | null {
 
 export function Notifications() {
   const { userId, timezone, refreshUnread, syncUnread } = usePortal();
-  const list = useLoad(() => listNotifications(userId), [userId]);
+  // The list is capped; the unread total is counted exactly, so an unread
+  // notification beyond the cap still counts and "Mark all read" still reaches it.
+  const load = useLoad(
+    () => Promise.all([listNotifications(userId), countUnreadNotifications(userId)]).then(([items, unread]) => ({ items, unread })),
+    [userId],
+  );
+  const list = { data: load.data?.items ?? null, loading: load.loading, error: load.error, reload: load.reload };
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
 
   const items = list.data ?? [];
-  const unread = items.filter((n) => !n.read_at).length;
+  const unread = load.data?.unread ?? 0;
+  const unreadShown = items.filter((n) => !n.read_at).length;
 
-  // The header badge follows each list this page loads, so the two never disagree.
+  // The header badge follows the exact count this page loads, so the two never disagree.
   useEffect(() => {
-    if (list.data) syncUnread(list.data.filter((n) => !n.read_at).length);
-  }, [list.data, syncUnread]);
+    if (load.data) syncUnread(load.data.unread);
+  }, [load.data, syncUnread]);
 
   async function run(key: string, action: () => Promise<void>) {
     if (busy) return;
@@ -67,7 +71,7 @@ export function Notifications() {
 
       <Card
         title="Your notifications"
-        subtitle={list.data ? (unread === 0 ? 'No unread notifications.' : `${unread} unread`) : undefined}
+        subtitle={load.data ? (unread === 0 ? 'No unread notifications.' : `${unread} unread`) : undefined}
         right={
           <Button variant="secondary" onClick={markAll} disabled={busy !== null || unread === 0}>
             {busy === 'all' ? 'Marking…' : 'Mark all read'}
@@ -84,7 +88,13 @@ export function Notifications() {
             busy={busy}
             onMarkRead={markOne}
           />
-          {items.length >= LIST_LIMIT && <Notice>Showing your {LIST_LIMIT} most recent notifications.</Notice>}
+          {unread > unreadShown ? (
+            <Notice>
+              Showing your {unreadShown} newest unread notifications of {unread}. “Mark all read” marks every one of them, including those not shown.
+            </Notice>
+          ) : (
+            items.length >= NOTIFICATION_LIST_LIMIT && <Notice>Showing your unread notifications and the most recent read ones ({NOTIFICATION_LIST_LIMIT} in all).</Notice>
+          )}
         </div>
       </Card>
     </div>

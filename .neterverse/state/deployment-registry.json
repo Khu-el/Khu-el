@@ -35,7 +35,7 @@
       "target": "Khu-el/Khu-el apps/member-portal",
       "surface": "GitHub Pages project site at https://khu-el.github.io/Khu-el/member-portal/ (frontend); Supabase project \"The Excellence District Production\" (backend, ADR-0004)",
       "state": "TESTED_LOCALLY",
-      "evidence": "2026-10-03 in this session: `tsc -b --noEmit` clean, 33 logic tests pass (after the adversarial review fixes), `vite build` succeeds with VITE_BASE_PATH set. Not deployed: the Pages build step is new on this branch. The frontend has never been rendered against the live project, and its component code has no tests.",
+      "evidence": "2026-10-03 in this session: `tsc -b --noEmit` clean, 35 logic tests pass (after the adversarial and Copilot review fixes), `vite build` succeeds with VITE_BASE_PATH set. Not deployed: the Pages build step is new on this branch. The frontend has never been rendered against the live project, and its component code has no tests.",
       "lane": "LANE_A"
     },
     {

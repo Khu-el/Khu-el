@@ -5,6 +5,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Button, Card, Field, Select, TextInput } from '@nte/governance-core';
 import { usePortal } from '../context';
 import { createBlueprint, createPlan, getPreferences, listPathways, savePreferences, updateProfile } from '../data/api';
+import { refPerContent } from '../logic/ids';
 import { matchPathways, pathwaySnapshot } from '../logic/pathways';
 import { defaultWeeks, todayIn } from '../logic/plans';
 import { Badge, ErrorNote, Loading, Notice, TextArea, useLoad } from '../components/common';
@@ -69,6 +70,8 @@ export function Onboarding({ onDone }: { onDone: () => Promise<void> }) {
   const [saving, setSaving] = useState<'finish' | 'skip' | null>(null);
   const [finished, setFinished] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  // Idempotency key for the plan: a retry with the same answers cannot create a second plan.
+  const [planRefFor] = useState(refPerContent);
 
   // Steps that already succeeded, so a retry after a partial failure does not
   // create a second blueprint or plan.
@@ -110,11 +113,8 @@ export function Onboarding({ onDone }: { onDone: () => Promise<void> }) {
         saved.current = { ...saved.current, blueprint: true };
       }
       if (startPlan && !saved.current.plan) {
-        await createPlan(
-          userId,
-          { goal: goalText, title: PLAN_TITLE, pathway_key: chosen?.id ?? null, start_date: todayIn(timeZone) },
-          defaultWeeks(goalText, chosen?.title),
-        );
+        const planInput = { goal: goalText, title: PLAN_TITLE, pathway_key: chosen?.id ?? null, start_date: todayIn(timeZone) };
+        await createPlan(planInput, defaultWeeks(goalText, chosen?.title), planRefFor(JSON.stringify(planInput)));
         saved.current = { ...saved.current, plan: true };
       }
       await updateProfile(userId, { onboarding_complete: true });
