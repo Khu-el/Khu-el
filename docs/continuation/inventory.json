@@ -4,6 +4,7 @@
   "root_scripts": [
     "build",
     "bus",
+    "check:live",
     "check:query-token",
     "dev:capital-readiness",
     "dev:deal-architect",
@@ -216,9 +217,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-09-26T22:31:43.033Z",
-  "branch": "claude/excellence-district-crm-2973vl",
-  "commit": "b7ed5f992056a6f476b097ea69fa909892bd1d2d",
+  "generated_at": "2026-10-03T14:24:56.206Z",
+  "branch": "claude/pr-23-build-cancellation-review-pw904h",
+  "commit": "71adee134095d036ae1b9c33d1331e53f2f4e0b4",
   "working_tree_clean": false,
-  "tracked_file_count": 344
+  "tracked_file_count": 349
 }
