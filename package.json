@@ -23,6 +23,7 @@
     "test:server": "npm test --workspace=server",
     "test:apps": "npm test --workspace=apps/deal-architect --workspace=apps/capital-readiness --workspace=apps/notes-underwriting --workspace=apps/financial-services-crm --workspace=apps/member-portal",
     "check:query-token": "node scripts/check-query-token.mjs",
+    "check:live": "node scripts/check-live-pages.mjs",
     "inventory": "node scripts/build-inventory.mjs",
     "inventory:check": "node scripts/build-inventory.mjs --check",
     "bus": "node packages/neterverse-kernel/src/cli.ts",

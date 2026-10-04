@@ -128,3 +128,30 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+
+  # A green deploy job means the artifact was handed to Pages, not that the
+  # site works. The first live deploy "succeeded" and served four blank apps:
+  # every page returned 200 and every asset it named 404'd. This fetches the
+  # live site after each deploy -- the landing page, every app under apps/, and
+  # every script and stylesheet each app's HTML references -- and fails the run
+  # if any of them does not return 200. Retries cover the CDN catching up.
+  live-check:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Check the live site serves every app and asset
+        run: npm run check:live
+        env:
+          PAGES_URL: ${{ needs.deploy.outputs.page_url }}
+          LIVE_CHECK_ATTEMPTS: 6
+          LIVE_CHECK_DELAY_SECONDS: 20

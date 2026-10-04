@@ -4,6 +4,7 @@
   "root_scripts": [
     "build",
     "bus",
+    "check:live",
     "check:query-token",
     "dev:capital-readiness",
     "dev:deal-architect",
@@ -238,9 +239,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-04T15:00:29.141Z",
+  "generated_at": "2026-10-04T15:53:29.452Z",
   "branch": "claude/excellence-district-portal",
-  "commit": "ef8e3cc23b04f7e81d8e89cc7a1070999e37d444",
+  "commit": "f8a251ee726f6196baae3fd36e4160385e60af3d",
   "working_tree_clean": false,
-  "tracked_file_count": 406
+  "tracked_file_count": 411
 }
