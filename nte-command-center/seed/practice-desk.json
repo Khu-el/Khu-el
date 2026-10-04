@@ -1,0 +1,89 @@
+{
+  "_note": "Structure is known from the desk specification; content is not in this workspace. Rows whose source is missing ship empty and say so. A roster of invented names or a funnel of invented stage labels would look like a working desk and would be a defect, so neither is here.",
+
+  "standup": {
+    "cadence": "Weekly",
+    "lastRun": "UNKNOWN",
+    "agenda": [
+      {
+        "id": "roster",
+        "title": "Roster",
+        "collects": "Who is on the desk, licensing state, start date."
+      },
+      {
+        "id": "production",
+        "title": "Production",
+        "collects": "Contacts, appointments set, appointments held, applications, closes — for the week, per person."
+      },
+      {
+        "id": "wins",
+        "title": "Wins",
+        "collects": "One specific thing that worked, named to the person who did it."
+      },
+      {
+        "id": "blockers",
+        "title": "Blockers",
+        "collects": "What stopped somebody this week, and who owns clearing it."
+      },
+      {
+        "id": "resources",
+        "title": "Resources",
+        "collects": "What was handed out, and what somebody asked for and did not get."
+      }
+    ],
+    "members": []
+  },
+
+  "funnel": {
+    "title": "Recruiting funnel",
+    "stageLabelsSource": "MISSING",
+    "note": "Seven stages, and four versions of this funnel exist. None of the four is in this workspace, so the stage labels and the prompt set attached to each stage are blank rather than guessed. Supply any one version and these rows fill in.",
+    "stages": [
+      { "position": 1, "name": null, "prompts": null },
+      { "position": 2, "name": null, "prompts": null },
+      { "position": 3, "name": null, "prompts": null },
+      { "position": 4, "name": null, "prompts": null },
+      { "position": 5, "name": null, "prompts": null },
+      { "position": 6, "name": null, "prompts": null },
+      { "position": 7, "name": null, "prompts": null }
+    ]
+  },
+
+  "warmMarket": [
+    {
+      "id": "name-list",
+      "title": "100-Name List",
+      "what": "The starting list. One hundred people, written down, before any of them is contacted.",
+      "status": "UNKNOWN",
+      "note": "Named in the desk specification. Whether a filled copy exists is not observable from here."
+    },
+    {
+      "id": "script-pack",
+      "title": "Script pack",
+      "what": "What to say on the first call, the follow-up, and the appointment set.",
+      "status": "UNKNOWN",
+      "note": "Named in the desk specification. Not in this workspace."
+    },
+    {
+      "id": "tracker",
+      "title": "Contact tracker",
+      "what": "Where the weekly count above comes from. A number that is not written down is not a documented contact.",
+      "status": "UNKNOWN",
+      "note": "Named in the desk specification. Not in this workspace."
+    }
+  ],
+
+  "outsideActivity": {
+    "id": "OBA-1",
+    "question": "Has the outside business activity disclosure been submitted, and has a written response come back?",
+    "state": "NOT SUBMITTED",
+    "blocks": "About two thirds of the outside projects on the working list cannot start until this is answered in writing. They are not stalled on money, on a build, or on anybody's decision but this one.",
+    "why": "Outside business activity has to be disclosed and approved in writing before it is carried on. Doing the work first and disclosing afterwards is the failure this gate exists to prevent, and it is the cheapest open item on the whole list to close — it is a letter.",
+    "letter": {
+      "title": "Drafted disclosure letter",
+      "status": "DRAFT",
+      "note": "Drafted and attached. Drafting a letter is not submitting one, and submitting one is not a written response — this gate does not move until a response is recorded with its source."
+    },
+    "proof": null
+  }
+}

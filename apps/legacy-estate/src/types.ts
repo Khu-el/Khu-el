@@ -1,4 +1,4 @@
-import type { AssertionStatus, GovernedRecord, Lane } from '@nte/governance-core';
+import type { AssertionStatus, GovernedRecord, Lane, MaybeNumber } from '@nte/governance-core';
 
 export interface AssetItem {
   id: string;
@@ -8,7 +8,7 @@ export interface AssetItem {
   lane: Lane;
   assertionStatus: AssertionStatus;
   evidenceNote: string;
-  estimatedValue: number;
+  estimatedValue: MaybeNumber;
 }
 
 export interface EstateDocument {
@@ -33,10 +33,10 @@ export interface InsurancePolicy {
   id: string;
   policyType: string;
   carrier: string;
-  faceValue: number;
-  cashValue: number;
+  faceValue: MaybeNumber;
+  cashValue: MaybeNumber;
   beneficiary: string;
-  annualPremium: number;
+  annualPremium: MaybeNumber;
   notes: string;
 }
 
@@ -44,7 +44,7 @@ export interface BusinessInterest {
   id: string;
   entityName: string;
   lane: Lane;
-  ownershipPct: number;
+  ownershipPct: MaybeNumber;
   capacityOrOffice: string;
   assertionStatus: AssertionStatus;
   evidenceNote: string;

@@ -1,0 +1,58 @@
+{
+  "as_of": "2026-10-03T03:00:00Z",
+  "classification": "PUBLIC",
+  "note": "DEPLOYED and LIVE_VERIFIED are different states. Nothing reaches LIVE_VERIFIED without evidence that the live surface answered, and a surface that answers with a broken page is DEPLOYED, not LIVE_VERIFIED.",
+  "entries": [
+    {
+      "target": "Khu-el/Khu-el web/landing",
+      "surface": "GitHub Pages project site at https://khu-el.github.io/Khu-el/",
+      "state": "LIVE_VERIFIED",
+      "evidence": "Fetched 2026-10-02T19:28Z from this session: HTTP 200, <title>NTE Web Apps</title>. Pages is enabled; push-to-main deploys have concluded success since 2026-09-22, most recently run #37 on 2026-10-02T19:23Z for main at ff8a7d7.",
+      "lane": "LANE_A"
+    },
+    {
+      "target": "Khu-el/Khu-el app builds (deal-architect, capital-readiness, notes-underwriting, legacy-estate, financial-services-crm)",
+      "surface": "GitHub Pages project site, one directory per app under https://khu-el.github.io/Khu-el/",
+      "state": "LIVE_VERIFIED",
+      "evidence": "Fetched 2026-10-02T19:28Z from this session. All five apps return HTTP 200 with their own title, and each one's referenced script and stylesheet return 200 at the /Khu-el/<app>/assets/ path the HTML names. Previously DEPLOYED and not LIVE_VERIFIED: the served build referenced its assets one path level too high, so every app rendered blank. PR #19 corrected the base path, and run #26 on 2026-09-30T17:55Z was the first main deploy to carry it to the site.",
+      "lane": "LANE_A"
+    },
+    {
+      "target": "Khu-el/Khu-el server",
+      "surface": "server/Dockerfile plus fly.toml; planned hostname api.excellencedistrict.org",
+      "state": "UNKNOWN",
+      "evidence": "Configuration exists in the repository. Probed 2026-09-30T17:49Z from this session: api.excellencedistrict.org resolved no A or AAAA record and the request did not connect, and apps.excellencedistrict.org resolved no record either. This container's network policy may restrict resolution, so this is evidence that the planned hostnames are not answering here, not proof that no deployment exists anywhere.",
+      "lane": "LANE_A"
+    },
+    {
+      "target": "@nte/neterverse-kernel",
+      "surface": "Local workspace package; no deployment target",
+      "state": "TESTED_LOCALLY",
+      "evidence": "98 tests pass under `npm run test:kernel`, run 2026-10-02 in this session on this branch merged up to main at ff8a7d7.",
+      "lane": "LANE_A"
+    },
+    {
+      "target": "Khu-el/Khu-el apps/member-portal",
+      "surface": "GitHub Pages project site at https://khu-el.github.io/Khu-el/member-portal/ (frontend); Supabase project \"The Excellence District Production\" (backend, ADR-0004)",
+      "state": "TESTED_LOCALLY",
+      "evidence": "2026-10-03 in this session: `tsc -b --noEmit` clean, 35 logic tests pass (after the adversarial and Copilot review fixes), `vite build` succeeds with VITE_BASE_PATH set. Not deployed: the Pages build step is new on this branch. The frontend has never been rendered against the live project, and its component code has no tests.",
+      "lane": "LANE_A"
+    },
+    {
+      "target": "Member portal schema hardening (apps/member-portal/supabase/migrations/20261003030000_member_portal_hardening.sql)",
+      "surface": "Supabase project \"The Excellence District Production\"",
+      "state": "BLOCKED",
+      "evidence": "AUTHORED, never executed. Applying it and dry-running it against production were both refused to this session as production changes, and it was not run against a local Postgres. Until the principal applies it, the live project has no sign-up gate and the neterverse_* tables remain in the API-exposed public schema (RLS with no policy denies them). HUMAN_ACTION_REQUIRED, step 1 of the runbook in apps/member-portal/README.md.",
+      "lane": "LANE_A"
+    }
+  ],
+  "workflow_notes": [
+    {
+      "subject": ".github/workflows/deploy-pages.yml",
+      "finding": "The workflow ran on both `pull_request` and `push: main` under one `pages` concurrency group with cancel-in-progress, so a pull-request build that can never deploy cancelled a main deploy that can. Run #21, the main deploy carrying PR #19's base-path fix, was cancelled this way two minutes after it started, which is why the four apps stayed blank after the fix merged.",
+      "evidence": "Observed 2026-09-30T17:50Z: run #21 concluded `cancelled` at 17:44:01Z with pull-request runs #22 and #23 starting at 17:43:54Z and 17:45:29Z. Run numbers rather than run identifiers: the audit rule that protects this public repository cannot tell a nine-digit Actions run id from a workspace or record id, and it is right not to try.",
+      "status": "RESOLVED",
+      "resolution": "Fixed on main by PR #23 (merged 2026-10-02T18:42Z), not by this session: pull-request runs now take a per-ref group and keep cancel-in-progress, while deploying runs queue behind each other instead of being cancelled. Recorded here as REPORTED_NOT_ACTED while it was open, because changing when this workflow publishes to a public website is a publish decision under the approval boundary."
+    }
+  ]
+}

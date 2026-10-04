@@ -1,10 +1,10 @@
-import type { GovernedRecord } from '@nte/governance-core';
+import type { GovernedRecord, MaybeNumber } from '@nte/governance-core';
 
 export interface CapitalSource {
   id: string;
   label: string;
   type: 'CASH' | 'DEBT' | 'SELLER_CARRY' | 'PARTNER_EQUITY' | 'OTHER';
-  amount: number;
+  amount: MaybeNumber;
 }
 
 export interface DiligenceItem {
@@ -14,26 +14,26 @@ export interface DiligenceItem {
 }
 
 export interface SellerFinanceTerms {
-  purchasePrice: number;
-  downPayment: number;
-  annualRatePct: number;
-  termMonths: number;
-  balloonMonths: number;
+  purchasePrice: MaybeNumber;
+  downPayment: MaybeNumber;
+  annualRatePct: MaybeNumber;
+  termMonths: MaybeNumber;
+  balloonMonths: MaybeNumber;
 }
 
 export interface DealData {
   address: string;
   source: string;
   sourceDate: string;
-  askingPrice: number;
-  arv: number;
-  repairEstimate: number;
-  moaRule: number;
-  monthlyRent: number;
-  monthlyExpenses: number;
-  loanAmount: number;
-  loanRatePct: number;
-  loanTermMonths: number;
+  askingPrice: MaybeNumber;
+  arv: MaybeNumber;
+  repairEstimate: MaybeNumber;
+  moaRule: MaybeNumber;
+  monthlyRent: MaybeNumber;
+  monthlyExpenses: MaybeNumber;
+  loanAmount: MaybeNumber;
+  loanRatePct: MaybeNumber;
+  loanTermMonths: MaybeNumber;
   notes: string;
   capitalStack: CapitalSource[];
   diligence: DiligenceItem[];

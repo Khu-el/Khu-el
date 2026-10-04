@@ -1,14 +1,10 @@
-/**
- * Pure "needs attention" digest computation.
- *
- * Kept free of any database or transport import so it can be unit-tested
- * directly: the route layer reads the rows, this decides what they mean.
- */
+import { stalenessMessage, stalenessReason } from './staleness.js';
 
 export interface RecordRow {
   id: string;
   app_id: string;
   owner_id: string;
+  record_type?: string;
   data_json: string;
 }
 
@@ -21,44 +17,113 @@ export interface DigestItem {
 
 export const TWO_YEARS_MS = 2 * 365 * 24 * 60 * 60 * 1000;
 
-export function recordLabel(appId: string, data: any): string {
-  return data.address || data.entityName || data.obligorRef || data.familyName || 'Unlabeled record';
+export function recordLabel(appId: string, data: Record<string, unknown>): string {
+  return String(data.address || data.entityName || data.obligorRef || data.familyName || data.displayName || 'Unlabeled record');
 }
 
-/**
- * `now` is injectable so staleness thresholds can be tested deterministically;
- * callers in the app omit it and get the current time.
- */
-export function computeDigest(rows: RecordRow[], now: number = Date.now()): DigestItem[] {
+function safeJsonObject(json: string): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(json);
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function objectValue(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+}
+
+function arrayValue(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function calendarDay(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) return null;
+  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
+  return match[0];
+}
+
+const DAY_MS = 86_400_000;
+
+export function ownerToday(claimed: unknown, now = Date.now()): string {
+  const utc = new Date(now).toISOString().slice(0, 10);
+  const day = calendarDay(claimed);
+  if (!day) return utc;
+  return Math.abs(Date.parse(`${day}T00:00:00Z`) - Date.parse(`${utc}T00:00:00Z`)) <= DAY_MS ? day : utc;
+}
+
+export function crmFollowUpReason(value: unknown, today: string): 'overdue' | 'unreadable' | null {
+  if (typeof value !== 'string' || value.trim() === '') return null;
+  const day = calendarDay(value);
+  if (!day) return 'unreadable';
+  return day < today ? 'overdue' : null;
+}
+
+function crmOutreachBlocked(data: Record<string, unknown>): boolean {
+  return (
+    data.consentStatus === 'Do Not Contact' ||
+    data.consentStatus === 'Withdrawn' ||
+    data.operationalLane === 'Suppressed' ||
+    data.contactStatus === 'Suppressed'
+  );
+}
+
+export function computeDigest(rows: RecordRow[], todayOrNow: string | number = Date.now(), now = Date.now()): DigestItem[] {
+  const timestamp = typeof todayOrNow === 'number' ? todayOrNow : now;
+  const today = typeof todayOrNow === 'string' ? todayOrNow : new Date(timestamp).toISOString().slice(0, 10);
   const items: DigestItem[] = [];
 
   for (const row of rows) {
-    const body = JSON.parse(row.data_json);
-    const data = body.data ?? {};
+    const body = safeJsonObject(row.data_json);
+    const data = objectValue(body.data);
     const label = recordLabel(row.app_id, data);
 
     if (row.app_id === 'legacy-estate') {
-      for (const b of data.beneficiaries ?? []) {
-        const stale = !b.lastVerified || now - new Date(b.lastVerified).getTime() > TWO_YEARS_MS;
-        if (stale) items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Beneficiary designation "${b.accountOrPolicy || 'unnamed'}" hasn't been verified in 2+ years` });
+      for (const beneficiary of arrayValue(data.beneficiaries)) {
+        const b = objectValue(beneficiary);
+        const reason = stalenessReason(b.lastVerified, undefined, timestamp);
+        if (reason) {
+          items.push({
+            appId: row.app_id,
+            recordId: row.id,
+            recordLabel: label,
+            message: `Beneficiary designation "${b.accountOrPolicy || 'unnamed'}" ${stalenessMessage(reason)}`,
+          });
+        }
       }
     }
 
     if (row.app_id === 'deal-architect') {
-      const total = (data.diligence ?? []).length;
-      const done = (data.diligence ?? []).filter((d: any) => d.done).length;
+      const diligence = arrayValue(data.diligence);
+      const total = diligence.length;
+      const done = diligence.filter((d) => objectValue(d).done).length;
       if (total > 0 && done < total) items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Diligence checklist ${done}/${total} complete` });
     }
 
     if (row.app_id === 'capital-readiness') {
-      const total = (data.offeringReadiness ?? []).length;
-      const verified = (data.offeringReadiness ?? []).filter((r: any) => r.status === 'VERIFIED').length;
+      const readiness = arrayValue(data.offeringReadiness);
+      const total = readiness.length;
+      const verified = readiness.filter((r) => objectValue(r).status === 'VERIFIED').length;
       if (total > 0 && verified < total) items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Offering readiness ${verified}/${total} professionally verified` });
     }
 
+    if (row.app_id === 'financial-services-crm' && row.record_type === 'FS_CONTACT') {
+      if (data.sensitiveDataPresent === true)
+        items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: 'Flagged as holding sensitive data — move it to a company-approved system' });
+      const reason = crmOutreachBlocked(data) ? null : crmFollowUpReason(data.nextFollowUp, today);
+      if (reason === 'overdue') items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Follow-up overdue (${String(data.nextFollowUp)})` });
+      if (reason === 'unreadable') items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: 'Follow-up date cannot be read — set a real date' });
+    }
+
     if (row.app_id === 'notes-underwriting') {
-      const total = (data.lienChecklist ?? []).length;
-      const done = (data.lienChecklist ?? []).filter((d: any) => d.done).length;
+      const lienChecklist = arrayValue(data.lienChecklist);
+      const total = lienChecklist.length;
+      const done = lienChecklist.filter((d) => objectValue(d).done).length;
       if (total > 0 && done < total) items.push({ appId: row.app_id, recordId: row.id, recordLabel: label, message: `Lien/perfection checklist ${done}/${total} complete` });
     }
   }

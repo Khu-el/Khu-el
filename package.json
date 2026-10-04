@@ -14,10 +14,23 @@
     "dev:capital-readiness": "npm run dev --workspace=apps/capital-readiness",
     "dev:notes-underwriting": "npm run dev --workspace=apps/notes-underwriting",
     "dev:legacy-estate": "npm run dev --workspace=apps/legacy-estate",
+    "dev:financial-services-crm": "npm run dev --workspace=apps/financial-services-crm",
+    "dev:member-portal": "npm run dev --workspace=apps/member-portal",
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "tsc -b --noEmit apps/deal-architect apps/capital-readiness apps/notes-underwriting apps/legacy-estate server && tsc -p server/tsconfig.test.json",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "typecheck": "tsc -b --noEmit apps/deal-architect apps/capital-readiness apps/notes-underwriting apps/legacy-estate apps/financial-services-crm apps/member-portal server packages/neterverse-kernel",
+    "test": "npm test --workspaces --if-present",
+    "test:watch": "vitest",
+    "test:kernel": "npm test --workspace=packages/neterverse-kernel",
+    "test:server": "npm test --workspace=server",
+    "test:apps": "npm test --workspace=apps/deal-architect --workspace=apps/capital-readiness --workspace=apps/notes-underwriting --workspace=apps/financial-services-crm --workspace=apps/member-portal",
+    "check:query-token": "node scripts/check-query-token.mjs",
+    "check:live": "node scripts/check-live-pages.mjs",
+    "inventory": "node scripts/build-inventory.mjs",
+    "inventory:check": "node scripts/build-inventory.mjs --check",
+    "bus": "node packages/neterverse-kernel/src/cli.ts",
+    "projects": "node scripts/claude-projects.mjs --check",
+    "projects:build": "node scripts/claude-projects.mjs --build",
+    "tasks": "node scripts/scheduled-tasks.mjs"
   },
   "devDependencies": {
     "vitest": "^2.1.9"

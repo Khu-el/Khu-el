@@ -33,13 +33,13 @@ const TABS = [
 export default function App() {
   return (
     <AuthGate appName="Capital Readiness">
-      {({ user, logout }) => <CapitalReadiness userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} onLogout={logout} />}
+      {({ user, logout }) => <CapitalReadiness userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} userId={user.id} onLogout={logout} />}
     </AuthGate>
   );
 }
 
-function CapitalReadiness({ userLabel, onLogout }: { userLabel: string; onLogout: () => void }) {
-  const { records: raises, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<RaiseData>('capital-readiness', 'nte-capital-readiness:raises', true);
+function CapitalReadiness({ userLabel, userId, onLogout }: { userLabel: string; userId: string; onLogout: () => void }) {
+  const { records: raises, addRecord, updateRecord, removeRecord, status, syncError } = useSyncedRecords<RaiseData>('capital-readiness', 'nte-capital-readiness:raises', true, userId);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [tab, setTab] = useState('entity');
   const [newName, setNewName] = useState('');

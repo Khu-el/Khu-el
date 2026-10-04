@@ -1,0 +1,201 @@
+{
+  "opsNote": "Enterprise instance of module 08. Shares no key with the household instance. Standing task rows ship empty where the source register is not in this workspace — an invented standing task is a defect, not a placeholder.",
+  "opsSystemsOfRecord": [
+    {
+      "sorDomain": "Tasks, phases, build queues",
+      "sorSystem": "ClickUp"
+    },
+    {
+      "sorDomain": "Registers, catalogs, knowledge base",
+      "sorSystem": "Notion"
+    },
+    {
+      "sorDomain": "Documents, canon, seals",
+      "sorSystem": "Google Drive"
+    },
+    {
+      "sorDomain": "Scheduling",
+      "sorSystem": "Google Calendar"
+    },
+    {
+      "sorDomain": "Correspondence",
+      "sorSystem": "Gmail"
+    }
+  ],
+  "opsSystemsNote": "One domain, one system. This map is the one-source-of-truth rule made visible: where two systems hold the same domain, one of them is a copy and copies drift.",
+  "opsDomains": [
+    {
+      "domainRef": "D-1",
+      "domainName": null,
+      "domainTool": null,
+      "domainNumbersBarred": false
+    },
+    {
+      "domainRef": "D-2",
+      "domainName": null,
+      "domainTool": null,
+      "domainNumbersBarred": false
+    },
+    {
+      "domainRef": "D-3",
+      "domainName": null,
+      "domainTool": null,
+      "domainNumbersBarred": false
+    },
+    {
+      "domainRef": "D-4",
+      "domainName": null,
+      "domainTool": null,
+      "domainNumbersBarred": false
+    },
+    {
+      "domainRef": "D-5",
+      "domainName": "Health and training",
+      "domainTool": null,
+      "domainNumbersBarred": true,
+      "domainCadence": "Daily",
+      "domainNote": "Renders as a name and a cadence. No metric, target, count or number of any kind belongs in this view, and none is held in this file."
+    },
+    {
+      "domainRef": "D-6",
+      "domainName": null,
+      "domainTool": null,
+      "domainNumbersBarred": false
+    },
+    {
+      "domainRef": "D-7",
+      "domainName": null,
+      "domainTool": null,
+      "domainNumbersBarred": false
+    },
+    {
+      "domainRef": "D-8",
+      "domainName": null,
+      "domainTool": null,
+      "domainNumbersBarred": false
+    }
+  ],
+  "opsDomainsNote": "Eight domains. Seven of the eight names, and every tool assignment, are not in this workspace. The one named domain is named because the specification names it.",
+  "opsCadences": [
+    "Daily",
+    "Weekly",
+    "Bi-weekly",
+    "Monthly",
+    "Quarterly"
+  ],
+  "opsTasks": [
+    {
+      "taskRef": "S-01",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-02",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-03",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-04",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-05",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-06",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-07",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-08",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-09",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-10",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-11",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-12",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-13",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-14",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    },
+    {
+      "taskRef": "S-15",
+      "taskName": null,
+      "taskCadence": null,
+      "taskRunTimes": null,
+      "taskOwner": null
+    }
+  ],
+  "opsTasksNote": "Fifteen scheduled task slots against a ceiling of ten. Run times are not in this workspace, so each row is counted as one — the minimum it could consume. The real figure is at least this and cannot be less.",
+  "opsCollision": {
+    "collisionTitle": "S-01 means two different things",
+    "collisionDetail": "The standing task register runs S-01 to S-15. A separate sales series also runs S-01 to S-04. Four identifiers name two things each.",
+    "collisionConsequence": "Any reference to S-01, S-02, S-03 or S-04 is ambiguous, and a reference that resolves to the wrong one looks like it resolved correctly.",
+    "collisionResolution": "A renaming decision. This console does not make it and does not pick a winner — an auto-resolution here would produce a third numbering system on top of the two that already collide.",
+    "collisionState": "OPEN"
+  }
+}

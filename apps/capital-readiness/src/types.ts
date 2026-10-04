@@ -1,18 +1,18 @@
-import type { GovernedRecord } from '@nte/governance-core';
+import type { GovernedRecord, MaybeNumber } from '@nte/governance-core';
 
 export interface CapTableRow {
   id: string;
   holder: string;
   securityType: 'COMMON' | 'PREFERRED' | 'SAFE' | 'CONVERTIBLE_NOTE' | 'OPTION_POOL';
-  units: number;
-  pricePerUnit: number;
+  units: MaybeNumber;
+  pricePerUnit: MaybeNumber;
   dateIssued: string;
 }
 
 export interface ProceedsLine {
   id: string;
   category: string;
-  amount: number;
+  amount: MaybeNumber;
 }
 
 export interface ReadinessItem {
@@ -26,15 +26,15 @@ export interface RaiseData {
   entityType: string;
   entityFormed: 'YES' | 'NO' | 'UNSURE';
   jurisdiction: string;
-  targetRaise: number;
-  minimumRaise: number;
+  targetRaise: MaybeNumber;
+  minimumRaise: MaybeNumber;
   exemptionTrack: 'REG_D_504' | 'REG_D_506B' | 'REG_D_506C' | 'UNDETERMINED';
   capTable: CapTableRow[];
   useOfProceeds: ProceedsLine[];
   readiness: ReadinessItem[];
   offeringReadiness: ReadinessItem[];
-  debtScenario: { loanAmount: number; ratePct: number; termYears: number };
-  equityScenario: { raiseAmount: number; percentOffered: number; expectedExitValue: number; exitYears: number };
+  debtScenario: { loanAmount: MaybeNumber; ratePct: MaybeNumber; termYears: MaybeNumber };
+  equityScenario: { raiseAmount: MaybeNumber; percentOffered: MaybeNumber; expectedExitValue: MaybeNumber; exitYears: MaybeNumber };
   notes: string;
 }
 

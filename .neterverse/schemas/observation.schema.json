@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "neterverse://schemas/observation.schema.json",
+  "title": "Connector observation",
+  "description": "One recorded look at a system of record. Observations live under .neterverse/live/, which is never committed: they may carry identifiers, and this repository is public.",
+  "type": "object",
+  "required": ["observation_id", "connector_id", "observed_at", "observed_by", "outcome", "classification", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "observation_id": { "type": "string", "pattern": "^obs_[a-z0-9_]+$" },
+    "connector_id": { "type": "string", "minLength": 1 },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "observed_by": {
+      "type": "object",
+      "required": ["runtime", "instance_id"],
+      "additionalProperties": false,
+      "properties": {
+        "runtime": { "type": "string", "enum": ["CLAUDE_CODE", "CODEX", "OTHER_AUTHORIZED_RUNTIME", "HUMAN"] },
+        "instance_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "outcome": { "type": "string", "enum": ["OK", "FAILED", "PARTIAL"] },
+    "call": { "type": "string", "description": "The read that was actually made. This is the evidence for the outcome." },
+    "classification": { "type": "string", "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "error": { "type": "string" },
+    "metrics": {
+      "type": "object",
+      "description": "Counts and other non-identifying scalars. Safe to project into committed state.",
+      "additionalProperties": { "type": ["number", "string", "boolean"] }
+    },
+    "detail": {
+      "type": "object",
+      "description": "Anything identifying goes here and stays here. Never projected into committed state.",
+      "additionalProperties": {}
+    }
+  }
+}

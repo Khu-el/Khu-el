@@ -1,12 +1,22 @@
 # NTE Web Apps
 
-Four private planning tools, built as a shared-package monorepo, backed by one self-hosted
+Four private planning tools and a relationship CRM, built as a shared-package monorepo, backed by one self-hosted
 backend. Each app turns a specific area of deal/finance/estate work into disciplined calculators,
 checklists, and draft decision memos — instead of hype.
 
 > **Note:** this repo doubles as the `Khu-el` GitHub profile README repo. This file replaces the
 > default profile placeholder; if you want the original "Hi there 👋" content back on your profile,
 > it's in git history (`git log -- README.md`).
+
+> **🎛️ Operating standard:** [`docs/EXECUTIVE_OS.md`](docs/EXECUTIVE_OS.md) is the controlling
+> standard for how work in this account is researched, evidenced, visualized, and recorded —
+> including the approval boundary the backend enforces in code. [`CLAUDE.md`](CLAUDE.md) is the
+> repo-specific layer for anyone (human or agent) picking up work here.
+
+> **🌐 Where this runs:** [`docs/DOMAIN_NETWORK.md`](docs/DOMAIN_NETWORK.md) maps every hostname on
+> the `excellencedistrict.org` network across all three repos, and
+> [`docs/CONNECTORS.md`](docs/CONNECTORS.md) registers every connector, tool, and plugin available
+> to it — with what each one is and is not allowed to do.
 
 ## Why these apps look the way they do
 
@@ -38,8 +48,15 @@ apps/deal-architect/        App 1 — Real estate deal intelligence
 apps/capital-readiness/     App 2 — Entity & offering-readiness diligence
 apps/notes-underwriting/    App 3 — Distressed-debt / note underwriting analysis
 apps/legacy-estate/         App 4 — CCRLT / House of Ransom family estate coordination (Lane B)
+apps/financial-services-crm/ App 5 — The Excellence District Financial Services CRM
+apps/member-portal/         The Excellence District Member Portal — invite-only, on Supabase,
+                             not on server/ (see its README and ADR-0004)
 
 server/                     Shared backend for all four apps (Express + SQLite)
+
+docs/forms/                 Standalone offline HTML working instruments (not built, not deployed) --
+                             currently the Trust Stewardship Client Intake, which is held pending an
+                             outside business activity determination. See docs/forms/README.md.
 ```
 
 Each app is Vite + React + TypeScript + Tailwind, matching the stack already used in this
@@ -147,26 +164,47 @@ verified-by-rehearsal, not verified-by-build, until you run it once yourself.
 
 `.github/workflows/deploy-pages.yml` builds all four apps and a small landing page
 (`web/landing/index.html`) linking to them, and publishes the result to GitHub Pages in one shot.
-Because this repo is `Khu-el/Khu-el` (named exactly like the account), Pages serves it at the root
-of `https://khu-el.github.io/` rather than under a `/Khu-el/` prefix — the workflow and each app's
-`vite.config.ts` (`base: process.env.VITE_BASE_PATH`) are already set up for that:
+This repo is `Khu-el/Khu-el`, which GitHub treats as a *project* site: it is served under a
+`/Khu-el/` prefix. (Only a repository named `khu-el.github.io` is served at the account root —
+naming a repo after the account makes it the profile README, not the user site.) The workflow
+reads the prefix from `actions/configure-pages` and builds each app for it, so it follows the site
+if a custom domain is attached later:
 
-- `https://khu-el.github.io/` — the landing page
-- `https://khu-el.github.io/deal-architect/`
-- `https://khu-el.github.io/capital-readiness/`
-- `https://khu-el.github.io/notes-underwriting/`
-- `https://khu-el.github.io/legacy-estate/`
+- `https://khu-el.github.io/Khu-el/` — the landing page
+- `https://khu-el.github.io/Khu-el/deal-architect/`
+- `https://khu-el.github.io/Khu-el/capital-readiness/`
+- `https://khu-el.github.io/Khu-el/notes-underwriting/`
+- `https://khu-el.github.io/Khu-el/legacy-estate/`
+- `https://khu-el.github.io/Khu-el/financial-services-crm/`
+- `https://khu-el.github.io/Khu-el/member-portal/` — reads `ED_SUPABASE_URL` and
+  `ED_SUPABASE_PUBLISHABLE_KEY` (repository Variables) at build time and says "not connected" until
+  both are set. Its launch steps are in [`apps/member-portal/README.md`](apps/member-portal/README.md).
 
 One-time setup, both in the repo's GitHub settings (not something I can click through for you):
 
 1. **Settings → Pages → Source → GitHub Actions.** (Pages is off by default; the workflow can't
    publish anything until this is set.)
 2. **Settings → Secrets and variables → Actions → Variables → New repository variable** named
-   `VITE_API_BASE_URL`, set to your deployed backend URL (`https://your-chosen-app-name.fly.dev`).
-   Without this, the deployed apps fall back to `http://localhost:4000` and just show "offline."
+   `VITE_API_BASE_URL`, set to your deployed backend URL (`https://your-chosen-app-name.fly.dev`,
+   or `https://api.excellencedistrict.org` once that hostname exists). Without this, the deployed
+   apps fall back to `http://localhost:4000` and just show "offline."
 3. Once you know the Pages URL is live, go back and run `fly secrets set
    CORS_ORIGINS=https://khu-el.github.io` (one origin covers all four apps + the landing page, since
-   they share a domain) and `fly deploy` again so the backend actually accepts requests from it.
+   they share a domain; an origin has no path, so the `/Khu-el/` prefix does not appear in it) and `fly deploy` again so the backend actually accepts requests from it.
+
+### Putting it on excellencedistrict.org
+
+The apps are meant to end up at `apps.excellencedistrict.org`, with the backend at
+`api.excellencedistrict.org` and the Squarespace site and Google Workspace mail left untouched on
+the apex. [`docs/DOMAIN_NETWORK.md`](docs/DOMAIN_NETWORK.md) is the canonical map: the DNS rows to
+add, the order to add them in, and the verification commands. None of it has been executed — DNS
+edits are on the human side of the approval boundary.
+
+The one thing worth knowing before reading that file: **a `CNAME` file does nothing here.** When
+Pages publishes from a GitHub Actions workflow, GitHub ignores any `CNAME` file — in the repo or in
+the uploaded artifact. The custom domain is attached in **Settings → Pages → Custom domain**, and
+only after the DNS record resolves. (An earlier version of the workflow wrote `_site/CNAME` from a
+`PAGES_CUSTOM_DOMAIN` variable; it could never have attached anything and has been removed.)
 
 The workflow runs on every push to `main`, and can also be triggered by hand from the repo's Actions
 tab (`Deploy web apps to GitHub Pages` → Run workflow) — including from this branch, before merging,
@@ -179,6 +217,36 @@ Pages actually being enabled on the repository first.
 **Registration is gated by an invite code** (see `INVITE_CODE` above) specifically so this Pages link
 is safe to hand out without opening the shared Legacy & Estate workspace to strangers — share the
 code only with people who should actually see family records.
+
+## The Excellence District Financial Services CRM
+
+`apps/financial-services-crm` is the operating system from *The Excellence District Financial
+Services CRM* workbook, rebuilt as an app on the shared backend. Every sheet has a home: the
+Contact Master, Activity Log, Appointment Pipeline, Recruiting Funnel, Licensing Tracker, Field
+Training, Referral Engine and Weekly Scoreboard are tabs; the Dashboard and CRM Command Center are
+one **Command Center**; the Scripts Library, Objection Matrix, Compliance Notes and Data Dictionary
+are the **Playbook**. The dropdown lists are `src/types.ts`, verbatim.
+
+It is **private per owner**, like Deal Architect — not a shared workspace. The workbook's own
+governance rules are enforced in code, not just written down:
+
+- **Neutral import.** Contacts arrive Unqualified / Not Established / Not Assessed. The importer
+  reads the workbook (`.xlsx`, in the browser, no dependency) or a Google Contacts CSV.
+- **Upsert by Google Resource Name; never merge on a name; never delete.** A re-import refreshes
+  identity fields and leaves lane, consent, notes and follow-ups alone. Shared emails and phones
+  are flagged for review, never merged.
+- **Consent gates outreach.** Do Not Contact, Withdrawn and Suppressed contacts never appear in a
+  follow-up queue or the digest, and cannot have an attempt started from their record.
+- **Commercial lanes need an expressed interest,** and notes that look like an SSN, account or
+  policy number are flagged at once.
+- **Ratios with no denominator show "—", not 0%** (the workbook's `IF(E5=0,0,…)` read as a failed
+  day when nothing had been logged).
+
+**No contact data is committed.** The repo is public; the workbook's contacts are loaded by the
+owner through the Import tab after signing in. They are stored on the backend under the owner's
+account, and a copy is cached in that browser's `localStorage` (scoped to the signed-in account and
+purged when a different account signs in there) so the app works offline. Sign out on a shared
+machine.
 
 ## The shared governance model
 
@@ -200,6 +268,8 @@ npm run dev:deal-architect      # terminal 2
 npm run dev:capital-readiness   # terminal 3
 npm run dev:notes-underwriting  # terminal 4
 npm run dev:legacy-estate       # terminal 5
+npm run dev:financial-services-crm  # terminal 6
+npm run dev:member-portal       # no server/ needed — it talks to Supabase
 ```
 
 Register a separate account per app the first time you open it (accounts are shared across apps —
@@ -226,6 +296,10 @@ those up like you would any real data.
   (`apps/capital-readiness`)
 - No debt collection, borrower contact, or foreclosure action (`apps/notes-underwriting`)
 - No automatic trust amendment, asset retitling, or beneficiary change (`apps/legacy-estate`)
+- No calling, texting, emailing, or task-creation toward a contact, and no storage of regulated client data
+  — SSNs, account or policy numbers, underwriting detail (`apps/financial-services-crm`)
+- No email, SMS, push or post sent from the member portal, no payments, and no sign-up without an
+  invite (`apps/member-portal`)
 - No brokerage, lending, or title-conclusion logic (`apps/deal-architect`)
 - No email recipient other than the signed-in user's own address, anywhere in the system
 - No automatic/scheduled outbound email — every send (memo, digest) is a human clicking a button in

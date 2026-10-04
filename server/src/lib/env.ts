@@ -56,12 +56,33 @@ function resolveInviteCode(): string {
 
 export const env = {
   port: Number(process.env.PORT ?? 4000),
+  /**
+   * How many proxies sit in front of this server, for Express's `trust proxy`.
+   * The sign-in rate limits key on the client IP; behind a proxy without this,
+   * every request appears to come from the proxy, and one person's failed
+   * attempts would lock everyone out. fly.toml sets 1 for Fly's edge proxy.
+   * Unset means 0: req.ip is the socket peer, which is right when nothing is in
+   * front, and cannot be spoofed with an X-Forwarded-For header.
+   */
+  trustProxy: Number(process.env.TRUST_PROXY ?? 0),
   dataDir,
   uploadsDir,
   dbPath: path.join(dataDir, 'nte.db'),
   jwtSecret: resolveJwtSecret(),
   inviteCode: resolveInviteCode(),
-  corsOrigins: (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176').split(','),
+  /**
+   * The one address that registers as SYSTEM_ADMIN. Unset means no
+   * registration can produce an admin, which is the fail-closed default and
+   * the right one: the invite code is meant to be shared, so it must not be
+   * able to confer authority over everyone else's records.
+   */
+  bootstrapAdminEmail: (process.env.BOOTSTRAP_ADMIN_EMAIL ?? '').trim().toLowerCase(),
+  // Trimmed, because "https://a.example, https://b.example" is the natural way
+  // to write a list and the untrimmed " https://b.example" matches no origin.
+  corsOrigins: (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean),
   smtp: {
     host: process.env.SMTP_HOST ?? '',
     port: Number(process.env.SMTP_PORT ?? 587),

@@ -29,7 +29,7 @@ describe('computeDigest - beneficiary staleness (legacy-estate)', () => {
     );
     expect(items).toHaveLength(1);
     expect(items[0].message).toContain('Term life');
-    expect(items[0].message).toContain("hasn't been verified in 2+ years");
+    expect(items[0].message).toContain('has never been verified');
     expect(items[0].recordLabel).toBe('Ransom');
   });
 

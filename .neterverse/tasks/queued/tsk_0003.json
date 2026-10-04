@@ -1,0 +1,28 @@
+{
+  "task_id": "tsk_0003",
+  "parent_task_id": "tsk_0002",
+  "title": "Independently verify the kernel hardening",
+  "objective": "A verifier that did not write the code reviews both the original kernel and the ten changes made under AUD-KHU-002.",
+  "lane": "LANE_A",
+  "entity": "Neterverse Trust Enterprise (NTE)",
+  "capacity": "Minister / Authorized Representative",
+  "risk_tier": "R1",
+  "preferred_runtime": "CODEX",
+  "resources": [
+    "packages/neterverse-kernel",
+    ".neterverse/schemas"
+  ],
+  "blocked_by": [],
+  "human_gate": null,
+  "acceptance": [
+    "A written verdict of PASS, PASS WITH CONDITIONS, FAIL or BLOCKED BY EVIDENCE on the hardened kernel",
+    "An independent attempt to defeat each of the ten fixes, not a reading of the tests that assert them",
+    "A judgement on whether the audit precision guard has made it miss a shape it used to catch",
+    "A recommendation on findings A to D in AUD-KHU-002, which are the principal's to decide",
+    "A handoff packet written back to .neterverse/handoffs/codex-to-claude/"
+  ],
+  "created_at": "2026-09-21T00:00:00Z",
+  "next_action": "Claim a lease over packages/neterverse-kernel, then try to defeat the ten fixes rather than confirm them.",
+  "state": "QUEUED",
+  "updated_at": "2026-09-21T14:05:24.589Z"
+}

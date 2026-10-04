@@ -1,0 +1,124 @@
+name: Verify
+
+# The repository documents four mechanical guarantees -- the kernel suite, a type
+# sweep, the registry validator and the public-repo leak audit -- and until now
+# nothing ran any of them automatically. The only workflow on main triggers on
+# push to main and workflow_dispatch, so no pull request in this repository has
+# ever carried a check. The guarantees held because someone remembered to run
+# them, which is the shape of assurance the governance model exists to replace.
+#
+# Steps are kept separate rather than folded into one script so a red run names
+# which guarantee broke instead of only reporting that "verify" failed.
+#
+# This does not touch deploy-pages.yml. That workflow's own failure (Pages is
+# not enabled for the repository) is a repository setting, not a code defect,
+# and its action versions are being fixed in PR #9.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Every workspace suite: the kernel, the server (which starts the real app
+      # on an ephemeral port and drives it over HTTP), the three apps'
+      # finance.ts, the CRM's rules and importer, and governance-core's helpers. legacy-estate has no runner,
+      # and no component anywhere is covered.
+      - name: Workspace test suites
+        run: npm test
+
+      # Covers the five apps, the server and the kernel. governance-core has no
+      # tsconfig of its own and is typechecked transitively through the apps
+      # that import its source.
+      - name: Type sweep
+        run: npm run typecheck
+
+      - name: Build every workspace
+        run: npm run build
+
+      - name: Control-plane registries are valid
+        run: npm run bus -- validate
+
+      # This repository is public. The audit scans committed bus state for
+      # emails, tokens, key material and record identifiers.
+      - name: Committed bus state carries nothing unpublishable
+        run: npm run bus -- audit
+
+      # A JWT in a query string lands in access logs, browser history and
+      # Referer headers, and these tokens last 30 days. Exactly one route needs
+      # it -- a plain <a href> download cannot set a header -- and the guard
+      # keeps it at exactly one.
+      - name: Query-string token stays limited to the download route
+        run: npm run check:query-token
+
+      # Every Claude Project definition points at real files and matches its
+      # registry row. A definition that names a deleted or renamed source would
+      # otherwise build a knowledge bundle with a hole in it, silently. The
+      # sibling repositories are not checked out here, so their sources are
+      # reported as unverified rather than failing the run.
+      - name: Claude Project definitions are valid
+        run: npm run projects
+
+      # Same shape for scheduled tasks: SPEC v2 says "no orphan tasks", and until
+      # now nothing checked that a definition has a registry row, that an ACTIVE
+      # task names the Routine that fires it, or that every section is filled in
+      # rather than left as template scaffolding.
+      #
+      # What it cannot see is the Routines API: whether a recorded Routine ID
+      # exists, and whether something is firing with no definition here at all.
+      # ST-NTE-001 reconciles that; a green step here is not evidence of it.
+      - name: Scheduled task definitions are valid
+        run: npm run tasks
+
+      # The committed inventory describes the repository's shape -- workspaces,
+      # which have a test runner, which do not. It is generated, so it drifts
+      # silently the moment a workspace is added and nobody re-runs it, and the
+      # continuation audit cites it as evidence.
+      - name: Workspace inventory is not stale
+        run: npm run inventory:check
+
+      # Two boundaries from CLAUDE.md that are mechanical, and whose violation
+      # would be both costly and easy to miss in a diff.
+      - name: Live control-plane state is not committed
+        run: |
+          set -euo pipefail
+          if [ -n "$(git ls-files .neterverse/live/)" ]; then
+            echo "::error::.neterverse/live/ is gitignored and must never be committed."
+            git ls-files .neterverse/live/
+            exit 1
+          fi
+          echo "No tracked files under .neterverse/live/."
+
+      # Pages publishes from a GitHub Actions workflow, and in that mode GitHub
+      # ignores any CNAME file -- the custom domain is attached in Settings ->
+      # Pages. A committed CNAME would therefore do nothing except suggest to
+      # the next reader that a domain is attached when it is not, so it is
+      # refused rather than left to mislead.
+      - name: No CNAME file is checked in
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -iE '(^|/)CNAME$'; then
+            echo "::error::A CNAME file is ignored when Pages publishes from Actions. Attach a custom domain in Settings -> Pages instead -- see docs/DOMAIN_NETWORK.md."
+            exit 1
+          fi
+          echo "No CNAME file tracked."

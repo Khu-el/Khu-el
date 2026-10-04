@@ -1,0 +1,76 @@
+{
+  "deskNote": "Practice instance of module 04. This file shares no key with the enterprise instance, at any level. Nothing in it names or implies the other structure. Calendar and performance rows that are not in this workspace are UNKNOWN rather than filled.",
+
+  "deskCalendar": {
+    "rhythmLabel": "Four-week posting rhythm",
+    "weeks": [
+      { "weekName": "Week 1", "postList": [] },
+      { "weekName": "Week 2", "postList": [] },
+      { "weekName": "Week 3", "postList": [] },
+      { "weekName": "Week 4", "postList": [] }
+    ],
+    "weekNote": "No scheduled posts are in this workspace. Four empty weeks is the honest state of a calendar nobody has filled."
+  },
+
+  "deskAssets": [
+    {
+      "itemRef": "BLOG-001",
+      "itemName": "Financial education blog",
+      "itemKind": "Publication",
+      "itemLine": "Education",
+      "itemState": "UNKNOWN",
+      "itemRemark": "The blog itself. Post count, cadence and traffic are not in this workspace."
+    },
+    {
+      "itemRef": "BLOG-002",
+      "itemName": "Content calendar",
+      "itemKind": "Working document",
+      "itemLine": "Education",
+      "itemState": "UNKNOWN",
+      "itemRemark": "Feeds the four-week rhythm above. Not in this workspace."
+    },
+    {
+      "itemRef": "BLOG-003",
+      "itemName": "Performance tracking",
+      "itemKind": "Working document",
+      "itemLine": "Education",
+      "itemState": "UNKNOWN",
+      "itemRemark": "What each post did. Nothing is claimed here — a performance figure without a source is worse than no figure."
+    },
+    {
+      "itemRef": "AGS-001",
+      "itemName": "Agent Growth Series",
+      "itemKind": "Product line",
+      "itemLine": "Agent Growth Series",
+      "itemState": "UNKNOWN",
+      "itemRemark": "The product line for the desk. Its plan is carried on the plans board as AGS and its revision is not in this workspace."
+    },
+    {
+      "itemRef": "FUN-001",
+      "itemName": "Career funnel, seven stages",
+      "itemKind": "Working document",
+      "itemLine": "Recruiting",
+      "itemState": "UNKNOWN",
+      "itemRemark": "Four versions of it exist. None is in this workspace, which is why the funnel board on the desk shows seven numbered stages with no labels."
+    },
+    {
+      "itemRef": "TEAM-001",
+      "itemName": "Team standup cadence",
+      "itemKind": "Working document",
+      "itemLine": "Team",
+      "itemState": "UNKNOWN",
+      "itemRemark": "Weekly. The agenda is on the desk; the roster behind it is not in this workspace."
+    }
+  ],
+
+  "deskLedger": [
+    {
+      "logRef": "PB-000",
+      "logDate": "UNKNOWN",
+      "logChannel": "UNKNOWN",
+      "logEntry": "Nothing published is recorded. Writing a post is not publishing it, and this log records the second thing only."
+    }
+  ],
+
+  "deskMeterLabel": "Calls and conversations this week"
+}

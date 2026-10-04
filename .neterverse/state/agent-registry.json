@@ -1,0 +1,52 @@
+{
+  "as_of": "2026-09-10T23:26:24Z",
+  "note": "Runtimes acting against this ecosystem. Consolidate before proliferating: extend an entry rather than adding a near-duplicate.",
+  "entries": [
+    {
+      "agent_id": "agent-claude-code",
+      "name": "Claude Code",
+      "purpose": "Architecture, long-context repository comprehension, specifications, governance reconciliation, adversarial review",
+      "domain": "engineering-and-governance",
+      "lane": "LANE_A",
+      "entity_scope": "NTE / Equity of the Divine Ministries",
+      "allowed_data": ["repository source", "public documentation", "authorized connector reads"],
+      "forbidden_data": ["Lane B private family records without a declared bridge", "credentials", "secrets"],
+      "runtime": "CLAUDE_CODE",
+      "tools": ["repository", "github", "google-drive", "clickup", "notion", "google-calendar", "gmail"],
+      "read_permissions": ["repository", "authorized connectors"],
+      "write_permissions": ["repository branches", ".neterverse bus state"],
+      "risk_ceiling": "R1",
+      "approval_rules": "R2 may be prepared but not released. R3 and R4 stop at the human gate regardless of ceiling.",
+      "trigger": "Human instruction or a scheduled Routine",
+      "output_destination": ".neterverse/ plus the designated feature branch",
+      "test_status": "PASSING",
+      "deployment_status": "TESTED_LOCALLY",
+      "kill_switch": "Revoke the GitHub app authorization, or archive the session",
+      "owner": "principal",
+      "last_verified": "2026-09-10T23:26:24Z"
+    },
+    {
+      "agent_id": "agent-codex",
+      "name": "Codex",
+      "purpose": "Implementation, targeted code changes, test repair, CI, connector adapters, deployment preparation",
+      "domain": "engineering",
+      "lane": "LANE_A",
+      "entity_scope": "NTE / Equity of the Divine Ministries",
+      "allowed_data": ["repository source", "test fixtures"],
+      "forbidden_data": ["Lane B private family records without a declared bridge", "credentials", "secrets"],
+      "runtime": "CODEX",
+      "tools": ["repository"],
+      "read_permissions": ["repository", ".neterverse bus state"],
+      "write_permissions": ["repository branches", ".neterverse bus state"],
+      "risk_ceiling": "R1",
+      "approval_rules": "Same boundary as the peer runtime. Neither agent self-certifies a consequential production deployment.",
+      "trigger": "A handoff packet in .neterverse/handoffs/claude-to-codex/",
+      "output_destination": ".neterverse/handoffs/codex-to-claude/ plus the designated feature branch",
+      "test_status": "NOT_RUN",
+      "deployment_status": "DESIGNED",
+      "kill_switch": "Stop dispatching handoffs; the bus is inert without them",
+      "owner": "principal",
+      "last_verified": "2026-09-10T23:26:24Z"
+    }
+  ]
+}

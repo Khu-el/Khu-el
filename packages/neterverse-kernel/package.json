@@ -1,0 +1,17 @@
+{
+  "name": "@nte/neterverse-kernel",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Shared-state kernel for the Neterverse control plane: events, leases, registries, lane firewall and the approval boundary.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "bin": {
+    "neterverse": "src/cli.ts"
+  },
+  "scripts": {
+    "test": "node --test 'test/*.test.ts'",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "cli": "node src/cli.ts"
+  }
+}

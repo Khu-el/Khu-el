@@ -1,4 +1,4 @@
-export const APP_IDS = ['deal-architect', 'capital-readiness', 'notes-underwriting', 'legacy-estate'] as const;
+export const APP_IDS = ['deal-architect', 'capital-readiness', 'notes-underwriting', 'legacy-estate', 'financial-services-crm'] as const;
 export type AppId = (typeof APP_IDS)[number];
 
 export const ROLES = [

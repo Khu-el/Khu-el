@@ -14,10 +14,14 @@ export const ROLES = [
 
 export type Role = (typeof ROLES)[number];
 
-export const APP_IDS = ['deal-architect', 'capital-readiness', 'notes-underwriting', 'legacy-estate'] as const;
+export const APP_IDS = ['deal-architect', 'capital-readiness', 'notes-underwriting', 'legacy-estate', 'financial-services-crm'] as const;
 export type AppId = (typeof APP_IDS)[number];
 
-/** legacy-estate is a shared single-family workspace; the other three are private per user. */
+export function isRole(role: string): role is Role {
+  return (ROLES as readonly string[]).includes(role);
+}
+
+/** legacy-estate is a shared single-family workspace; every other app is private per user. */
 export function isSharedApp(appId: string) {
   return appId === 'legacy-estate';
 }
