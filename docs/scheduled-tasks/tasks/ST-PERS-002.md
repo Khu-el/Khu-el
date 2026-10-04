@@ -13,10 +13,17 @@
 
 ## 🎯 MISSION
 
-Close the day in 150 words or fewer: one law or principle, one journal question about *today*
-specifically, and nothing else. The outcome it exists to improve is **honest daily reflection
-without interpretation** — the task deliberately does not analyse Chaz's day or tell him what a
-pattern means. It migrates an existing ChatGPT task of the same name.
+Close the day in 150 words or fewer: one law or principle, and one journal question about *today*
+specifically. The outcome it exists to improve is **honest daily reflection without
+interpretation** — the task deliberately does not analyse Chaz's day or tell him what a pattern
+means. It migrates an existing ChatGPT task of the same name.
+
+**Body versus metadata.** "Nothing else" governs the **bulletin body**: beyond the law and the
+question, the body carries no commentary, interpretation, encouragement or recap, and the 150-word
+limit applies to it. Three things sit outside the body and are required rather than excluded: the
+single final-output status line, the five-part prior-run continuity report, and — only when one
+arises — the one-clause contradiction note under CONTRADICTIONS. The continuity report is run-log
+metadata and is not delivered to Chaz as part of the evening close.
 
 ## 🧑‍💼 CAPACITY
 
