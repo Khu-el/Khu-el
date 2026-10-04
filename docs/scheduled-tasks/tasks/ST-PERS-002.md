@@ -69,7 +69,8 @@ The prior evening's law and journal question are retrieved so neither repeats im
 `ST-PERS-001` ran that morning, its night checkpoint is read so the two do not contradict each
 other on the same day's state.
 
-Each run reports: what changed · what closed · what carried · what failed · what became irrelevant.
+The private task history records: what changed · what closed · what carried · what failed · what
+became irrelevant.
 
 ## 🌐 WEB RESEARCH MODE
 
