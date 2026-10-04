@@ -21,8 +21,9 @@
 
 import { readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = new URL('..', import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const base = new URL(
   process.argv[2] || process.env.PAGES_URL || 'https://khu-el.github.io/Khu-el/',
 );
@@ -35,11 +36,6 @@ const apps = readdirSync(join(ROOT, 'apps'))
   .filter((name) => statSync(join(ROOT, 'apps', name)).isDirectory())
   .sort();
 
-// A query string the CDN has not seen, so a cached copy of the previous
-// deploy's HTML -- which names the previous deploy's asset hashes -- is not
-// what gets checked.
-const bust = `live-check=${Date.now()}`;
-
 async function status(url) {
   try {
     const res = await fetch(url, { redirect: 'follow' });
@@ -50,15 +46,28 @@ async function status(url) {
   }
 }
 
+// Every src/href value, kept only if the resolved path ends in .js or .css.
+// The lookbehind keeps data-src and similar out; testing the pathname rather
+// than the raw value keeps app.js?v=2 in.
 function assetsIn(html, pageUrl) {
   const refs = new Set();
-  for (const m of html.matchAll(/\b(?:src|href)="([^"]+\.(?:js|css))"/g)) {
-    refs.add(new URL(m[1], pageUrl).href);
+  for (const m of html.matchAll(/(?<![\w-])(?:src|href)\s*=\s*(["'])(.*?)\1/gi)) {
+    let url;
+    try {
+      url = new URL(m[2], pageUrl);
+    } catch {
+      continue;
+    }
+    if (/\.(?:js|css)$/i.test(url.pathname)) refs.add(url.href);
   }
   return [...refs];
 }
 
 async function checkOnce() {
+  // A query string the CDN has not seen -- fresh on every attempt -- so a
+  // cached copy of the previous deploy's HTML, which names the previous
+  // deploy's asset hashes, is not what gets checked.
+  const bust = `live-check=${Date.now()}`;
   const lines = [];
   let failed = 0;
 
