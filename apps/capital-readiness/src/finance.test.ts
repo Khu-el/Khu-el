@@ -18,10 +18,10 @@ describe('annualDebtPayment', () => {
     expect(annualDebtPayment(500_000, 0, 10)).toBe(50_000);
   });
 
-  it('returns 0 for a non-positive term rather than dividing by zero', () => {
-    expect(annualDebtPayment(500_000, 8, 0)).toBe(0);
-    expect(annualDebtPayment(500_000, 0, 0)).toBe(0);
-    expect(annualDebtPayment(500_000, 8, -5)).toBe(0);
+  it('returns NaN for a non-positive term', () => {
+    expect(annualDebtPayment(500_000, 8, 0)).toBeNaN();
+    expect(annualDebtPayment(500_000, 0, 0)).toBeNaN();
+    expect(annualDebtPayment(500_000, 8, -5)).toBeNaN();
   });
 
   it('costs more per year as the term shortens', () => {
@@ -45,13 +45,12 @@ describe('debtScenarioSummary', () => {
     expect(s.totalInterest).toBe(0);
   });
 
-  it('reports a full negative-interest figure for a zero-term degenerate case', () => {
-    // Term 0 makes the payment 0, so totalPaid is 0 and "interest" reads as
-    // -principal. Documented here so the UI is never surprised by the sign.
+  it('keeps a zero-term debt summary unknown', () => {
     const s = debtScenarioSummary(500_000, 8, 0);
-    expect(s.payment).toBe(0);
-    expect(s.totalPaid).toBe(0);
-    expect(s.totalInterest).toBe(-500_000);
+    expect(s.payment).toBeNaN();
+    expect(s.totalPaid).toBeNaN();
+    expect(s.totalInterest).toBeNaN();
+    expect(fmtCurrency(s.totalInterest)).toBe('—');
   });
 });
 
