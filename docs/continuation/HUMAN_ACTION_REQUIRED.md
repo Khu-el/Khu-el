@@ -222,7 +222,23 @@ steps as ⚪ UNKNOWN rather than as passing** — that rule is written into the 
 🟢 **Not urgent.** The automation is running. This only removes its dependence on one session.
 ---
 
-## 10. Archive `Khu-el/NTE-Command-Center` and `Khu-el/StructureGen` — approved 2026-10-02
+## 10. ~~Archive `Khu-el/NTE-Command-Center` and `Khu-el/StructureGen`~~ — done, confirmed 2026-10-04
+
+> **Update 2026-10-04.** Both repositories now read `"archived": true` via `gh api
+> repos/Khu-el/NTE-Command-Center` and `gh api repos/Khu-el/StructureGen` — confirmed this session,
+> independently of trusting the "approved" status below. Neither README was checked for the
+> specified supersession line; that's a smaller, non-blocking follow-up if it matters to a future
+> reader landing on either repo's README before its archive banner. **SC-03 is closed.**
+>
+> This also stands as an independent re-verification of SC-03's substance, not just its resolution:
+> this session separately attached `Khu-el/NTE-Command-Center`, diffed its file tree and
+> `package.json` against `nte-command-center/` on `main`, and reached the same conclusion recorded
+> below — zero shared source files, different major React versions, different build tooling,
+> unrelated architectures. The two never were the same system.
+>
+> The original record follows, unchanged.
+
+### Original record
 
 | | |
 |---|---|

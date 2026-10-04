@@ -55,7 +55,15 @@ that the portfolio "agrees with the master registry" would be fabricated.
 | **Source B** | `Khu-el/NTE-Command-Center`, a separate private repository, last pushed 2026-08-13 |
 | **Conflict** | Two artifacts carry the same name. Whether they are one system in two places, two generations, or unrelated is **⚪ UNKNOWN** — Source B has never been opened. |
 | **Which controls** | ✅ **Source A, by decision now rather than by default.** Source B was opened 2026-09-18 and is an older generation — see the update below. |
-| **Human resolution required** | 🟡 **Reduced to one action: archive Source B.** |
+| **Human resolution required** | ❌ No — **closed 2026-10-04.** |
+
+> ### ✅ Update 2026-10-04 — Source B is now archived; SC-03 is closed
+>
+> `gh api repos/Khu-el/NTE-Command-Center` and `gh api repos/Khu-el/StructureGen` both return
+> `"archived": true`, confirmed this session. The only action the 2026-10-02 update below left open
+> — archiving — is done. This session also independently re-derived the comparison (file-tree and
+> `package.json` diff against `nte-command-center/` on `main`) before checking archive status, and
+> reached the same conclusion: unrelated codebases, not two generations of one system.
 
 > ### ✅ Update 2026-10-02 — Source B has now been opened
 >
