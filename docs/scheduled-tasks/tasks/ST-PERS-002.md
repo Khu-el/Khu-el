@@ -17,9 +17,10 @@ Close the day with a bulletin body of 150 words or fewer containing exactly one 
 and one journal question about *today* specifically. When applicable, the body may also include
 one brief clause noting a contradiction with the morning bulletin's plan; nothing else belongs in
 the body. If the Ascension source is unavailable, follow the blocked-run exception under PROOF
-REQUIRED instead. Record the five-part continuity report in the Run Log, not in the bulletin body.
-Append exactly one final-output status line after the body; record that status in the Run Log as
-well. Neither the continuity report nor the status line counts toward the body's 150-word limit.
+REQUIRED instead. Keep the five-part continuity report in private task history, not in this public
+definition's Run Log. The Run Log contains only non-sensitive run metadata. Append exactly one
+final-output status line after the body; record that status in the Run Log as well. Neither the
+continuity report nor the status line counts toward the body's 150-word limit.
 The outcome it exists to improve is **honest daily reflection without interpretation** — the task
 deliberately does not analyse Chaz's day or tell him what a pattern means. It migrates an existing
 ChatGPT task of the same name.
@@ -170,8 +171,9 @@ in one clause and does not resolve it — resolution is Chaz's, not the task's.
 
 For the run date, the bulletin body is at or under 150 words and contains exactly one law or
 principle and exactly one today-specific journal question, plus at most one brief contradiction
-clause when applicable, with no interpretation. The separate Run Log records the five-part
-continuity report and exactly one final-output status; the status line concludes the run.
+clause when applicable, with no interpretation. The private task history contains the five-part
+continuity report. The public Run Log contains only non-sensitive run metadata, including the
+final-output status; the status line concludes the run.
 
 **A 🧱 BLOCKED BY run is proved differently.** Where the Ascension material is unavailable, the run
 cannot supply a law without inventing one, so it omits the law, names the missing source, and still
@@ -180,7 +182,8 @@ failed one — and it never substitutes a principle from another source to satis
 
 ## 🔄 STATE UPDATE
 
-Chaz's own journal. No scheduled run writes to it. The run's record is the Run Log row below.
+Chaz's own journal. No scheduled run writes to it. Keep the five-part continuity report in private
+task history; the public Run Log row below is limited to non-sensitive run metadata.
 
 ## 🤝 HANDOFF
 
@@ -224,6 +227,6 @@ Every run ends with exactly one of:
 
 ## 🗒️ Run Log
 
-| Run date (AS-OF) | Final output | Changed / closed / carried / failed / irrelevant | Proof | Notes |
-|------------------|--------------|--------------------------------------------------|-------|-------|
-| — | — | Not yet scheduled; `DRAFT`. | — | Migrated definition awaiting principal's cutover approval. |
+| Run date (AS-OF) | Final output | Non-sensitive run metadata |
+|------------------|--------------|----------------------------|
+| — | — | Not yet scheduled; `DRAFT`. |
