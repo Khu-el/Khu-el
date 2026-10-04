@@ -108,7 +108,9 @@
       "has_build": true,
       "test_runner": "node --test",
       "test_files": [
-        "logic.test.ts"
+        "logic.test.ts",
+        "progress.test.ts",
+        "routes.test.ts"
       ],
       "dependency_count": 4
     },
@@ -235,9 +237,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-03T02:44:38.964Z",
+  "generated_at": "2026-10-04T09:42:20.687Z",
   "branch": "claude/excellence-district-portal",
-  "commit": "22cba9e0d3336df05f977c6b074d785dc98be9d6",
+  "commit": "bab517b156fad6866fd87392081f2b14ef2ad919",
   "working_tree_clean": false,
-  "tracked_file_count": 397
+  "tracked_file_count": 406
 }

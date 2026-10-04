@@ -87,8 +87,8 @@ from how Supabase Auth handles an existing address; it has not been tested here.
 Two ways to narrow it, neither done yet:
 
 - **CAPTCHA on sign-up** (Authentication → Attack Protection). The app does not yet render a
-  CAPTCHA widget or send a token, so turning it on before that work would block sign-up. It is a
-  follow-up, not a launch step.
+  CAPTCHA widget or send a token, so turning it on before that work would block sign-up, and
+  likely sign-in and password reset too. It is a follow-up, not a launch step.
 - **Sign-up behind an Edge Function** that checks the invite, creates the user with the admin
   API, and returns one identical response whatever the outcome, with the trigger kept as the
   fail-closed backstop. Worth doing if membership itself has to stay private.

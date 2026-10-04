@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { latestByModule, trackProgress, type ProgressRow } from '../src/logic/progress.ts';
+import { hasOwnKey, latestByModule, trackProgress, type ProgressRow } from '../src/logic/progress.ts';
 import type { LearningModule } from '../src/types.ts';
 
 const M = (id: string, track: string, sort: number): LearningModule => ({
@@ -51,4 +51,24 @@ test('progress: a single row per module needs no time to count', () => {
   const p = trackProgress('t', mods, [R('t', 'a', true), R('t', 'b', false)]);
   assert.equal(p.completed, 1);
   assert.equal(p.next?.id, 'b');
+});
+
+test('progress: a lesson re-created under a reused id starts unticked; a moved one keeps its tick', () => {
+  const created = (m: LearningModule, at: string): LearningModule => ({ ...m, created_at: at });
+  const done = R('A', 'introduction', true, '2026-09-01T10:00:00+00:00');
+  // Deleted and re-created later, in another track, with the same slug.
+  const recreated = created(M('introduction', 'B', 1), '2026-10-01T00:00:00+00:00');
+  assert.equal(trackProgress('B', [recreated], [done]).completed, 0);
+  assert.equal(latestByModule([done], [recreated]).has('introduction'), false);
+  // Moved, not re-created: it was created before the member completed it.
+  const moved = created(M('introduction', 'B', 1), '2026-08-01T00:00:00+00:00');
+  assert.equal(trackProgress('B', [moved], [done]).completed, 1);
+  // A time that cannot be read decides nothing either way.
+  assert.equal(trackProgress('B', [created(M('introduction', 'B', 1), 'TBD')], [done]).completed, 1);
+});
+
+test('progress: override lookups use own keys, so a lesson id like "constructor" is not pre-ticked', () => {
+  assert.equal('constructor' in {}, true);
+  assert.equal(hasOwnKey({}, 'constructor'), false);
+  assert.equal(hasOwnKey({ constructor: true }, 'constructor'), true);
 });

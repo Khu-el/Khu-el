@@ -6,6 +6,7 @@ import { Button, Card, Field, Select, TextInput } from '@nte/governance-core';
 import { usePortal } from '../context';
 import { listResources, listSaved, listTracks, saveResource, unsaveResource } from '../data/api';
 import { Badge, Empty, ErrorNote, Loading, useLoad } from '../components/common';
+import { hasOwnKey } from '../logic/progress';
 import { href } from '../logic/routes';
 import { safeUrl } from '../logic/text';
 import { RESOURCE_TYPES, type LearningTrack, type Resource, type SavedResource } from '../types';
@@ -34,7 +35,7 @@ export function useSavedResources(userId: string, recorded: SavedResource[] | nu
   // Fresh rows from the database replace any local overrides.
   useEffect(() => setOverrides({}), [recorded]);
 
-  const isSaved = (resourceId: string): boolean => (resourceId in overrides ? overrides[resourceId] : base.has(resourceId));
+  const isSaved = (resourceId: string): boolean => (hasOwnKey(overrides, resourceId) ? overrides[resourceId] : base.has(resourceId));
 
   const toggle = async (resourceId: string) => {
     if (pending[resourceId]) return;

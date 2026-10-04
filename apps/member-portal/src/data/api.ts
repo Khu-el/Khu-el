@@ -1,5 +1,6 @@
 // The portal's database calls. Every table, RPC and Edge Function call lives
-// here or in src/data/staff.ts (the staff console's catalog writes), so those
+// here or in src/data/staff.ts (catalog inserts, edits and publish toggles;
+// the catalog delete is below), so those
 // two files are the full database surface the app touches. Auth calls are not
 // here: sign-in, sign-up, password reset and change, and sign-out are made
 // from pages/AuthScreens.tsx and pages/Account.tsx, auth/useSession.ts reads

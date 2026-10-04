@@ -1,6 +1,6 @@
 import { Component, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { NotLegalOrFinancialAdviceFooter } from '@nte/governance-core';
-import { supabase } from './supabase';
+import { hasStoredSession, supabase } from './supabase';
 import { useSession } from './auth/useSession';
 import { PortalContext, can, type PortalContextValue } from './context';
 import { getProfile, getStaffRole, listNotifications } from './data/api';
@@ -120,6 +120,12 @@ function RefusedLinkNotice({ signedIn, email, onDismiss }: { signedIn: boolean; 
           </a>{' '}
           page, then sign in to that account; for a password reset, use “Forgot password” on the sign-in screen to get a new link.
         </>
+      ) : hasStoredSession() ? (
+        // The earlier sign-in is still saved (its refresh failed, e.g. offline), so a reload would refuse the link again.
+        <>
+          The link you just opened was not used, because this browser still has an earlier sign-in saved and we could not check
+          it. Check your connection, then reload the page.
+        </>
       ) : (
         <>
           The link you just opened was not used, because this browser still had an earlier sign-in saved. That sign-in is no longer
@@ -153,6 +159,8 @@ function SignedIn({
   const [error, setError] = useState<unknown>(null);
   // Null until a load succeeds, and again after one fails: unknown is not 0.
   const [unreadCount, setUnreadCount] = useState<number | null>(null);
+  // Set only by a failed load, so the header can mark the count unknown without flashing during the first load.
+  const [unreadFailed, setUnreadFailed] = useState(false);
   // Only the newest request may set the count, so a slow older one cannot overwrite it.
   const unreadSeq = useRef(0);
 
@@ -171,16 +179,21 @@ function SignedIn({
     const seq = ++unreadSeq.current;
     listNotifications(userId)
       .then((n) => {
-        if (seq === unreadSeq.current) setUnreadCount(n.filter((x) => !x.read_at).length);
+        if (seq !== unreadSeq.current) return;
+        setUnreadCount(n.filter((x) => !x.read_at).length);
+        setUnreadFailed(false);
       })
       .catch(() => {
-        if (seq === unreadSeq.current) setUnreadCount(null);
+        if (seq !== unreadSeq.current) return;
+        setUnreadCount(null);
+        setUnreadFailed(true);
       });
   }, [userId]);
 
   const syncUnread = useCallback((count: number) => {
     unreadSeq.current += 1;
     setUnreadCount(count);
+    setUnreadFailed(false);
   }, []);
 
   useEffect(() => {
@@ -212,7 +225,7 @@ function SignedIn({
 
   return (
     <PortalContext.Provider value={ctx}>
-      <Shell email={email} nav={<Nav route={route} />} >
+      <Shell email={email} nav={<Nav route={route} unreadFailed={unreadFailed} />} >
         {refusedLink && <RefusedLinkNotice signedIn email={email} onDismiss={clearRefusedLink} />}
         {ctx.profile.onboarding_complete ? <Page route={route} /> : <Onboarding onDone={refreshProfile} />}
       </Shell>
@@ -226,7 +239,8 @@ function Page({ route }: { route: Route }) {
     case 'dashboard': return <Dashboard />;
     case 'learn': return <LearnHome />;
     case 'track': return <TrackView key={href(route)} trackId={route.trackId} />;
-    case 'module': return <ModuleView key={href(route)} trackId={route.trackId} moduleId={route.moduleId} />;
+    // Keyed by track only: Learn.tsx handles a module change in place, so Previous/Next does not reload the track.
+    case 'module': return <ModuleView key={route.trackId} trackId={route.trackId} moduleId={route.moduleId} />;
     case 'resources': return <Resources />;
     case 'pathways': return <Pathways />;
     case 'plans': return <PlansList />;
@@ -249,7 +263,7 @@ const NAV: { label: string; route: Route; match: Route['name'][] }[] = [
   { label: 'Support', route: { name: 'support' }, match: ['support'] },
 ];
 
-function Nav({ route }: { route: Route }) {
+function Nav({ route, unreadFailed }: { route: Route; unreadFailed: boolean }) {
   return (
     <PortalContext.Consumer>
       {(ctx) =>
@@ -267,7 +281,11 @@ function Nav({ route }: { route: Route }) {
             )}
             <span className="ml-auto flex items-center gap-1">
               <a href={href({ name: 'notifications' })} className="rounded px-3 py-1.5 text-slate-700 hover:bg-slate-100">
-                Notifications{ctx.unreadCount !== null && ctx.unreadCount > 0 && <span className="ml-1 rounded-full bg-red-600 px-1.5 text-xs text-white">{ctx.unreadCount}</span>}
+                Notifications
+                {ctx.unreadCount !== null && ctx.unreadCount > 0 && <span className="ml-1 rounded-full bg-red-600 px-1.5 text-xs text-white">{ctx.unreadCount}</span>}
+                {ctx.unreadCount === null && unreadFailed && (
+                  <span className="ml-1 rounded-full bg-slate-200 px-1.5 text-xs text-slate-600" title="Unread count unavailable" aria-label="Unread count unavailable">?</span>
+                )}
               </a>
               <a href={href({ name: 'account' })} className="rounded px-3 py-1.5 text-slate-700 hover:bg-slate-100">Account</a>
             </span>

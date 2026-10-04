@@ -66,7 +66,9 @@ export interface CatalogConfig<Row extends CatalogRowBase, D extends DraftBase> 
   intro?: ReactNode;
 }
 
-type Mode = { kind: 'new' } | { kind: 'edit'; id: string } | null;
+// visibleAtOpen: the row's visibility when the form opened, so an edit writes the
+// visibility column only when this form changed it -- never another editor's toggle back.
+type Mode = { kind: 'new' } | { kind: 'edit'; id: string; visibleAtOpen: boolean } | null;
 
 export function CatalogEditor<Row extends CatalogRowBase, D extends DraftBase>({
   config,
@@ -114,8 +116,9 @@ export function CatalogEditor<Row extends CatalogRowBase, D extends DraftBase>({
 
   const openEdit = (r: Row) => {
     if (!confirmDiscard()) return;
-    setMode({ kind: 'edit', id: r.id });
-    setDraft(config.fromRow(r));
+    const fromRow = config.fromRow(r);
+    setMode({ kind: 'edit', id: r.id, visibleAtOpen: fromRow.visible });
+    setDraft(fromRow);
     setDirty(false);
     setFormError(null);
     setNotice(null);
@@ -175,13 +178,20 @@ export function CatalogEditor<Row extends CatalogRowBase, D extends DraftBase>({
       setFormError(asError(built.error));
       return;
     }
-    const values = { title, ...built.values, [config.visibility.column]: draft.visible };
+    const writesVisibility = mode.kind === 'new' || draft.visible !== mode.visibleAtOpen;
+    const values: Record<string, unknown> = { title, ...built.values };
+    if (writesVisibility) values[config.visibility.column] = draft.visible;
     setSaving(true);
     setFormError(null);
     try {
       if (mode.kind === 'new') await staffInsert(config.table, { id, ...values });
       else await staffUpdate(config.table, id, values);
-      setNotice(`${mode.kind === 'new' ? 'Created' : 'Saved'} the ${config.noun} "${title}". ${draft.visible ? `It is ${config.visibility.on.toLowerCase()}.` : `It is ${config.visibility.off.toLowerCase()} — members cannot see it.`}`);
+      const visibilityNote = !writesVisibility
+        ? ''
+        : draft.visible
+          ? ` It is ${config.visibility.on.toLowerCase()}.`
+          : ` It is ${config.visibility.off.toLowerCase()} — members cannot see it.`;
+      setNotice(`${mode.kind === 'new' ? 'Created' : 'Saved'} the ${config.noun} "${title}".${visibilityNote}`);
       close();
       reload();
     } catch (err) {
@@ -201,6 +211,7 @@ export function CatalogEditor<Row extends CatalogRowBase, D extends DraftBase>({
       await staffSetVisibility(config.table, r.id, config.visibility.column, next);
       // An open form for this row must not save the old visibility back.
       if (mode?.kind === 'edit' && mode.id === r.id) setDraft((d) => (d ? { ...d, visible: next } : d));
+      setMode((m) => (m?.kind === 'edit' && m.id === r.id ? { ...m, visibleAtOpen: next } : m));
       setNotice(`"${r.title}" is now ${next ? config.visibility.on.toLowerCase() : `${config.visibility.off.toLowerCase()} — members cannot see it`}.`);
       reload();
     } catch (err) {

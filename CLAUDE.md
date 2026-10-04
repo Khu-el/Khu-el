@@ -180,11 +180,11 @@ checked transitively through the apps that import its source.
 | `server/` | ✅ `node --test` — 81 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule and CRM follow-up items, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
 | `apps/financial-services-crm` | ✅ `node --test` — 53 tests over `crm.ts` (consent gate, duplicates, follow-up dates, ratios) and the importer (xlsx/csv reading, upsert rules), also in `npm run test:apps` |
-| `apps/member-portal` | ✅ `node --test` — 23 tests over `src/logic` and `src/config.ts` (pathway matching, plan dates, progress, invite-code rules, error mapping, lesson-body parsing, URL safety, routes), also in `npm run test:apps`. **Its SQL — RLS, the invite trigger, the hardening migration — has never been executed anywhere** |
+| `apps/member-portal` | ✅ `node --test` — 33 tests over `src/logic` and `src/config.ts` (pathway matching, plan dates, progress — including which record counts when a lesson moves track or is re-created — invite-code rules, error mapping, lesson-body parsing, URL safety, routes and the sign-in-link guard), also in `npm run test:apps`. **Its SQL — RLS, the invite trigger, the hardening migration — has never been executed anywhere** |
 | `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
 | `apps/legacy-estate` | ❌ none configured |
 
-`npm test` at the root runs every workspace that has a suite — 373 tests. **What is still
+`npm test` at the root runs every workspace that has a suite — 383 tests. **What is still
 untested is the UI**: components, tabs and stores have no coverage at all, and
 `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
 `governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,

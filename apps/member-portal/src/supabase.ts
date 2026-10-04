@@ -7,7 +7,7 @@ const config = readConfig(import.meta.env as unknown as Record<string, string | 
 const STORAGE_KEY = 'ed-member-portal-auth';
 
 /** Whether this browser already holds a saved session. Unreadable storage holds none. */
-function hasStoredSession(): boolean {
+export function hasStoredSession(): boolean {
   try {
     return Boolean(window.localStorage.getItem(STORAGE_KEY));
   } catch {

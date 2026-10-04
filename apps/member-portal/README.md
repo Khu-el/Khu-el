@@ -17,9 +17,12 @@ It runs on Supabase ("The Excellence District Production"). It does **not** use 
 src/
   App.tsx            Session → onboarding → pages; hash routes (#/learn, #/plans/<id>, …)
   data/api.ts        Database calls: tables, RPCs and the delete-account function
-  data/staff.ts      The staff console's catalog writes. With api.ts, the whole database
+  data/staff.ts      Catalog inserts, edits and publish toggles (catalog delete, support
+                     triage and invites are in api.ts). With api.ts, the whole database
                      surface. Auth calls (sign-in, sign-up, password reset and change,
-                     sign-out) are made from pages/AuthScreens.tsx and pages/Account.tsx
+                     sign-out) are made from pages/AuthScreens.tsx and pages/Account.tsx,
+                     plus the sign-out after deleteMyAccount in api.ts; auth/useSession.ts
+                     reads the session
   logic/             Pure, tested: pathway matching, plan dates, progress, invites, errors,
                      lesson-body parsing, routes
   pages/             Member pages
@@ -64,8 +67,9 @@ These are the same rules as the repo `CLAUDE.md`, applied here.
   failed. This is 🟠 inferred from how Supabase Auth handles an existing address, not tested here.
   ADR-0004 §3 records it and the two ways to narrow it, neither of which is done yet.
 - **An email link never replaces a signed-in account.** A link from a confirmation or
-  password-reset email is ignored while a session is already saved in that browser, so a
-  forwarded link cannot silently swap the signed-in account for someone else's.
+  password-reset email is ignored while a session is already saved in that browser, and the page
+  says the link was not used. A forwarded link cannot silently swap the signed-in account for
+  someone else's.
 - **Nothing sends.** The portal never sends email, SMS, push or posts, and never contacts anyone.
   Two things look like sending and are not:
   - Supabase Auth's confirmation and reset mail goes only to the address the member typed.
@@ -116,9 +120,10 @@ before step 1**. Until the hardening migration runs, the live project has no sig
      trigger is the gate, and turning sign-ups off would block invited members too.
    - **Authentication → Attack Protection:** leave CAPTCHA protection **off** for now. It would
      slow bulk probing of sign-up (the residual risk under Boundaries), but the app does not yet
-     render a CAPTCHA widget or send a CAPTCHA token, so turning it on today would block sign-up
-     (and, per Supabase's documentation, sign-in and password reset too). Adding the widget and
-     then turning CAPTCHA on is a follow-up, not a launch step.
+     render a CAPTCHA widget or send a CAPTCHA token, so turning it on today would block sign-up.
+     It would likely block sign-in and password reset too, since the Supabase auth library takes
+     a CAPTCHA token on those calls as well. Adding the widget and then turning CAPTCHA on is a
+     follow-up, not a launch step.
 4. **Point the build at the project.** In GitHub, go to **Settings → Secrets and variables →
    Actions → Variables** and set:
    - `ED_SUPABASE_URL`: the project URL, `https://<ref>.supabase.co`.

@@ -7,7 +7,7 @@ import { Button, Card, Stat } from '@nte/governance-core';
 import { usePortal } from '../context';
 import { listModules, listProgress, listResources, listSaved, listTracks, setModuleCompleted } from '../data/api';
 import { Badge, Empty, ErrorNote, Loading, Notice, formatDateTime, useLoad } from '../components/common';
-import { fmtPercent, latestByModule, trackProgress, type ProgressRow } from '../logic/progress';
+import { fmtPercent, hasOwnKey, latestByModule, trackProgress, type ProgressRow } from '../logic/progress';
 import { href } from '../logic/routes';
 import { parseBody, safeUrl, type Block } from '../logic/text';
 import type { LearningModule, LearningProgress, LearningTrack } from '../types';
@@ -24,7 +24,7 @@ function sortModules(modules: LearningModule[]): LearningModule[] {
  * returned; overrides hold changes the database has since accepted. Nothing
  * changes on screen while a write is pending.
  */
-function useCompletion(userId: string, trackId: string, recorded: LearningProgress[] | null) {
+function useCompletion(userId: string, trackId: string, recorded: LearningProgress[] | null, modules: LearningModule[] | null) {
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
   // Tagged with its module, so a failure on one lesson is not shown under another.
@@ -38,7 +38,8 @@ function useCompletion(userId: string, trackId: string, recorded: LearningProgre
   }, [recorded, trackId]);
 
   // Matched by module id, not the row's track id: a lesson moved between tracks keeps its record.
-  const recordedByModule = useMemo(() => latestByModule(recorded ?? []), [recorded]);
+  // A row older than its module (a re-created lesson that reused an id) is ignored.
+  const recordedByModule = useMemo(() => latestByModule(recorded ?? [], modules ?? undefined), [recorded, modules]);
 
   const rows: ProgressRow[] = useMemo(() => {
     const map = new Map<string, ProgressRow>();
@@ -48,11 +49,11 @@ function useCompletion(userId: string, trackId: string, recorded: LearningProgre
   }, [recordedByModule, overrides, trackId]);
 
   const isCompleted = (moduleId: string): boolean =>
-    moduleId in overrides ? overrides[moduleId] : Boolean(recordedByModule.get(moduleId)?.completed);
+    hasOwnKey(overrides, moduleId) ? overrides[moduleId] : Boolean(recordedByModule.get(moduleId)?.completed);
 
   /** When the database recorded completion. After a change made here the new date has not been read back, so none is shown. */
   const completedAt = (moduleId: string): string | null => {
-    if (moduleId in overrides) return null;
+    if (hasOwnKey(overrides, moduleId)) return null;
     const row = recordedByModule.get(moduleId);
     return row?.completed ? row.completed_at : null;
   };
@@ -224,7 +225,7 @@ export function TrackView({ trackId }: { trackId: string }) {
   );
   // useLoad keeps the previous track's rows while the next loads; never read them as this track's.
   const data = loaded && loaded.trackId === trackId && loaded.userId === userId ? loaded : null;
-  const completion = useCompletion(userId, trackId, data?.progress ?? null);
+  const completion = useCompletion(userId, trackId, data?.progress ?? null, data?.modules ?? null);
   const savedState = useSavedResources(userId, data?.saved ?? null);
 
   if (!data) return error && !loading ? <ErrorNote error={error} /> : <Loading label="Loading track…" />;
@@ -413,7 +414,7 @@ export function ModuleView({ trackId, moduleId }: { trackId: string; moduleId: s
   );
   // useLoad keeps the previous track's rows while the next loads; never read them as this track's.
   const data = loaded && loaded.trackId === trackId && loaded.userId === userId ? loaded : null;
-  const completion = useCompletion(userId, trackId, data?.progress ?? null);
+  const completion = useCompletion(userId, trackId, data?.progress ?? null, data?.modules ?? null);
   const { clearError } = completion;
 
   // Previous/Next links change only the hash; start each module at the top,

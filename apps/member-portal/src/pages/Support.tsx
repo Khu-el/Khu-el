@@ -153,6 +153,9 @@ export function Support() {
               <Select
                 value={category}
                 onChange={(v) => {
+                  // Select takes no `disabled`; refusing the change keeps it
+                  // locked like the other fields while a submit is in flight.
+                  if (saving) return;
                   setCategory(v);
                   edited();
                 }}
