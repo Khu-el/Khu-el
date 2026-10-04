@@ -41,7 +41,7 @@ in CONTRADICTIONS below. **Status stays `DRAFT` until that decision is recorded 
 | Local time         | 08:00 |
 | Timezone           | America/New_York |
 | UTC cron           | `0 12 * * 1-5` |
-| Condition          | Trading days only. On a U.S. market holiday the run still produces the catalyst clock and the structure section, and says the market sections are not applicable. |
+| Condition          | Weekdays, including U.S. market holidays. On a U.S. market holiday the run still produces the catalyst clock and the structure section, and says the market sections are not applicable. |
 | Start date         | *(on scheduling, after the capacity decision)* |
 | End date           | *N/A — runs until the kill/merge rule retires it* |
 | Exception schedule | ⚠️ Fixed UTC, so the run lands at 07:00 local during Eastern Standard Time (November–March) — **before the 09:30 open either way**, which is what matters, but an hour earlier relative to the pre-market data it reads. Re-cron to `0 13 * * 1-5` for the EST months if freshness at 08:00 local matters, and record it here. Market holidays and shortened sessions are flagged in-run, not by cron. |
