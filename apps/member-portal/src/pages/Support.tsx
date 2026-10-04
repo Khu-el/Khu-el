@@ -80,7 +80,10 @@ export function Support() {
   const [name, setName] = useState(profile.display_name ?? '');
   const [contactEmail, setContactEmail] = useState(email);
   // One key per filled-in form: a double-click, or a retry after an error,
-  // reuses it, so the database inserts the request once.
+  // reuses it, so the database inserts the request once. Any edit starts a new
+  // key -- a resubmission with changed text after a lost response would
+  // otherwise match the first row, and the edits would be dropped while the
+  // member is told the request was saved.
   const [externalRef, setExternalRef] = useState(newRef);
   const inFlight = useRef(false);
   const [saving, setSaving] = useState(false);
@@ -89,6 +92,7 @@ export function Support() {
 
   function edited() {
     setFiled(false);
+    setExternalRef(newRef());
   }
 
   async function submit(e: FormEvent) {
@@ -183,7 +187,16 @@ export function Support() {
           </Field>
           <div className="grid gap-x-4 sm:grid-cols-2">
             <Field label="Your name" hint="Optional. So staff know who they are helping.">
-              <TextInput value={name} onChange={(e) => setName(e.target.value)} maxLength={NAME_MAX} autoComplete="name" disabled={saving} />
+              <TextInput
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  edited();
+                }}
+                maxLength={NAME_MAX}
+                autoComplete="name"
+                disabled={saving}
+              />
             </Field>
             <Field
               label="Contact email"
@@ -194,7 +207,10 @@ export function Support() {
                 inputMode="email"
                 autoComplete="email"
                 value={contactEmail}
-                onChange={(e) => setContactEmail(e.target.value)}
+                onChange={(e) => {
+                  setContactEmail(e.target.value);
+                  edited();
+                }}
                 disabled={saving}
               />
             </Field>

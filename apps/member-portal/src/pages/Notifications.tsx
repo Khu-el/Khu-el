@@ -1,7 +1,7 @@
 // In-app notifications. They exist only here: nothing is emailed or pushed.
 // A member may only mark their own notifications read (column grant on
 // read_at); the list and the header badge are both refreshed after each change.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Card } from '@nte/governance-core';
 import { usePortal } from '../context';
 import { listNotifications, markAllNotificationsRead, markNotificationRead } from '../data/api';
@@ -24,13 +24,18 @@ function internalHref(actionUrl: string | null): string | null {
 }
 
 export function Notifications() {
-  const { userId, timezone, refreshUnread } = usePortal();
+  const { userId, timezone, refreshUnread, syncUnread } = usePortal();
   const list = useLoad(() => listNotifications(userId), [userId]);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
 
   const items = list.data ?? [];
   const unread = items.filter((n) => !n.read_at).length;
+
+  // The header badge follows each list this page loads, so the two never disagree.
+  useEffect(() => {
+    if (list.data) syncUnread(list.data.filter((n) => !n.read_at).length);
+  }, [list.data, syncUnread]);
 
   async function run(key: string, action: () => Promise<void>) {
     if (busy) return;

@@ -1,9 +1,10 @@
 // Staff console: invites (admin/owner), support triage (any staff role) and the
 // content studio (editor and above). The tabs mirror the database's role
 // checks for convenience only -- every call is still refused by RLS or the
-// RPC itself if the role does not allow it. Roles come from the deployment
-// (private.staff_seed, written with SQL); nothing here reads or sets one
-// beyond showing the role the database reports.
+// RPC itself if the role does not allow it. Roles come from the deployment:
+// the principal sets them with SQL (private.staff_seed, applied once when the
+// account is created; public.staff_members, the live role, after that).
+// Nothing here reads or sets one beyond showing the role the database reports.
 import { Card, Tabs } from '@nte/governance-core';
 import { can, usePortal } from '../context';
 import { href } from '../logic/routes';

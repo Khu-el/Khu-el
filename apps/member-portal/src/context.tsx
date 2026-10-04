@@ -11,9 +11,14 @@ export interface PortalContextValue {
   /** The member's own timezone, or the browser's when they have not set one. */
   timezone: string | null;
   refreshProfile: () => Promise<void>;
-  /** Unread in-app notifications, for the header badge. */
-  unreadCount: number;
+  /**
+   * Unread in-app notifications, for the header badge. Null until a load
+   * succeeds, and again after one fails: an unknown count is never shown as 0.
+   */
+  unreadCount: number | null;
   refreshUnread: () => void;
+  /** Sets the count from a notification list the caller has just loaded itself. */
+  syncUnread: (count: number) => void;
   navigate: (route: Route) => void;
 }
 

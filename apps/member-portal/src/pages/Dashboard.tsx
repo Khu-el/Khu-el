@@ -312,11 +312,14 @@ function NotificationsCard() {
     <Card title="Notifications">
       <div className="space-y-2 text-sm">
         <p className="text-slate-700">
-          {unreadCount === 0
-            ? 'No unread notifications right now.'
-            : unreadCount === 1
-              ? 'You have 1 unread notification.'
-              : `You have ${unreadCount} unread notifications.`}
+          {/* Null is "not loaded" or "load failed" — never shown as a confirmed zero. */}
+          {unreadCount === null
+            ? 'Your unread count is not available right now.'
+            : unreadCount === 0
+              ? 'No unread notifications right now.'
+              : unreadCount === 1
+                ? 'You have 1 unread notification.'
+                : `You have ${unreadCount} unread notifications.`}
         </p>
         <a className={LINK} href={href({ name: 'notifications' })}>
           Open notifications

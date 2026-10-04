@@ -13,8 +13,11 @@
 --      refuses any account without a matching, unexpired, unused invite code.
 --      Staff issue codes through an RPC that returns the code once and sends
 --      nothing. There is no bypass, including for the owner.
---   5. Staff roles are assigned by the deployment (private.staff_seed, written
---      only with SQL by the project owner), never chosen by the user.
+--   5. Staff roles are assigned by the deployment, never chosen by the user.
+--      A private.staff_seed row (written only with SQL by the project owner)
+--      is applied once, when that email's account is created. Afterwards
+--      public.staff_members holds the live role, and a later change, removal
+--      or grant is made there with SQL (README, "Changing staff roles later").
 --   6. In-app notifications when staff update a member's support request.
 --   7. Lessons can carry their own body text, so content can live in the portal.
 --   8. Missing updated_at triggers on member_state and integration_status.
@@ -246,8 +249,12 @@ begin
      or v_code = ''
      or extensions.crypt(lower(v_code), v_inv.code_hash) <> v_inv.code_hash
   then
-    -- GoTrue returns a generic 500 "Database error saving new user"; the reason
-    -- is deliberately not exposed.
+    -- GoTrue returns a generic 500 "Database error saving new user", so the
+    -- caller is not told WHICH invite condition failed. This is not
+    -- anti-enumeration: a sign-up for an address that already has an account
+    -- never reaches this INSERT and gets an ordinary response, so 500 versus
+    -- not-500 tells an anonymous caller whether an address is registered.
+    -- Accepted residual risk; see ADR-0004 section 3.
     raise exception 'signup_not_invited' using errcode = 'P0001';
   end if;
 
@@ -356,6 +363,13 @@ grant execute on function public.list_signup_invites() to authenticated;
 -- ---------------------------------------------------------------------------
 -- 5. Staff roles are assigned by the deployment. The owner writes
 --    private.staff_seed with SQL; nothing a client can call touches it.
+--    The trigger below applies a seed row ONCE, when that email's account is
+--    created, and nothing syncs it afterwards: editing or deleting a seed row
+--    later changes no one's role, and a seed row added for an email that
+--    already has an account grants nothing. From sign-up on, the live role is
+--    the public.staff_members row, which every role check reads; change,
+--    remove or grant a role there with SQL (README, "Changing staff roles
+--    later").
 -- ---------------------------------------------------------------------------
 create table if not exists private.staff_seed (
   email      text primary key check (email = lower(btrim(email))),

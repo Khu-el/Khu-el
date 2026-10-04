@@ -3,9 +3,13 @@
 -- Twelve DRAFT starter lessons for the learning catalog: three per track.
 --
 -- STATUS: DRAFT, UNPUBLISHED. Every row is inserted with is_published = false,
--- so no member can see any of it: learning_modules_public_read only returns
--- published rows. Staff review, edit and publish each lesson themselves; this
--- migration publishes nothing.
+-- so no one outside staff can see any of it: learning_modules_anon_read
+-- returns only published lessons, and learning_modules_authenticated_read
+-- returns published lessons to members and every row to any staff role
+-- (private.is_staff(), 20260921214522). Staff of every role, support included,
+-- can therefore read the drafts; only editor and above can change them. Staff
+-- review, edit and publish each lesson themselves; this migration publishes
+-- nothing.
 --
 -- PROVENANCE: drafted by Claude Code (an AI assistant) on 2026-10-03 for staff
 -- review. Not reviewed by any attorney, accountant, financial professional or

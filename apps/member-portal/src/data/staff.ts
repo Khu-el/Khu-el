@@ -1,12 +1,15 @@
 // Staff-console database calls that src/data/api.ts does not provide.
 //
-// Creating a catalog row uses a plain INSERT rather than api.ts's staffUpsert:
-// an upsert keyed on `id` would silently overwrite an existing row whose id
-// happens to match a new title's slug (for example one another editor created
-// a moment ago). An insert refuses that with a unique violation (23505), which
-// the console turns into "that ID is taken". Edits still go through
-// staffUpsert. RLS (private.is_content_editor) is the real gate either way.
+// Creating a catalog row uses a plain INSERT rather than an upsert: an upsert
+// keyed on `id` would silently overwrite an existing row whose id happens to
+// match a new title's slug (for example one another editor created a moment
+// ago). An insert refuses that with a unique violation (23505), which the
+// console turns into "that ID is taken". An edit is a plain UPDATE of the
+// existing row, for the mirror-image reason: an upsert would re-create a row
+// another editor deleted while the form was open. RLS
+// (private.is_content_editor) is the real gate either way.
 import { requireClient } from '../supabase';
+import { unwrapChanged } from './api';
 
 export type CatalogTable = 'learning_tracks' | 'learning_modules' | 'resources' | 'opportunity_pathways';
 
@@ -14,6 +17,18 @@ export type CatalogTable = 'learning_tracks' | 'learning_modules' | 'resources' 
 export async function staffInsert(table: CatalogTable, row: { id: string } & Record<string, unknown>): Promise<void> {
   const res = await requireClient().from(table).insert(row);
   if (res.error) throw res.error;
+}
+
+/**
+ * Saves an edit: an UPDATE of the given columns on the row that already exists,
+ * never an insert. Throws when no row was changed (it no longer exists, or RLS
+ * refused it).
+ */
+export async function staffUpdate(table: CatalogTable, id: string, values: Record<string, unknown>): Promise<void> {
+  unwrapChanged(
+    await requireClient().from(table).update(values).eq('id', id).select('id'),
+    'Nothing was saved. This item no longer exists (another editor may have deleted it), or your role may not allow this. Reload to see the current list.',
+  );
 }
 
 /**

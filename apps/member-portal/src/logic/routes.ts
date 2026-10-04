@@ -22,9 +22,36 @@ export function isAuthFragment(hash: string): boolean {
   return /(^|[#&])(access_token|error_description|error|type)=/.test(hash);
 }
 
+/**
+ * Whether the Supabase client may take a session from the URL (its
+ * `detectSessionInUrl` check, given the parsed URL parameters). A link carrying
+ * tokens is refused while this browser already holds a saved session, so a
+ * forwarded link can never silently swap the signed-in account for someone
+ * else's. Error-only fragments keep Supabase's default handling.
+ */
+export function acceptUrlSession(params: Record<string, string>, sessionStored: boolean): boolean {
+  if (params.access_token) return !sessionStored;
+  return Boolean(params.error || params.error_description || params.error_code);
+}
+
+/** decodeURIComponent, or null for a malformed escape ("%", "%E0%A4%A") instead of a throw. */
+function decodeSegment(segment: string): string | null {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return null;
+  }
+}
+
+/** Never throws: a segment that cannot be decoded is a broken link, so it is "not-found". */
 export function parseRoute(hash: string): Route {
   const path = hash.replace(/^#\/?/, '').replace(/\/+$/, '');
-  const parts = path.split('/').filter(Boolean).map((p) => decodeURIComponent(p));
+  const parts: string[] = [];
+  for (const segment of path.split('/').filter(Boolean)) {
+    const decoded = decodeSegment(segment);
+    if (decoded === null) return { name: 'not-found', path };
+    parts.push(decoded);
+  }
   switch (parts[0] ?? '') {
     case '':
     case 'dashboard':

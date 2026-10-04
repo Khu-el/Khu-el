@@ -1,6 +1,10 @@
-// Every database call the portal makes. Pages import from here and nowhere
-// else, so the full surface the app touches is in one file. RLS is the real
-// gate; these functions never assume a check passed because the UI hid a
+// The portal's database calls. Every table, RPC and Edge Function call lives
+// here or in src/data/staff.ts (the staff console's catalog writes), so those
+// two files are the full database surface the app touches. Auth calls are not
+// here: sign-in, sign-up, password reset and change, and sign-out are made
+// from pages/AuthScreens.tsx and pages/Account.tsx, auth/useSession.ts reads
+// the session, and deleteMyAccount below signs out after deleting. RLS is the
+// real gate; these functions never assume a check passed because the UI hid a
 // button.
 import { requireClient } from '../supabase';
 import type {
@@ -29,6 +33,17 @@ import type { WeekDraft } from '../logic/plans';
 function unwrap<T>(res: { data: T | null; error: unknown }): T {
   if (res.error) throw res.error;
   return res.data as T;
+}
+
+/**
+ * For an UPDATE or DELETE ending in `.select('id')`. PostgREST reports a write
+ * that matched no row -- it no longer exists, or RLS filtered it out -- as a
+ * success with no rows, so this throws `message` then rather than let the UI
+ * claim a change that did not happen.
+ */
+export function unwrapChanged(res: { data: unknown[] | null; error: unknown }, message: string): void {
+  if (res.error) throw res.error;
+  if (!res.data || res.data.length === 0) throw { message };
 }
 
 // ---------------------------------------------------------------- profile
@@ -141,7 +156,13 @@ export async function listPlans(userId: string): Promise<ActionPlan[]> {
   return unwrap(await requireClient().from('action_plans').select('*').eq('user_id', userId).order('created_at', { ascending: false })) as ActionPlan[];
 }
 
+// Plan ids are uuids. Postgres rejects anything else (a link cut short, like
+// #/plans/3f2a9c) with an error no retry can fix, so it is answered as the
+// not-found case it is instead of being queried.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function getPlan(planId: string): Promise<{ plan: ActionPlan | null; weeks: ActionPlanWeek[] }> {
+  if (!UUID.test(planId)) return { plan: null, weeks: [] };
   const client = requireClient();
   const plan = unwrap(await client.from('action_plans').select('*').eq('id', planId).maybeSingle()) as ActionPlan | null;
   const weeks = plan ? (unwrap(await client.from('action_plan_weeks').select('*').eq('plan_id', planId).order('week_number')) as ActionPlanWeek[]) : [];
@@ -229,9 +250,15 @@ export async function staffListSupport(): Promise<SupportRequest[]> {
   return unwrap(await requireClient().from('support_requests').select('*').order('created_at', { ascending: false }).limit(500)) as SupportRequest[];
 }
 
-/** Updating status or note writes an in-app notification for the member (database trigger). Nothing is emailed. */
+/**
+ * Updating status or note writes an in-app notification for the member (database trigger). Nothing is emailed.
+ * Throws when no row was changed (the request no longer exists, or RLS refused it), so no notification is claimed.
+ */
 export async function staffUpdateSupport(id: string, patch: { status?: SupportStatus; staff_note?: string | null }): Promise<void> {
-  unwrap(await requireClient().from('support_requests').update(patch).eq('id', id));
+  unwrapChanged(
+    await requireClient().from('support_requests').update(patch).eq('id', id).select('id'),
+    'Nothing was saved, so the member was not notified. The request may have been deleted, or your role may not allow this. Reload and try again.',
+  );
 }
 
 export async function staffCreateInvite(email: string): Promise<string> {
@@ -248,10 +275,10 @@ export async function staffListInvites(): Promise<SignupInvite[]> {
 
 type CatalogTable = 'learning_tracks' | 'learning_modules' | 'resources' | 'opportunity_pathways';
 
-export async function staffUpsert<T extends { id: string }>(table: CatalogTable, row: T): Promise<void> {
-  unwrap(await requireClient().from(table).upsert(row, { onConflict: 'id' }));
-}
-
+/** Throws when no row was deleted (it was already gone, or RLS refused it). */
 export async function staffDelete(table: CatalogTable, id: string): Promise<void> {
-  unwrap(await requireClient().from(table).delete().eq('id', id));
+  unwrapChanged(
+    await requireClient().from(table).delete().eq('id', id).select('id'),
+    'Nothing was deleted. The item may already have been deleted, or your role may not allow this. Reload and try again.',
+  );
 }

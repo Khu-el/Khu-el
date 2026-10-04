@@ -21,9 +21,9 @@ export function isVisibleToViewer(isPublished: boolean, staffViewer: boolean): b
 }
 
 /**
- * Saved-state for resources with optimistic updates. The recorded rows are the
- * base; a local override shows the change immediately and is rolled back if
- * the database refuses it.
+ * Saved-state for resources. The recorded rows are the base; a local override
+ * holds a change only once the database has accepted it, and nothing changes
+ * on screen while the write is pending.
  */
 export function useSavedResources(userId: string, recorded: SavedResource[] | null) {
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
@@ -38,16 +38,14 @@ export function useSavedResources(userId: string, recorded: SavedResource[] | nu
 
   const toggle = async (resourceId: string) => {
     if (pending[resourceId]) return;
-    const before = isSaved(resourceId);
-    const after = !before;
+    const after = !isSaved(resourceId);
     setError(null);
-    setOverrides((o) => ({ ...o, [resourceId]: after }));
     setPending((p) => ({ ...p, [resourceId]: true }));
     try {
       if (after) await saveResource(userId, resourceId);
       else await unsaveResource(userId, resourceId);
+      setOverrides((o) => ({ ...o, [resourceId]: after }));
     } catch (e) {
-      setOverrides((o) => ({ ...o, [resourceId]: before }));
       setError(e);
     } finally {
       setPending((p) => {

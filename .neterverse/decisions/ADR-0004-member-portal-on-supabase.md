@@ -72,12 +72,45 @@ This follows the same rule as `server/` in `CLAUDE.md`.
 Why a code and not just an allow-list of emails: an email-only allow-list lets anyone who knows
 an invited address register it first. That is a pre-account takeover.
 
+**Accepted residual risk: sign-up shows an anonymous caller whether an address is registered.**
+Supabase Auth looks an address up before it inserts a user. A sign-up for an address that already
+has an account never reaches the trigger and gets an ordinary response (200 when email
+confirmation is on), and for a confirmed member nothing is emailed. A sign-up for an address with
+no account and no valid invite is refused by the trigger, which Supabase reports as a 500. Before
+the trigger, both returned 200. So anyone holding the public key can test whether an address
+belongs to a portal member. The bcrypt comparison also runs only when an invite exists for the
+address, a smaller timing signal for a pending invite. The generic 500 hides only *which* invite
+condition failed; it is not anti-enumeration. What leaks is membership of the portal, not account
+access or record content, and Supabase Auth's rate limits slow bulk probing. This is 🟠 `INFERRED`
+from how Supabase Auth handles an existing address; it has not been tested here.
+
+Two ways to narrow it, neither done yet:
+
+- **CAPTCHA on sign-up** (Authentication → Attack Protection). The app does not yet render a
+  CAPTCHA widget or send a token, so turning it on before that work would block sign-up. It is a
+  follow-up, not a launch step.
+- **Sign-up behind an Edge Function** that checks the invite, creates the user with the admin
+  API, and returns one identical response whatever the outcome, with the trigger kept as the
+  fail-closed backstop. Worth doing if membership itself has to stay private.
+
 ### 4. Roles are assigned by the deployment
 
-The four roles are support (triage), editor (adds content), admin (adds invites) and owner. They
-come only from `private.staff_seed` rows that the principal writes in SQL. A trigger applies
-them when that email's account is created. No client form or RPC sets a role, which is the same
-rule as `server/`.
+The four roles are support (triage), editor (adds content), admin (adds invites) and owner. The
+principal sets them in SQL. No client form or RPC sets a role, which is the same rule as
+`server/`.
+
+- A `private.staff_seed` row seeds a role. A trigger applies it **once**, when that email's
+  account is created.
+- After that, the live role is the `public.staff_members` row, which every role check reads.
+  Nothing syncs the seed afterwards: editing or deleting a seed row changes no one's role, and a
+  seed row added for an email that already has an account grants nothing.
+- So a later change, removal or grant for an existing account is made directly in
+  `public.staff_members` with SQL. The README has the exact statements, under "Changing staff
+  roles later".
+
+No sync trigger on `private.staff_seed` was added. If one ever is, it must key on a stored user
+id, never on the current `auth.users.email`, because a member can change their email to a seeded
+address.
 
 ### 5. Nothing sends
 
@@ -129,8 +162,9 @@ Claude Code wrote for staff review. They give no advice and make no income claim
 2. Deploy the corrected `delete-account` function.
 3. Configure custom SMTP, and set Auth → URL Configuration: the Site URL is the portal's Pages
    path, and the redirect URLs cover `https://khu-el.github.io/Khu-el/**`.
-4. Seed the first staff member, and invite that email, by SQL.
-5. Set the two repository Variables and redeploy Pages.
+4. Set the two repository Variables and redeploy Pages.
+5. Seed the first staff member, and invite that email, by SQL. Then sign up in the deployed
+   portal with that email and code.
 6. Only then share the link with anyone.
 
 The exact steps are in `apps/member-portal/README.md`.

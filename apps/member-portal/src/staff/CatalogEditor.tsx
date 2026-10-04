@@ -4,14 +4,15 @@
 // confirmations and the error handling.
 //
 // Writes: a new row is INSERTed (src/data/staff.ts) so a taken id is refused
-// rather than overwritten; an edit goes through staffUpsert with the editable
-// columns plus id (created_at/updated_at are left to the database); the
-// publish toggle updates only the visibility column. RLS
+// rather than overwritten; an edit UPDATEs the editable columns of the
+// existing row (created_at/updated_at are left to the database), so saving
+// never re-creates a row another editor deleted -- it says the item no longer
+// exists instead; the publish toggle updates only the visibility column. RLS
 // (private.is_content_editor) is the real gate for all three.
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Button, Card, Field, Select, TextInput } from '@nte/governance-core';
-import { staffDelete, staffUpsert } from '../data/api';
-import { staffInsert, staffSetVisibility, type CatalogTable } from '../data/staff';
+import { staffDelete } from '../data/api';
+import { staffInsert, staffSetVisibility, staffUpdate, type CatalogTable } from '../data/staff';
 import { Badge, Empty, ErrorNote, Loading, Notice } from '../components/common';
 import { slugify } from '../logic/text';
 import { CheckboxField, ID_MAX, asError, catalogErrorMessage, isValidId } from './shared';
@@ -174,12 +175,12 @@ export function CatalogEditor<Row extends CatalogRowBase, D extends DraftBase>({
       setFormError(asError(built.error));
       return;
     }
-    const row = { id, title, ...built.values, [config.visibility.column]: draft.visible };
+    const values = { title, ...built.values, [config.visibility.column]: draft.visible };
     setSaving(true);
     setFormError(null);
     try {
-      if (mode.kind === 'new') await staffInsert(config.table, row);
-      else await staffUpsert(config.table, row);
+      if (mode.kind === 'new') await staffInsert(config.table, { id, ...values });
+      else await staffUpdate(config.table, id, values);
       setNotice(`${mode.kind === 'new' ? 'Created' : 'Saved'} the ${config.noun} "${title}". ${draft.visible ? `It is ${config.visibility.on.toLowerCase()}.` : `It is ${config.visibility.off.toLowerCase()} — members cannot see it.`}`);
       close();
       reload();

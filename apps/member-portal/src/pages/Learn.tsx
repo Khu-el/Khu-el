@@ -1,19 +1,17 @@
 // Learning tracks, their modules, and a member's own completion record.
-// Completion shown here comes from learning_progress; a change is shown
-// immediately and rolled back if the database refuses it. Lesson bodies are
+// Completion shown here comes from learning_progress; a change is shown only
+// after the database accepts it, with "Saving…" until then. Lesson bodies are
 // parsed into blocks and rendered as React text -- never as HTML.
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Button, Card, Stat } from '@nte/governance-core';
 import { usePortal } from '../context';
 import { listModules, listProgress, listResources, listSaved, listTracks, setModuleCompleted } from '../data/api';
 import { Badge, Empty, ErrorNote, Loading, Notice, formatDateTime, useLoad } from '../components/common';
-import { fmtPercent, trackProgress } from '../logic/progress';
+import { fmtPercent, latestByModule, trackProgress, type ProgressRow } from '../logic/progress';
 import { href } from '../logic/routes';
 import { parseBody, safeUrl, type Block } from '../logic/text';
 import type { LearningModule, LearningProgress, LearningTrack } from '../types';
 import { ResourceCard, isVisibleToViewer, typeLabel, useSavedResources } from './Resources';
-
-type ProgressRow = Pick<LearningProgress, 'track_id' | 'module_id' | 'completed'>;
 
 const PREPARING = 'Lessons for this track are being prepared.';
 
@@ -23,21 +21,24 @@ function sortModules(modules: LearningModule[]): LearningModule[] {
 
 /**
  * Completion state for one track's modules. `recorded` is what the database
- * returned; overrides hold changes the member just made, rolled back on error.
+ * returned; overrides hold changes the database has since accepted. Nothing
+ * changes on screen while a write is pending.
  */
 function useCompletion(userId: string, trackId: string, recorded: LearningProgress[] | null) {
   const [overrides, setOverrides] = useState<Record<string, boolean>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
-  const [error, setError] = useState<unknown>(null);
+  // Tagged with its module, so a failure on one lesson is not shown under another.
+  const [error, setError] = useState<{ moduleId: string; error: unknown } | null>(null);
+  const clearError = useCallback(() => setError(null), []);
 
   // Fresh rows from the database replace any local overrides.
-  useEffect(() => setOverrides({}), [recorded, trackId]);
-
-  const recordedByModule = useMemo(() => {
-    const map = new Map<string, LearningProgress>();
-    for (const p of recorded ?? []) if (p.track_id === trackId) map.set(p.module_id, p);
-    return map;
+  useEffect(() => {
+    setOverrides({});
+    setError(null);
   }, [recorded, trackId]);
+
+  // Matched by module id, not the row's track id: a lesson moved between tracks keeps its record.
+  const recordedByModule = useMemo(() => latestByModule(recorded ?? []), [recorded]);
 
   const rows: ProgressRow[] = useMemo(() => {
     const map = new Map<string, ProgressRow>();
@@ -49,25 +50,23 @@ function useCompletion(userId: string, trackId: string, recorded: LearningProgre
   const isCompleted = (moduleId: string): boolean =>
     moduleId in overrides ? overrides[moduleId] : Boolean(recordedByModule.get(moduleId)?.completed);
 
-  /** When the database recorded completion (only while no unsaved change differs from it). */
+  /** When the database recorded completion. After a change made here the new date has not been read back, so none is shown. */
   const completedAt = (moduleId: string): string | null => {
+    if (moduleId in overrides) return null;
     const row = recordedByModule.get(moduleId);
-    if (!row?.completed || overrides[moduleId] === false) return null;
-    return row.completed_at;
+    return row?.completed ? row.completed_at : null;
   };
 
   const toggle = async (moduleId: string) => {
     if (pending[moduleId]) return;
-    const before = isCompleted(moduleId);
-    const after = !before;
+    const after = !isCompleted(moduleId);
     setError(null);
-    setOverrides((o) => ({ ...o, [moduleId]: after }));
     setPending((p) => ({ ...p, [moduleId]: true }));
     try {
       await setModuleCompleted(userId, trackId, moduleId, after);
+      setOverrides((o) => ({ ...o, [moduleId]: after }));
     } catch (e) {
-      setOverrides((o) => ({ ...o, [moduleId]: before }));
-      setError(e);
+      setError({ moduleId, error: e });
     } finally {
       setPending((p) => {
         const next = { ...p };
@@ -77,7 +76,16 @@ function useCompletion(userId: string, trackId: string, recorded: LearningProgre
     }
   };
 
-  return { rows, isCompleted, completedAt, toggle, isPending: (moduleId: string) => Boolean(pending[moduleId]), error };
+  return {
+    rows,
+    isCompleted,
+    completedAt,
+    toggle,
+    isPending: (moduleId: string) => Boolean(pending[moduleId]),
+    /** The last failed change, if it was to one of these modules. */
+    errorFor: (moduleIds: string[]): unknown => (error && moduleIds.includes(error.moduleId) ? error.error : null),
+    clearError,
+  };
 }
 
 function ProgressBar({ percent, label }: { percent: number; label: string }) {
@@ -201,9 +209,11 @@ export function LearnHome() {
 export function TrackView({ trackId }: { trackId: string }) {
   const { userId, staffRole } = usePortal();
   const staffViewer = staffRole !== null;
-  const { data, error, loading } = useLoad(
+  const { data: loaded, error, loading } = useLoad(
     () =>
       Promise.all([listTracks(), listModules(trackId), listProgress(userId), listResources(), listSaved(userId)]).then(([tracks, modules, progress, resources, saved]) => ({
+        trackId,
+        userId,
         tracks,
         modules,
         progress,
@@ -212,11 +222,12 @@ export function TrackView({ trackId }: { trackId: string }) {
       })),
     [trackId, userId],
   );
+  // useLoad keeps the previous track's rows while the next loads; never read them as this track's.
+  const data = loaded && loaded.trackId === trackId && loaded.userId === userId ? loaded : null;
   const completion = useCompletion(userId, trackId, data?.progress ?? null);
   const savedState = useSavedResources(userId, data?.saved ?? null);
 
-  if (loading && !data) return <Loading label="Loading track…" />;
-  if (error && !data) return <ErrorNote error={error} />;
+  if (!data) return error && !loading ? <ErrorNote error={error} /> : <Loading label="Loading track…" />;
 
   const track = (data?.tracks ?? []).find((t) => t.id === trackId && isVisibleToViewer(t.is_published, staffViewer));
   if (!track) {
@@ -276,7 +287,7 @@ export function TrackView({ trackId }: { trackId: string }) {
             tp.total > 0 && <Notice tone="success">You have marked every module in this track complete.</Notice>
           )}
 
-          <ErrorNote error={completion.error} />
+          <ErrorNote error={completion.errorFor(modules.map((m) => m.id))} />
 
           <section aria-labelledby="modules-heading" className="space-y-2">
             <h2 id="modules-heading" className="text-lg font-semibold text-slate-900">
@@ -312,7 +323,7 @@ export function TrackView({ trackId }: { trackId: string }) {
                           disabled={saving}
                           onChange={() => void completion.toggle(m.id)}
                         />
-                        <label htmlFor={inputId} className={`text-sm ${done ? 'font-medium text-emerald-800' : 'text-slate-700'}`}>
+                        <label htmlFor={inputId} className={`text-sm ${saving ? 'text-slate-500' : done ? 'font-medium text-emerald-800' : 'text-slate-700'}`}>
                           {saving ? 'Saving…' : 'Completed'}
                           <span className="sr-only">: {m.title}</span>
                         </label>
@@ -395,16 +406,22 @@ function BodyBlocks({ blocks }: { blocks: Block[] }) {
 export function ModuleView({ trackId, moduleId }: { trackId: string; moduleId: string }) {
   const { userId, staffRole, timezone } = usePortal();
   const staffViewer = staffRole !== null;
-  const { data, error, loading } = useLoad(
-    () => Promise.all([listTracks(), listModules(trackId), listProgress(userId)]).then(([tracks, modules, progress]) => ({ tracks, modules, progress })),
+  const { data: loaded, error, loading } = useLoad(
+    () =>
+      Promise.all([listTracks(), listModules(trackId), listProgress(userId)]).then(([tracks, modules, progress]) => ({ trackId, userId, tracks, modules, progress })),
     [trackId, userId],
   );
+  // useLoad keeps the previous track's rows while the next loads; never read them as this track's.
+  const data = loaded && loaded.trackId === trackId && loaded.userId === userId ? loaded : null;
   const completion = useCompletion(userId, trackId, data?.progress ?? null);
+  const { clearError } = completion;
 
-  // Previous/Next links change only the hash; start each module at the top.
+  // Previous/Next links change only the hash; start each module at the top,
+  // without the last lesson's error.
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [moduleId]);
+    clearError();
+  }, [moduleId, clearError]);
 
   const track = (data?.tracks ?? []).find((t) => t.id === trackId && isVisibleToViewer(t.is_published, staffViewer)) ?? null;
   const modules = useMemo(
@@ -415,8 +432,7 @@ export function ModuleView({ trackId, moduleId }: { trackId: string; moduleId: s
   const mod = index >= 0 ? modules[index] : null;
   const blocks = useMemo(() => parseBody(mod?.body), [mod]);
 
-  if (loading && !data) return <Loading label="Loading lesson…" />;
-  if (error && !data) return <ErrorNote error={error} />;
+  if (!data) return error && !loading ? <ErrorNote error={error} /> : <Loading label="Loading lesson…" />;
 
   if (!track || !mod) {
     return (
@@ -508,7 +524,7 @@ export function ModuleView({ trackId, moduleId }: { trackId: string; moduleId: s
           </Button>
         </div>
         <div className="mt-3">
-          <ErrorNote error={completion.error} />
+          <ErrorNote error={completion.errorFor([mod.id])} />
         </div>
       </Card>
 

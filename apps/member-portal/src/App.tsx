@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Component, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { NotLegalOrFinancialAdviceFooter } from '@nte/governance-core';
 import { supabase } from './supabase';
 import { useSession } from './auth/useSession';
@@ -6,7 +6,7 @@ import { PortalContext, can, type PortalContextValue } from './context';
 import { getProfile, getStaffRole, listNotifications } from './data/api';
 import { href, isAuthFragment, parseRoute, type Route } from './logic/routes';
 import type { Profile, StaffRole } from './types';
-import { ErrorNote, Loading } from './components/common';
+import { ErrorNote, Loading, Notice } from './components/common';
 import { NotConfigured } from './pages/NotConfigured';
 import { AuthScreens, ResetPassword } from './pages/AuthScreens';
 import { Onboarding } from './pages/Onboarding';
@@ -22,8 +22,53 @@ import { Status } from './pages/Status';
 import { StaffConsole } from './staff/StaffConsole';
 
 export default function App() {
-  if (!supabase) return <NotConfigured />;
-  return <ConfiguredApp />;
+  return <ErrorBoundary>{supabase ? <ConfiguredApp /> : <NotConfigured />}</ErrorBoundary>;
+}
+
+/**
+ * A render error anywhere below shows a way back instead of unmounting the
+ * whole portal to a blank page. Following the link, or any other change of
+ * page, tries again.
+ */
+class ErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidMount() {
+    window.addEventListener('hashchange', this.retry);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('hashchange', this.retry);
+  }
+
+  retry = () => {
+    if (this.state.failed) this.setState({ failed: false });
+  };
+
+  goHome = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.location.hash = '#/';
+    this.setState({ failed: false });
+  };
+
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="mx-auto max-w-xl space-y-2 px-4 py-16 text-sm text-slate-800">
+        <p className="text-lg font-semibold">Something went wrong showing this page.</p>
+        <p>
+          <a className="underline" href="#/" onClick={this.goHome}>
+            Go to the portal home
+          </a>
+          , or reload the page.
+        </p>
+      </div>
+    );
+  }
 }
 
 function useHashRoute(): [Route, (r: Route) => void] {
@@ -41,19 +86,75 @@ function useHashRoute(): [Route, (r: Route) => void] {
 }
 
 function ConfiguredApp() {
-  const { loading, session, recovery, clearRecovery } = useSession();
+  const { loading, session, recovery, clearRecovery, refusedLink, clearRefusedLink } = useSession();
   if (loading) return <Shell><Loading /></Shell>;
-  if (recovery) return <Shell><ResetPassword onDone={clearRecovery} /></Shell>;
-  if (!session) return <Shell><AuthScreens /></Shell>;
-  return <SignedIn userId={session.user.id} email={session.user.email ?? ''} />;
+  if (recovery) return <Shell email={session?.user.email}><ResetPassword onDone={clearRecovery} /></Shell>;
+  if (!session) {
+    return (
+      <Shell>
+        {refusedLink === 'signed-out' && <RefusedLinkNotice signedIn={false} email="" onDismiss={clearRefusedLink} />}
+        <AuthScreens />
+      </Shell>
+    );
+  }
+  return (
+    <SignedIn
+      userId={session.user.id}
+      email={session.user.email ?? ''}
+      refusedLink={refusedLink === 'signed-in'}
+      clearRefusedLink={clearRefusedLink}
+    />
+  );
 }
 
-function SignedIn({ userId, email }: { userId: string; email: string }) {
+/** A link's tokens were not used because this browser already held a session (see supabase.ts). */
+function RefusedLinkNotice({ signedIn, email, onDismiss }: { signedIn: boolean; email: string; onDismiss: () => void }) {
+  return (
+    <Notice tone="warn">
+      {signedIn ? (
+        <>
+          You are already signed in{email && <> as <strong>{email}</strong></>}, so the link you just opened was not used. If it was meant
+          for a different account, sign out on the{' '}
+          <a className="underline" href={href({ name: 'account' })}>
+            Account
+          </a>{' '}
+          page, then sign in to that account; for a password reset, use “Forgot password” on the sign-in screen to get a new link.
+        </>
+      ) : (
+        <>
+          The link you just opened was not used, because this browser still had an earlier sign-in saved. That sign-in is no longer
+          active, so you can try the link again.{' '}
+          <button type="button" className="underline" onClick={() => window.location.reload()}>
+            Try the link again
+          </button>
+        </>
+      )}{' '}
+      <button type="button" className="underline" onClick={onDismiss}>
+        Dismiss
+      </button>
+    </Notice>
+  );
+}
+
+function SignedIn({
+  userId,
+  email,
+  refusedLink,
+  clearRefusedLink,
+}: {
+  userId: string;
+  email: string;
+  refusedLink: boolean;
+  clearRefusedLink: () => void;
+}) {
   const [route, navigate] = useHashRoute();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [staffRole, setStaffRole] = useState<StaffRole | null>(null);
   const [error, setError] = useState<unknown>(null);
-  const [unreadCount, setUnreadCount] = useState(0);
+  // Null until a load succeeds, and again after one fails: unknown is not 0.
+  const [unreadCount, setUnreadCount] = useState<number | null>(null);
+  // Only the newest request may set the count, so a slow older one cannot overwrite it.
+  const unreadSeq = useRef(0);
 
   const refreshProfile = useCallback(async () => {
     try {
@@ -67,10 +168,20 @@ function SignedIn({ userId, email }: { userId: string; email: string }) {
   }, [userId]);
 
   const refreshUnread = useCallback(() => {
+    const seq = ++unreadSeq.current;
     listNotifications(userId)
-      .then((n) => setUnreadCount(n.filter((x) => !x.read_at).length))
-      .catch(() => undefined);
+      .then((n) => {
+        if (seq === unreadSeq.current) setUnreadCount(n.filter((x) => !x.read_at).length);
+      })
+      .catch(() => {
+        if (seq === unreadSeq.current) setUnreadCount(null);
+      });
   }, [userId]);
+
+  const syncUnread = useCallback((count: number) => {
+    unreadSeq.current += 1;
+    setUnreadCount(count);
+  }, []);
 
   useEffect(() => {
     void refreshProfile();
@@ -89,18 +200,20 @@ function SignedIn({ userId, email }: { userId: string; email: string }) {
             refreshProfile,
             unreadCount,
             refreshUnread,
+            syncUnread,
             navigate,
           }
         : null,
-    [userId, email, profile, staffRole, refreshProfile, unreadCount, refreshUnread, navigate],
+    [userId, email, profile, staffRole, refreshProfile, unreadCount, refreshUnread, syncUnread, navigate],
   );
 
-  if (error && !profile) return <Shell><ErrorNote error={error} /></Shell>;
-  if (!ctx) return <Shell><Loading /></Shell>;
+  if (error && !profile) return <Shell email={email}><ErrorNote error={error} /></Shell>;
+  if (!ctx) return <Shell email={email}><Loading /></Shell>;
 
   return (
     <PortalContext.Provider value={ctx}>
-      <Shell nav={<Nav route={route} />} >
+      <Shell email={email} nav={<Nav route={route} />} >
+        {refusedLink && <RefusedLinkNotice signedIn email={email} onDismiss={clearRefusedLink} />}
         {ctx.profile.onboarding_complete ? <Page route={route} /> : <Onboarding onDone={refreshProfile} />}
       </Shell>
     </PortalContext.Provider>
@@ -108,15 +221,16 @@ function SignedIn({ userId, email }: { userId: string; email: string }) {
 }
 
 function Page({ route }: { route: Route }) {
+  // Keyed by href so a new id remounts the view: nothing carries over from the previous one.
   switch (route.name) {
     case 'dashboard': return <Dashboard />;
     case 'learn': return <LearnHome />;
-    case 'track': return <TrackView trackId={route.trackId} />;
-    case 'module': return <ModuleView trackId={route.trackId} moduleId={route.moduleId} />;
+    case 'track': return <TrackView key={href(route)} trackId={route.trackId} />;
+    case 'module': return <ModuleView key={href(route)} trackId={route.trackId} moduleId={route.moduleId} />;
     case 'resources': return <Resources />;
     case 'pathways': return <Pathways />;
     case 'plans': return <PlansList />;
-    case 'plan': return <PlanView planId={route.planId} />;
+    case 'plan': return <PlanView key={href(route)} planId={route.planId} />;
     case 'support': return <Support />;
     case 'notifications': return <Notifications />;
     case 'account': return <Account />;
@@ -153,7 +267,7 @@ function Nav({ route }: { route: Route }) {
             )}
             <span className="ml-auto flex items-center gap-1">
               <a href={href({ name: 'notifications' })} className="rounded px-3 py-1.5 text-slate-700 hover:bg-slate-100">
-                Notifications{ctx.unreadCount > 0 && <span className="ml-1 rounded-full bg-red-600 px-1.5 text-xs text-white">{ctx.unreadCount}</span>}
+                Notifications{ctx.unreadCount !== null && ctx.unreadCount > 0 && <span className="ml-1 rounded-full bg-red-600 px-1.5 text-xs text-white">{ctx.unreadCount}</span>}
               </a>
               <a href={href({ name: 'account' })} className="rounded px-3 py-1.5 text-slate-700 hover:bg-slate-100">Account</a>
             </span>
@@ -164,14 +278,22 @@ function Nav({ route }: { route: Route }) {
   );
 }
 
-function Shell({ children, nav }: { children: React.ReactNode; nav?: React.ReactNode }) {
+/** `email` is shown whenever a session exists, so a change of account is never silent. */
+function Shell({ children, nav, email }: { children: React.ReactNode; nav?: React.ReactNode; email?: string }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-5xl px-4 py-3">
           <div className="flex items-baseline justify-between gap-4">
             <a href="#/" className="text-lg font-semibold">🏛️ The Excellence District</a>
-            <span className="text-xs text-slate-500">Member Portal</span>
+            <span className="min-w-0 text-right text-xs text-slate-500">
+              Member Portal
+              {email && (
+                <span className="block break-all">
+                  Signed in as <span className="font-medium text-slate-700">{email}</span>
+                </span>
+              )}
+            </span>
           </div>
           {nav && <div className="mt-3">{nav}</div>}
         </div>

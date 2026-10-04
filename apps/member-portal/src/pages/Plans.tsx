@@ -363,7 +363,7 @@ export function PlanView({ planId }: { planId: string }) {
         })}
       </div>
 
-      <PlanActions plan={plan} weeks={weeks} onChanged={reload} />
+      <PlanActions key={plan.id} plan={plan} weeks={weeks} onChanged={reload} />
     </div>
   );
 }
@@ -469,9 +469,12 @@ function WeekCard({
 }) {
   const [title, setTitle] = useState(week.title);
   const [action, setAction] = useState(week.action_text);
-  const [busy, setBusy] = useState<null | 'text' | 'done'>(null);
-  const busyRef = useRef(false);
-  const [error, setError] = useState<unknown>(null);
+  // The text save and the completion toggle write different columns, so each
+  // has its own busy flag and error: leaving a text field to click the
+  // checkbox starts the save on blur, and that must not swallow the click.
+  const [busy, setBusy] = useState({ text: false, done: false });
+  const busyRef = useRef({ text: false, done: false });
+  const [errors, setErrors] = useState<{ text: unknown; done: unknown }>({ text: null, done: null });
   const [saved, setSaved] = useState(false);
 
   // Fresh rows from the database replace the drafts.
@@ -483,25 +486,25 @@ function WeekCard({
   const dirty = titleDirty || actionDirty;
 
   const run = async (kind: 'text' | 'done', task: () => Promise<void>) => {
-    if (busyRef.current) return;
-    busyRef.current = true;
-    setBusy(kind);
-    setError(null);
+    if (busyRef.current[kind]) return;
+    busyRef.current[kind] = true;
+    setBusy((b) => ({ ...b, [kind]: true }));
+    setErrors((prev) => ({ ...prev, [kind]: null }));
     try {
       await task();
     } catch (e) {
-      setError(e);
+      setErrors((prev) => ({ ...prev, [kind]: e }));
     } finally {
-      busyRef.current = false;
-      setBusy(null);
+      busyRef.current[kind] = false;
+      setBusy((b) => ({ ...b, [kind]: false }));
     }
   };
 
   const saveText = () => {
-    if (!dirty || busyRef.current) return;
+    if (!dirty || busyRef.current.text) return;
     const t = title.trim();
     if (!t) {
-      setError(new Error('Each week needs a title before it can be saved.'));
+      setErrors((prev) => ({ ...prev, text: new Error('Each week needs a title before it can be saved.') }));
       return;
     }
     void run('text', async () => {
@@ -544,29 +547,31 @@ function WeekCard({
       <Field label="Action for this week">
         <TextArea value={action} onChange={edit(setAction)} onBlur={saveText} rows={4} maxLength={2000} />
       </Field>
+      <ErrorNote error={errors.text} />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <Button type="button" variant="secondary" onClick={saveText} disabled={busy !== null || !dirty}>
-          {busy === 'text' ? 'Saving…' : 'Save week'}
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <Button type="button" variant="secondary" onClick={saveText} disabled={busy.text || !dirty}>
+          {busy.text ? 'Saving…' : 'Save week'}
         </Button>
         <span className="text-xs text-slate-500" aria-live="polite">
-          {busy === 'text' ? '' : dirty ? 'Unsaved changes' : saved ? 'Saved.' : ''}
+          {busy.text ? '' : dirty ? 'Unsaved changes' : saved ? 'Saved.' : ''}
         </span>
       </div>
 
       <div className="mt-3 border-t border-slate-200 pt-3">
         <label className="flex items-start gap-2 text-sm text-slate-800">
-          <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-slate-300" checked={week.completed} onChange={toggleDone} disabled={busy !== null} />
+          <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-slate-300" checked={week.completed} onChange={toggleDone} disabled={busy.done} />
           <span>
             I completed this week’s action
-            {busy === 'done' && <span className="ml-2 text-xs text-slate-500">Saving…</span>}
+            {busy.done && <span className="ml-2 text-xs text-slate-500">Saving…</span>}
           </span>
         </label>
         {week.completed && week.completed_at && <p className="mt-1 text-xs text-slate-500">Marked done {formatDateTime(week.completed_at, timezone)}</p>}
-      </div>
-
-      <div className="mt-2">
-        <ErrorNote error={error} />
+        {errors.done ? (
+          <div className="mt-2">
+            <ErrorNote error={errors.done} />
+          </div>
+        ) : null}
       </div>
     </section>
   );

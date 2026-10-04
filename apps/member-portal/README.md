@@ -16,7 +16,10 @@ It runs on Supabase ("The Excellence District Production"). It does **not** use 
 ```
 src/
   App.tsx            Session → onboarding → pages; hash routes (#/learn, #/plans/<id>, …)
-  data/api.ts        Every database call. Nothing else talks to Supabase.
+  data/api.ts        Database calls: tables, RPCs and the delete-account function
+  data/staff.ts      The staff console's catalog writes. With api.ts, the whole database
+                     surface. Auth calls (sign-in, sign-up, password reset and change,
+                     sign-out) are made from pages/AuthScreens.tsx and pages/Account.tsx
   logic/             Pure, tested: pathway matching, plan dates, progress, invites, errors,
                      lesson-body parsing, routes
   pages/             Member pages
@@ -48,8 +51,21 @@ These are the same rules as the repo `CLAUDE.md`, applied here.
 - **Registration is invite-only and fails closed.** A trigger on `auth.users` refuses any sign-up
   that does not have a valid invite. A valid invite is pending, unexpired and unrevoked, for that
   exact email, with the matching code. There is no bypass, including for the owner.
-- **Roles are assigned by the deployment.** Roles come only from `private.staff_seed`, which the
-  principal writes in SQL. No form, RPC or profile field sets one.
+- **Roles are assigned by the deployment.** The principal sets them in SQL. No form, RPC or
+  profile field sets one. A `private.staff_seed` row is applied **once**, when that email's
+  account is created. After that the live role is the `public.staff_members` row, and editing or
+  deleting the seed row changes nothing. To change, remove or grant a role later, use the SQL in
+  **Changing staff roles later**, below the launch runbook.
+- **Accepted residual risk: sign-up shows whether an address is registered.** A sign-up for an
+  address that already has an account never reaches the invite trigger, so Supabase Auth answers
+  normally (200 when email confirmation is on). An address with no account and no valid invite is
+  refused by the trigger, which Supabase reports as a 500. Anyone holding the public key can tell
+  the two apart, so portal membership is not secret. The 500 hides only *which* invite condition
+  failed. This is 🟠 inferred from how Supabase Auth handles an existing address, not tested here.
+  ADR-0004 §3 records it and the two ways to narrow it, neither of which is done yet.
+- **An email link never replaces a signed-in account.** A link from a confirmation or
+  password-reset email is ignored while a session is already saved in that browser, so a
+  forwarded link cannot silently swap the signed-in account for someone else's.
 - **Nothing sends.** The portal never sends email, SMS, push or posts, and never contacts anyone.
   Two things look like sending and are not:
   - Supabase Auth's confirmation and reset mail goes only to the address the member typed.
@@ -98,8 +114,21 @@ before step 1**. Until the hardening migration runs, the live project has no sig
        local development.
    - **Authentication → Sign In / Providers:** leave **Allow new users to sign up** on. The invite
      trigger is the gate, and turning sign-ups off would block invited members too.
-4. **Seed the first staff member and invite them.** Run this in the SQL editor with your own
-   address. It prints the invite code once.
+   - **Authentication → Attack Protection:** leave CAPTCHA protection **off** for now. It would
+     slow bulk probing of sign-up (the residual risk under Boundaries), but the app does not yet
+     render a CAPTCHA widget or send a CAPTCHA token, so turning it on today would block sign-up
+     (and, per Supabase's documentation, sign-in and password reset too). Adding the widget and
+     then turning CAPTCHA on is a follow-up, not a launch step.
+4. **Point the build at the project.** In GitHub, go to **Settings → Secrets and variables →
+   Actions → Variables** and set:
+   - `ED_SUPABASE_URL`: the project URL, `https://<ref>.supabase.co`.
+   - `ED_SUPABASE_PUBLISHABLE_KEY`: the `sb_publishable_…` key from **Project Settings → API Keys**.
+
+   Both are public by design. Then re-run **Deploy web apps to GitHub Pages**. Until this runs, the
+   deployed portal shows "not connected" and there is nothing to sign up to.
+5. **Seed the first staff member, invite them, and sign up.** Run this in the SQL editor with your
+   own address, **before** you sign up: the seed row is applied only when the account is created.
+   It prints the invite code once.
 
    ```sql
    insert into private.staff_seed (email, role) values ('you@example.org', 'owner')
@@ -118,16 +147,39 @@ before step 1**. Until the hardening migration runs, the live project has no sig
    select ins.email, c.code from ins, c;
    ```
 
-   Sign up in the portal with that email and code. Your account becomes `owner`, and every later
-   invite comes from **Staff → Invites**.
-5. **Point the build at the project.** In GitHub, go to **Settings → Secrets and variables →
-   Actions → Variables** and set:
-   - `ED_SUPABASE_URL`: the project URL, `https://<ref>.supabase.co`.
-   - `ED_SUPABASE_PUBLISHABLE_KEY`: the `sb_publishable_…` key from **Project Settings → API Keys**.
-
-   Both are public by design. Then re-run **Deploy web apps to GitHub Pages**.
+   Then sign up in the deployed portal with that email and code. Your account becomes `owner`,
+   and every later invite comes from **Staff → Invites**. If no **Staff** link appears after you
+   sign in, the seed did not apply (for example, an account already existed for that address);
+   grant the role with the SQL in **Changing staff roles later**.
 6. **Watch the free plan.** An idle free project is paused automatically, and a paused project
    means the portal is down. It already happened once, on 2026-09-29.
+
+### 🔑 Changing staff roles later
+
+`private.staff_seed` is read once, when an account is created. Every role check reads
+`public.staff_members`, and nothing copies a seed row there afterwards. So editing or deleting a
+seed row, or re-running step 5's upsert, changes no one's role, and a seed row added for an
+address that already has an account grants nothing. Make later changes in the SQL editor:
+
+```sql
+-- Find the account's id (the address in lower case).
+select id from auth.users where email = 'person@example.org';
+
+-- Change a role ('support', 'editor', 'admin' or 'owner').
+update public.staff_members set role = 'support' where user_id = '<id>';
+
+-- Remove a staff role, and its seed row.
+delete from public.staff_members where user_id = '<id>';
+delete from private.staff_seed where email = 'person@example.org';
+
+-- Make an existing member staff.
+insert into public.staff_members (user_id, role) values ('<id>', 'editor');
+```
+
+For an address that has not signed up yet there is no `staff_members` row, and deleting the seed
+row is the whole removal; left in place, it would still grant the role at sign-up. The database
+applies a change on that person's next request. Their staff console reflects it after they reload
+the page.
 
 ## 🧪 What is tested, and what is not
 
