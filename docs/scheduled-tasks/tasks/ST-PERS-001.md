@@ -40,7 +40,7 @@ here transfers no Lane A authority.
 | Condition          | Unconditional. A day with nothing logged is itself the signal the Binary Daily Score exists to show. |
 | Start date         | *(on scheduling)* |
 | End date           | *N/A — runs until the kill/merge rule retires it* |
-| Exception schedule | ⚠️ The cron is fixed UTC, so the run lands at 04:35 local while Eastern Standard Time is in effect (November–March). Either accept the earlier delivery or re-cron to `35 10 * * *` for the EST months and update this row. Do not edit it seasonally without recording the change here. |
+| Exception schedule | ⚠️ The cron is fixed UTC, so the run lands at 04:35 local while Eastern Standard Time is in effect (November–March). **Policy: preserve the local time.** A bulletin meant to be read at 05:35 loses its purpose an hour early, so re-cron to `35 10 * * *` for the EST months and back to `35 9 * * *` for EDT, recording each change in this row. Prefer timezone-aware scheduling over the seasonal edit if the Routines API ever supports it. |
 
 ## 📥 INPUTS
 
@@ -164,7 +164,7 @@ is the resolution, and it is stated.
 |-----------|-----------|------------|
 | Capacity contamination | Any entity, trust, business-revenue or mixed-capacity statement reaches the bulletin | Drop the line, write "Route to Lane A" or "Route to Lane B", flag to principal |
 | 30-day target unknown | Target or declaration cannot be retrieved | Print the fill-in prompt; do not invent — ⚖️ DECISION REQUIRED |
-| Source unavailable | A named manual is not in project context | Label it unavailable, continue on the remainder, never fabricate a citation |
+| Source unavailable | A named manual is not in project context | Label it unavailable and continue on the remainder, never fabricating a citation — **but two sparks require two different manuals, so if fewer than two remain the run is 🧱 BLOCKED BY** rather than producing one spark or citing an absent source |
 | Streak integrity | A missed day would otherwise read as completed | Record Not Done — 🎯 DO NOW |
 
 ## 🛡️ GUARDRAILS

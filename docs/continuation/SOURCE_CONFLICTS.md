@@ -699,7 +699,7 @@ Picking one would be invention.
 
 ### 📌 What is true regardless of the decision
 
-Neither task is scheduled. Three of the five migrated tasks are defined and `DRAFT`; all five remain
+Neither task is scheduled. Four of the five migrated tasks are defined and `DRAFT`; all five remain
 unscheduled, and the matching ChatGPT tasks are untouched — the kit's own cutover rule is that a
 ChatGPT task is paused only at its own cutover, never in advance and never in bulk.
 

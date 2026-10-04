@@ -35,7 +35,7 @@ task in the registry and should stay that way; its value is its refusal to expan
 | Condition          | Unconditional. |
 | Start date         | *(on scheduling)* |
 | End date           | *N/A — runs until the kill/merge rule retires it* |
-| Exception schedule | ⚠️ 21:30 Eastern is the **next** UTC day, hence `30 1 * * *`. The run lands at 20:30 local while Eastern Standard Time is in effect (November–March); re-cron to `30 2 * * *` for those months if the evening slot matters, and record the change here. |
+| Exception schedule | ⚠️ 21:30 Eastern is the **next** UTC day, hence `30 1 * * *`. The run lands at 20:30 local while Eastern Standard Time is in effect (November–March). **Policy: preserve the local time** — this task closes the day, so an hour early is the wrong day-state. Re-cron to `30 2 * * *` for the EST months and back to `30 1 * * *` for EDT, recording each change in this row. Prefer timezone-aware scheduling over the seasonal edit if the Routines API ever supports it. |
 
 ## 📥 INPUTS
 
@@ -115,6 +115,10 @@ data.**
 emoji, preamble or recap. Use `&` or `|`; never `+` except in mathematics. SPEC v2's emoji-led
 default does not apply: brevity and restraint are the point.
 
+**One exception:** the single final-output status required by SPEC v2 and by FINAL OUTPUT below
+carries its own emoji (🎯 ⚖️ ⏳ 🧱 ✅). That status line is exempt from the emoji prohibition — it is
+the status token, not decoration. No other emoji appears in the body.
+
 ## 🧾 EVIDENCE
 
 Consequential claims are tagged `VERIFIED` · `USER-REPORTED` · `DOCUMENT-STATED` ·
@@ -157,6 +161,11 @@ in one clause and does not resolve it — resolution is Chaz's, not the task's.
 An output exists for the run date, at or under 150 words, containing exactly one law or principle
 and exactly one today-specific journal question, with exactly one final output status and no
 interpretation.
+
+**A 🧱 BLOCKED BY run is proved differently.** Where the Ascension material is unavailable, the run
+cannot supply a law without inventing one, so it omits the law, names the missing source, and still
+carries the journal question and the single status line. That is a complete and valid run — not a
+failed one — and it never substitutes a principle from another source to satisfy this section.
 
 ## 🔄 STATE UPDATE
 

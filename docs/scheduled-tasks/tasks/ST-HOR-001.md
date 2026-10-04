@@ -37,7 +37,7 @@ rendered as settled external fact in a bulletin that family members read as auth
 | Field              | Value |
 |--------------------|-------|
 | Cadence            | Weekly |
-| Local time         | Sunday 08:00 |
+| Local time         | Sunday 08:00 EDT / 07:00 EST — see Exception schedule |
 | Timezone           | America/New_York |
 | UTC cron           | `0 12 * * 0` |
 | Condition          | Unconditional — the bulletin precedes the 09:00 Family Council, and a quiet week is itself worth recording. |
@@ -200,7 +200,10 @@ touches them rather than resolved in it:
 ## 🛡️ GUARDRAILS
 
 **Prohibited:**
-- Publishing, sending, serving, filing or recording anything
+- Publishing, sending or serving anything, or filing or recording anything with any external
+  registry, court, agency or provider. This bars **external** record-making only: the internal
+  family action ledger write that STATE UPDATE requires is expressly permitted, and is the one
+  record this task may write.
 - Signing, contracting, transacting, or representing the principal externally
 - Moving, retitling or committing any asset, or implying one has moved
 - Blending Lane A into this bulletin in any form
