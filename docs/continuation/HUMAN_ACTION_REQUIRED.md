@@ -222,13 +222,27 @@ steps as ⚪ UNKNOWN rather than as passing** — that rule is written into the 
 🟢 **Not urgent.** The automation is running. This only removes its dependence on one session.
 ---
 
-## 10. ~~Archive `Khu-el/NTE-Command-Center` and `Khu-el/StructureGen`~~ — done, confirmed 2026-10-04
+## 10. ~~Archive `Khu-el/NTE-Command-Center` and `Khu-el/StructureGen`~~ — archive done; README pointer dropped, not pending
 
 > **Update 2026-10-04.** Both repositories now read `"archived": true` via `gh api
 > repos/Khu-el/NTE-Command-Center` and `gh api repos/Khu-el/StructureGen` — confirmed this session,
-> independently of trusting the "approved" status below. Neither README was checked for the
-> specified supersession line; that's a smaller, non-blocking follow-up if it matters to a future
-> reader landing on either repo's README before its archive banner. **SC-03 is closed.**
+> independently of trusting the "approved" status below.
+>
+> **The README supersession line was checked, not skipped, and it is absent from both repos.**
+> `gh api repos/Khu-el/{NTE-Command-Center,StructureGen}/contents/README.md` on this session shows
+> each README unchanged from its original AI Studio scaffold — neither carries the line the original
+> action specified. That line cannot be added now: **GitHub rejects writes to an archived
+> repository** (confirmed — an API write attempt against `NTE-Command-Center`'s README was refused
+> before it reached GitHub, by this session's own write-safety check). Adding it requires
+> unarchiving, committing, and re-archiving — a further §10 account action, not a verification
+> step, and smaller in cost than the original archiving but not zero.
+>
+> **This is deliberately not re-opened as a blocking task.** The archived-repository banner GitHub
+> renders on every page of both repos already tells a reader "this is not current" — the exact
+> problem the README line was meant to solve, achieved a different way. Whether the line is still
+> worth the unarchive/edit/re-archive cycle is the principal's call, not a default "yes." **SC-03
+> itself is closed** on the strength of the comparison below, which the missing README line doesn't
+> change or cast doubt on.
 >
 > This also stands as an independent re-verification of SC-03's substance, not just its resolution:
 > this session separately attached `Khu-el/NTE-Command-Center`, diffed its file tree and
