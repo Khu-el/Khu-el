@@ -615,3 +615,95 @@ was right before this search and is right after it.
    number, and that question is for a professional, not a session.
 4. Only then does correcting `seed/governance.json` mean anything — it would otherwise be copied
    from whichever projection was read last, which is how six versions came to exist.
+
+---
+
+## SC-12 — Two migrated ChatGPT tasks each blend capacities that SPEC v2 forbids blending
+
+**Found:** 2026-10-04, while writing definitions for the five active ChatGPT scheduled tasks against
+`docs/scheduled-tasks/SPEC.md` (v2).
+
+The migration kit (`Claude_Cowork_Scheduled_Tasks_Migration`, snapshot 2026-08-14) carries five
+active tasks. Three map cleanly onto one capacity each and are now defined: `ST-PERS-001`,
+`ST-PERS-002`, `ST-HOR-001`. **Two do not map onto one capacity at all**, and SPEC v2 §CAPACITY is
+unambiguous: *"Identify exactly which capacity owns the task. Choose only what actually applies.
+**Do not blend capacities.**"*
+
+| Task | Capacities present in the one prompt |
+|---|---|
+| NTE Financial Briefing | `NTE` (Lane A) · `CCRLT` (Lane B) · `PERS` — three firewalled sections in one output |
+| Run Marketing Campaigns | `HOPE` (Primerica H.O.P.E. Dealers) · `VZB` (Verizon Business) · `NTE` (Lane A) — brand rotated per run |
+
+### 🟡 This is a conflict of standards, not a defect in anyone's work
+
+Both prompts **are already capacity-aware**, which is why this is a conflict rather than a
+contamination finding. The financial briefing keeps three *explicitly firewalled* sections and
+instructs that accounts, assets, liabilities, income, expenses, tax treatment, authority and
+recommendations are never blended across them. The marketing prompt instructs *"keep one firewalled
+brand per run"* and *"never use CCRLT or House of Ransom assets in NTE marketing."*
+
+So the prompts firewall **within** a task. SPEC v2 firewalls **by** task. Those are two different
+mechanisms for the same goal, and the kit predates the spec by three weeks — the spec is dated
+2026-09-06, the kit 2026-08-14. Neither author was ignoring the other.
+
+Per `AI_COUNCIL.md` §9 and this repo's `CLAUDE.md`, **where standards disagree the stricter reading
+wins** — and task-level separation is stricter than in-run separation, because in-run firewalling
+depends on the model honouring it on every single run, while task-level separation is structural.
+That argues for splitting. It is not a free choice, though, which is the point of this entry.
+
+### ⚠️ What splitting costs, in each case
+
+**NTE Financial Briefing.** Splitting produces three briefings where one is read. The structure,
+tax and funding section is the part that most benefits from seeing all three capacities at once —
+its whole function is to show where a Lane A move has a Lane B or personal consequence, and that
+is precisely the comparison a split removes. Recorded in `ST-NTE-003`'s CONTRADICTIONS section as
+Option A versus Option B, with costs, **and no option adopted.**
+
+**Run Marketing Campaigns.** Splitting breaks a mechanism: the prompt enforces no-repeat selection
+across a rolling 14-run history, and that ledger is **cross-brand by construction**. Three
+independent tasks each keep their own 14-run window, so an asset could repeat across the set while
+each task reports compliance. Preserving the rotation and preserving one-capacity-per-task are, as
+written, mutually exclusive.
+
+### 🚫 Why no definition was written for Run Marketing Campaigns
+
+Three tasks would have been the SPEC-compliant construction, and all three would have been `DRAFT`,
+so nothing would have fired. It was still not written, for two reasons:
+
+1. **It would silently break the no-repeat ledger** — the mechanism above — and a `DRAFT` that
+   embeds a broken mechanism is worse than an absent one, because the next reader inherits it as
+   settled design.
+2. **SPEC v2 names this exact situation as an escalation, not a resolution.** Its EXCEPTION
+   CONDITIONS examples include *capacity contamination*. A task escalates a capacity problem to
+   the principal; it does not decide it. The same logic applies to writing one.
+
+`ST-NTE-003` **was** written, at `DRAFT`, with `NTE` recorded as provisional owner — because that
+task is named, framed and primarily scoped to Lane A, so there is a defensible primary owner to
+record while the question is open. Run Marketing Campaigns has no comparable primary: Primerica,
+Verizon and NTE are three unrelated businesses, two of them licensed or employment capacities.
+Picking one would be invention.
+
+### What a human needs to decide
+
+1. **NTE Financial Briefing** — Option A (split into `ST-NTE-003` + `ST-CCRLT-001` + `ST-PERS-003`)
+   or Option B (one `NTE` task, the other two sections retained as declared firewalled read-only
+   subsections, recorded as a documented exception to the one-capacity rule). `ST-NTE-003` stays
+   `DRAFT` until this is recorded in it.
+2. **Run Marketing Campaigns** — whether the cross-brand no-repeat ledger is a requirement or a
+   preference. If a requirement, the one-capacity rule needs a stated exception for this task and
+   SPEC v2 should say so rather than being quietly departed from. If a preference, three tasks can
+   be written, each with its own window.
+3. Whether SPEC v2 should gain language for a task whose subject genuinely spans capacities while
+   its *authority* sits in one — the financial briefing is the first case in the registry, and
+   deciding it ad hoc means the next one is decided ad hoc too.
+
+### 📌 What is true regardless of the decision
+
+Neither task is scheduled. Four of the five migrated tasks are defined and `DRAFT`; all five remain
+unscheduled, and the matching ChatGPT tasks are untouched — the kit's own cutover rule is that a
+ChatGPT task is paused only at its own cutover, never in advance and never in bulk.
+
+⚠️ **Cross-reference to SC-07.** That entry records Routines firing with no definition here. These
+five are the mirror image: four definitions with no Routine, plus one deliberately undefined task
+still firing on another platform. Reconciling the registry against what is actually scheduled —
+`ST-NTE-001`'s job — now has to cover both directions, and a green `npm run tasks` sees neither.
