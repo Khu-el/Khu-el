@@ -704,6 +704,6 @@ unscheduled, and the matching ChatGPT tasks are untouched — the kit's own cuto
 ChatGPT task is paused only at its own cutover, never in advance and never in bulk.
 
 ⚠️ **Cross-reference to SC-07.** That entry records Routines firing with no definition here. These
-five are the mirror image: definitions (three of them) with no Routine, for tasks currently firing
-on **another platform entirely**. Reconciling the registry against what is actually scheduled —
+five are the mirror image: four definitions with no Routine, plus one deliberately undefined task
+still firing on another platform. Reconciling the registry against what is actually scheduled —
 `ST-NTE-001`'s job — now has to cover both directions, and a green `npm run tasks` sees neither.
