@@ -22,6 +22,7 @@
     "test:apps",
     "test:kernel",
     "test:server",
+    "test:watch",
     "typecheck"
   ],
   "workspaces": [
