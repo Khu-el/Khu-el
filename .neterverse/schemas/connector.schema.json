@@ -1,28 +1,45 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "neterverse://schemas/connector.schema.json",
-  "title": "Connector registry entry",
-  "description": "One integration surface. verification_state records what was actually observed in a session, never what documentation claims.",
+  "title": "Connector declaration",
+  "description": "One integration surface, as declared in packages/neterverse-kernel/src/connectors.ts and generated into the registry by `npm run connectors`. A DECLARATION ONLY: there is deliberately no field for a stored verification state or a last-verified date. Whether an observation is currently fresh is computed at runtime from .neterverse/live/ by `npm run bus -- connectors`. An earlier version of this schema required verification_state and last_verified, so every entry carried a claim that aged silently - and `bus status` printed a LIVE_VERIFIED count from values weeks out of date. additionalProperties is false, so those fields cannot come back by accident.",
   "type": "object",
-  "required": ["connector_id", "name", "role", "verification_state", "access", "last_verified"],
+  "required": [
+    "connector_id",
+    "name",
+    "role",
+    "system_of_record_for",
+    "freshness_minutes",
+    "lane_scope",
+    "write_authorized"
+  ],
   "additionalProperties": false,
   "properties": {
     "connector_id": { "type": "string", "minLength": 1 },
     "name": { "type": "string", "minLength": 1 },
     "role": { "type": "string", "minLength": 1 },
-    "system_of_record_for": { "type": "array", "items": { "type": "string" } },
-    "verification_state": {
-      "type": "string",
-      "enum": ["LIVE_VERIFIED", "EXPOSED_UNVERIFIED", "FAILED", "NOT_EXPOSED", "UNKNOWN"]
+    "system_of_record_for": {
+      "description": "What this system is the authority for. Everything else about it is a projection.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
     },
-    "verification_method": { "type": "string" },
-    "access": { "type": "string", "enum": ["READ", "READ_WRITE", "WRITE_ONLY", "UNKNOWN"] },
-    "write_authorized": { "type": "boolean" },
+    "freshness_minutes": {
+      "description": "How long an observation of this connector stays useful. A judgement about rate of change, not a guarantee. Past it the control plane reports STALE rather than presenting an old reading as current.",
+      "type": "integer",
+      "minimum": 1
+    },
     "lane_scope": {
       "type": "array",
-      "items": { "type": "string", "enum": ["LANE_A", "LANE_B", "PERSONAL", "PHILANTHROPIC", "UNCLASSIFIED"] }
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["LANE_A", "LANE_B", "PERSONAL", "PHILANTHROPIC", "UNCLASSIFIED"]
+      }
     },
-    "last_verified": { "type": "string", "format": "date-time" },
-    "notes": { "type": "string" }
+    "write_authorized": {
+      "description": "Whether the principal has authorized writes through this connector at all. Declarative: nothing in the kernel reads it to permit or refuse a write, and it is never blanket permission - a task still has to authorize the specific write. Per-connector verdicts and the actions each one may not take live in docs/CONNECTORS.md.",
+      "type": "boolean"
+    }
   }
 }

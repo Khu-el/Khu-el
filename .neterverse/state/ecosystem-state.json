@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-21T00:00:00Z",
+  "as_of": "2026-10-05T00:00:00Z",
   "recorded_by": "CLAUDE_CODE",
   "classification": "PUBLIC",
   "identifier_policy": "This repository is public. Record identifiers, workspace IDs, file IDs and record contents stay in their private systems of record.",
@@ -47,14 +47,16 @@
     {
       "name": "Khu-el/NTE-Command-Center",
       "visibility": "PRIVATE",
-      "observation": "Named and described as a command center. Not in this session's scope, so its contents are UNKNOWN.",
-      "significance": "Possible duplication with the control plane started here. Must be reviewed before any further control-plane surface is built."
+      "status": "ARCHIVED",
+      "observation": "Archived. Stated by the principal 2026-10-05 in response to a direct question about these two repositories. Contents were never readable from this session and remain unread.",
+      "significance": "Closes the duplicate-command-center question. An archived repository is not a competing control-plane surface, so the hold on building further control-plane surface is lifted. Its contents are still UNKNOWN - archived means inactive, not reviewed."
     },
     {
       "name": "Khu-el/StructureGen",
       "visibility": "PRIVATE",
-      "observation": "Also described as a command center. Contents UNKNOWN from this session.",
-      "significance": "Same duplication risk."
+      "status": "ARCHIVED",
+      "observation": "Archived. Same statement, same date.",
+      "significance": "Same. Not a competing surface; contents still unread."
     }
   ],
   "source_of_truth": {

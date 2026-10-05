@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-21T00:00:00Z",
+  "as_of": "2026-10-05T00:00:00Z",
   "classification": "PUBLIC",
   "note": "Project status only. Commercial and family-lane detail stays in its private system of record.",
   "entries": [
@@ -19,9 +19,16 @@
       "next_actions": [
         "Decide findings A to D in AUD-KHU-002: event-log tamper evidence, a bridge registry, what UNCLASSIFIED means at a lane boundary, and whether to extend the human-only action list",
         "Independent verification of the hardened kernel by a runtime that did not write it - tsk_0003 / ho_0002",
-        "Review the two private command-center repositories before building any further control-plane surface",
         "Decide whether the control plane belongs in a public repository or a private one",
         "Assign one owning automation engine per production trigger and write path"
+      ],
+      "closed_questions": [
+        {
+          "question": "Do the two private command-center repositories duplicate this control plane, and must they be reviewed before building further control-plane surface?",
+          "answer": "No. Both Khu-el/NTE-Command-Center and Khu-el/StructureGen are archived.",
+          "evidence": "Stated by the principal 2026-10-05, answering a direct question. An earlier attempt to attach them was refused by the permission classifier, so their contents were never read and remain UNKNOWN - archived means inactive, not reviewed.",
+          "effect": "Lifts the hold recorded in ADR-0001 conflict 1. The live command center is the in-repo nte-command-center/ project, which is a non-workspace project here rather than a separate surface."
+        }
       ]
     },
     {

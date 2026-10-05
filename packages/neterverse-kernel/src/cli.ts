@@ -52,7 +52,7 @@ function cmdStatus(root: string): number {
   const problems = validateAllRegistries(root);
   const leases = activeLeases(root);
   const { events, unreadableLines } = readEventsDetailed(root);
-  const connectors = loadRegistry<{ name: string; verification_state: string }>(root, 'connector-registry');
+  const connectors = loadRegistry<{ name: string; write_authorized: boolean }>(root, 'connector-registry');
 
   console.log(`bus root         ${root}`);
   const uncovered = unvalidatedStateFiles(root);
@@ -61,8 +61,12 @@ function cmdStatus(root: string): number {
   if (unreadableLines.length > 0) {
     console.log(`event log        DAMAGED - ${unreadableLines.length} unreadable line(s) at ${unreadableLines.join(', ')}`);
   }
-  console.log(`connectors       ${connectors.entries.length} registered, ` +
-    `${connectors.entries.filter((c) => c.verification_state === 'LIVE_VERIFIED').length} LIVE_VERIFIED`);
+  // Declaration facts only. This line used to print a LIVE_VERIFIED count read
+  // from a committed field, two lines above the computed freshness below it --
+  // a stale claim dressed as status. The registry knows what is declared; only
+  // observations know what answered.
+  console.log(`connectors       ${connectors.entries.length} declared, ` +
+    `${connectors.entries.filter((c) => c.write_authorized).length} with writes authorized`);
   console.log(`active leases    ${leases.length}`);
   console.log(`events           ${events.length}`);
 
