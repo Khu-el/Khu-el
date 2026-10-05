@@ -113,8 +113,8 @@ controlling standard — all six projects list the standards.
 
 ## 🧬 What this repo is
 
-A npm-workspaces monorepo: **four private planning tools + a relationship CRM + one shared backend**, plus the
-`Khu-el` GitHub profile README.
+A npm-workspaces monorepo: **four private planning tools + a relationship CRM + one shared backend**, a
+**member portal on its own Supabase backend** (ADR-0004), plus the `Khu-el` GitHub profile README.
 
 ```
 packages/governance-core/   Shared types + UI + API client (@nte/governance-core)
@@ -124,7 +124,8 @@ apps/capital-readiness/     Entity & offering-readiness diligence
 apps/notes-underwriting/    Distressed-debt / note underwriting
 apps/legacy-estate/         CCRLT / House of Ransom family estate (Lane B, shared workspace)
 apps/financial-services-crm/ The Excellence District Financial Services CRM (private per owner)
-server/                     Express + SQLite backend shared by all five
+apps/member-portal/         The Excellence District Member Portal — invite-only, Supabase, not server/
+server/                     Express + SQLite backend shared by the five above (not the portal)
 web/landing/                Static landing page published to GitHub Pages
 .neterverse/                Claude Code ↔ Codex collaboration bus — read its README first
 .neterverse/live/           Connector observations — gitignored, never committed
@@ -138,9 +139,9 @@ JWT + PDFKit (server).
 ```bash
 npm install                     # repo root — installs every workspace
 npm run dev:server              # backend on :4000
-npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:legacy-estate / dev:financial-services-crm
+npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:legacy-estate / dev:financial-services-crm / dev:member-portal
 npm run build                   # all apps + server
-npm run typecheck               # tsc sweep: five apps + server + kernel
+npm run typecheck               # tsc sweep: six apps + server + kernel
 npm test                        # every workspace suite (test:kernel / test:server / test:apps run a subset)
 npm run check:query-token       # ?token= stays limited to the file-download route
 npm run check:live              # the live Pages site serves every app and the assets it names
@@ -168,7 +169,7 @@ these checks are new *as enforcement*, not new as expectations.
 
 ⚠️ `npm run typecheck` used to end in `2>/dev/null || true` and therefore **could not
 fail** — it reported success on genuine type errors. That is fixed; if you are working
-from a memory of it passing, re-run it. The sweep covers the five apps, `server/` and
+from a memory of it passing, re-run it. The sweep covers the six apps, `server/` and
 `packages/neterverse-kernel`; `governance-core` has no `tsconfig.json` of its own and is
 checked transitively through the apps that import its source.
 
@@ -176,14 +177,15 @@ checked transitively through the apps that import its source.
 
 | Workspace | Test runner |
 |---|---|
-| `packages/neterverse-kernel` | ✅ `node --test` — 98 tests, `npm run test:kernel` |
+| `packages/neterverse-kernel` | ✅ `node --test` — 99 tests, `npm run test:kernel` |
 | `server/` | ✅ `node --test` — 81 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule and CRM follow-up items, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
 | `apps/financial-services-crm` | ✅ `node --test` — 53 tests over `crm.ts` (consent gate, duplicates, follow-up dates, ratios) and the importer (xlsx/csv reading, upsert rules), also in `npm run test:apps` |
+| `apps/member-portal` | ✅ `node --test` — 35 tests over `src/logic` and `src/config.ts` (pathway matching, plan dates, idempotency keys, progress — including which record counts when a lesson moves track or is re-created — invite-code rules, error mapping, lesson-body parsing, URL safety, routes and the sign-in-link guard), also in `npm run test:apps`. **Its SQL — RLS, the invite trigger, the hardening migration — has never been executed anywhere** |
 | `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
 | `apps/legacy-estate` | ❌ none configured |
 
-`npm test` at the root runs every workspace that has a suite — 349 tests. **What is still
+`npm test` at the root runs every workspace that has a suite — 385 tests. **What is still
 untested is the UI**: components, tabs and stores have no coverage at all, and
 `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
 `governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,
@@ -243,11 +245,21 @@ here:
   because `INVITE_CODE` is the *shareable* credential — it is printed to the logs on first
   boot — while a `SYSTEM_ADMIN` reads and deletes every user's records in every app, across
   both lanes. Do not add a role field to a client form or an API promotion route.
+- **🏛️ The member portal is a separate system** (ADR-0004). It talks to its own Supabase
+  project under row-level security and never to `server/`; no planning app or the CRM reads
+  Supabase. A member is never a CRM contact by being a member — a bridge records a reference,
+  never a merge. Its sign-up is invite-only at the database (a `BEFORE INSERT` trigger on
+  `auth.users` checks a hashed, single-use, per-email code), its staff roles come only from SQL
+  the principal runs, and it sends nothing — no recipient field, no mail, no push. **Its schema
+  changes are migrations in `apps/member-portal/supabase/migrations/` that the principal applies;
+  a session does not run DDL against that project.** Its project URL and key reach the build as
+  repository Variables and never appear in committed files.
 - **⛔️ Scoped-out by design:** features that would turn Capital Readiness into an
   investor-solicitation tool or Notes Underwriting into a debt-collection tool, or that would
   let the Financial Services CRM call, text, email or create tasks for a contact, or hold
   regulated client data (SSNs, account/policy numbers, underwriting detail). Each app has its
-  own "do not build" list — read it before adding features there.
+  own "do not build" list — read it before adding features there. The member portal's is in
+  `apps/member-portal/README.md`: no sending, no payments, no self-service roles, no uninvited sign-up.
 - **📇 No contact data in this repo.** The CRM's contacts are real people. They are imported by
   the signed-in owner through the app, stored on the backend under their account and cached in that
   browser's account-scoped `localStorage`; test fixtures are synthetic. Never commit a workbook, CSV export, or seed file with real names or numbers.

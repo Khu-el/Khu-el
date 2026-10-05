@@ -53,9 +53,24 @@ that the portfolio "agrees with the master registry" would be fabricated.
 |---|---|
 | **Source A** | `nte-command-center/` on `main` — 11 modules, **merged 2026-09-21 via PR [#4](https://github.com/Khu-el/Khu-el/pull/4)** |
 | **Source B** | `Khu-el/NTE-Command-Center`, a separate private repository, last pushed 2026-08-13 |
-| **Conflict** | Two artifacts carry the same name. Whether they are one system in two places, two generations, or unrelated is **⚪ UNKNOWN** — Source B has never been opened. |
-| **Which controls** | ✅ **Source A, by decision now rather than by default.** Source B was opened 2026-09-18 and is an older generation — see the update below. |
-| **Human resolution required** | 🟡 **Reduced to one action: archive Source B.** |
+| **Conflict** | ✅ **Resolved — unrelated codebases, not two generations of one system.** Verified twice independently (2026-09-18/10-02 and again 2026-10-04): zero shared source files, different major React versions, different build tooling, different architecture. |
+| **Which controls** | ✅ **Source A.** Source B is superseded and now archived — see the updates below. |
+| **Human resolution required** | ❌ No — **closed 2026-10-04.** |
+
+> ### ✅ Update 2026-10-04 — Source B is now archived; SC-03 is closed
+>
+> `gh api repos/Khu-el/NTE-Command-Center` and `gh api repos/Khu-el/StructureGen` both return
+> `"archived": true`, confirmed this session. This session also independently re-derived the
+> comparison (file-tree and `package.json` diff against `nte-command-center/` on `main`) before
+> checking archive status, and reached the same conclusion: unrelated codebases, not two
+> generations of one system.
+>
+> **The README supersession line specified in the 2026-10-02 action was checked, not skipped, and
+> is absent from both repos** (`gh api .../contents/README.md`, this session) — and can't be added
+> now without unarchiving first, since GitHub refuses writes to an archived repository. That's a
+> further §10 account action if it's still wanted; it does not reopen SC-03, since GitHub's own
+> archived-repository banner already marks both as stale to any reader who finds them. Full
+> reasoning in `HUMAN_ACTION_REQUIRED.md` item 10.
 
 > ### ✅ Update 2026-10-02 — Source B has now been opened
 >

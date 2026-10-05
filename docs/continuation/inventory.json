@@ -10,6 +10,7 @@
     "dev:deal-architect",
     "dev:financial-services-crm",
     "dev:legacy-estate",
+    "dev:member-portal",
     "dev:notes-underwriting",
     "dev:server",
     "inventory",
@@ -21,6 +22,7 @@
     "test:apps",
     "test:kernel",
     "test:server",
+    "test:watch",
     "typecheck"
   ],
   "workspaces": [
@@ -93,6 +95,27 @@
       "test_runner": null,
       "test_files": [],
       "dependency_count": 3
+    },
+    {
+      "path": "apps/member-portal",
+      "name": "nte-member-portal",
+      "private": true,
+      "scripts": [
+        "build",
+        "dev",
+        "preview",
+        "test"
+      ],
+      "has_typecheck": true,
+      "has_build": true,
+      "test_runner": "node --test",
+      "test_files": [
+        "ids.test.ts",
+        "logic.test.ts",
+        "progress.test.ts",
+        "routes.test.ts"
+      ],
+      "dependency_count": 4
     },
     {
       "path": "apps/notes-underwriting",
@@ -217,9 +240,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-03T14:24:56.206Z",
-  "branch": "claude/pr-23-build-cancellation-review-pw904h",
-  "commit": "71adee134095d036ae1b9c33d1331e53f2f4e0b4",
+  "generated_at": "2026-10-04T15:53:29.452Z",
+  "branch": "claude/excellence-district-portal",
+  "commit": "f8a251ee726f6196baae3fd36e4160385e60af3d",
   "working_tree_clean": false,
-  "tracked_file_count": 349
+  "tracked_file_count": 411
 }

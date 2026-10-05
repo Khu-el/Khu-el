@@ -53,7 +53,7 @@ Added 2026-10-02 after a live probe found both connected and neither listed here
 
 | Connector | Serves | Verdict | Notes |
 |---|---|---|---|
-| Supabase | The orchestration job runner (ADR-0003) | 🟡 | **The one durable store for orchestrated jobs.** Writes only through the runner's `jr_*` functions — never raw table writes, never ad-hoc DDL. `jr_decide_approval` runs only on the principal's own words in a live session; no Routine calls it. Project identifiers stay out of this repo. Two temporary test edge functions that ran without JWT verification were deleted 2026-10-02/03 (ADR-0003). A second project, "Excellence District Production", is active and its purpose is ⚪ UNKNOWN. |
+| Supabase | The orchestration job runner (ADR-0003) | 🟡 | **The one durable store for orchestrated jobs.** Writes only through the runner's `jr_*` functions — never raw table writes, never ad-hoc DDL. `jr_decide_approval` runs only on the principal's own words in a live session; no Routine calls it. Project identifiers stay out of this repo. Two temporary test edge functions that ran without JWT verification were deleted 2026-10-02/03 (ADR-0003). A second project, "The Excellence District Production", is the member portal's backend (ADR-0004): the portal's own browser client talks to it under row-level security; this connector may read it, and **schema changes there are migrations from `apps/member-portal/supabase/migrations/` that the principal applies** — not ad-hoc DDL from a session. |
 | Linear | Nothing yet | 🟡 | Connected with one team; no task uses it. A third tracker beside ClickUp and `docs/scheduled-tasks/` — SPEC v2's SEARCH → READ → REUSE → UPDATE says pick one before routing anything here. |
 
 ### Documents, research, and visuals
