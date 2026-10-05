@@ -143,10 +143,12 @@
       "scripts": [
         "test"
       ],
-      "has_typecheck": false,
+      "has_typecheck": true,
       "has_build": false,
       "test_runner": "node --test",
       "test_files": [
+        "Badges.test.ts",
+        "Gates.test.ts",
         "cacheKey.test.ts",
         "numbers.test.ts",
         "pendingSync.test.ts",
@@ -239,9 +241,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-05T05:42:52.007Z",
-  "branch": "claude/new-session-8vsvgq",
-  "commit": "f802f8acffe13a5edac2185f4be65b965272aa0f",
-  "working_tree_clean": true,
+  "generated_at": "2026-10-05T11:59:03.552Z",
+  "branch": "claude/github-projects-setup-nvoy50",
+  "commit": "d151d667d546d70f18d848fed8cb436fce2d42ad",
+  "working_tree_clean": false,
   "tracked_file_count": 425
 }

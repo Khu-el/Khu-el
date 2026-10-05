@@ -182,14 +182,32 @@ checked transitively through the apps that import its source.
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
 | `apps/financial-services-crm` | ✅ `node --test` — 53 tests over `crm.ts` (consent gate, duplicates, follow-up dates, ratios) and the importer (xlsx/csv reading, upsert rules), also in `npm run test:apps` |
 | `apps/member-portal` | ✅ `node --test` — 35 tests over `src/logic` and `src/config.ts` (pathway matching, plan dates, idempotency keys, progress — including which record counts when a lesson moves track or is re-created — invite-code rules, error mapping, lesson-body parsing, URL safety, routes and the sign-in-link guard), also in `npm run test:apps`. **Its SQL — RLS, the invite trigger, the hardening migration — has never been executed anywhere** |
-| `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
-| `apps/legacy-estate` | ❌ none configured |
+| `packages/governance-core` | ✅ `node --test` — 90 tests: the cache-key, staleness, pending-sync and number-field helpers, plus `Badges.tsx` and `Gates.tsx` rendered with `react-dom/server`'s `renderToStaticMarkup` (see below) |
+| `apps/legacy-estate` | ✅ `vitest run src/store.test.ts` — 1 test, over the store only; no calculators and no components |
 
-`npm test` at the root runs every workspace that has a suite — 385 tests. **What is still
-untested is the UI**: components, tabs and stores have no coverage at all, and
-`apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
-`governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,
-which remain uncovered along with every other component in the repo.
+`npm test` at the root runs every workspace that has a suite — 420 tests. **What is still
+mostly untested is the UI**: tabs and stores still have no coverage anywhere, and
+`apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only.
+`governance-core`'s components are now **partially** covered — `Badges.tsx` (every
+`AssertionStatus`/`Lane`/`ReconciliationStatus` renders a real label, and only
+`EXTERNALLY_VERIFIED` gets the verified/green styling) and `Gates.tsx` (the
+`NoAutonomousExecutionBanner` text and `ProfessionalReviewGate` content can't silently
+render empty) — but `AttachmentsPanel`, `AuthGate`, `DecisionMemo`, `SyncStatus` and `Ui.tsx`
+are not, and no component in any of the five apps has a test.
+
+**How the `Badges`/`Gates` tests load `.tsx` without a bundler or jsdom.** Node's native
+type-stripping loader (what every other `node --test` suite in this repo relies on) refuses
+`.tsx` outright — `ERR_UNKNOWN_FILE_EXTENSION`, not a flag away. `governance-core`'s `test`
+script now runs as `node --import tsx/esm --test …`: the `tsx` package (a devDependency,
+unrelated to the `.tsx` extension despite the name) registers a loader that transforms `.ts`
+*and* `.tsx` on the fly. `packages/governance-core/tsconfig.json` — previously absent — exists
+now specifically so that loader picks `"jsx": "react-jsx"` (the automatic runtime, matching
+every app's Vite config) instead of defaulting to the classic runtime, which would fail with
+`React is not defined` since no component file imports `React` itself. The tests then render
+with `react-dom/server`'s `renderToStaticMarkup` and assert on the HTML string — no jsdom, no
+DOM APIs, nothing beyond what was already a dependency of every app. The same `--import tsx/esm`
+approach is available to any other workspace that wants to test a `.tsx` file under `node --test`
+rather than adopting vitest.
 
 **No linter is configured anywhere in this repo.** In a workspace with no runner, do not
 claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran.

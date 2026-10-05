@@ -9,6 +9,11 @@
     "react": "^18.3.1"
   },
   "scripts": {
-    "test": "node --test 'test/*.test.ts'"
+    "test": "node --import tsx/esm --test 'test/*.test.ts'"
+  },
+  "devDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsx": "^4.23.15"
   }
 }
