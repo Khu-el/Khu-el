@@ -37,6 +37,11 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # workflow_dispatch can target any branch, and the push trigger's branch
+    # filter above does not apply to it -- without this guard, manually
+    # running the workflow from a feature branch would check out and deploy
+    # that branch's code to the one production app.
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v7
 
@@ -73,7 +78,7 @@ jobs:
         run: |
           set -euo pipefail
           for i in $(seq 1 10); do
-            if curl -fsS https://excellencedistrict-api.fly.dev/api/health; then
+            if curl --max-time 10 -fsS https://excellencedistrict-api.fly.dev/api/health; then
               echo
               echo "excellencedistrict-api is healthy."
               exit 0
