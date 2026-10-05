@@ -67,7 +67,7 @@ canonical; the bulletin reports against them and never restates or amends them.
 | Source prompt (authority for format) | migration kit, `tasks/source_snapshots/s_08_house_of_ransom_bulletin.md` | read |
 | Cowork-ready prompt | migration kit, `tasks/cowork_ready/s_08_house_of_ransom_bulletin.md` | read |
 | House of Ransom Constitution · Covenant Binder · Family Vision Statement | Lane B project context | read |
-| Family action ledger | Lane B project context | both — one row per closed item |
+| Family action ledger | Lane B project context | read — the bulletin proposes rows; a human records them after Council |
 | Phase XII exception register (PX-/PXI-/PXII- series) | House of Ransom phase workbook | read |
 | This definition's Run Log | this file | both — updated by a human or a repo-connected session |
 
@@ -201,9 +201,11 @@ touches them rather than resolved in it:
 
 **Prohibited:**
 - Publishing, sending or serving anything, or filing or recording anything with any external
-  registry, court, agency or provider. This bars **external** record-making only: the internal
-  family action ledger write that STATE UPDATE requires is expressly permitted, and is the one
-  record this task may write.
+  registry, court, agency or provider.
+- **Changing any authoritative record, internal or external** — the family action ledger included.
+  Per STATE UPDATE the run proposes closures and new actions in the draft bulletin, and a human
+  records Council-approved changes afterwards. The only thing this task writes is its own Run Log
+  row.
 - Signing, contracting, transacting, or representing the principal externally
 - Moving, retitling or committing any asset, or implying one has moved
 - Blending Lane A into this bulletin in any form
