@@ -88,11 +88,12 @@
       "scripts": [
         "build",
         "dev",
-        "preview"
+        "preview",
+        "test"
       ],
       "has_typecheck": true,
       "has_build": true,
-      "test_runner": null,
+      "test_runner": "node --test",
       "test_files": [],
       "dependency_count": 3
     },
@@ -204,9 +205,7 @@
       "dependency_count": 7
     }
   ],
-  "untested_workspaces": [
-    "apps/legacy-estate"
-  ],
+  "untested_workspaces": [],
   "non_workspace_projects": [
     {
       "path": "nte-command-center",
@@ -240,9 +239,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-04T15:53:29.452Z",
-  "branch": "claude/excellence-district-portal",
-  "commit": "f8a251ee726f6196baae3fd36e4160385e60af3d",
+  "generated_at": "2026-10-05T00:50:12.086Z",
+  "branch": "main",
+  "commit": "1d4a68233b2c69a44567b1e274dd444cdc1390c9",
   "working_tree_clean": false,
-  "tracked_file_count": 411
+  "tracked_file_count": 425
 }
