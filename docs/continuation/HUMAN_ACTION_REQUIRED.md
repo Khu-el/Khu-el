@@ -124,7 +124,28 @@ honestly.** See `SOURCE_CONFLICTS.md` SC-02.
 
 ---
 
-## 5. Set `BOOTSTRAP_ADMIN_EMAIL` before deploying the backend
+## 5. ~~Set `BOOTSTRAP_ADMIN_EMAIL` before deploying the backend~~ — staged 2026-10-05, pending verification
+
+> **Update 2026-10-05.** The backend app (`excellencedistrict-api`, region `iad`) and its `nte_data`
+> volume are created, and `BOOTSTRAP_ADMIN_EMAIL=khuel@excellencedistrict.org` is staged alongside
+> `JWT_SECRET`, `INVITE_CODE`, and `CORS_ORIGINS` — via a scoped Fly deploy token provided directly
+> to the session for this purpose, per `docs/EXECUTIVE_OS.md` §10 (a human-approved credential for
+> one exact action, not a standing grant). `fly.toml`'s placeholder app name is corrected in this
+> same PR.
+>
+> **This is "staged," not "verified."** `fly secrets set --stage` holds the values for the next
+> deploy; the **Verify** row below — `GET /api/auth/me` returning `SYSTEM_ADMIN` for that address —
+> has not run yet, because a deploy was in flight when this section was corrected. Do not read this
+> update as item 5 closed; re-run the verify step once `fly deploy` completes.
+>
+> **Item 6 below is not closed by this.** DNS, the GitHub Pages custom domain, and
+> `VITE_API_BASE_URL` remain outstanding, and two of those three are confirmed unreachable from any
+> session through this account's current GitHub proxy (a direct 403 on `repos/Khu-el/Khu-el/pages`
+> and `repos/Khu-el/Khu-el/actions/variables`, including a plain `GET`) — not merely untried.
+>
+> The original record follows, unchanged.
+
+### Original record
 
 | | |
 |---|---|
