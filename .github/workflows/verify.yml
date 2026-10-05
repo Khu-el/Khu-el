@@ -97,6 +97,16 @@ jobs:
       - name: Workspace inventory is not stale
         run: npm run inventory:check
 
+      # The connector registry is generated from the kernel's declarations. It
+      # used to be hand-maintained beside them, and the two had already
+      # disagreed about which connectors may be written to -- the registry
+      # asserted a Notion write authorization that nothing recorded. This also
+      # fails when a connector the control plane observes has no row in
+      # docs/CONNECTORS.md, so a new one cannot land without a human-readable
+      # verdict beside it.
+      - name: Connector registry matches the kernel declarations
+        run: npm run connectors:check
+
       # Two boundaries from CLAUDE.md that are mechanical, and whose violation
       # would be both costly and easy to miss in a diff.
       - name: Live control-plane state is not committed

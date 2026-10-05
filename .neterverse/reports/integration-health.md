@@ -48,7 +48,11 @@ exists and is on HOLD — no gate detail, product name or identifier.
 **⚔️ Competing architecture documents.** Several February 2026 governance
 documents overlap with no supersession marking. Which controls is ❓ UNKNOWN.
 
-**🔁 Possible duplicate command centers.** Two private repositories in the account
-are named or described as a command center. Neither is readable from this
-session. Review them before building any further control-plane surface. Both
-findings are recorded in ADR-0001.
+**✅ Duplicate command centers — closed 2026-10-05.** The two private repositories
+named or described as a command center are both archived, stated by the principal
+when asked directly. An archived repository is not a competing surface, so the
+hold on building further control-plane surface is lifted. Their contents were
+never readable from any session here and remain ❓ UNKNOWN — archived means
+inactive, not reviewed. The live command center is the in-repo
+`nte-command-center/` project. The competing-architecture finding above is still
+open; both are recorded in ADR-0001.

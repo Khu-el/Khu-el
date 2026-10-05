@@ -15,6 +15,37 @@ authorization and nothing here is wired to it.
 
 ---
 
+## 🔗 What this file owns, and what the kernel owns
+
+The same connector facts used to be written down in three places. Two of them had already
+drifted: this file and the committed registry both recorded the principal authorizing Drive
+writes on 2026-10-03, while the kernel still said `false`; and the registry asserted a **Notion**
+write authorization that no record anywhere supports. Fixed on 2026-10-05 by giving each kind of
+fact one home.
+
+| Where | Owns | Changed by |
+|---|---|---|
+| `packages/neterverse-kernel/src/connectors.ts` | The machine fields: id, name, role, what it is system of record for, freshness budget, lane scope, whether writes are authorized at all | Editing that file |
+| `.neterverse/state/connector-registry.json` | Nothing. **Generated** from the declarations | `npm run connectors` — never by hand |
+| **This file** | The verdict (✅ / 🟡 / ⛔️), what each connector may *not* do, the boundary prose, the ungoverned-infrastructure gap, skills and artifacts | Editing this file |
+
+`npm run connectors:check` runs in CI and fails on two things: a registry that no longer matches
+the declarations, and a connector the control plane observes that has **no row in this file**. A
+new connector therefore cannot land without a human-readable verdict beside it.
+
+**🚩 This file is deliberately broader than the kernel's eight declarations.** Most rows below —
+Cloudflare, Firecrawl, Zapier, Canva and the rest — are reachable by a session but never *observed*
+by the control plane, so they have no freshness budget and no declaration. That asymmetry is the
+design, not an omission, and the check only runs in the one direction.
+
+**And nothing here records whether a connector currently works.** There is no longer any field for
+a stored verification date; one existed, every entry claimed `LIVE_VERIFIED`, and `bus status`
+printed that claim weeks after it stopped being true. Ask `npm run bus -- connectors`, which
+computes freshness from live observations against each budget — and reports a connector as stale
+rather than presenting an old reading as current.
+
+---
+
 ## ⚠️ Read this before adding anything
 
 A connector listed here is available **to an agent session working in this account**. None of them

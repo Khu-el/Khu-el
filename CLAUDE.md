@@ -50,7 +50,7 @@ them elsewhere (§4):
 | File | Governs | Read before |
 |---|---|---|
 | `docs/DOMAIN_NETWORK.md` | Which hostname serves which property, across all three repos | Any DNS, hosting, deploy-target, or custom-domain change |
-| `docs/CONNECTORS.md` | Every connector, tool, and plugin, and what each may not do | Wiring up any integration, MCP connector, or automation |
+| `docs/CONNECTORS.md` | Every connector, tool, and plugin, and what each may not do — the **verdicts and boundaries**. The machine fields (freshness budget, lane scope, write authorization) are declared once in `packages/neterverse-kernel/src/connectors.ts` and *generated* into `.neterverse/state/connector-registry.json`; never hand-edit that file | Wiring up any integration, MCP connector, or automation |
 | `docs/claude-projects/REGISTRY.md` | Every Claude Project, its capacity, its lane, and what is loaded into it | Creating a Claude Project, or adding a source to an existing one |
 | `docs/continuation/` | Point-in-time audit: verified state, source conflicts, blockers, security findings | Picking up portfolio-wide work, or wondering what was already checked |
 
@@ -154,6 +154,8 @@ npm run projects:build          # assemble the project knowledge bundles
 npm run tasks                   # scheduled-task definitions match REGISTRY.md
 npm run inventory               # regenerate docs/continuation/inventory.json
 npm run inventory:check         # ...and fail if the committed copy has drifted
+npm run connectors              # regenerate .neterverse/state/connector-registry.json
+npm run connectors:check        # ...and fail if it drifted, or a connector has no CONNECTORS.md row
 ```
 
 Per-app `npm run build` runs `tsc -b --noEmit && vite build` — **type errors fail the
@@ -161,9 +163,9 @@ build**, so run a build (or `typecheck`) before pushing.
 
 **These are also what CI runs.** `.github/workflows/verify.yml` runs `npm test`,
 `npm run typecheck`, `npm run build`, `bus validate` and `bus audit` on every pull
-request, plus `check:query-token`, `npm run projects`, `npm run tasks` and
-`npm run inventory:check`, and two boundary checks that need no script: no tracked files
-under `.neterverse/live/`, and no committed `CNAME`. Steps are separate so a red run names
+request, plus `check:query-token`, `npm run projects`, `npm run tasks`,
+`npm run inventory:check` and `npm run connectors:check`, and two boundary checks that need
+no script: no tracked files under `.neterverse/live/`, and no committed `CNAME`. Steps are separate so a red run names
 which guarantee broke. Nothing ran on a pull request before this workflow existed, so
 these checks are new *as enforcement*, not new as expectations.
 
@@ -177,17 +179,21 @@ checked transitively through the apps that import its source.
 
 | Workspace | Test runner |
 |---|---|
-| `packages/neterverse-kernel` | ✅ `node --test` — 99 tests, `npm run test:kernel` |
+| `packages/neterverse-kernel` | ✅ `node --test` — 102 tests, `npm run test:kernel` |
 | `server/` | ✅ `node --test` — 81 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule and CRM follow-up items, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
 | `apps/financial-services-crm` | ✅ `node --test` — 53 tests over `crm.ts` (consent gate, duplicates, follow-up dates, ratios) and the importer (xlsx/csv reading, upsert rules), also in `npm run test:apps` |
 | `apps/member-portal` | ✅ `node --test` — 35 tests over `src/logic` and `src/config.ts` (pathway matching, plan dates, idempotency keys, progress — including which record counts when a lesson moves track or is re-created — invite-code rules, error mapping, lesson-body parsing, URL safety, routes and the sign-in-link guard), also in `npm run test:apps`. **Its SQL — RLS, the invite trigger, the hardening migration — has never been executed anywhere** |
 | `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
-| `apps/legacy-estate` | ❌ none configured |
+| `apps/legacy-estate` | ✅ `vitest` — 1 test over `createEstate` in `src/store.test.ts`. The only workspace on vitest rather than `node --test`; root `vitest.config.ts` collects `src/**/*.test.ts` across the workspaces |
 
-`npm test` at the root runs every workspace that has a suite — 385 tests. **What is still
-untested is the UI**: components, tabs and stores have no coverage at all, and
-`apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only, and
+`npm test` at the root runs every workspace that has a suite — **388 under `node --test` plus
+1 under vitest**. Two runners now coexist: everything below except `legacy-estate` runs on
+`node --test` with type stripping and no bundler, and `legacy-estate` runs on vitest, which is a
+root devDependency. A workspace that adds a vitest suite needs no new config; one that adds a
+`node --test` suite needs its own `test` script.
+
+**What is still untested is the UI**: components, tabs and stores have no coverage at all. The app suites cover `finance.ts` only, and
 `governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,
 which remain uncovered along with every other component in the repo.
 
