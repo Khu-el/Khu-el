@@ -1,0 +1,85 @@
+name: Deploy backend to Fly.io
+
+# flyctl's default build path hands the Dockerfile to Fly's own remote
+# "depot" builder over a gRPC/HTTP2 connection. That is a known-unsupported
+# protocol class for a TLS-terminating proxy (see the Claude Code sandbox's
+# own /root/.ccr/README.md: "gRPC / HTTP/2-only APIs ... report, do not work
+# around"), and a Claude Code web/cloud session has no local Docker daemon to
+# fall back to with --local-only either. A GitHub-hosted runner sits behind
+# neither restriction, so the build and deploy run here instead.
+#
+# Deliberately NOT triggered on pull_request: this ships a real deploy to the
+# one production backend, and nothing in this repository runs an external
+# action without a human already having triggered it (see CLAUDE.md's "no
+# automatic sends" boundary, which this mirrors even though it governs
+# something else).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'fly.toml'
+      - '.github/workflows/fly-deploy.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+# A deploy that's already running should finish rather than be cancelled
+# mid-flight -- deploy-pages.yml took the same lesson from the #19 incident,
+# where a shared cancel-in-progress group killed a live deploy. A second push
+# queues behind the first instead.
+concurrency:
+  group: fly-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Fails the run with an actionable message instead of a cryptic
+      # flyctl auth error when the secret hasn't been added yet. See
+      # docs/continuation/HUMAN_ACTION_REQUIRED.md #6.
+      - name: Confirm FLY_API_TOKEN is set
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${FLY_API_TOKEN:-}" ]; then
+            echo "::error::FLY_API_TOKEN repository secret is not set. Add it under Settings -> Secrets and variables -> Actions -> Secrets (a scoped deploy token from 'fly tokens create deploy -a excellencedistrict-api'), then re-run this workflow."
+            exit 1
+          fi
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  # A deploy job reporting success is not evidence the app is actually
+  # answering requests -- the GitHub Pages workflow learned this the hard way
+  # (see deploy-pages.yml's live-check job and HUMAN_ACTION_REQUIRED.md #5's
+  # "staged" vs "verified" distinction). Retries cover the short window while
+  # the new machine finishes booting.
+  health-check:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for /api/health
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 10); do
+            if curl -fsS https://excellencedistrict-api.fly.dev/api/health; then
+              echo
+              echo "excellencedistrict-api is healthy."
+              exit 0
+            fi
+            echo "Not yet healthy, retrying in 10s ($i/10)..."
+            sleep 10
+          done
+          echo "::error::excellencedistrict-api did not report healthy after deploy."
+          exit 1

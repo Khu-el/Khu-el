@@ -143,6 +143,31 @@ honestly.** See `SOURCE_CONFLICTS.md` SC-02.
 > session through this account's current GitHub proxy (a direct 403 on `repos/Khu-el/Khu-el/pages`
 > and `repos/Khu-el/Khu-el/actions/variables`, including a plain `GET`) — not merely untried.
 >
+> **Update 2026-10-05 (second).** `fly deploy` from that same sandboxed session then failed —
+> `error building: ... failed to list workers: Unavailable: connection error: desc = "transport:
+> authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by
+> unknown authority"`. **Not a secrets or config problem** — the app, volume, and staged secrets
+> above are unaffected. Fly's default remote "depot" builder speaks gRPC/HTTP2, which this class of
+> sandboxed session's egress proxy explicitly does not support (confirmed against the proxy's own
+> `/root/.ccr/README.md` and its status endpoint: no CA gap, no relay failure recorded — so it is
+> not a fixable trust-store issue, it is an unsupported protocol class), and no local Docker daemon
+> is available there for `--local-only` either.
+>
+> **Fix, same PR:** `.github/workflows/fly-deploy.yml` builds and deploys from a GitHub-hosted
+> runner instead, which sits behind neither restriction — Fly's own documented CI/CD recipe
+> (`setup-flyctl` + `flyctl deploy --remote-only`), triggered on push to `main` touching
+> `server/**` or `fly.toml`, plus `workflow_dispatch` for a manual re-run. A `health-check` job
+> curls `/api/health` afterward, on the same "a green deploy job is not evidence it works"
+> reasoning as `deploy-pages.yml`'s `live-check`.
+>
+> **New outstanding step, added to item 6:** that workflow needs a `FLY_API_TOKEN` repository
+> secret, and no session can set one — `repos/Khu-el/Khu-el/actions/secrets/public-key` returns the
+> same 403 as the two paths above, confirmed by a direct probe. Add it under Settings → Secrets and
+> variables → Actions → Secrets (a scoped deploy token from `fly tokens create deploy -a
+> excellencedistrict-api`, or reuse the one already shared with this session if its TTL still
+> covers it), then either push a `server/` or `fly.toml` change to `main` or run the workflow via
+> `workflow_dispatch`. Re-run the Verify row below once that deploy's `health-check` job is green.
+>
 > The original record follows, unchanged.
 
 ### Original record
@@ -184,12 +209,17 @@ register as an admin and read and delete every user's records. See `SECURITY_FIN
 
 ## 6. Deploying the backend and attaching the domains
 
+> **Update 2026-10-05.** The app, volume and secrets are created (item 5), and
+> `.github/workflows/fly-deploy.yml` can now build and deploy from CI once a `FLY_API_TOKEN`
+> repository secret exists — no session can add that secret itself (see item 5's second update).
+> DNS and the GitHub Pages custom domain remain untouched below.
+
 | | |
 |---|---|
-| **Exact blocker** | No Fly.io (or other host) credential is available to this session, and no DNS provider access. The `apps.` and `api.` records do not exist. |
-| **Exact action** | The ordered walkthrough is already written — **follow `docs/DOMAIN_NETWORK.md`**, which has the record rows, the order, and the warning about leaving the Squarespace apex and Google Workspace MX alone. |
+| **Exact blocker** | No session can add a `FLY_API_TOKEN` repository secret (confirmed 403, same proxy block as the GitHub Pages and Actions-variables paths below) or reach a DNS provider. The `apps.` and `api.` records do not exist. |
+| **Exact action** | Add `FLY_API_TOKEN` under Settings → Secrets and variables → Actions → Secrets, then run `.github/workflows/fly-deploy.yml` (push touching `server/**`/`fly.toml`, or `workflow_dispatch`). Separately, the DNS walkthrough is already written — **follow `docs/DOMAIN_NETWORK.md`**, which has the record rows, the order, and the warning about leaving the Squarespace apex and Google Workspace MX alone. |
 | **Afterwards** | `apps.excellencedistrict.org` and `api.excellencedistrict.org` resolve; `CORS_ORIGINS` then needs the real app origin. |
-| **Verify** | `https://api.excellencedistrict.org/api/health` returns `{"ok":true,…}`, and the apps load over HTTPS from the `apps.` host. |
+| **Verify** | `https://api.excellencedistrict.org/api/health` returns `{"ok":true,…}`, and the apps load over HTTPS from the `apps.` host. Until DNS is attached, `https://excellencedistrict-api.fly.dev/api/health` is the same check against the Fly-assigned hostname. |
 
 ---
 
