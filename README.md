@@ -20,7 +20,7 @@ checklists, and draft decision memos — instead of hype.
 
 ## Why these apps look the way they do
 
-The source material for this build (real-estate/wealth "blueprint" decks, plus an NTE/CCRLT
+The source material for this build (real-estate/wealth "blueprint" decks, plus a two-lane
 governance model) mixes genuinely useful structure with overstated or legally contingent claims
 ("infinite ROI," guaranteed outcomes, sovereign/private-law framing). These apps deliberately
 translate that into:
@@ -47,8 +47,8 @@ packages/governance-core/   Shared types + UI + API client: Lane, AssertionStatu
 apps/deal-architect/        App 1 — Real estate deal intelligence
 apps/capital-readiness/     App 2 — Entity & offering-readiness diligence
 apps/notes-underwriting/    App 3 — Distressed-debt / note underwriting analysis
-apps/legacy-estate/         App 4 — CCRLT / House of Ransom family estate coordination (Lane B)
-apps/financial-services-crm/ App 5 — The Excellence District Financial Services CRM
+apps/legacy-estate/         App 4 — Family Workspace: shared family estate coordination (Lane B)
+apps/financial-services-crm/ App 5 — Relationship CRM (private per owner)
 apps/member-portal/         The Excellence District Member Portal — invite-only, on Supabase,
                              not on server/ (see its README and ADR-0004)
 
@@ -218,10 +218,10 @@ Pages actually being enabled on the repository first.
 is safe to hand out without opening the shared Legacy & Estate workspace to strangers — share the
 code only with people who should actually see family records.
 
-## The Excellence District Financial Services CRM
+## Relationship CRM
 
-`apps/financial-services-crm` is the operating system from *The Excellence District Financial
-Services CRM* workbook, rebuilt as an app on the shared backend. Every sheet has a home: the
+`apps/financial-services-crm` is the operating system from the relationship CRM
+workbook, rebuilt as an app on the shared backend. Every sheet has a home: the
 Contact Master, Activity Log, Appointment Pipeline, Recruiting Funnel, Licensing Tracker, Field
 Training, Referral Engine and Weekly Scoreboard are tabs; the Dashboard and CRM Command Center are
 one **Command Center**; the Scripts Library, Objection Matrix, Compliance Notes and Data Dictionary

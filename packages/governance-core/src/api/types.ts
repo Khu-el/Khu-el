@@ -24,7 +24,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   NTE_SYSTEMS_OPERATOR: 'NTE Systems Operator',
   NTE_VIRTUAL_OPERATOR: 'NTE Virtual Solutions Operator',
   NTE_TREASURY_OPERATOR: 'NTE Treasury Operator',
-  HOUSE_TRUSTEE_OFFICE: 'House Trustee Office (House of Ransom)',
+  HOUSE_TRUSTEE_OFFICE: 'House Trustee Office',
   HOUSE_AUTHORIZED_REP: 'House Authorized Representative',
   FAMILY_COUNCIL_MEMBER: 'Family Council Member',
   PROFESSIONAL_REVIEWER: 'Professional Reviewer',

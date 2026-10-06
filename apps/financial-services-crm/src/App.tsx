@@ -38,7 +38,7 @@ const PIPELINES: PipelineKind[] = ['activity', 'appointment', 'recruit', 'licens
 
 export default function App() {
   return (
-    <AuthGate appName="Excellence District Financial Services CRM">
+    <AuthGate appName="Relationship CRM">
       {({ user, logout }) => <Crm userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} userId={user.id} onLogout={logout} />}
     </AuthGate>
   );
@@ -113,7 +113,7 @@ function Crm({ userLabel, userId, onLogout }: { userLabel: string; userId: strin
       <header className="border-b border-neutral-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-lg font-semibold text-neutral-900">The Excellence District Financial Services — CRM</h1>
+            <h1 className="text-lg font-semibold text-neutral-900">Relationship CRM</h1>
             <p className="text-sm text-neutral-500">Contacts, activity, pipeline, licensing, field training and the leadership scoreboard.</p>
           </div>
           <div className="text-right shrink-0">
