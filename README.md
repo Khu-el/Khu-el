@@ -88,7 +88,7 @@ One Node/Express server, shared by all four frontends, using SQLite (via Node's 
   `server/data/.invite-code` on the machine running the server, or just set a new one.
 - **Deal Architect, Capital Readiness, Notes Underwriting**: records are private to the user who
   created them.
-- **Legacy & Estate Coordination**: records are a *shared* workspace — every signed-in user can see
+- **Family Workspace**: records are a *shared* workspace — every signed-in user can see
   the same family records (this is the one app meant for multiple family members), but a
   `READ_ONLY_AUDITOR` role can view without being able to edit. Role is self-selected at
   registration in this version; there's no admin panel to manage other users' roles yet.
@@ -215,7 +215,7 @@ static file server, and loaded every page in a real browser — landing page plu
 Pages actually being enabled on the repository first.
 
 **Registration is gated by an invite code** (see `INVITE_CODE` above) specifically so this Pages link
-is safe to hand out without opening the shared Legacy & Estate workspace to strangers — share the
+is safe to hand out without opening the shared Family Workspace to strangers — share the
 code only with people who should actually see family records.
 
 ## Relationship CRM
@@ -256,7 +256,7 @@ Every record in every app carries an `AuthorityContext` and an `AssertionStatus`
 this in" with "a professional confirmed this." `Lane` (`LANE_A` enterprise/technology vs. `LANE_B`
 family/estate vs. `PERSONAL`/`UNCLASSIFIED`) keeps the four apps from silently assuming any given
 asset or entity belongs to a specific side. Nothing here auto-connects Lane A and Lane B — a
-"bridge" (like the Business Interests registry in the Legacy & Estate app) records a reference, not
+"bridge" (like the Business Interests registry in the Family Workspace app) records a reference, not
 a merge.
 
 ## Running everything locally
@@ -274,7 +274,7 @@ npm run dev:member-portal       # no server/ needed — it talks to Supabase
 
 Register a separate account per app the first time you open it (accounts are shared across apps —
 registering once and logging in again elsewhere works the same way), or reuse the same login on
-all four; family members sharing the Legacy & Estate workspace should each register their own
+all four; family members sharing the Family Workspace should each register their own
 account so edits are attributable.
 
 ## Building
