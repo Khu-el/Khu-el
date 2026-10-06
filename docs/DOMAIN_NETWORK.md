@@ -17,13 +17,20 @@ for the same network.
 
 ---
 
-## 🛑 Nothing in this file has been executed
+## 🛑 Nothing this file proposes has been executed
 
-Every DNS row below is a **plan**. No record was created, no nameserver was touched, no site was
-published, and no domain was purchased or transferred. Executive OS §10 puts DNS edits, domain
-purchases, publishing, and account changes on the human side of the approval boundary. A row in
-this table is a `CURRENT_INTERNAL_MODEL` assertion about what *should* exist, not a claim that it
-does.
+The hostname map below holds two kinds of row, and they are not the same kind of claim:
+
+- **Observed rows** carry an observation date. They record what a hostname was serving when it was
+  last probed — including sites and records created outside this repository. They are
+  `EXTERNALLY_VERIFIED` as of that date and are not plans.
+- **Planned rows** (`apps.`, `api.`) are `CURRENT_INTERNAL_MODEL` assertions about what *should*
+  exist, not a claim that it does.
+
+Nothing this file proposes has been carried out from it: no record it plans was created, no
+nameserver was touched, and no domain was purchased or transferred on its account. Executive OS §10
+puts DNS edits, domain purchases, publishing, and account changes on the human side of the approval
+boundary.
 
 ---
 
