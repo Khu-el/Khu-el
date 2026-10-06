@@ -18,10 +18,10 @@ export function OverviewTab({ estate, onChange }: { estate: Estate; onChange: (e
           <Field label="Family name">
             <TextInput value={d.familyName} onChange={(e) => set({ familyName: e.target.value })} />
           </Field>
-          <Field label="Trust name" hint="e.g. Christopher Chaz Ransom-El Living Trust (CCRLT)">
+          <Field label="Trust name" hint="The trust's full name, as written in the instrument">
             <TextInput value={d.trustName} onChange={(e) => set({ trustName: e.target.value })} />
           </Field>
-          <Field label="Trustee office" hint="e.g. House of Ransom (Family Church) — the office, not a personal claim of trusteeship">
+          <Field label="Trustee office" hint="The trustee office — the office, not a personal claim of trusteeship">
             <TextInput value={d.trusteeOffice} onChange={(e) => set({ trusteeOffice: e.target.value })} />
           </Field>
           <Field label="Trust status confidence">

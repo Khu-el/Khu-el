@@ -38,7 +38,7 @@ const TABS = [
 
 export default function App() {
   return (
-    <AuthGate appName="Legacy & Estate Coordination">
+    <AuthGate appName="Family Workspace">
       {({ user, logout }) => <LegacyEstate userLabel={`${user.displayName} · ${ROLE_LABELS[user.role]}`} userId={user.id} onLogout={logout} />}
     </AuthGate>
   );
@@ -71,8 +71,8 @@ function LegacyEstate({ userLabel, userId, onLogout }: { userLabel: string; user
       <header className="border-b border-neutral-200 bg-white">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-lg font-semibold text-neutral-900">Legacy & Estate Coordination</h1>
-            <p className="text-sm text-neutral-500">Shared family workspace — CCRLT, House of Ransom, and related family records. Lane B only.</p>
+            <h1 className="text-lg font-semibold text-neutral-900">Family Workspace</h1>
+            <p className="text-sm text-neutral-500">Shared family workspace — invite only. Lane B only.</p>
           </div>
           <div className="text-right shrink-0">
             <p className="text-sm text-neutral-600">{userLabel}</p>
