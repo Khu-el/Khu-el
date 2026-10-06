@@ -31,8 +31,12 @@ does.
 
 | Host | Serves | Backed by | Status |
 |---|---|---|---|
-| `excellencedistrict.org` | Public marketing site | Squarespace (A records) | 🟡 Live, serving a "Coming Soon" placeholder |
-| `www.excellencedistrict.org` | Same, canonical redirect | Squarespace (`ext-sq.squarespace.com`) | 🟡 Live, same placeholder |
+| `excellencedistrict.org` | The Excellence District public site — 32 pages | A records `162.159.143.30`, `172.66.3.26` (Cloudflare-fronted); DNS still on Squarespace nameservers. Hosting platform 🟠 inferred to be the same `chatgpt.site` build as `events.` below | ✅ Live, serving the full site — observed 2026-10-06. **No longer a "Coming Soon" placeholder** |
+| `www.excellencedistrict.org` | Nothing | — | ❌ Does not resolve (NXDOMAIN, A and CNAME) — observed 2026-10-06. Previously recorded here as live |
+| `events.excellencedistrict.org` | A full second copy of the public site (32 pages, each canonical to the apex home page) | CNAME `custom-domains.chatgpt.site` | ⚠️ Live duplicate — observed 2026-10-06. Retire / redirect / keep is the principal's decision |
+| `neterverse.excellencedistrict.org` | The Neterverse public gateway — 12 pages | CNAME `custom-domains.chatgpt.site` | ✅ Live — observed 2026-10-06 |
+| `solutions.excellencedistrict.org` | The technology studio's public site | CNAME `custom-domains.chatgpt.site` | ✅ Live — observed 2026-10-06 |
+| `sui.excellencedistrict.org` | Sui Generis house | CNAME `custom-domains.chatgpt.site` | 🧱 Resolves, but returns HTTP 401 behind a sign-in wall — observed 2026-10-06 |
 | *MX on the apex* | Mail for `khuel@excellencedistrict.org` | Google Workspace | ✅ Live and routing |
 | `apps.excellencedistrict.org` | The four NTE planning tools + hub | GitHub Pages, this repo | ❓ Planned — record not yet created |
 | `api.excellencedistrict.org` | The shared Express/SQLite backend | Fly.io, `server/` | ❓ Planned — backend not yet deployed |
@@ -170,6 +174,14 @@ canonical for `excellencedistrict.org` only**, not for "every property in the ac
 read 2026-09-18. `EXTERNALLY_VERIFIED` as a record of what Notion states; the live status of the
 platform itself was not probed from this session and is 🟠 `DOCUMENT_CLAIM`.*
 
+🚩 **Probed 2026-10-06, and the probe disagrees with the Notion record.** `http://neterverse.tech/`
+returned IONOS's default parking page ("Diese Domain ist bereits registriert"), `https://` did not
+connect, and the zone is on IONOS nameservers with no DMARC record. `EXTERNALLY_VERIFIED` for what
+that hostname served on that date. It does **not** establish that no platform exists elsewhere —
+only that this hostname was not serving one. "Live" and "takes payment" above remain a
+🟠 `DOCUMENT_CLAIM` that the one live observation contradicts; reconciling the two is the
+principal's call, not this file's.
+
 **Mental Alchemy is not on the network and should not be added to it casually.** All of its state
 is browser `localStorage` with no account system, which is a feature. It appears on the hub as a
 source link, not as a hosted app.
@@ -186,6 +198,13 @@ reference rather than a merge.
 - **Apex, `www`, MX, and TXT rows marked live:** live DNS-over-HTTPS queries against Google and
   Cloudflare public resolvers, 11 Sep 2026, recorded in the `excellencedistrict.org Cutover`
   artifact. `EXTERNALLY_VERIFIED` as of that date; re-check before relying on them.
+- **Apex, `www`, `events.`, `neterverse.`, `solutions.` and `sui.` rows dated 2026-10-06:** live
+  DNS-over-HTTPS queries against Cloudflare's public resolver plus HTTP requests and a crawl of
+  each site, from a read-only site audit on that date. `EXTERNALLY_VERIFIED` as of that date. Those
+  four subdomains were created outside this repository and were not in this map before; they are
+  recorded as observed, not as planned by this file. The same audit found **no SPF and no DMARC
+  record** on the apex — only the `google-site-verification` TXT — so the SPF/DKIM/DMARC step the
+  cutover runbook covers has not landed in DNS.
 - **Registrar, mail provider, and admin address:** Squarespace and Google Workspace notification
   emails dated 10 Sep 2026. `DOCUMENT_CLAIM`.
 - **Every `apps.` and `api.` row:** `CURRENT_INTERNAL_MODEL` — proposed here, not observed
