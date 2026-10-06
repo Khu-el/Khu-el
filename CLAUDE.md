@@ -387,7 +387,15 @@ everyone out. Full walkthrough is in `README.md`.
 
 The intended destination is `apps.excellencedistrict.org` (frontends) and
 `api.excellencedistrict.org` (backend), with the Squarespace apex and Google Workspace mail left
-alone. `docs/DOMAIN_NETWORK.md` has the rows and the order. **A `CNAME` file does nothing here:**
+alone. `docs/DOMAIN_NETWORK.md` has the rows and the order.
+
+Backend deploys run via `.github/workflows/fly-deploy.yml` (push to `main` touching `server/**`
+or `fly.toml`, or `workflow_dispatch`), not from a local or sandboxed `fly deploy` — Fly's default
+remote builder speaks gRPC/HTTP2, which a TLS-terminating sandbox proxy can't carry, and a
+GitHub-hosted runner has neither that restriction nor the missing local Docker daemon. It needs a
+`FLY_API_TOKEN` repository secret; see `docs/continuation/HUMAN_ACTION_REQUIRED.md` #6.
+
+**A `CNAME` file does nothing here:**
 Pages publishing from Actions ignores it, so the domain is attached in Settings → Pages → Custom
 domain, after DNS resolves, followed by a re-run of the deploy. CI still refuses a committed `CNAME`,
 because it would suggest a domain is attached when it is not.
