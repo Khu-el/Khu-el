@@ -14,6 +14,7 @@ Search this file first for any new task request: **SEARCH → READ → REUSE →
 | `ST-PERS-002` | S-05 Evening Ascension | `PERS` | Daily · 21:30 ET (`30 1 * * *` UTC) | `DRAFT` | [ST-PERS-002](tasks/ST-PERS-002.md) | — not scheduled | Paired with `ST-PERS-001` (terminal reflection) |
 | `ST-HOR-001` | S-08 House of Ransom Bulletin | `HOR` | Weekly · Sun 08:00 EDT / 07:00 EST (`0 12 * * 0` UTC) | `DRAFT` | [ST-HOR-001](tasks/ST-HOR-001.md) | — not scheduled | Sunday 09:00 Family Council · `PR-` packets |
 | `ST-NTE-003` | NTE Financial Briefing ⚠️ | `NTE` | Weekdays · 08:00 ET (`0 12 * * 1-5` UTC) | `DRAFT` | [ST-NTE-003](tasks/ST-NTE-003.md) | — not scheduled | Principal (action queue) · `PR-` packets |
+| `ST-NTE-004` | Email Authentication Watch (excellencedistrict.org) | `NTE` | Daily · 08:17 ET (`17 12 * * *` UTC while EDT) | `ACTIVE` | [ST-NTE-004](tasks/ST-NTE-004.md) | `trig_01QBEsHpCMMFRZkJxyePa5NL` | Principal (DMARC decision 2026-10-21) |
 
 ⚠️ `ST-NTE-001`'s Routine stores **no MCP connectors**, so its sessions run without GitHub and
 Routines tools. Two of its PROCESS steps are degraded as a result — see the KNOWN CONSTRAINT
@@ -32,6 +33,9 @@ sections in one output, which SPEC v2's one-capacity rule does not permit. `NTE`
 the task is named and primarily scoped to Lane A, but the question is open and the task stays
 `DRAFT` until the principal decides. Both options and their costs are in its CONTRADICTIONS section
 and in `../continuation/SOURCE_CONFLICTS.md` SC-12.
+
+⚠️ `ST-NTE-004` stores **no MCP connectors**, like `ST-NTE-001`: the daily DNS check runs, but its Monday DMARC report
+review has no Gmail and reports itself skipped. See its KNOWN CONSTRAINT section.
 
 📋 **Four of the five active ChatGPT tasks in the migration kit are now defined** (`ST-PERS-001`,
 `ST-PERS-002`, `ST-HOR-001`, `ST-NTE-003`). The fifth — **Run Marketing Campaigns** — has no
@@ -56,7 +60,7 @@ are never reused and their history is findable.
 | `VZB`    | `ST-VZB-001` |
 | `REPR`   | `ST-REPR-001` |
 | `DIGP`   | `ST-DIGP-001` |
-| `NTE`    | `ST-NTE-004` |
+| `NTE`    | `ST-NTE-005` |
 | `HOR`    | `ST-HOR-002` |
 | `CCRLT`  | `ST-CCRLT-001` |
 | `MM`     | `ST-MM-001` |
