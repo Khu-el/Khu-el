@@ -145,10 +145,12 @@
       "scripts": [
         "test"
       ],
-      "has_typecheck": false,
+      "has_typecheck": true,
       "has_build": false,
       "test_runner": "node --test",
       "test_files": [
+        "Badges.test.ts",
+        "Gates.test.ts",
         "cacheKey.test.ts",
         "numbers.test.ts",
         "pendingSync.test.ts",
@@ -241,9 +243,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-05T15:51:23.282Z",
-  "branch": "claude/neterverse-os-orchestration-0ptse1",
-  "commit": "d151d667d546d70f18d848fed8cb436fce2d42ad",
+  "generated_at": "2026-10-13T16:38:19.451Z",
+  "branch": "claude/github-projects-setup-nvoy50",
+  "commit": "b11cef6b587299922402b49c3daace82b858d123",
   "working_tree_clean": false,
-  "tracked_file_count": 425
+  "tracked_file_count": 431
 }
