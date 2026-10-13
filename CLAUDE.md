@@ -172,8 +172,8 @@ these checks are new *as enforcement*, not new as expectations.
 ⚠️ `npm run typecheck` used to end in `2>/dev/null || true` and therefore **could not
 fail** — it reported success on genuine type errors. That is fixed; if you are working
 from a memory of it passing, re-run it. The sweep covers the six apps, `server/` and
-`packages/neterverse-kernel`; `governance-core` has no `tsconfig.json` of its own and is
-checked transitively through the apps that import its source.
+`packages/neterverse-kernel`; `governance-core` has its own `tsconfig.json`, and its source is
+also checked transitively through the apps that import it.
 
 **Where tests exist, and where they do not:**
 
@@ -183,43 +183,27 @@ checked transitively through the apps that import its source.
 | `server/` | ✅ `node --test` — 81 tests (auth over the running app, sign-in rate limits and token revocation, the digest's staleness rule and CRM follow-up items, and request robustness — a bad body or SMTP failure must not crash the process), `npm run test:server` |
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
 | `apps/financial-services-crm` | ✅ `node --test` — 53 tests over `crm.ts` (consent gate, duplicates, follow-up dates, ratios) and the importer (xlsx/csv reading, upsert rules), also in `npm run test:apps` |
-| `apps/member-portal` | ✅ `node --test` — 35 tests over `src/logic` and `src/config.ts` (pathway matching, plan dates, idempotency keys, progress — including which record counts when a lesson moves track or is re-created — invite-code rules, error mapping, lesson-body parsing, URL safety, routes and the sign-in-link guard), also in `npm run test:apps`. **Its SQL — RLS, the invite trigger, the hardening migration — has never been executed anywhere** |
-| `packages/governance-core` | ✅ `node --test` — 90 tests: the cache-key, staleness, pending-sync and number-field helpers, plus `Badges.tsx` and `Gates.tsx` rendered with `react-dom/server`'s `renderToStaticMarkup` (see below) |
+| `apps/member-portal` | ✅ `node --test` — 35 tests over `src/logic` and `src/config.ts` (pathway matching, plan dates, idempotency keys, progress — including which record counts when a lesson moves track or is re-created — invite-code rules, error mapping, lesson-body parsing, URL safety, routes and the sign-in-link guard), also in `npm run test:apps`. **Its SQL is executed by `npm run test:sql`** — all eight migrations applied in order to a throwaway local PostgreSQL behind a Supabase stub, then 100+ assertions over RLS isolation, column-grant escalation, the invite trigger, staff seeding and `create_action_plan`. This is a *local stand-in*, not the live project: it proves the migrations run and the policies behave on stock Postgres, not that the deployed project matches them (GoTrue, PostgREST and real default privileges are stubbed). Needs PostgreSQL server binaries; not part of `npm test` |
+| `packages/governance-core` | ✅ `node --test` — 90 tests over the cache-key, staleness, pending-sync and number-field helpers plus `Badges.tsx` and `Gates.tsx` rendered with `react-dom/server`; ✅ `vitest` — 22 static-markup component tests (`test/components.test.tsx`, own `vitest.config.ts`) covering badges, gates, `SyncStatus`, UI primitives and `DecisionMemo` |
 | `apps/legacy-estate` | ✅ `vitest` — 1 test over `createEstate` in `src/store.test.ts`. The only workspace on vitest rather than `node --test`; root `vitest.config.ts` collects `src/**/*.test.ts` across the workspaces |
 
 `npm test` at the root runs every workspace that has a suite — **422 under `node --test` plus
-1 under vitest**. Two runners now coexist: everything below except `legacy-estate` runs on
-`node --test` with type stripping and no bundler, and `legacy-estate` runs on vitest, which is a
-root devDependency. A workspace that adds a vitest suite needs no new config; one that adds a
-`node --test` suite needs its own `test` script. The root `vitest.config.ts` globs
-`src/**/*.test.ts` — `governance-core`'s new component tests live under `test/`, not `src/`, so
-they run once, under `node --test`, and are not picked up a second time by vitest.
+23 under vitest** (1 in `legacy-estate`, 22 in `governance-core`'s components). Two runners coexist:
+pure-function suites use `node --test` with type stripping; `governance-core` also uses `tsx/esm`
+to load `.tsx` components in its node tests, while its broader component suite and `legacy-estate`
+run on vitest, a root devDependency. A workspace that adds a vitest suite needs no new config; one
+that adds a `node --test` suite needs its own `test` script. The root `vitest.config.ts` globs
+`src/**/*.test.ts`; `governance-core`'s additional component tests live under `test/` and use the
+workspace's own `vitest.config.ts`, so they run once, under that workspace's script.
 
-**What is still mostly untested is the UI**: tabs and stores still have no coverage anywhere,
-and `apps/legacy-estate` has no calculators to test. The app suites cover `finance.ts` only.
-`governance-core`'s components are now **partially** covered — `Badges.tsx` (every
-`AssertionStatus`/`Lane`/`ReconciliationStatus` renders a real label, and only
-`EXTERNALLY_VERIFIED` gets the verified/green styling) and `Gates.tsx` (the
-`NoAutonomousExecutionBanner` text and `ProfessionalReviewGate` content can't silently
-render empty) — but `AttachmentsPanel`, `AuthGate`, `DecisionMemo`, `SyncStatus` and `Ui.tsx`
-are not, and no component in any of the five apps has a test.
+**What is still untested is most of the UI**: the apps' components, tabs and stores have no coverage.
+The app suites cover `finance.ts` only. `governance-core`'s stateless components (`Badges`, `Gates`,
+`SyncStatus`, `Ui`, `DecisionMemo`) are covered by static-markup tests; its stateful ones
+(`AuthGate`, `AttachmentsPanel`, the `useAuth` / `useSyncedRecords` hooks) are **not** — static
+rendering never runs effects or handlers, so covering them needs a DOM environment, which this
+repo does not yet have.
 
-**How the `Badges`/`Gates` tests load `.tsx` without a bundler or jsdom.** Node's native
-type-stripping loader (what every other `node --test` suite in this repo relies on) refuses
-`.tsx` outright — `ERR_UNKNOWN_FILE_EXTENSION`, not a flag away. `governance-core`'s `test`
-script now runs as `node --import tsx/esm --test …`: the `tsx` package (a devDependency,
-unrelated to the `.tsx` extension despite the name) registers a loader that transforms `.ts`
-*and* `.tsx` on the fly. `packages/governance-core/tsconfig.json` — previously absent — exists
-now specifically so that loader picks `"jsx": "react-jsx"` (the automatic runtime, matching
-every app's Vite config) instead of defaulting to the classic runtime, which would fail with
-`React is not defined` since no component file imports `React` itself. The tests then render
-with `react-dom/server`'s `renderToStaticMarkup` and assert on the HTML string — no jsdom, no
-DOM APIs, nothing beyond what was already a dependency of every app. The same `--import tsx/esm`
-approach is available to any other workspace that wants to test a `.tsx` file under `node --test`
-rather than adopting vitest — a lighter option than the root `vitest.config.ts` route
-`legacy-estate` took, where the file in question is already a pure, DOM-free module.
-
-**No linter is configured anywhere in this repo.** In a workspace with no runner, do not
+**`npm run lint` is a deliberately narrow ESLint** (`eslint.config.js`): bug-catching rules only — rules-of-hooks, duplicate keys, `NaN` comparison, and on `server/src` the type-aware `no-misused-promises` / `no-floating-promises`, which enforce the `asyncHandler()` rule below mechanically. It has no formatting or style rules, so a clean run says nothing about style. In a workspace with no test runner, do not
 claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran.
 
 **Every async route handler in `server/` goes through `asyncHandler()`.** Express 4 ignores the

@@ -17,6 +17,7 @@
     "dev:server",
     "inventory",
     "inventory:check",
+    "lint",
     "projects",
     "projects:build",
     "tasks",
@@ -24,6 +25,7 @@
     "test:apps",
     "test:kernel",
     "test:server",
+    "test:sql",
     "test:watch",
     "typecheck"
   ],
@@ -234,18 +236,18 @@
       "note": "Not an npm workspace. Its checks run from its own workflow, not from the root scripts."
     }
   ],
-  "linter": null,
+  "linter": "eslint",
   "notes": [
     "test_runner records whether a runner is configured, not whether the suite passes.",
     "Dated run results live in docs/continuation/CONTINUATION_AUDIT.md.",
-    "governance-core has no tsconfig of its own; it is typechecked through the apps that import its source.",
+    "governance-core has its own tsconfig; its source is also typechecked through the apps that import it.",
     "Regenerate with `npm run inventory`; `npm run inventory:check` fails when this file has drifted.",
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-13T16:38:19.451Z",
-  "branch": "claude/github-projects-setup-nvoy50",
-  "commit": "b11cef6b587299922402b49c3daace82b858d123",
+  "generated_at": "2026-10-13T17:00:05.343Z",
+  "branch": "claude/pensive-newton-up80h9",
+  "commit": "7f8b839909fb6a27e9fdc9cef61cf034e7cdfe54",
   "working_tree_clean": false,
-  "tracked_file_count": 431
+  "tracked_file_count": 437
 }

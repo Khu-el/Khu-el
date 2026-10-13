@@ -121,11 +121,11 @@ const structural = {
   workspaces,
   untested_workspaces: workspaces.filter((w) => !w.test_runner).map((w) => w.path),
   non_workspace_projects: nonWorkspaceProjects,
-  linter: null, // none configured anywhere in this repository
+  linter: rootPkg.devDependencies?.eslint ? 'eslint' : null,
   notes: [
     'test_runner records whether a runner is configured, not whether the suite passes.',
     'Dated run results live in docs/continuation/CONTINUATION_AUDIT.md.',
-    'governance-core has no tsconfig of its own; it is typechecked through the apps that import its source.',
+    'governance-core has its own tsconfig; its source is also typechecked through the apps that import it.',
     'Regenerate with `npm run inventory`; `npm run inventory:check` fails when this file has drifted.',
     'tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.',
     'non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them.',
