@@ -22,6 +22,7 @@
     "test:watch": "vitest",
     "test:kernel": "npm test --workspace=packages/neterverse-kernel",
     "test:server": "npm test --workspace=server",
+    "test:sql": "bash apps/member-portal/supabase/test/run.sh",
     "test:apps": "npm test --workspace=apps/deal-architect --workspace=apps/capital-readiness --workspace=apps/notes-underwriting --workspace=apps/financial-services-crm --workspace=apps/member-portal",
     "check:query-token": "node scripts/check-query-token.mjs",
     "check:live": "node scripts/check-live-pages.mjs",

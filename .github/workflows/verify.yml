@@ -47,6 +47,14 @@ jobs:
       - name: Workspace test suites
         run: npm test
 
+      # The member portal's SQL: applies every migration in order to a throwaway
+      # local PostgreSQL behind a Supabase stub, then attacks it -- RLS isolation,
+      # column-grant escalation, the invite-only sign-up trigger, staff seeding and
+      # atomic plan creation. Needs the PostgreSQL server binaries that the runner
+      # image ships; it touches no Supabase project.
+      - name: Member portal SQL (migrations + RLS assertions)
+        run: npm run test:sql
+
       # Covers the five apps, the server and the kernel. governance-core has no
       # tsconfig of its own and is typechecked transitively through the apps
       # that import its source.
