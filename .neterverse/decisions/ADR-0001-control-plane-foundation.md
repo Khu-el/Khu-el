@@ -92,11 +92,11 @@ repository, with this one holding just the kernel, may be the better shape.
 ## ⚔️ Conflicts found and recorded, not resolved
 
 Executive OS §4 and §8 both require surfacing conflicts rather than silently
-reconciling them. Three are open:
+reconciling them. One is now closed and three remain open:
 
 | # | Conflict | Status |
 |---|---|---|
-| 1 | **Possible duplicate command centers.** Two private repositories in the account are named or described as a command center. Neither is in this session's scope. | ❓ UNKNOWN — contents not readable from here. **Review them before building any further control-plane surface.** A feature must not be rebuilt merely because it was not found |
+| 1 | **Possible duplicate command centers.** Two private repositories in the account are named or described as a command center. Neither is in this session's scope. | ✅ **CLOSED 2026-10-05** — both are archived, stated by the principal when asked directly. An archived repository is not a competing surface, so the hold on further control-plane surface is lifted. Their contents were never readable and remain ❓ UNKNOWN: archived means inactive, not reviewed. The live command center is the in-repo `nte-command-center/` project |
 | 2 | **Lane vocabulary.** The April 2026 lane doctrine tags content `Lane A · Lane B · Cross-Lane · Lane-Neutral`. The code has `LANE_A · LANE_B · PERSONAL · PHILANTHROPIC · UNCLASSIFIED` and no `Cross-Lane` member. | ❓ UNRESOLVED — the kernel expresses a crossing as a *declared bridge* rather than a lane value, which may be the better answer, but that is the principal's decision |
 | 3 | **Lane A acting capacity.** The controlling instruction set limits the human capacity to Minister / Authorized Representative absent a separate appointment. The April doctrine also lists Trustee and Executor as typical Lane A capacities. | 🟠 The later source is current-control, so the kernel uses Minister / Authorized Representative. The divergence is recorded rather than settled by an agent |
 | 4 | **Competing architecture documents.** Several overlapping governance-architecture documents from February 2026 sit in Drive with no supersession marking. | ❓ UNKNOWN which controls. Needs a human decision and a supersession pass |

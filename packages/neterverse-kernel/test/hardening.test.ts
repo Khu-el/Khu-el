@@ -80,13 +80,27 @@ test('format: date-time rejects a well-shaped date that is not a date', (t) => {
 test('an unsupported keyword is reported even on a property the instance omits', () => {
   // Checking during the instance walk meant the same schema was judged strict
   // for one record and lax for the next.
+  //
+  // This used `minimum` as its unsupported example until `minimum` became
+  // supported, which is the hazard of naming a specific keyword here:
+  // `multipleOf` is the stand-in now, and if it is ever implemented this test
+  // needs another one rather than deleting. What is being asserted is the
+  // reporting *position*, not which keywords happen to be missing.
   const schema = {
     type: 'object',
-    properties: { id: { type: 'string' }, size: { type: 'integer', minimum: 3 } },
+    properties: { id: { type: 'string' }, size: { type: 'integer', multipleOf: 3 } },
   };
 
-  assert.equal(validate({ id: 'a', size: 5 }, schema).valid, false, 'reported when present');
+  assert.equal(validate({ id: 'a', size: 6 }, schema).valid, false, 'reported when present');
   assert.equal(validate({ id: 'a' }, schema).valid, false, 'and still reported when absent');
+});
+
+test('a supported numeric bound is enforced rather than reported as unsupported', () => {
+  const schema = { type: 'object', properties: { size: { type: 'integer', minimum: 3, maximum: 9 } } };
+
+  assert.equal(validate({ size: 5 }, schema).valid, true, 'inside the bounds');
+  assert.equal(validate({ size: 2 }, schema).valid, false, 'below the minimum');
+  assert.equal(validate({ size: 10 }, schema).valid, false, 'above the maximum');
 });
 
 // --- leases ---------------------------------------------------------------

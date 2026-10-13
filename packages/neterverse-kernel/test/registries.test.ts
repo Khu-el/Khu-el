@@ -9,9 +9,10 @@ const connector = (over: Record<string, unknown> = {}) => ({
   connector_id: 'drive',
   name: 'Google Drive',
   role: 'Canonical files and evidence',
-  verification_state: 'LIVE_VERIFIED',
-  access: 'READ_WRITE',
-  last_verified: '2026-09-10T00:00:00Z',
+  system_of_record_for: ['evidence'],
+  freshness_minutes: 1440,
+  lane_scope: ['LANE_A'],
+  write_authorized: false,
   ...over,
 });
 
@@ -30,19 +31,54 @@ test('a well-formed registry validates', (t) => {
   assert.equal(loadRegistry(bus.root, 'connector-registry').entries.length, 1);
 });
 
-test('an invented verification state is rejected', (t) => {
+test('an invented lane is rejected', (t) => {
   const bus = makeBus();
   t.after(bus.cleanup);
 
-  // "PROBABLY_FINE" is exactly the kind of state this registry exists to prevent.
+  // "LANE_C" is exactly the kind of value this registry exists to prevent: a
+  // lane the firewall has no rule for would be a gap that reads as a setting.
   writeJson(join(bus.root, 'state', 'connector-registry.json'), {
-    entries: [connector({ verification_state: 'PROBABLY_FINE' })],
+    entries: [connector({ lane_scope: ['LANE_C'] })],
   });
 
   const problems = validateRegistry(bus.root, 'connector-registry');
   assert.equal(problems.length, 1);
   assert.equal(problems[0]?.index, 0);
   assert.match(problems[0]?.errors[0]?.message ?? '', /must be one of/);
+});
+
+test('a stored verification claim cannot come back', (t) => {
+  const bus = makeBus();
+  t.after(bus.cleanup);
+
+  // These two fields used to be REQUIRED here, so every entry asserted a
+  // verification that aged silently and `bus status` printed it as current.
+  // Freshness is computed from observations now, and the schema's
+  // additionalProperties:false is what keeps them from reappearing.
+  writeJson(join(bus.root, 'state', 'connector-registry.json'), {
+    entries: [connector({ verification_state: 'LIVE_VERIFIED', last_verified: '2026-09-10T00:00:00Z' })],
+  });
+
+  const problems = validateRegistry(bus.root, 'connector-registry');
+  assert.equal(problems.length, 1);
+  const messages = (problems[0]?.errors ?? []).map((e) => `${e.path} ${e.message}`).join('; ');
+  assert.match(messages, /verification_state/);
+  assert.match(messages, /last_verified/);
+});
+
+test('a freshness budget below one minute is rejected', (t) => {
+  const bus = makeBus();
+  t.after(bus.cleanup);
+
+  // A zero budget would mark every observation stale the instant it was taken,
+  // which reads as "nothing is ever verified" rather than as a misconfiguration.
+  writeJson(join(bus.root, 'state', 'connector-registry.json'), {
+    entries: [connector({ freshness_minutes: 0 })],
+  });
+
+  const problems = validateRegistry(bus.root, 'connector-registry');
+  assert.equal(problems.length, 1);
+  assert.match(problems[0]?.errors[0]?.message ?? '', /must be >= 1/);
 });
 
 test('a bare array registry loads the same as an entries object', (t) => {

@@ -9,7 +9,7 @@
  *
  * Supported: type (incl. union arrays and "integer"), enum, const, required,
  * properties, additionalProperties, items, minItems, minLength, maxLength,
- * pattern, format: date-time.
+ * minimum, maximum, pattern, format: date-time.
  *
  * Anything a schema asks for outside that set is reported as an error rather
  * than silently ignored - a validator that quietly skips a constraint is worse
@@ -30,6 +30,7 @@ const SUPPORTED_KEYWORDS = new Set([
   '$schema', '$id', 'title', 'description', 'examples', 'default',
   'type', 'enum', 'const', 'required', 'properties', 'additionalProperties',
   'items', 'minItems', 'minLength', 'maxLength', 'pattern', 'format',
+  'minimum', 'maximum',
 ]);
 
 const DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
@@ -133,6 +134,17 @@ function check(value: unknown, schema: Schema, path: string, errors: ValidationE
     }
     if (schema['format'] === 'date-time' && !isDateTime(value)) {
       errors.push({ path, message: 'must be a real ISO-8601 date-time' });
+    }
+  }
+
+  if (typeof value === 'number') {
+    const min = schema['minimum'];
+    if (typeof min === 'number' && value < min) {
+      errors.push({ path, message: `must be >= ${min}, got ${value}` });
+    }
+    const max = schema['maximum'];
+    if (typeof max === 'number' && value > max) {
+      errors.push({ path, message: `must be <= ${max}, got ${value}` });
     }
   }
 

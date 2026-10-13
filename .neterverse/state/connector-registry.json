@@ -1,29 +1,70 @@
 {
-  "as_of": "2026-09-10T23:26:24Z",
-  "observed_by": "CLAUDE_CODE",
+  "generated_by": "scripts/build-connectors.mjs",
+  "source": "packages/neterverse-kernel/src/connectors.ts",
   "classification": "PUBLIC",
-  "method": "Declarations only. Whether a connector is currently healthy is computed at runtime from live observations under .neterverse/live/ - run `npm run bus -- connectors`. A stored date ages silently, so no field here should be read as a claim about right now.",
+  "method": "Declarations only. Generated from the kernel, never edited here - change connectors.ts and re-run `npm run connectors`. Nothing in this file says a connector currently works: whether an observation is fresh is computed at runtime from .neterverse/live/ by `npm run bus -- connectors`. There is deliberately no stored verification state, because a stored one ages silently.",
   "identifier_policy": "This repository is public. Account identifiers, workspace IDs, file IDs, calendar addresses and record contents stay in their private systems of record and are never written here.",
+  "write_authorized_note": "Records whether the principal authorized writes through a connector at all. It is declarative - nothing in the kernel reads it to permit or refuse a write - and it is never blanket permission: a task still has to authorize the specific write. Per-connector verdicts and the actions each one may not take are in docs/CONNECTORS.md.",
   "entries": [
+    {
+      "connector_id": "clickup",
+      "name": "ClickUp",
+      "role": "Action truth - the task execution ledger",
+      "system_of_record_for": [
+        "tasks",
+        "execution status"
+      ],
+      "freshness_minutes": 240,
+      "lane_scope": [
+        "LANE_A",
+        "LANE_B"
+      ],
+      "write_authorized": false
+    },
     {
       "connector_id": "github",
       "name": "GitHub",
-      "role": "Source code, branches, pull requests, releases - software version truth",
+      "role": "Source code, branches, pull requests and releases - software version truth",
       "system_of_record_for": [
         "source code",
         "branches",
         "pull requests",
         "releases"
       ],
-      "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Authenticated user lookup returned; currency now tracked by live observation",
-      "access": "READ_WRITE",
-      "write_authorized": true,
+      "freshness_minutes": 60,
       "lane_scope": [
         "LANE_A"
       ],
-      "last_verified": "2026-09-11T06:50:00Z",
-      "notes": "Write scope in this session is feature branches and pull requests only."
+      "write_authorized": true
+    },
+    {
+      "connector_id": "gmail",
+      "name": "Gmail",
+      "role": "Correspondence - reading, searching and drafting only",
+      "system_of_record_for": [
+        "email correspondence"
+      ],
+      "freshness_minutes": 1440,
+      "lane_scope": [
+        "LANE_A",
+        "PERSONAL"
+      ],
+      "write_authorized": false
+    },
+    {
+      "connector_id": "google-calendar",
+      "name": "Google Calendar",
+      "role": "Commitment truth - scheduled events and availability",
+      "system_of_record_for": [
+        "commitments",
+        "scheduled events"
+      ],
+      "freshness_minutes": 240,
+      "lane_scope": [
+        "LANE_A",
+        "PERSONAL"
+      ],
+      "write_authorized": false
     },
     {
       "connector_id": "google-drive",
@@ -34,128 +75,56 @@
         "issued artifacts",
         "release packets"
       ],
-      "verification_state": "LIVE_VERIFIED",
-      "verification_method": "File listing and file read both returned; currency now tracked by live observation",
-      "access": "READ_WRITE",
-      "write_authorized": true,
+      "freshness_minutes": 1440,
       "lane_scope": [
         "LANE_A",
         "LANE_B",
         "PERSONAL"
       ],
-      "last_verified": "2026-09-11T06:50:00Z",
-      "notes": "Write authorized by the principal 2026-10-03. Exercised once: the document the governance hub linked as the NTE Entity & Asset Registry was RENAMED IN PLACE to declare it a superseded, unedited AI draft rather than a registry - see SOURCE_CONFLICTS.md SC-11. The rename keeps the file's link, so every existing reference still resolves and now announces what it is. No content was changed, moved or trashed. No Google Docs editor connector is attached to this session, so an in-body notice is not possible from here; a rename is the whole of what Drive alone can do. Drive remains the system of record for authoritative files per the Executive OS map, and file identifiers are not recorded in this public repository."
+      "write_authorized": true
     },
     {
-      "connector_id": "clickup",
-      "name": "ClickUp",
-      "role": "Action truth - task execution ledger",
+      "connector_id": "linear",
+      "name": "Linear",
+      "role": "Issue tracking. Connected but routed nothing - no task uses it",
       "system_of_record_for": [
-        "tasks",
-        "execution status"
+        "issue tracking (unused by any task)"
       ],
-      "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Workspace hierarchy returned; currency now tracked by live observation",
-      "access": "READ_WRITE",
-      "write_authorized": false,
+      "freshness_minutes": 1440,
       "lane_scope": [
-        "LANE_A",
-        "LANE_B"
+        "LANE_A"
       ],
-      "last_verified": "2026-09-11T06:50:00Z",
-      "notes": "Lane separation is already structural there: the family lane occupies its own space rather than a folder inside the enterprise space."
+      "write_authorized": false
     },
     {
       "connector_id": "notion",
       "name": "Notion",
-      "role": "Governance, knowledge, registries, canonical navigation",
+      "role": "Governance registries and the knowledge base",
       "system_of_record_for": [
         "governance registries",
         "knowledge base"
       ],
-      "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Workspace identity lookup returned; currency now tracked by live observation",
-      "access": "READ_WRITE",
-      "write_authorized": true,
+      "freshness_minutes": 1440,
       "lane_scope": [
         "LANE_A"
       ],
-      "last_verified": "2026-09-11T06:50:00Z",
-      "notes": "Write authorized by the principal 2026-10-02 and SCOPED, not blanket: entity rows in the NTE Entity Registry under NTE Command OS - Executive Dashboard, and additive-only Knowledge Index navigation links per ST-OTHER-001. Everything else stays read-only and needs its own authorization. NO WRITE HAS BEEN MADE AND THE GRANT IS ON HOLD: it was given to populate an empty registry, and that registry no longer exists. The workspace reachable from this session is not the one read on 2026-09-18, and its entity registry is already populated, maintained, and in conflict with the names the authorization assumed - see docs/continuation/SOURCE_CONFLICTS.md SC-10. The hold is operational caution, not a withdrawal of the grant. The Notion workspace identity also differs from the GitHub and Google identities; mapping those to one principal record is unresolved, see ADR-0001."
-    },
-    {
-      "connector_id": "google-calendar",
-      "name": "Google Calendar",
-      "role": "Time truth - commitments and schedules",
-      "system_of_record_for": [
-        "commitments",
-        "scheduled events"
-      ],
-      "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Calendar list returned; currency now tracked by live observation",
-      "access": "READ_WRITE",
-      "write_authorized": false,
-      "lane_scope": [
-        "LANE_A",
-        "PERSONAL"
-      ],
-      "last_verified": "2026-09-11T06:50:00Z",
-      "notes": "The calendar set spans two timezones. A scheduled task that assumes a single timezone across all of them will place events wrongly."
-    },
-    {
-      "connector_id": "gmail",
-      "name": "Gmail",
-      "role": "Email communication record",
-      "system_of_record_for": [
-        "email correspondence"
-      ],
-      "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Label list returned; currency now tracked by live observation",
-      "access": "READ_WRITE",
-      "write_authorized": false,
-      "lane_scope": [
-        "LANE_A",
-        "PERSONAL"
-      ],
-      "last_verified": "2026-09-11T06:50:00Z",
-      "notes": "No send is authorized from any automation. Sending is R3 and stops at the human gate."
+      "write_authorized": false
     },
     {
       "connector_id": "supabase",
       "name": "Supabase",
-      "role": "Private runtime store for orchestrated jobs: job and step state, leases, approvals, artifacts, hash-chained events and audit log (ADR-0003)",
+      "role": "Durable job state for the orchestration runner (ADR-0003)",
       "system_of_record_for": [
         "job state",
         "job approvals",
         "job audit chain"
       ],
-      "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Project listing, table listing, migration listing and security advisors all returned on 2026-10-02; currency tracked by live observation",
-      "access": "READ_WRITE",
-      "write_authorized": true,
+      "freshness_minutes": 240,
       "lane_scope": [
         "LANE_A"
       ],
-      "last_verified": "2026-10-02T22:20:00Z",
-      "notes": "Write authorized ONLY through the job runner's jr_* functions, by the ST-NTE-002 worker and by sessions acting on the principal's own instruction. No raw table writes, no schema change without a migration a human reviewed. jr_decide_approval is never called by a Routine. Project identifiers are not recorded in this public repository."
-    },
-    {
-      "connector_id": "linear",
-      "name": "Linear",
-      "role": "Issue tracking workspace - connected, no task uses it",
-      "system_of_record_for": [
-        "issue tracking (unused by any task)"
-      ],
-      "verification_state": "LIVE_VERIFIED",
-      "verification_method": "Team listing returned on 2026-10-02",
-      "access": "READ_WRITE",
-      "write_authorized": false,
-      "lane_scope": [
-        "LANE_A"
-      ],
-      "last_verified": "2026-10-02T22:20:00Z",
-      "notes": "A third task tracker beside ClickUp and docs/scheduled-tasks. Per SPEC v2 SEARCH -> READ -> REUSE -> UPDATE, nothing should be routed here until the principal decides which tracker is canonical."
+      "write_authorized": true
     }
   ],
-  "freshness": "Each connector carries a freshness budget in packages/neterverse-kernel/src/connectors.ts. Past that budget the control plane reports the entry as stale rather than presenting an old reading as current."
+  "generated_at": "2026-10-05T15:54:23.148Z"
 }
