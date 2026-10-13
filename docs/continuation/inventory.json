@@ -17,6 +17,7 @@
     "dev:server",
     "inventory",
     "inventory:check",
+    "lint",
     "projects",
     "projects:build",
     "tasks",
@@ -242,9 +243,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-13T16:36:38.973Z",
+  "generated_at": "2026-10-13T16:41:52.263Z",
   "branch": "claude/pensive-newton-up80h9",
-  "commit": "61deb8b2ef71f6d8f12497bff351dc6707ad1beb",
+  "commit": "6345ee17a0458c0c86babcb2d7c916144ee23422",
   "working_tree_clean": false,
-  "tracked_file_count": 428
+  "tracked_file_count": 433
 }

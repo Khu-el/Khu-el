@@ -22,6 +22,7 @@
     "test:watch": "vitest",
     "test:kernel": "npm test --workspace=packages/neterverse-kernel",
     "test:server": "npm test --workspace=server",
+    "lint": "eslint .",
     "test:sql": "bash apps/member-portal/supabase/test/run.sh",
     "test:apps": "npm test --workspace=apps/deal-architect --workspace=apps/capital-readiness --workspace=apps/notes-underwriting --workspace=apps/financial-services-crm --workspace=apps/member-portal",
     "check:query-token": "node scripts/check-query-token.mjs",
@@ -36,6 +37,10 @@
     "tasks": "node scripts/scheduled-tasks.mjs"
   },
   "devDependencies": {
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^17.13.0",
+    "typescript-eslint": "^8.71.2",
     "vitest": "^4.1.11"
   }
 }

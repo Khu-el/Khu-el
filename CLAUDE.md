@@ -198,7 +198,7 @@ stateless components (`Badges`, `Gates`, `SyncStatus`, `Ui`, `DecisionMemo`'s re
 ones (`AuthGate`, `AttachmentsPanel`, the `useAuth` / `useSyncedRecords` hooks) are **not** — static rendering never runs effects or handlers,
 so covering them needs a DOM environment, which this repo does not yet have.
 
-**No linter is configured anywhere in this repo.** In a workspace with no runner, do not
+**`npm run lint` is a deliberately narrow ESLint** (`eslint.config.js`): bug-catching rules only — rules-of-hooks, duplicate keys, `NaN` comparison, and on `server/src` the type-aware `no-misused-promises` / `no-floating-promises`, which enforce the `asyncHandler()` rule below mechanically. It has no formatting or style rules, so a clean run says nothing about style. In a workspace with no test runner, do not
 claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran.
 
 **Every async route handler in `server/` goes through `asyncHandler()`.** Express 4 ignores the

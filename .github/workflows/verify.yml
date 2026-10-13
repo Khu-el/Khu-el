@@ -55,6 +55,11 @@ jobs:
       - name: Member portal SQL (migrations + RLS assertions)
         run: npm run test:sql
 
+      # Bug-catching rules only (no style): rules-of-hooks, duplicate keys, NaN comparison,
+      # and -- type-aware, on server/ -- no bare async Express handler and no floating promise.
+      - name: Lint
+        run: npm run lint
+
       # Covers the five apps, the server and the kernel. governance-core has no
       # tsconfig of its own and is typechecked transitively through the apps
       # that import its source.
