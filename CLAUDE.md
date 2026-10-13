@@ -184,18 +184,19 @@ checked transitively through the apps that import its source.
 | `apps/deal-architect` · `apps/capital-readiness` · `apps/notes-underwriting` | ✅ `node --test` — 61 tests over `finance.ts`, `npm run test:apps` |
 | `apps/financial-services-crm` | ✅ `node --test` — 53 tests over `crm.ts` (consent gate, duplicates, follow-up dates, ratios) and the importer (xlsx/csv reading, upsert rules), also in `npm run test:apps` |
 | `apps/member-portal` | ✅ `node --test` — 35 tests over `src/logic` and `src/config.ts` (pathway matching, plan dates, idempotency keys, progress — including which record counts when a lesson moves track or is re-created — invite-code rules, error mapping, lesson-body parsing, URL safety, routes and the sign-in-link guard), also in `npm run test:apps`. **Its SQL is executed by `npm run test:sql`** — all eight migrations applied in order to a throwaway local PostgreSQL behind a Supabase stub, then 100+ assertions over RLS isolation, column-grant escalation, the invite trigger, staff seeding and `create_action_plan`. This is a *local stand-in*, not the live project: it proves the migrations run and the policies behave on stock Postgres, not that the deployed project matches them (GoTrue, PostgREST and real default privileges are stubbed). Needs PostgreSQL server binaries; not part of `npm test` |
-| `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers |
+| `packages/governance-core` | ✅ `node --test` — 56 tests over the cache-key, staleness, pending-sync and number-field helpers; ✅ `vitest` — 22 component tests (`test/components.test.tsx`, own `vitest.config.ts`) rendering to static markup with `react-dom/server`: badges never show a non-verified status as verified, lanes never look alike, `DecisionMemo` has no recipient field, `Checklist` never renders `NaN` |
 | `apps/legacy-estate` | ✅ `vitest` — 1 test over `createEstate` in `src/store.test.ts`. The only workspace on vitest rather than `node --test`; root `vitest.config.ts` collects `src/**/*.test.ts` across the workspaces |
 
 `npm test` at the root runs every workspace that has a suite — **388 under `node --test` plus
-1 under vitest**. Two runners now coexist: everything below except `legacy-estate` runs on
-`node --test` with type stripping and no bundler, and `legacy-estate` runs on vitest, which is a
+23 under vitest** (1 in `legacy-estate`, 22 in `governance-core`'s components). Two runners coexist: pure-function suites run on
+`node --test` with type stripping and no bundler; anything that needs JSX runs on vitest, which is a
 root devDependency. A workspace that adds a vitest suite needs no new config; one that adds a
 `node --test` suite needs its own `test` script.
 
-**What is still untested is the UI**: components, tabs and stores have no coverage at all. The app suites cover `finance.ts` only, and
-`governance-core`'s suites cover its cache-key, staleness, pending-sync and number-field helpers — **not** its components,
-which remain uncovered along with every other component in the repo.
+**What is still untested is most of the UI**: the apps' components, tabs and stores have no coverage. The app suites cover `finance.ts` only. `governance-core`'s
+stateless components (`Badges`, `Gates`, `SyncStatus`, `Ui`, `DecisionMemo`'s render) are covered by static-markup tests; its stateful
+ones (`AuthGate`, `AttachmentsPanel`, the `useAuth` / `useSyncedRecords` hooks) are **not** — static rendering never runs effects or handlers,
+so covering them needs a DOM environment, which this repo does not yet have.
 
 **No linter is configured anywhere in this repo.** In a workspace with no runner, do not
 claim ✅ on "tests pass" — there is nothing to run, so say what you actually ran.
