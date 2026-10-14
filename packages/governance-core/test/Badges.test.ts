@@ -41,15 +41,42 @@ const ALL_RECON_STATUSES: ReconciliationStatus[] = [
   'EXCEPTION',
 ];
 
+const EXPECTED_ASSERTION_LABELS: Record<AssertionStatus, string> = {
+  CURRENT_INTERNAL_MODEL: 'Internal model',
+  DOCUMENT_CLAIM: 'Document claim',
+  EXTERNALLY_VERIFIED: 'Externally verified',
+  PROFESSIONAL_REVIEW_REQUIRED: 'Professional review required',
+  SUPERSEDED: 'Superseded',
+  UNCLASSIFIED: 'Unclassified',
+};
+
+const EXPECTED_LANE_LABELS: Record<Lane, string> = {
+  LANE_A: 'Lane A · Enterprise',
+  LANE_B: 'Lane B · Family/Estate',
+  PERSONAL: 'Personal',
+  PHILANTHROPIC: 'Philanthropic',
+  UNCLASSIFIED: 'Unclassified',
+};
+
+const EXPECTED_RECON_LABELS: Record<ReconciliationStatus, string> = {
+  STAGED: 'Staged',
+  HOLD: 'Hold',
+  REVIEW: 'Review',
+  RECONCILED: 'Reconciled',
+  EXCLUDED: 'Excluded',
+  EXCEPTION: 'Exception',
+};
+
 describe('AssertionStatusBadge', () => {
   for (const status of ALL_ASSERTION_STATUSES) {
-    test(`renders a non-empty label for ${status}`, () => {
+    test(`renders the expected label for ${status}`, () => {
       const html = renderToStaticMarkup(React.createElement(AssertionStatusBadge, { status }));
-      // Every status must render real text, not "undefined" from a missing
-      // map entry -- the failure mode an exhaustive Record<T, string> can
-      // still hit if a new union member is added without updating it.
-      assert.doesNotMatch(html, /undefined/);
-      assert.match(html, /<span/);
+      // Asserts the actual expected label, not just "not undefined" -- a
+      // map entry with a wrong-but-defined label would otherwise still pass.
+      assert.ok(
+        html.includes(`>${EXPECTED_ASSERTION_LABELS[status]}</span>`),
+        `expected label "${EXPECTED_ASSERTION_LABELS[status]}" for ${status}, got: ${html}`
+      );
     });
   }
 
@@ -82,9 +109,12 @@ describe('AssertionStatusBadge', () => {
 
 describe('LaneBadge', () => {
   for (const lane of ALL_LANES) {
-    test(`renders a non-empty label for ${lane}`, () => {
+    test(`renders the expected label for ${lane}`, () => {
       const html = renderToStaticMarkup(React.createElement(LaneBadge, { lane }));
-      assert.doesNotMatch(html, /undefined/);
+      assert.ok(
+        html.includes(`>${EXPECTED_LANE_LABELS[lane]}</span>`),
+        `expected label "${EXPECTED_LANE_LABELS[lane]}" for ${lane}, got: ${html}`
+      );
     });
   }
 
@@ -99,9 +129,12 @@ describe('LaneBadge', () => {
 
 describe('ReconciliationStatusBadge', () => {
   for (const status of ALL_RECON_STATUSES) {
-    test(`renders a non-empty label for ${status}`, () => {
+    test(`renders the expected label for ${status}`, () => {
       const html = renderToStaticMarkup(React.createElement(ReconciliationStatusBadge, { status }));
-      assert.doesNotMatch(html, /undefined/);
+      assert.ok(
+        html.includes(`>${EXPECTED_RECON_LABELS[status]}</span>`),
+        `expected label "${EXPECTED_RECON_LABELS[status]}" for ${status}, got: ${html}`
+      );
     });
   }
 

@@ -51,11 +51,10 @@ describe('NoAutonomousExecutionBanner', () => {
 describe('ProfessionalReviewGate', () => {
   test('renders the supplied title and body content', () => {
     const html = renderToStaticMarkup(
-      React.createElement(
-        ProfessionalReviewGate,
-        { title: 'Outside business activity determination required' },
-        React.createElement('p', null, 'This instrument cannot circulate until CP-2 is on file.')
-      )
+      React.createElement(ProfessionalReviewGate, {
+        title: 'Outside business activity determination required',
+        children: React.createElement('p', null, 'This instrument cannot circulate until CP-2 is on file.'),
+      })
     );
     assert.match(html, /Outside business activity determination required/);
     assert.match(html, /cannot circulate until CP-2 is on file/);
@@ -63,14 +62,20 @@ describe('ProfessionalReviewGate', () => {
 
   test('is styled as an attention-getting gate (rose border), not a neutral card', () => {
     const html = renderToStaticMarkup(
-      React.createElement(ProfessionalReviewGate, { title: 'Hold' }, React.createElement('p', null, 'why'))
+      React.createElement(ProfessionalReviewGate, {
+        title: 'Hold',
+        children: React.createElement('p', null, 'why'),
+      })
     );
     assert.match(html, /border-rose/);
   });
 
   test('does not silently swallow an empty title', () => {
     const html = renderToStaticMarkup(
-      React.createElement(ProfessionalReviewGate, { title: '' }, React.createElement('p', null, 'body text'))
+      React.createElement(ProfessionalReviewGate, {
+        title: '',
+        children: React.createElement('p', null, 'body text'),
+      })
     );
     assert.match(html, /body text/);
   });
