@@ -187,6 +187,27 @@
       "dependency_count": 0
     },
     {
+      "path": "packages/nvs-agent-desk",
+      "name": "@nte/nvs-agent-desk",
+      "private": true,
+      "scripts": [
+        "test",
+        "typecheck"
+      ],
+      "has_typecheck": true,
+      "has_build": false,
+      "test_runner": "node --test",
+      "test_files": [
+        "audit.test.ts",
+        "cli.test.ts",
+        "context.test.ts",
+        "inbox-browse-video.test.ts",
+        "ledger.test.ts",
+        "research.test.ts"
+      ],
+      "dependency_count": 0
+    },
+    {
       "path": "server",
       "name": "nte-server",
       "private": true,
@@ -245,9 +266,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-13T17:00:05.343Z",
-  "branch": "claude/pensive-newton-up80h9",
-  "commit": "7f8b839909fb6a27e9fdc9cef61cf034e7cdfe54",
+  "generated_at": "2026-10-21T03:40:52.099Z",
+  "branch": "claude/nvs-agent-desk",
+  "commit": "dd42da9639c6e1dc2a5c58095508779c8c3de723",
   "working_tree_clean": false,
   "tracked_file_count": 437
 }
