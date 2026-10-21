@@ -68,7 +68,8 @@ export interface Draft {
   threadParticipants: string[]; // everyone already on the thread (lowercased by the caller or here)
 }
 
-const norm = (a: string) => a.trim().toLowerCase();
+/** "Client <client@acme.example>" and "client@acme.example" are the same recipient. */
+export const norm = (a: string) => (a.match(/<([^<>]+)>\s*$/)?.[1] ?? a).trim().toLowerCase();
 
 export function newRecipients(d: Draft): string[] {
   const known = new Set([norm(d.mailbox), ...d.threadParticipants.map(norm)]);

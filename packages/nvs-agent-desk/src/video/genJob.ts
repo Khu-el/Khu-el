@@ -21,8 +21,8 @@ export interface GenRequest {
 export class GenRefusal extends Error {}
 
 export function estimateCents(r: Pick<GenRequest, 'seconds' | 'centsPerSecond'>): number {
-  if (!(r.seconds > 0) || !(r.centsPerSecond >= 0) || !Number.isFinite(r.seconds * r.centsPerSecond)) {
-    throw new GenRefusal('seconds and price must be finite and positive; refusing to guess a cost');
+  if (!(r.seconds > 0) || !(r.centsPerSecond > 0) || !Number.isFinite(r.seconds * r.centsPerSecond)) {
+    throw new GenRefusal('seconds and price must be finite and strictly positive; a free path is not a spend action, so it does not belong here');
   }
   return Math.ceil(r.seconds * r.centsPerSecond);
 }

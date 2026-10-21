@@ -56,7 +56,9 @@ export async function runScript(code: string, store: ContextStore, opts: RunOpti
         size += Math.min(b.length, room);
         if (b.length > room) truncated = true;
       });
-      child.stderr.on('data', (b: Buffer) => (stderr = (stderr + b.toString()).slice(-2000)));
+      child.stderr.setEncoding('utf8');
+      child.stderr.on('data', (s: string) => (stderr = (stderr + s).slice(-2000)));
+      child.on('error', (e) => (clearTimeout(timer), (stderr = `spawn failed: ${e.message}`), resolve(null)));
       child.on('close', (c) => (clearTimeout(timer), resolve(c)));
     });
 

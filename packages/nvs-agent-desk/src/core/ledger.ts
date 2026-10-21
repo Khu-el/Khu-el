@@ -224,14 +224,27 @@ export class Ledger {
       this.log(actor, 'lane_refused', id, { lane: rec.context.lane, allowed: exec.lanes });
       throw new LedgerError('lane', `executor for "${rec.kind}" is not permitted in lane ${rec.context.lane}`);
     }
-    if (rec.costCents > 0) this.assertWithinCaps(rec);
+    // Cap check and claim happen in one write transaction, so two executors (even in different processes sharing this
+    // file) cannot both pass the daily cap. Only one caller changes the row from its ready state to EXECUTING; the
+    // claim time doubles as the spend reservation, so running spend actions count against the cap before they finish.
+    const ready = rec.class === 'DRAFT' ? 'PROPOSED' : 'APPROVED';
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      if (rec.costCents > 0) this.assertWithinCaps(rec);
+      const claimed = this.db
+        .prepare(`UPDATE actions SET status='EXECUTING', executed_at=? WHERE id=? AND status=?`)
+        .run(this.now().toISOString(), id, ready);
+      if (Number(claimed.changes) !== 1) throw new LedgerError('inflight', 'action was already claimed by another executor');
+      this.db.exec('COMMIT');
+    } catch (e) {
+      this.db.exec('ROLLBACK');
+      throw e;
+    }
 
     this.inflight.add(id);
     try {
       const result = await exec.run(rec.payload, rec.context);
-      this.db
-        .prepare(`UPDATE actions SET status='EXECUTED', result=?, executed_at=? WHERE id=?`)
-        .run(canonical(result ?? null), this.now().toISOString(), id);
+      this.db.prepare(`UPDATE actions SET status='EXECUTED', result=? WHERE id=?`).run(canonical(result ?? null), id);
       this.log(actor, 'executed', id, { costCents: rec.costCents });
     } catch (e) {
       this.fail(rec, actor, e instanceof Error ? e.message : String(e));
@@ -317,10 +330,11 @@ export class Ledger {
     if (rec.costCents > this.perActionCap) {
       throw new LedgerError('cap_action', `cost ${rec.costCents}c exceeds per-action cap ${this.perActionCap}c`);
     }
+    // Reserved or spent today: running actions, finished ones, and failed ones (a failed run may have spent before it failed).
     const day = this.now().toISOString().slice(0, 10);
     const spent = (
       this.db
-        .prepare(`SELECT COALESCE(SUM(cost_cents),0) s FROM actions WHERE status='EXECUTED' AND substr(executed_at,1,10)=?`)
+        .prepare(`SELECT COALESCE(SUM(cost_cents),0) s FROM actions WHERE status IN ('EXECUTING','EXECUTED','FAILED') AND executed_at IS NOT NULL AND substr(executed_at,1,10)=?`)
         .get(day) as { s: number }
     ).s;
     if (spent + rec.costCents > this.dailyCap) {

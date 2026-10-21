@@ -7,7 +7,7 @@ Decide first, because it changes the legal analysis entirely:
 - [ ] **A. NVS's own capital** (a proprietary account NVS owns). Narrowest regulatory surface.
 - [ ] **B. The principal's personal account.** Check employer / licensing restrictions below.
 - [ ] **C. Anyone else's money or advice** (clients, family, DAO members, pooled funds). This is investment-adviser / broker / fund territory. Do not start without counsel.
-Default if unanswered: **A, paper only.**
+If unanswered, ownership stays **undecided (`unknown`)** and the system stays **paper only**; nothing defaults to any option.
 
 ## Questions for counsel / compliance (unverified; framing only)
 1. Registration triggers for option C: Investment Advisers Act of 1940, broker-dealer registration under the Exchange Act, state IAR rules; for futures/crypto derivatives, CFTC/NFA (CTA/CPO). Does option A or B trigger anything?

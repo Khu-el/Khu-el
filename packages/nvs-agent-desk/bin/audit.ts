@@ -20,6 +20,10 @@ const meta = {
   source: file,
 };
 const target = opt('target-roas');
+if (target !== undefined && !(Number.isFinite(Number(target)) && Number(target) > 0)) {
+  console.error(`--target-roas must be a positive number, got "${target}"`);
+  process.exit(2);
+}
 const { rows, missingColumns } = readExport(readFileSync(file, 'utf8'));
 const report = buildReport(meta, runChecks(rows, meta, { targetRoas: target ? Number(target) : null }));
 let md = renderMarkdown(report);

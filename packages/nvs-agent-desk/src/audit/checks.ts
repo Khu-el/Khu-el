@@ -139,7 +139,7 @@ export function runChecks(rows: CampaignRow[], meta: ExportMeta, opts: AuditOpti
     const unreadable = rows.filter((r) => r.conversions === null && r.spend !== null && r.spend >= min);
     out.push(
       wasted.length
-        ? res({ id: 'wasted-spend', title: 'No campaign spends meaningfully with zero conversions', status: 'fail', severity: 'high', findings: wasted.map((r) => `${r.campaign}: ${money(r.spend!, cur)}, 0 conversions`) })
+        ? res({ id: 'wasted-spend', title: 'No campaign spends meaningfully with zero conversions', status: 'fail', severity: 'high', findings: wasted.map((r) => `${r.campaign}: ${money(r.spend!, cur)}, 0 conversions`), why: unreadable.length ? `${unreadable.length} other campaign(s) with spend have no readable conversions value and were not judged.` : '' })
         : unreadable.length
           ? res({ id: 'wasted-spend', title: 'No campaign spends meaningfully with zero conversions', status: 'unknown', severity: 'high', why: `${unreadable.length} campaign(s) have spend but no readable conversions value.` })
           : res({ id: 'wasted-spend', title: 'No campaign spends meaningfully with zero conversions', status: 'pass', severity: 'high' }),

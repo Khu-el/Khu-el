@@ -136,3 +136,14 @@ test('an unmarked position makes NAV unknown rather than understating it', () =>
   assert.ok(Number.isNaN(b.nav({})));
   assert.equal(b.nav({ SPY: 110 }), 500 + 5 * 110);
 });
+
+test('paper fills refuse a missing mark and a price far from the mark', async () => {
+  const ledger = new Ledger({ humanApprovers: ['chief-ransom'] });
+  const broker = new PaperBroker({ cash: 100_000 });
+  registerPaperTrading(ledger, broker, limits, () => ({ SPY: 100 }), 5);
+  const run = async (o: OrderIntent) => ledger.execute(ledger.propose({ kind: 'trade.paper', context: ctx, payload: o, actor: me }).id, me);
+  await assert.rejects(run(buy({ symbol: 'QQQ' })), /no usable mark for QQQ/);
+  await assert.rejects(run(buy({ price: 110, stopPrice: 109 })), /more than 5% from mark/);
+  await run(buy({ price: 102, stopPrice: 101 })); // within tolerance
+  assert.equal(broker.fills.length, 1);
+});

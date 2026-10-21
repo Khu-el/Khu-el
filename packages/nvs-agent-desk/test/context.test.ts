@@ -83,6 +83,7 @@ test('the script cannot read outside readDir, write files, spawn processes, or s
   const dir = fixture();
   const sentinel = join(tmpdir(), `nvs-sentinel-${process.pid}`);
   process.env.NVS_SECRET_TEST = 'leak-me';
+  try {
   const store = new ContextStore();
   const probe = async (body: string) => (await runScript(`try { ${body}; console.log('ALLOWED') } catch (e) { console.log('DENIED ' + e.code) }`, store, { readDir: dir, label: 'p' })).returned.trim();
 
@@ -93,6 +94,9 @@ test('the script cannot read outside readDir, write files, spawn processes, or s
   const env = await runScript(`console.log(JSON.stringify(Object.keys(process.env)))`, store, { readDir: dir, label: 'env' });
   assert.ok(!env.returned.includes('NVS_SECRET_TEST'));
   assert.ok(!env.returned.includes('PATH'));
+  } finally {
+    delete process.env.NVS_SECRET_TEST;
+  }
 });
 
 test('a runaway script is killed at the timeout', async () => {

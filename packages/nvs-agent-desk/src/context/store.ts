@@ -60,9 +60,16 @@ export class ContextStore {
   /** Replaces any earlier content under the same label. */
   index(label: string, text: string, opts: { chunkChars?: number } = {}): { chunks: number; bytes: number } {
     const chunks = chunkText(text, opts.chunkChars ?? 1200);
-    this.db.prepare(`DELETE FROM chunks WHERE label = ?`).run(label);
-    const ins = this.db.prepare(`INSERT INTO chunks (label, content) VALUES (?, ?)`);
-    for (const c of chunks) ins.run(label, c);
+    this.db.exec('BEGIN');
+    try {
+      this.db.prepare(`DELETE FROM chunks WHERE label = ?`).run(label);
+      const ins = this.db.prepare(`INSERT INTO chunks (label, content) VALUES (?, ?)`);
+      for (const c of chunks) ins.run(label, c);
+      this.db.exec('COMMIT');
+    } catch (e) {
+      this.db.exec('ROLLBACK');
+      throw e;
+    }
     const bytes = Buffer.byteLength(text);
     this.bytesIndexed += bytes;
     return { chunks: chunks.length, bytes };

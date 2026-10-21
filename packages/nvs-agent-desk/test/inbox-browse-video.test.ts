@@ -33,6 +33,11 @@ test('inbox: access is default-deny per mailbox and per role', () => {
   assert.throws(() => proposeDraft(ledger, acl, ctx, bot, draft({ mailbox: 'other@nvs.example' })), AccessError, 'no cross-mailbox access');
 });
 
+test('inbox: display-name forms do not create false "new recipient" warnings', () => {
+  const d = draft({ to: ['Client <Client@Acme.example>', 'New Person <new@x.example>'] });
+  assert.deepEqual(newRecipients(d), ['new@x.example']);
+});
+
 test('inbox: a send is consequential, shows new recipients, and goes out once after approval', async () => {
   const acl = new MailboxAcl();
   acl.grant(bot, 'hello@nvs.example', ['draft', 'send']);
@@ -84,6 +89,14 @@ test('browse: URL policy refuses http, credentials, odd ports, and internal addr
     assert.equal(checkUrl(bad).allow, false, bad);
   }
   assert.ok(isPrivateAddress('::ffff:192.168.1.1'));
+  // The URL parser rewrites ::ffff:127.0.0.1 to ::ffff:7f00:1; both spellings must be refused.
+  for (const bad of ['https://[::ffff:127.0.0.1]/', 'https://[::ffff:7f00:1]/', 'https://[::ffff:a00:1]/', 'https://2130706433/', 'https://[fe80::1]/', 'https://[febf::1]/', 'https://[fec0::1]/', 'https://[fd00::1]/', 'https://[ff02::1]/', 'https://[2001:db8::1]/', 'https://198.18.0.1/', 'https://198.19.255.255/', 'https://192.0.2.5/', 'https://198.51.100.9/', 'https://203.0.113.4/', 'https://224.0.0.1/', 'https://255.255.255.255/', 'https://100.64.0.1/', 'https://localhost./']) {
+    assert.equal(checkUrl(bad).allow, false, bad);
+  }
+  // Adjacent public space must stay allowed.
+  for (const ok of ['https://198.51.101.1/', 'https://198.17.255.255/', 'https://198.20.0.1/', 'https://100.63.255.255/', 'https://172.32.0.1/', 'https://223.255.255.255/', 'https://[2606:4700:4700::1111]/', 'https://[::ffff:808:808]/']) {
+    assert.equal(checkUrl(ok).allow, true, ok);
+  }
   assert.ok(!isPrivateAddress('93.184.216.34'));
 });
 
@@ -137,13 +150,24 @@ test('browse: refusals are explicit and nothing is worked around', async () => {
     return !r.ok ? r.reasons.join() : '';
   };
   assert.match(await why('https://example.com/secret/x'), /robots\.txt/);
-  assert.match(await why('https://example.com/p', { robotsStatus: 503 }), /5xx/);
+  assert.match(await why('https://example.com/p', { robotsStatus: 503 }), /robots\.txt answered 503/);
+  assert.match(await why('https://example.com/p', { robotsStatus: 403 }), /disallow-all/);
+  assert.match(await why('https://example.com/p', { robotsStatus: 302 }), /disallow-all/);
   assert.match(await why('https://example.com/p', { pageStatus: 403 }), /not working around it/);
   assert.match(await why('https://example.com/p', { pageStatus: 429 }), /not working around it/);
   assert.match(await why('https://example.com/p', { pageStatus: 302 }), /redirect/);
   assert.match(await why('https://example.com/p', { resolve: async () => ['10.0.0.8'] }), /private/);
   assert.match(await why('https://example.com/p', { userAgent: 'Mozilla/5.0 (Windows NT 10.0)' }), /identify the tool/);
   assert.match(await why('http://example.com/p'), /https/);
+});
+
+test('browse: both requests are pinned to the address that passed the private-range check', async () => {
+  const seen: string[] = [];
+  const { d } = deps();
+  const inner = d.fetchImpl;
+  d.fetchImpl = async (url, init) => (seen.push(init.address), inner(url, init));
+  await fetchPage('https://example.com/page', { ...d, resolve: async () => ['93.184.216.34', '93.184.216.35'] });
+  assert.deepEqual(seen, ['93.184.216.34', '93.184.216.34']);
 });
 
 test('browse: rate limit refuses instead of sleeping or rotating', async () => {
@@ -167,15 +191,47 @@ test('video lint: a valid composition passes', () => {
   assert.equal(r.clips, 3);
 });
 
-test('video lint: catches missing root, overruns, missing durations and track overlaps', () => {
+test('video lint: catches missing root, overruns, non-finite values and missing durations', () => {
   assert.equal(lintComposition('<div></div>').ok, false);
   const over = lintComposition(GOOD.replace('data-start="5" data-duration="5"', 'data-start="8" data-duration="5"'));
   assert.ok(over.issues.some((i) => /ends at 13s/.test(i.message)));
   const nodur = lintComposition(GOOD.replace('data-duration="4" ', ''));
-  assert.ok(nodur.issues.some((i) => /title: data-duration/.test(i.message)));
-  const overlap = lintComposition(GOOD.replace('data-start="5" data-duration="5"', 'data-start="3" data-duration="3"'));
-  assert.ok(overlap.issues.some((i) => /overlaps/.test(i.message)) && overlap.ok, 'overlap is a warning, not an error');
+  assert.ok(nodur.issues.some((i) => /title: data-duration is required/.test(i.message)));
   assert.equal(lintComposition(GOOD.replace('data-duration="10">', 'data-duration="abc">')).ok, false);
+  assert.equal(lintComposition(GOOD.replace('data-duration="10">', 'data-duration="Infinity">')).ok, false);
+  assert.equal(lintComposition(GOOD.replace('data-width="1920"', 'data-width="Infinity"')).ok, false);
+});
+
+test('video lint: same-track overlap is only a warning (data-track-index is display-only upstream)', () => {
+  const r = lintComposition(GOOD.replace('data-start="5" data-duration="5"', 'data-start="3" data-duration="3"'));
+  assert.ok(r.ok && r.issues.some((i) => /overlaps/.test(i.message)));
+});
+
+test('video lint: relative starts resolve ("clip", "clip + 0.5", "clip - 0.5") and are bounds-checked', () => {
+  const doc = (start: string) => `<div data-composition-id="c" data-width="1920" data-height="1080" data-duration="10">
+    <section id="intro" data-start="0" data-duration="4"></section>
+    <section id="result" data-start="${start}" data-duration="3"></section></div>`;
+  assert.equal(lintComposition(doc('intro')).ok, true);
+  assert.equal(lintComposition(doc('intro - 0.5')).ok, true);
+  assert.ok(lintComposition(doc('intro + 4')).issues.some((i) => /ends at 11s/.test(i.message)), 'resolved start 8 + 3 > 10');
+  assert.ok(lintComposition(doc('nope')).issues.some((i) => /not a clip in this composition/.test(i.message)));
+  assert.equal(lintComposition(doc('intro - 9')).ok, false, 'resolves before 0');
+  const cycle = lintComposition(`<div data-composition-id="c" data-width="1" data-height="1" data-duration="9">
+    <b id="a" data-start="b" data-duration="1"></b><b id="b" data-start="a" data-duration="1"></b></div>`);
+  assert.ok(cycle.issues.some((i) => /cycle/.test(i.message)));
+});
+
+test('video lint: media may omit duration (warn, not error); a missing root duration is a warning', () => {
+  const r = lintComposition(`<div data-composition-id="c" data-width="1920" data-height="1080">
+    <video id="bg" data-start="0" src="a.mp4"></video><img id="logo" data-start="1" src="l.png"></div>`);
+  assert.equal(r.ok, true, JSON.stringify(r.issues));
+  assert.ok(r.issues.filter((i) => i.level === 'warn').length >= 3);
+});
+
+test('video lint: a ">" inside a quoted attribute does not truncate the tag', () => {
+  const r = lintComposition(`<div data-composition-id="c" data-width="1920" data-height="1080" data-duration="5">
+    <p id="t" title="a > b" data-start="0" data-duration="9">x</p></div>`);
+  assert.ok(r.issues.some((i) => /t: ends at 9s/.test(i.message)), JSON.stringify(r.issues));
 });
 
 const gen = (over: Partial<GenRequest> = {}): GenRequest => ({ provider: 'p', model: 'm', prompt: 'a calm logo reveal', seconds: 8, centsPerSecond: 12.5, depictsRealPerson: false, usage: 'internal-draft', ...over });
@@ -185,6 +241,7 @@ test('video gen: cost is computed up front and rounded up; garbage inputs are re
   assert.equal(estimateCents({ seconds: 7, centsPerSecond: 12.5 }), 88);
   assert.throws(() => estimateCents({ seconds: NaN, centsPerSecond: 1 }), GenRefusal);
   assert.throws(() => estimateCents({ seconds: 0, centsPerSecond: 1 }), GenRefusal);
+  assert.throws(() => estimateCents({ seconds: 8, centsPerSecond: 0 }), GenRefusal, 'a zero-priced job is not a spend action');
 });
 
 test('video gen: paid, capped, human-approved, and likeness needs consent', async () => {
