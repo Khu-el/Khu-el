@@ -1,6 +1,6 @@
 # NVS Agent Desk — design (working title)
 
-**State:** DRAFTED design · LOCALLY_TESTED code (60 tests, `tsc --noEmit` clean) · not saved to any remote, not deployed, nothing published.
+**State:** DRAFTED design · LOCALLY_TESTED code (75 tests, `tsc --noEmit` clean) · not saved to any remote, not deployed, nothing published.
 **Entity / lane / tenant / owner / confidentiality:** NTE Virtual Solutions · NVS_DELIVERY (assumed, confirm) · none · Chief Ransom · INTERNAL.
 Evidence for every upstream claim is in [REVERSE_ENGINEERING.md](REVERSE_ENGINEERING.md).
 
@@ -73,7 +73,7 @@ Spend caps default to **0**, so nothing that costs money runs until the principa
 
 | Phase | Work | Needs approval for |
 |---|---|---|
-| 0 (done, local) | Dossier, ledger, six modules, pilot CLI, 63 tests, Khu-el CI gates green | commit / push / PR |
+| 0 (done, local) | Dossier, ledger, six modules, pilot CLI, 75 tests, Khu-el CI gates green | commit / push / PR |
 | 1 | Pilot with one consenting client: written authorization, they export CSVs, we deliver report + draft plan | client communication |
 | 2 | Approval UI with real auth; persistence config; set caps | access, credentials |
 | 3 | Counsel answers (browse + trading); choose trading option A/B/C | counsel engagement |
@@ -83,4 +83,4 @@ Spend caps default to **0**, so nothing that costs money runs until the principa
 
 ## Rollback
 
-Everything lives in `/home/user/nvs-agent-desk` (new directory, untracked, not a git repo). Delete the directory to remove it. Upstream clones are in the session scratchpad and are ephemeral.
+Everything lives in `packages/nvs-agent-desk` plus three root edits (`package.json` typecheck sweep, `package-lock.json`, `docs/continuation/inventory.json`). Revert the merge/commit through the normal git workflow, then run `npm run inventory` and `npm install` to regenerate the inventory and lockfile. Upstream clones were in a session scratchpad and are ephemeral.

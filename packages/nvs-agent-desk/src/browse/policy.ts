@@ -9,17 +9,63 @@ export interface UrlVerdict {
   reasons: string[];
 }
 
-const PRIVATE_V4 = [
-  /^10\./, /^127\./, /^169\.254\./, /^172\.(1[6-9]|2\d|3[01])\./, /^192\.168\./, /^0\./, /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./,
+// IPv4 ranges that are never a public web server. [base, prefix length].
+const BLOCKED_V4: [string, number][] = [
+  ['0.0.0.0', 8], ['10.0.0.0', 8], ['100.64.0.0', 10], ['127.0.0.0', 8], ['169.254.0.0', 16],
+  ['172.16.0.0', 12], ['192.0.0.0', 24], ['192.0.2.0', 24], ['192.168.0.0', 16], ['198.18.0.0', 15],
+  ['198.51.100.0', 24], ['203.0.113.0', 24], ['224.0.0.0', 3], // multicast + reserved + broadcast
 ];
 
+function v4ToInt(h: string): number | null {
+  const m = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (!m) return null;
+  const o = m.slice(1).map(Number);
+  if (o.some((x) => x > 255)) return null;
+  return ((o[0]! << 24) | (o[1]! << 16) | (o[2]! << 8) | o[3]!) >>> 0;
+}
+
+function blockedV4(n: number): boolean {
+  return BLOCKED_V4.some(([base, bits]) => {
+    const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
+    return ((n & mask) >>> 0) === ((v4ToInt(base)! & mask) >>> 0);
+  });
+}
+
+/** Expand an IPv6 literal (with optional embedded dotted v4) into 8 16-bit groups, or null if malformed. */
+function expandV6(h: string): number[] | null {
+  let s = h;
+  const dotted = s.match(/(\d+\.\d+\.\d+\.\d+)$/);
+  if (dotted) {
+    const n = v4ToInt(dotted[1]!);
+    if (n === null) return null;
+    s = s.slice(0, -dotted[1]!.length) + ((n >>> 16) & 0xffff).toString(16) + ':' + (n & 0xffff).toString(16);
+  }
+  const halves = s.split('::');
+  if (halves.length > 2) return null;
+  const head = halves[0] ? halves[0].split(':') : [];
+  const tail = halves.length === 2 && halves[1] ? halves[1].split(':') : [];
+  const fill = halves.length === 2 ? 8 - head.length - tail.length : 0;
+  if (fill < 0 || (halves.length === 1 && head.length !== 8)) return null;
+  const groups = [...head, ...Array(fill).fill('0'), ...tail].map((g) => parseInt(g, 16));
+  return groups.length === 8 && groups.every((g) => Number.isInteger(g) && g >= 0 && g <= 0xffff) ? groups : null;
+}
+
 export function isPrivateAddress(host: string): boolean {
-  const h = host.replace(/^\[|\]$/g, '').toLowerCase();
+  const h = host.replace(/^\[|\]$/g, '').replace(/\.$/, '').toLowerCase();
   if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.internal') || h.endsWith('.local')) return true;
-  if (PRIVATE_V4.some((re) => re.test(h))) return true;
-  if (h === '::1' || h === '::' || /^f[cd][0-9a-f]{2}:/.test(h) || /^fe[89ab][0-9a-f]:/.test(h)) return true;
-  const mapped = h.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-  return mapped ? PRIVATE_V4.some((re) => re.test(mapped[1]!)) : false;
+  const v4 = v4ToInt(h);
+  if (v4 !== null) return blockedV4(v4);
+  if (!h.includes(':')) return false; // an ordinary hostname; the fetcher checks what it resolves to
+  const g = expandV6(h);
+  if (!g) return true; // unparseable address literal: refuse
+  const embedded = ((g[6]! << 16) | g[7]!) >>> 0;
+  if (g.slice(0, 5).every((x) => x === 0) && (g[5] === 0xffff || g[5] === 0)) return blockedV4(embedded) || g.slice(0, 7).every((x) => x === 0); // ::ffff:a.b.c.d, ::a.b.c.d, ::, ::1
+  if (g[0] === 0x64 && g[1] === 0xff9b) return blockedV4(embedded); // NAT64 64:ff9b::/96
+  if ((g[0]! & 0xfe00) === 0xfc00) return true; // fc00::/7 unique local
+  if ((g[0]! & 0xffc0) === 0xfe80 || (g[0]! & 0xffc0) === 0xfec0) return true; // fe80::/10 link-local, fec0::/10 site-local
+  if ((g[0]! & 0xff00) === 0xff00) return true; // multicast
+  if (g[0] === 0x2001 && g[1] === 0x0db8) return true; // documentation
+  return false;
 }
 
 /** Literal checks only. A fetcher must ALSO call isPrivateAddress on the resolved IP (DNS rebinding). */

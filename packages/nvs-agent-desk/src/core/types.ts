@@ -70,6 +70,7 @@ export type ActionStatus =
   | 'PROPOSED'
   | 'APPROVED'
   | 'REJECTED'
+  | 'EXECUTING' // claimed in the database; a crash here needs a human to resolve, never an automatic retry
   | 'EXECUTED'
   | 'FAILED'
   | 'EXPIRED'

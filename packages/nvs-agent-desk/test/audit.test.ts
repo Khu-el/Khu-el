@@ -94,3 +94,16 @@ test('drafted changes queue as consequential ledger actions that cannot execute'
   ledger.approve(q!.id, { kind: 'human', id: 'chief-ransom' }, q!.payloadHash);
   await assert.rejects(ledger.execute(q!.id, { kind: 'human', id: 'chief-ransom' }), (e: unknown) => e instanceof LedgerError && e.code === 'no_executor');
 });
+
+test('campaign names containing colons survive into drafts', () => {
+  const { rows } = readExport('Campaign,Cost,Conversions\n"Brand: US: Search",500,20\n"Promo: Q4: Display",400,0\n');
+  const drafts = draftChanges(buildReport(meta, runChecks(rows, meta)));
+  assert.equal(drafts[0]!.campaign, 'Promo: Q4: Display');
+});
+
+test('wasted-spend failure also says when other campaigns could not be judged', () => {
+  const { rows } = readExport('Campaign,Cost,Conversions\nA,500,20\nB,400,0\nC,300,\n');
+  const w = runChecks(rows, meta).find((r) => r.id === 'wasted-spend')!;
+  assert.equal(w.status, 'fail');
+  assert.match(w.why, /1 other campaign/);
+});

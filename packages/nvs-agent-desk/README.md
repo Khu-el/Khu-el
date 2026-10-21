@@ -9,9 +9,9 @@ A governed agent toolkit: the useful parts of ten popular agent repos, with the 
 
 ```bash
 # from the Khu-el repo root: npm install
-npm test --workspace=packages/nvs-agent-desk   # 63 tests, node:test
+npm test --workspace=packages/nvs-agent-desk   # 75 tests, node:test
 npm run typecheck                               # root sweep includes this package
-node bin/audit.ts fixtures/synthetic-google-ads.csv --platform "Google Ads" --start 2026-09-01 --end 2026-09-30 --currency '$'
+(cd packages/nvs-agent-desk && node bin/audit.ts fixtures/synthetic-google-ads.csv --platform "Google Ads" --start 2026-09-01 --end 2026-09-30 --currency '$')
 ```
 
 | Module | Path | Does |

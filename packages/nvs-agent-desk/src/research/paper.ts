@@ -60,14 +60,21 @@ export function registerPaperTrading(
   broker: PaperBroker,
   limits: Limits,
   marks: () => Record<string, number>,
+  maxPriceDeviationPct = 5,
 ) {
   ledger.registerExecutor('trade.paper', {
     lanes: ['NVS_DELIVERY'],
     run: async (order: OrderIntent) => {
-      const decision = evaluate(order, broker.portfolio(marks()), limits, ledger.halted);
+      const snapshot = { ...marks() }; // one read, used for the check, the NAV and the result
+      const mark = snapshot[order.symbol];
+      if (mark === undefined || !Number.isFinite(mark) || mark <= 0) throw new Error(`no usable mark for ${order.symbol}; refusing to fill`);
+      if (Math.abs(order.price / mark - 1) * 100 > maxPriceDeviationPct) {
+        throw new Error(`order price ${order.price} is more than ${maxPriceDeviationPct}% from mark ${mark}`);
+      }
+      const decision = evaluate(order, broker.portfolio(snapshot), limits, ledger.halted);
       if (!decision.allow) throw new Error(`risk gate denied: ${decision.reasons.join('; ')}`);
       broker.fill(order);
-      return { filled: true, nav: broker.nav(marks()) };
+      return { filled: true, nav: broker.nav(snapshot) };
     },
   });
 }

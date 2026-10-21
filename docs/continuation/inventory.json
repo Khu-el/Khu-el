@@ -266,9 +266,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-21T03:40:52.099Z",
+  "generated_at": "2026-10-21T12:39:37.208Z",
   "branch": "claude/nvs-agent-desk",
-  "commit": "dd42da9639c6e1dc2a5c58095508779c8c3de723",
+  "commit": "09c499e82149d37fce243c926b08733a89b82e45",
   "working_tree_clean": false,
-  "tracked_file_count": 437
+  "tracked_file_count": 470
 }

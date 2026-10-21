@@ -21,3 +21,7 @@ test('pilot CLI: without a date range the score is withheld', () => {
 test('pilot CLI: no arguments prints usage and exits 2', () => {
   assert.equal(run().status, 2);
 });
+
+test('pilot CLI: a non-numeric or non-positive --target-roas is a usage error, not a silent null', () => {
+  for (const bad of ['abc', '0', '-2']) assert.equal(run('fixtures/synthetic-google-ads.csv', '--target-roas', bad).status, 2, bad);
+});

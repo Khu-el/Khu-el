@@ -8,7 +8,7 @@
 | **Source of truth** | The ten upstream repos at the commits below, plus the post |
 | **Owner** | Chief Ransom |
 | **Confidentiality** | INTERNAL |
-| **State** | Dossier DRAFTED. Code LOCALLY_TESTED (60 tests, `tsc` clean). Nothing saved to a remote, published, or deployed. |
+| **State** | Dossier DRAFTED. Code LOCALLY_TESTED (75 tests, `tsc` clean). Nothing saved to a remote, published, or deployed. |
 
 Source post: https://x.com/naldzyul/status/2112472662270165092 (2026-10-20, 1,021 likes). Its title claim, "10 repos that make you money while you sleep", is marketing. I found **no revenue or performance evidence** for any repo in what I read (see §Reading the claim).
 
@@ -118,7 +118,7 @@ Source post: https://x.com/naldzyul/status/2112472662270165092 (2026-10-20, 1,02
 - **Telemetry on by default.** `lib/reporter.js` sends crash reports to `https://camofox-telemetry.askjo.workers.dev` unless disabled (`crashReportEnabled !== false`; override `CAMOFOX_CRASH_REPORT_URL`). `VERIFIED`
 - **Auth:** with no key set, only loopback is allowed outside production. `VERIFIED` (auth.js comments). I did not trace which routes sit behind `authMiddleware()`.
 
-**NVS version → `src/browse/` — a deliberate non-clone.** I did **not** build fingerprint spoofing, proxy rotation, or cookie-borrowing, and I recommend NVS not offer them: evading a site's access controls is a terms-of-service and, depending on the site and jurisdiction, a legal problem for NVS and for any client who relies on it, and it is hard to defend in a client contract. What I built is the part agents genuinely need: a fetch policy that **identifies itself** (UA must name the tool and a contact URL), **obeys robots.txt** (RFC 9309 matching: longest match, Allow wins ties, `*`/`$`, 5xx = disallow-all), **rate-limits per host**, refuses non-https / credentials-in-URL / odd ports / private, loopback, link-local and metadata addresses (also after DNS, against rebinding), refuses to auto-follow redirects, and on 401/403/429 **refuses instead of working around it**. A refusal comes with the reason and the sanctioned alternative (official API, ask the owner, fetch by hand). The accessibility-snapshot-with-refs idea is worth lifting later (needs a DOM/browser, so not in this package).
+**NVS version → `src/browse/` — a deliberate non-clone.** I did **not** build fingerprint spoofing, proxy rotation, or cookie-borrowing, and I recommend NVS not offer them: evading a site's access controls is a terms-of-service and, depending on the site and jurisdiction, a legal problem for NVS and for any client who relies on it, and it is hard to defend in a client contract. What I built is the part agents genuinely need: a fetch policy that **identifies itself** (UA must name the tool and a contact URL), **obeys robots.txt** (RFC 9309 matching: longest match, Allow wins ties, `*`/`$`, 5xx = disallow-all), **rate-limits per host**, refuses non-https / credentials-in-URL / odd ports / private, loopback, link-local, reserved, multicast and metadata addresses by CIDR range (including IPv4-mapped IPv6 in both spellings, which the URL parser normalizes), re-checks the resolved IP after DNS and passes that exact address to the fetch implementation so the connection is pinned to it; robots.txt answering 3xx/401/403/5xx is treated as disallow-all, refuses to auto-follow redirects, and on 401/403/429 **refuses instead of working around it**. A refusal comes with the reason and the sanctioned alternative (official API, ask the owner, fetch by hand). The accessibility-snapshot-with-refs idea is worth lifting later (needs a DOM/browser, so not in this package).
 
 ## 9. Open-Higgsfield-AI — "open source Higgsfield"
 
@@ -134,7 +134,7 @@ Source post: https://x.com/naldzyul/status/2112472662270165092 (2026-10-20, 1,02
 
 **Verdict.** Best-engineered of the ten and a poor candidate to rebuild. **Use upstream.**
 
-**NVS version → `src/video/lint.ts`.** A thin pre-render check on the documented attribute contract (missing root, non-positive durations, clips running past the composition, same-track overlaps as warnings) so a bad timeline is caught before a render or a paid generation is queued. NVS value-add is the wrapper around upstream, not a fork.
+**NVS version → `src/video/lint.ts`.** A thin pre-render check on the documented attribute contract (missing root, non-positive durations, clips running past the composition, relative starts such as `intro - 0.5` resolved; same-track overlap only a warning because upstream treats `data-track-index` as display-only) so a bad timeline is caught before a render or a paid generation is queued. NVS value-add is the wrapper around upstream, not a fork.
 
 ---
 

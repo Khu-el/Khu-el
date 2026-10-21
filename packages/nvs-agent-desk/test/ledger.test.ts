@@ -167,3 +167,53 @@ test('tampering with the audit log is detected', async () => {
   l.db.prepare(`UPDATE audit SET detail='{"edited":true}' WHERE seq=1`).run();
   assert.equal(l.verifyChain(), false);
 });
+
+test('two executors on one database file cannot both claim the same action, or both spend past the daily cap', async () => {
+  const { mkdtempSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const path = join(mkdtempSync(join(tmpdir(), 'nvs-ledger-')), 'l.sqlite');
+  const runs: unknown[] = [];
+  const mk = () => {
+    const l = new Ledger({ path, humanApprovers: [chief.id], perActionCapCents: 500, dailyCapCents: 600 });
+    l.registerExecutor('spend.video', { lanes: ['NVS_DELIVERY'], run: async (p) => (await new Promise((r) => setTimeout(r, 50)), runs.push(p), { ok: 1 }) });
+    return l;
+  };
+  const a = mk();
+  const b = mk();
+  const x = a.propose({ kind: 'spend.video', context: ctx(), payload: { n: 'x' }, actor: bot, costCents: 400 });
+  const y = a.propose({ kind: 'spend.video', context: ctx(), payload: { n: 'y' }, actor: bot, costCents: 400 });
+  a.approve(x.id, chief, x.payloadHash);
+  a.approve(y.id, chief, y.payloadHash);
+
+  // Same action from two instances: exactly one runs.
+  const same = await Promise.allSettled([a.execute(x.id, chief), b.execute(x.id, chief)]);
+  assert.equal(same.filter((r) => r.status === 'fulfilled').length, 1);
+  assert.equal(runs.length, 1);
+
+  // A second 400c action would take the day to 800c > 600c: refused even though the first finished.
+  await assert.rejects(b.execute(y.id, chief), (e: unknown) => (e as LedgerError).code === 'cap_daily');
+
+  // Concurrent spends: with a fresh day budget only one of two 400c actions may reserve against 600c.
+  const c = mk();
+  const d = mk();
+  const p = c.propose({ kind: 'spend.video', context: ctx(), payload: { n: 'p' }, actor: bot, costCents: 400 });
+  const q = c.propose({ kind: 'spend.video', context: ctx(), payload: { n: 'q' }, actor: bot, costCents: 400 });
+  c.approve(p.id, chief, p.payloadHash);
+  c.approve(q.id, chief, q.payloadHash);
+  runs.length = 0;
+  const r = await Promise.allSettled([c.execute(p.id, chief), d.execute(q.id, chief)]);
+  assert.equal(r.filter((x) => x.status === 'fulfilled').length, 0, 'earlier test already spent 400c of 600c today');
+  assert.equal(runs.length, 0);
+});
+
+test('a failed spend still counts against the daily cap (it may have spent before failing)', async () => {
+  const { l } = make({ per: 500, daily: 600 });
+  l.registerExecutor('spend.video', { lanes: ['NVS_DELIVERY'], run: async () => Promise.reject(new Error('provider 500')) });
+  const a = l.propose({ kind: 'spend.video', context: ctx(), payload: { n: 1 }, actor: bot, costCents: 400 });
+  l.approve(a.id, chief, a.payloadHash);
+  await rejects(l.execute(a.id, chief), 'executor_failed');
+  const b = l.propose({ kind: 'spend.video', context: ctx(), payload: { n: 2 }, actor: bot, costCents: 400 });
+  l.approve(b.id, chief, b.payloadHash);
+  await rejects(l.execute(b.id, chief), 'cap_daily');
+});

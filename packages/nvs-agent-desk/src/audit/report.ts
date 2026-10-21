@@ -59,7 +59,7 @@ export function draftChanges(r: AuditReport): ChangeDraft[] {
   if (!wasted) return [];
   return wasted.findings.map((f) => ({
     platform: r.meta.platform,
-    campaign: f.split(':')[0]!,
+    campaign: f.slice(0, f.lastIndexOf(': ')), // names may contain colons; the amount never contains ": "
     proposal: 'review_for_pause',
     rationale: f,
     checkId: 'wasted-spend',
