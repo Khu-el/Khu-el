@@ -128,6 +128,6 @@ describe('GET /api/auth/users', () => {
     assert.ok(res.body.users.length >= 2);
     assert.equal('email' in res.body.users[0], false);
     assert.equal(typeof res.body.users[0].displayName, 'string');
-    assert.equal(typeof res.body.users[0].role, 'string');
+    assert.equal('role' in res.body.users[0], false);
   });
 });

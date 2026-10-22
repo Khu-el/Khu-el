@@ -21,8 +21,15 @@ if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
  * persist a generated secret to disk so restarts don't invalidate every
  * session, but this file should never be committed or shared.
  */
+function isProduction() {
+  return process.env.NODE_ENV === 'production';
+}
+
 function resolveJwtSecret(): string {
   if (process.env.JWT_SECRET) return process.env.JWT_SECRET;
+  if (isProduction()) {
+    throw new Error('JWT_SECRET is required when NODE_ENV is production');
+  }
   const secretPath = path.join(dataDir, '.jwt-secret');
   if (existsSync(secretPath)) return readFileSync(secretPath, 'utf-8').trim();
   const generated = randomBytes(48).toString('hex');
@@ -38,18 +45,20 @@ function resolveJwtSecret(): string {
  * Registration is fail-closed: nobody can create an account without this
  * code, including the operator. Unlike the JWT secret, this one is *meant*
  * to be shared (with the family members you actually want to let in), so
- * when we auto-generate one for local/dev convenience we print the value
- * itself, not just where it's stored.
+ * when we auto-generate one for local/dev convenience we record where it was
+ * saved and never print the value. Production refuses to boot without one.
  */
 function resolveInviteCode(): string {
   if (process.env.INVITE_CODE) return process.env.INVITE_CODE;
+  if (isProduction()) {
+    throw new Error('INVITE_CODE is required when NODE_ENV is production');
+  }
   const codePath = path.join(dataDir, '.invite-code');
   if (existsSync(codePath)) return readFileSync(codePath, 'utf-8').trim();
   const generated = randomBytes(9).toString('base64url'); // short enough to read out loud / type
   writeFileSync(codePath, generated, { mode: 0o600 });
   console.warn(
-    `[env] INVITE_CODE not set — generated one: ${generated}`,
-    `(also saved at ${codePath}). Share this with whoever should be able to register; set INVITE_CODE yourself to control or change it.`
+    `[env] INVITE_CODE not set — generated one and saved at ${codePath}. Set INVITE_CODE yourself to control or change it.`
   );
   return generated;
 }
@@ -82,6 +91,12 @@ export const env = {
    * able to confer authority over everyone else's records.
    */
   bootstrapAdminEmail: (process.env.BOOTSTRAP_ADMIN_EMAIL ?? '').trim().toLowerCase(),
+  /**
+   * Second factor for the one admin registration. The invite code is shared,
+   * so it must not be enough to create SYSTEM_ADMIN. Unset fails closed:
+   * the bootstrap address cannot register as admin at all.
+   */
+  bootstrapAdminSecret: process.env.BOOTSTRAP_ADMIN_SECRET ?? '',
   /**
    * Addresses that register as NTE_SYSTEMS_OPERATOR. Comma-separated. Unset
    * means registration cannot produce that role. This is not a self-serve

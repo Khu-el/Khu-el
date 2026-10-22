@@ -37,6 +37,11 @@ const uploaded = await fetch(`${server.url}/api/records/${recordId}/attachments`
   body: form,
 });
 const attachmentId: string = (await uploaded.json()).attachment.id;
+const ownerId: string = owner.body.user.id;
+
+const granted = await call(server.url, `/api/attachments/${attachmentId}/grant`, { method: 'POST', token });
+if (granted.status !== 200) throw new Error(`grant failed: ${granted.status}`);
+const grantToken: string = granted.body.token;
 
 after(async () => {
   await server.close();
@@ -44,10 +49,47 @@ after(async () => {
 });
 
 describe('the one route that accepts ?token=', () => {
-  test('a plain <a href> download works with no Authorization header', async () => {
-    const res = await fetch(`${server.url}/api/attachments/${attachmentId}/download?token=${encodeURIComponent(token)}`);
+  test('a 60-second download grant works with no Authorization header', async () => {
+    const res = await fetch(`${server.url}/api/attachments/${attachmentId}/download?token=${encodeURIComponent(grantToken)}`);
     assert.equal(res.status, 200);
     assert.equal(await res.text(), 'evidence file contents');
+  });
+
+  test('the session JWT in the query does not download the file', async () => {
+    const res = await fetch(`${server.url}/api/attachments/${attachmentId}/download?token=${encodeURIComponent(token)}`);
+    assert.equal(res.status, 401);
+  });
+
+  test('a grant for a different attachment is refused', async () => {
+    const jwt = (await import('jsonwebtoken')).default;
+    const other = jwt.sign(
+      { sub: ownerId, attachmentId: 'att_other', purpose: 'attachment-download' },
+      'test-secret-not-used-anywhere-real',
+      { expiresIn: 60 },
+    );
+    const res = await fetch(`${server.url}/api/attachments/${attachmentId}/download?token=${encodeURIComponent(other)}`);
+    assert.equal(res.status, 401);
+  });
+
+  test('an expired grant is refused', async () => {
+    const jwt = (await import('jsonwebtoken')).default;
+    const expired = jwt.sign(
+      { sub: ownerId, attachmentId, purpose: 'attachment-download', exp: Math.floor(Date.now() / 1000) - 10 },
+      'test-secret-not-used-anywhere-real',
+    );
+    const res = await fetch(`${server.url}/api/attachments/${attachmentId}/download?token=${encodeURIComponent(expired)}`);
+    assert.equal(res.status, 401);
+  });
+
+  test('a download grant is not a session bearer', async () => {
+    const asBearer = await fetch(`${server.url}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${grantToken}` },
+    });
+    assert.equal(asBearer.status, 401);
+    const download = await fetch(`${server.url}/api/attachments/${attachmentId}/download`, {
+      headers: { Authorization: `Bearer ${grantToken}` },
+    });
+    assert.equal(download.status, 401);
   });
 
   test('the same route still works with the header', async () => {
@@ -92,7 +134,7 @@ describe('every other route ignores a query token', () => {
   }
 
   test('the attachment survived the refused DELETE', async () => {
-    const res = await fetch(`${server.url}/api/attachments/${attachmentId}/download?token=${encodeURIComponent(token)}`);
+    const res = await fetch(`${server.url}/api/attachments/${attachmentId}/download?token=${encodeURIComponent(grantToken)}`);
     assert.equal(res.status, 200);
   });
 });

@@ -20,6 +20,7 @@ export interface TestServer {
 export interface TestEnvOptions {
   inviteCode?: string;
   bootstrapAdminEmail?: string;
+  bootstrapAdminSecret?: string;
   ministryOperatorEmails?: string;
 }
 
@@ -32,6 +33,8 @@ export function configureTestEnv(options: TestEnvOptions = {}) {
   process.env.INVITE_CODE = options.inviteCode ?? 'test-invite-code';
   if (options.bootstrapAdminEmail === undefined) delete process.env.BOOTSTRAP_ADMIN_EMAIL;
   else process.env.BOOTSTRAP_ADMIN_EMAIL = options.bootstrapAdminEmail;
+  if (options.bootstrapAdminSecret === undefined) delete process.env.BOOTSTRAP_ADMIN_SECRET;
+  else process.env.BOOTSTRAP_ADMIN_SECRET = options.bootstrapAdminSecret;
   if (options.ministryOperatorEmails === undefined) delete process.env.MINISTRY_OPERATOR_EMAILS;
   else process.env.MINISTRY_OPERATOR_EMAILS = options.ministryOperatorEmails;
   return { dir, cleanup: () => rmSync(dir, { recursive: true, force: true }) };

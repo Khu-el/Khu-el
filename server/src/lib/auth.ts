@@ -29,6 +29,15 @@ export function signToken(payload: AuthTokenPayload) {
   return jwt.sign(payload, env.jwtSecret, { expiresIn: '30d' });
 }
 
+/** A download link may carry this grant. It is not a session. */
+export function signDownloadGrant(sub: string, attachmentId: string) {
+  return jwt.sign(
+    { sub, attachmentId, purpose: 'attachment-download' },
+    env.jwtSecret,
+    { expiresIn: 60 },
+  );
+}
+
 export interface AuthedRequest extends Request {
   user?: AuthTokenPayload;
 }
@@ -42,10 +51,15 @@ function authenticate(req: AuthedRequest, res: Response, next: NextFunction, tok
   if (!token) {
     return res.status(401).json({ error: 'Missing bearer token' });
   }
-  let claims: AuthTokenPayload;
+  let claims: AuthTokenPayload & { purpose?: string };
   try {
-    claims = jwt.verify(token, env.jwtSecret) as AuthTokenPayload;
+    claims = jwt.verify(token, env.jwtSecret) as AuthTokenPayload & { purpose?: string };
   } catch {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+  // A download grant is not a session. It is accepted only on the download
+  // route, and only from the query string.
+  if (claims.purpose === 'attachment-download') {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
 
@@ -81,13 +95,49 @@ export function requireAuth(req: AuthedRequest, res: Response, next: NextFunctio
   return authenticate(req, res, next, bearerToken(req));
 }
 
+interface DownloadGrant {
+  sub?: string;
+  attachmentId?: string;
+  purpose?: string;
+}
+
 /**
- * The exception, and it stays an exception: a plain `<a href>` download cannot
- * set an Authorization header, so the file-download route -- and only that
- * route -- also accepts `?token=`. Mount this deliberately per route rather
- * than on a router, so that adding a route never silently widens the opening.
+ * `?token=` on the download route is a 60-second grant for that one file.
+ * A session JWT in the query is refused: those tokens last 30 days and a URL
+ * is copied into logs, history, and Referer headers. The header still carries
+ * the session, and it wins when both are present.
+ */
+function authenticateDownloadGrant(req: AuthedRequest, res: Response, next: NextFunction, token: string) {
+  let claims: DownloadGrant;
+  try {
+    claims = jwt.verify(token, env.jwtSecret) as DownloadGrant;
+  } catch {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+  if (claims.purpose !== 'attachment-download' || typeof claims.sub !== 'string' || claims.attachmentId !== req.params.id) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+
+  const row = db.prepare('SELECT id, email, role FROM users WHERE id = ?').get(claims.sub) as DbAuthRow | undefined;
+  if (!row) return res.status(401).json({ error: 'This account no longer exists' });
+  if (!isRole(row.role)) {
+    console.error('[auth] refusing account with unrecognized role', { userId: row.id, role: row.role });
+    return res.status(403).json({ error: 'This account is not permitted to sign in' });
+  }
+  req.user = { sub: row.id, email: row.email, role: row.role };
+  next();
+}
+
+/**
+ * The exception, and it stays an exception: a plain download link cannot set
+ * an Authorization header, so the file-download route -- and only that route --
+ * also accepts `?token=`. The query value must be a download grant, not the
+ * session. Mount this deliberately per route rather than on a router.
  */
 export function requireAuthAllowingQueryToken(req: AuthedRequest, res: Response, next: NextFunction) {
+  const header = bearerToken(req);
+  if (header) return authenticate(req, res, next, header);
   const queryToken = typeof req.query.token === 'string' ? req.query.token : null;
-  return authenticate(req, res, next, bearerToken(req) ?? queryToken);
+  if (!queryToken) return res.status(401).json({ error: 'Missing bearer token' });
+  return authenticateDownloadGrant(req, res, next, queryToken);
 }

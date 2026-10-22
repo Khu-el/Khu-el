@@ -17,8 +17,12 @@ Registration assigns a role from deployment configuration. A `role` field on `PO
 | Setting | Role |
 |---|---|
 | Unset | `FAMILY_COUNCIL_MEMBER` |
-| `BOOTSTRAP_ADMIN_EMAIL` | `SYSTEM_ADMIN` for that one address |
+| `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_SECRET` | `SYSTEM_ADMIN` for that one address, once |
 | `MINISTRY_OPERATOR_EMAILS` | `NTE_SYSTEMS_OPERATOR` for each listed address |
+
+The invite code alone cannot create `SYSTEM_ADMIN`. A missing or wrong `BOOTSTRAP_ADMIN_SECRET` returns 403 and inserts no row. A second admin returns 409. An unset secret fails closed. Registration rejects an untrimmed email and stores the trimmed lowercase form. `GET /api/auth/users` includes `role` only for `SYSTEM_ADMIN`.
+
+Production boot throws if `JWT_SECRET` or `INVITE_CODE` is missing. The process does not log the invite value.
 
 `NTE_SYSTEMS_OPERATOR` does not read another account's network rows. `SYSTEM_ADMIN` can read them and cannot write into another account. `READ_ONLY_AUDITOR` cannot write.
 
@@ -35,6 +39,8 @@ Integration states `verified` and `error` are reachable only after a probe that 
 ## Routes
 
 All `/api/network` routes require an `Authorization` bearer header. `?token=` is rejected.
+
+`POST /api/attachments/:id/grant` returns a 60-second token scoped to that attachment. `GET /api/attachments/:id/download` accepts that grant in `?token=` or the session bearer header. A session JWT in the query is refused.
 
 - `GET /health`
 - `GET /repository-status`

@@ -238,9 +238,13 @@
       "has_build": true,
       "test_runner": "node --test",
       "test_files": [
+        "auth-bootstrap-secret-unset.test.ts",
+        "auth-bootstrap-secret.test.ts",
         "auth-bootstrap.test.ts",
+        "auth-canonical-email.test.ts",
         "auth-hardening.test.ts",
         "auth-ministry-operator.test.ts",
+        "auth-production-boot.test.ts",
         "auth-query-token.test.ts",
         "auth-roles.test.ts",
         "digest-crm.test.ts",
@@ -248,7 +252,8 @@
         "network-checkpoint.test.ts",
         "network-doctrine.test.ts",
         "network.test.ts",
-        "robustness.test.ts"
+        "robustness.test.ts",
+        "roles.test.ts"
       ],
       "dependency_count": 7
     }
@@ -289,9 +294,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-22T18:35:56.852Z",
+  "generated_at": "2026-10-22T18:39:28.253Z",
   "branch": "cursor/nte-network-desk-b973",
-  "commit": "330ae1daf56929e1874da8f4974ff4fef0566c4f",
+  "commit": "2217acce095a80539ca10d0d7200a29b309ff32a",
   "working_tree_clean": false,
-  "tracked_file_count": 490
+  "tracked_file_count": 491
 }
