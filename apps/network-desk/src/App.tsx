@@ -26,6 +26,14 @@ const TABS = [
 
 type Tab = (typeof TABS)[number][0];
 
+interface RepoApp { name: string | null; version: string | null; path: string; status: string; runtimeChecked: boolean; description?: string | null }
+interface RepoStatus {
+  probed: boolean;
+  note: string;
+  nvsAgentDesk: RepoApp & { mountedOnThisServer: boolean };
+  apps: RepoApp[];
+}
+
 interface Health {
   prototype: boolean;
   outboundAdapters: boolean;
@@ -144,6 +152,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
   const [tab, setTab] = useState<Tab>('home');
   const [error, setError] = useState<string | null>(null);
   const [health, setHealth] = useState<Health | null>(null);
+  const [repo, setRepo] = useState<RepoStatus | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [projectId, setProjectId] = useState<string>('');
@@ -176,7 +185,10 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
   const refresh = useCallback(async (next: Tab, selected?: string) => {
     setError(null);
     try {
-      if (next === 'home') setHealth(await api.get<Health>('/api/network/health'));
+      if (next === 'home') {
+        setHealth(await api.get<Health>('/api/network/health'));
+        setRepo(await api.get<RepoStatus>('/api/network/repository-status'));
+      }
       if (next === 'command') {
         const body = await api.get<{ projects: Project[] }>('/api/network/projects');
         setProjects(body.projects);
@@ -265,6 +277,18 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
               <Button onClick={() => act(async () => { await api.post('/api/network/samples', {}); }, 'home')}>Load labeled sample records</Button>
             </div>
             <p className="text-xs text-neutral-500 mt-3">The eight-branch shell (Home, Command, GodMode, Sales, Invest, Mind, Deploy, Brand) is not in this repository. This desk does not invent it. Command, pipeline, leads, brand, integrations, and the ledger are the sections that exist.</p>
+          </Card>
+        )}
+        {tab === 'home' && repo && (
+          <Card title="Repository status" subtitle="Read from package.json. Runtime was not checked.">
+            <p className="text-sm text-neutral-600">{repo.note}</p>
+            <p className="text-sm mt-2">{repo.nvsAgentDesk.name} {repo.nvsAgentDesk.version} · {repo.nvsAgentDesk.status} · mounted on this API: {repo.nvsAgentDesk.mountedOnThisServer ? 'yes' : 'no'} · runtime checked: {repo.nvsAgentDesk.runtimeChecked ? 'yes' : 'no'}</p>
+            {repo.nvsAgentDesk.description && <p className="text-xs text-neutral-500">{repo.nvsAgentDesk.description}</p>}
+            <ul className="mt-3 text-sm space-y-1">
+              {repo.apps.map((app) => (
+                <li key={app.path}>{app.name} {app.version} · {app.path} · {app.status} · runtime checked: {app.runtimeChecked ? 'yes' : 'no'}</li>
+              ))}
+            </ul>
           </Card>
         )}
 

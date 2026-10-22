@@ -2,6 +2,7 @@ import { Router } from 'express';
 import type { Response } from 'express';
 import { requireAuth, type AuthedRequest } from '../lib/auth.js';
 import { appendCheckpoint, verifyOwner } from '../network/checkpoint.js';
+import { repositoryStatus } from '../network/manifest.js';
 import { DeskError } from '../network/logic.js';
 import * as store from '../network/store.js';
 
@@ -27,6 +28,10 @@ function send(res: Response, status: number, fn: () => unknown) {
 
 networkRouter.get('/health', (req: AuthedRequest, res) => {
   send(res, 200, () => store.health(req.user!));
+});
+
+networkRouter.get('/repository-status', (_req, res) => {
+  send(res, 200, () => repositoryStatus());
 });
 
 networkRouter.get('/projects', (req: AuthedRequest, res) => {

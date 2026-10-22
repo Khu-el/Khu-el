@@ -60,6 +60,22 @@ describe('network desk', () => {
     assert.deepEqual(hidden.body.projects, []);
   });
 
+  test('reports repository packages without claiming they are running', async () => {
+    const user = await tokenFor('network-manifest@example.test');
+    const status = await call(server.url, '/api/network/repository-status', { token: user.token });
+    assert.equal(status.status, 200);
+    assert.equal(status.body.probed, false);
+    assert.equal(status.body.nvsAgentDesk.present, true);
+    assert.equal(status.body.nvsAgentDesk.name, '@nte/nvs-agent-desk');
+    assert.equal(status.body.nvsAgentDesk.mountedOnThisServer, false);
+    assert.equal(status.body.nvsAgentDesk.runtimeChecked, false);
+    assert.equal(status.body.nvsAgentDesk.status, 'present-in-repo');
+    const names = status.body.apps.map((app: { name: string }) => app.name);
+    assert.ok(names.includes('nte-network-desk'));
+    assert.ok(names.includes('nte-deal-architect'));
+    assert.ok(status.body.apps.every((app: { runtimeChecked: boolean; status: string }) => app.runtimeChecked === false && app.status === 'present-in-repo'));
+  });
+
   test('requires the bearer header and ignores a query token', async () => {
     const open = await call(server.url, '/api/network/projects');
     assert.equal(open.status, 401);
