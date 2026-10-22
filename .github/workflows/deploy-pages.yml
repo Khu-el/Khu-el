@@ -88,6 +88,11 @@ jobs:
       # row-level security is the gate), so they are repository Variables, not
       # Secrets. Until both are set the build still succeeds and the page says
       # it is not connected -- it never falls back to a guessed project.
+      - name: Build network-desk
+        run: npm run build --workspace=apps/network-desk
+        env:
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/network-desk/
+
       - name: Build member-portal
         run: npm run build --workspace=apps/member-portal
         env:
@@ -105,6 +110,7 @@ jobs:
           cp -r apps/notes-underwriting/dist _site/notes-underwriting
           cp -r apps/legacy-estate/dist _site/legacy-estate
           cp -r apps/financial-services-crm/dist _site/financial-services-crm
+          cp -r apps/network-desk/dist _site/network-desk
           cp -r apps/member-portal/dist _site/member-portal
 
       # There is no CNAME step. When Pages publishes from a GitHub Actions

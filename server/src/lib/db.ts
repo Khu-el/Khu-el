@@ -44,6 +44,143 @@ db.exec(`
     FOREIGN KEY (owner_id) REFERENCES users(id)
   );
   CREATE INDEX IF NOT EXISTS idx_attachments_record ON attachments(record_id);
+
+  CREATE TABLE IF NOT EXISTS network_projects (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    lane TEXT NOT NULL,
+    title TEXT NOT NULL,
+    status TEXT NOT NULL,
+    sample INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+  );
+  CREATE INDEX IF NOT EXISTS idx_network_projects_owner ON network_projects(owner_id);
+
+  CREATE TABLE IF NOT EXISTS network_tasks (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    owner_id TEXT NOT NULL,
+    assignee TEXT NOT NULL,
+    title TEXT NOT NULL,
+    status TEXT NOT NULL,
+    depends_on TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    lane TEXT NOT NULL,
+    sample INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES network_projects(id),
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS network_pipeline (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    lane TEXT NOT NULL,
+    name TEXT NOT NULL,
+    stage TEXT NOT NULL,
+    artifact_note TEXT NOT NULL,
+    qa_note TEXT NOT NULL,
+    approved_hash TEXT,
+    sample INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS network_approvals (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    pipeline_id TEXT NOT NULL,
+    payload_hash TEXT NOT NULL,
+    status TEXT NOT NULL,
+    proposed_by TEXT NOT NULL,
+    approved_by TEXT,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS network_leads (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    lane TEXT NOT NULL,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL DEFAULT '',
+    consent INTEGER NOT NULL,
+    consent_text TEXT NOT NULL,
+    consent_at TEXT NOT NULL,
+    sample INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+  );
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_network_leads_email ON network_leads(owner_id, email);
+
+  CREATE TABLE IF NOT EXISTS network_assets (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    lane TEXT NOT NULL,
+    brand TEXT NOT NULL,
+    name TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    status TEXT NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
+    sample INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS network_campaigns (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    lane TEXT NOT NULL,
+    brand TEXT NOT NULL,
+    title TEXT NOT NULL,
+    scheduled_on TEXT NOT NULL,
+    status TEXT NOT NULL,
+    sample INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS network_integrations (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    state TEXT NOT NULL,
+    detail TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE (owner_id, provider),
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS network_queues (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    lane TEXT NOT NULL,
+    domain TEXT NOT NULL,
+    title TEXT NOT NULL,
+    status TEXT NOT NULL,
+    sample INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS network_events (
+    seq INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts TEXT NOT NULL,
+    owner_id TEXT NOT NULL,
+    actor_id TEXT NOT NULL,
+    event TEXT NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id TEXT NOT NULL,
+    detail TEXT NOT NULL,
+    prev_hash TEXT NOT NULL,
+    hash TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_network_events_owner ON network_events(owner_id, seq);
 `);
 
 console.log(`[db] SQLite database ready at ${env.dbPath}`);

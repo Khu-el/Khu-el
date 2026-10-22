@@ -270,6 +270,7 @@ npm run dev:notes-underwriting  # terminal 4
 npm run dev:legacy-estate       # terminal 5
 npm run dev:financial-services-crm  # terminal 6
 npm run dev:member-portal       # no server/ needed — it talks to Supabase
+npm run dev:network-desk        # NTE ministry desk — prototype, same server as the planning tools
 ```
 
 Register a separate account per app the first time you open it (accounts are shared across apps —

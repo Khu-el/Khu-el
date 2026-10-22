@@ -54,6 +54,11 @@ function resolveInviteCode(): string {
   return generated;
 }
 
+function localDevOrigins() {
+  const ports = [5173, 5174, 5175, 5176, 5177, 5178, 5179];
+  return ports.flatMap((port) => [`http://localhost:${port}`, `http://127.0.0.1:${port}`]).join(',');
+}
+
 export const env = {
   port: Number(process.env.PORT ?? 4000),
   /**
@@ -79,7 +84,8 @@ export const env = {
   bootstrapAdminEmail: (process.env.BOOTSTRAP_ADMIN_EMAIL ?? '').trim().toLowerCase(),
   // Trimmed, because "https://a.example, https://b.example" is the natural way
   // to write a list and the untrimmed " https://b.example" matches no origin.
-  corsOrigins: (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176')
+  // Vite on 127.0.0.1 and a page opened as localhost are different origins.
+  corsOrigins: (process.env.CORS_ORIGINS ?? localDevOrigins())
     .split(',')
     .map((o) => o.trim())
     .filter(Boolean),

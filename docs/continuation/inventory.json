@@ -13,6 +13,7 @@
     "dev:financial-services-crm",
     "dev:legacy-estate",
     "dev:member-portal",
+    "dev:network-desk",
     "dev:notes-underwriting",
     "dev:server",
     "inventory",
@@ -123,6 +124,21 @@
       "dependency_count": 4
     },
     {
+      "path": "apps/network-desk",
+      "name": "nte-network-desk",
+      "private": true,
+      "scripts": [
+        "build",
+        "dev",
+        "preview"
+      ],
+      "has_typecheck": true,
+      "has_build": true,
+      "test_runner": null,
+      "test_files": [],
+      "dependency_count": 3
+    },
+    {
       "path": "apps/notes-underwriting",
       "name": "nte-notes-underwriting",
       "private": true,
@@ -227,12 +243,15 @@
         "auth-roles.test.ts",
         "digest-crm.test.ts",
         "digest-staleness.test.ts",
+        "network.test.ts",
         "robustness.test.ts"
       ],
       "dependency_count": 7
     }
   ],
-  "untested_workspaces": [],
+  "untested_workspaces": [
+    "apps/network-desk"
+  ],
   "non_workspace_projects": [
     {
       "path": "nte-command-center",
@@ -266,9 +285,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-21T12:39:37.208Z",
-  "branch": "claude/nvs-agent-desk",
-  "commit": "09c499e82149d37fce243c926b08733a89b82e45",
+  "generated_at": "2026-10-22T16:00:40.688Z",
+  "branch": "cursor/nte-network-desk-b973",
+  "commit": "e1d22ce7f37b90d1d580e495f0e5eda1d3c47666",
   "working_tree_clean": false,
   "tracked_file_count": 470
 }
