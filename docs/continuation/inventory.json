@@ -16,6 +16,7 @@
     "dev:network-desk",
     "dev:notes-underwriting",
     "dev:server",
+    "gate",
     "inventory",
     "inventory:check",
     "lint",
@@ -242,6 +243,7 @@
         "auth-bootstrap-secret.test.ts",
         "auth-bootstrap.test.ts",
         "auth-canonical-email.test.ts",
+        "auth-email-fold.test.ts",
         "auth-hardening.test.ts",
         "auth-ministry-operator.test.ts",
         "auth-production-boot.test.ts",
@@ -297,9 +299,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-22T18:48:48.584Z",
+  "generated_at": "2026-10-22T19:43:25.238Z",
   "branch": "cursor/nte-network-desk-b973",
-  "commit": "bb9823e13f877f9f5e0b6e3f54e5c516b1c916e3",
+  "commit": "35e9ae57772f6de4db07b0b964a40d6ea2178958",
   "working_tree_clean": false,
-  "tracked_file_count": 499
+  "tracked_file_count": 505
 }
