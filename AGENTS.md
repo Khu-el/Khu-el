@@ -4,6 +4,10 @@ This file is the operating guide for the ministry network desk. The rest of the 
 
 The desk is `apps/network-desk` plus `/api/network` on the shared Express server. It is a local prototype. It does not publish, send, spend, or call a provider.
 
+## Pre-merge check
+
+`npm run gate` is the required check before this branch merges to `main`. It runs `npm test`, `npm run typecheck`, the network-desk production build, `npm run lint`, and the doctrine scan in `server/test/network-doctrine.test.ts`. The command exits non-zero on the first failure. A green gate does not deploy, and it does not show that `FLY_API_TOKEN` is set. The push and draft-PR steps are in `docs/continuation/MERGE_PLAN.md`.
+
 ## Lane and authority
 
 Records are stored in lane `NTE_MINISTRY`. The internal model names Equity of the Divine Ministries as trustee for NTE affairs and Chaz Khu El as Minister / authorized representative. No tax classification is asserted for NTE; working position held pending written counsel confirmation. That model is `CURRENT_INTERNAL_MODEL` and is not marked legally verified by this software.

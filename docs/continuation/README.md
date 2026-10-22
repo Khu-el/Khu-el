@@ -10,6 +10,9 @@ Opus 5 (Claude Code) on `claude/neterverse-continuation-audit-k0meuw`.
 | [`HUMAN_ACTION_REQUIRED.md`](HUMAN_ACTION_REQUIRED.md) | Seven blockers, each with the exact action, where to do it, and how to verify |
 | [`SECURITY_FINDINGS.md`](SECURITY_FINDINGS.md) | Two fixed authorization defects, with before/after evidence; plus what was reviewed and accepted |
 | [`LANE_B_DECISION.md`](LANE_B_DECISION.md) | 2026-10-22 code inspection: legacy-estate and `FAMILY_COUNCIL_MEMBER` can hold Lane B. Decision for Chaz. No records opened. |
+| [`REVIEW-2026-10-22.md`](REVIEW-2026-10-22.md) | Adversarial review of `1fa7236..277c5a5` and the fixes that followed. |
+| [`MERGE_PLAN.md`](MERGE_PLAN.md) | Local steps to push a draft PR, and what a merge to `main` starts. |
+| [`ADMIN_BOOTSTRAP.md`](ADMIN_BOOTSTRAP.md) | How admin registration reads its environment variables. No secret values. |
 | [`inventory.json`](inventory.json) | Machine-readable workspace inventory — **generated, not hand-written** (`npm run inventory`) |
 
 ## How to read this
