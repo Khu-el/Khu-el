@@ -58,6 +58,7 @@ All `/api/network` routes require an `Authorization` bearer header. `?token=` is
 - `GET /events`
 - `POST /ledger/checkpoint`, `GET /ledger/verify`
 - `POST /samples`
+- `POST /registry/import` — JSON or CSV, `dryRun: true` previews and writes nothing. `dryRun: false` appends projects, tasks, and ledger events. Unknown `entityId` is refused. Omitted `dryRun` previews.
 
 The page is Home, Command, Pipeline, Leads, Brand, Integrations, and Ledger. The eight-branch shell, Document Factory, and doctrine records are not in this repository and are not invented here.
 

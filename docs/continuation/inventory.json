@@ -252,6 +252,7 @@
         "network-checkpoint.test.ts",
         "network-doctrine.test.ts",
         "network-entities.test.ts",
+        "network-registry.test.ts",
         "network.test.ts",
         "robustness.test.ts",
         "roles.test.ts"
@@ -295,9 +296,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-22T18:43:48.543Z",
+  "generated_at": "2026-10-22T18:47:21.696Z",
   "branch": "cursor/nte-network-desk-b973",
-  "commit": "f378b1615c074e83bb89c4eecb50638e9a7fb81a",
+  "commit": "cee4fdef35420e23766702a2a69cd66297663786",
   "working_tree_clean": false,
-  "tracked_file_count": 495
+  "tracked_file_count": 497
 }

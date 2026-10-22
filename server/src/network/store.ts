@@ -5,6 +5,7 @@ import { newId, nowIso } from '../lib/id.js';
 import type { AuthTokenPayload } from '../lib/auth.js';
 import { canWrite } from '../lib/roles.js';
 import { appendCheckpoint } from './checkpoint.js';
+import { planRegistry } from './registry.js';
 import {
   AUTHORITY,
   FORMATION_NOTE,
@@ -1004,4 +1005,59 @@ export function loadSamples(user: UserRef) {
     true,
   );
   return { created: true, projectId: project!.id };
+}
+
+export function importRegistry(user: UserRef, body: Record<string, unknown>) {
+  writer(user);
+  assertMinistryLane(body.lane);
+  const entityId = chosenEntity(body);
+  if (body.dryRun !== undefined && typeof body.dryRun !== 'boolean') throw new DeskError(400, 'dryRun must be true or false');
+  const dryRun = body.dryRun !== false;
+  const plan = planRegistry(body);
+  const preview = {
+    dryRun,
+    written: false as boolean,
+    entityId,
+    formationStatus: FORMATION_STATUS,
+    formationNote: FORMATION_NOTE,
+    kind: plan.kind,
+    format: plan.format,
+    projects: plan.projects.length,
+    tasks: plan.tasks.length,
+    rows: plan.rows,
+  };
+  if (dryRun) return preview;
+
+  const createdProjects: { id: string }[] = [];
+  for (const project of plan.projects) {
+    const row = createProject(user, { title: project.title, status: project.status, entityId });
+    createdProjects.push({ id: row!.id });
+  }
+  const createdTasks: { id: string }[] = [];
+  for (const task of plan.tasks) {
+    const project = createdProjects[task.projectIndex];
+    const row = createTask(user, project.id, {
+      title: task.title,
+      assignee: task.assignee,
+      status: task.status,
+      evidence: task.evidence,
+      entityId,
+    });
+    createdTasks.push({ id: row!.id });
+  }
+  withWrite(() => {
+    appendEvent(user.sub, user.sub, 'registry.imported', 'registry', entityId, {
+      kind: plan.kind,
+      projects: createdProjects.length,
+      tasks: createdTasks.length,
+      sample: false,
+    }, entityId);
+  });
+  return {
+    ...preview,
+    dryRun: false,
+    written: true,
+    projectIds: createdProjects.map((row) => row.id),
+    taskIds: createdTasks.map((row) => row.id),
+  };
 }

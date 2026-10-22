@@ -194,6 +194,10 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
   const [domain, setDomain] = useState('legal');
   const [entityFilter, setEntityFilter] = useState('');
   const [entityId, setEntityId] = useState<(typeof DESK_ENTITIES)[number]>('NETWORK');
+  const [registryText, setRegistryText] = useState('system,area,state,source_of_truth,evidence,next_action\nSAMPLE registry,ministry,draft,local file,DOCUMENT_STATED,Review the row');
+  const [registryKind, setRegistryKind] = useState<'systems' | 'actions'>('systems');
+  const [registryFormat, setRegistryFormat] = useState<'csv' | 'json'>('csv');
+  const [registryPreview, setRegistryPreview] = useState<string>('');
 
   const entityQuery = entityFilter ? `?entity=${encodeURIComponent(entityFilter)}` : '';
 
@@ -394,6 +398,37 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
               </form>
             </Card>
           </div>
+          <Card title="Registry import" subtitle="Preview writes nothing. Import appends projects, tasks, and ledger events for the selected entity.">
+            <div className="grid gap-2 md:grid-cols-2">
+              <Field label="Kind">
+                <select className="w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm" value={registryKind} onChange={(e) => { setRegistryKind(e.target.value as 'systems' | 'actions'); setRegistryPreview(''); }}>
+                  <option value="systems">systems</option>
+                  <option value="actions">actions</option>
+                </select>
+              </Field>
+              <Field label="Format">
+                <select className="w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm" value={registryFormat} onChange={(e) => { setRegistryFormat(e.target.value as 'csv' | 'json'); setRegistryPreview(''); }}>
+                  <option value="csv">csv</option>
+                  <option value="json">json</option>
+                </select>
+              </Field>
+            </div>
+            <Field label="Registry file">
+              <textarea className="w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm font-mono" rows={5} value={registryText} onChange={(e) => { setRegistryText(e.target.value); setRegistryPreview(''); }} />
+            </Field>
+            <p className="text-xs text-neutral-500 mb-2">Columns for systems: system, area, state, source_of_truth, evidence, next_action. Columns for actions: rank, action, owner, gate, why, status. Entity {entityId} is unformed.</p>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={() => act(async () => {
+                const preview = await api.post<{ projects: number; tasks: number; formationStatus: string; written: boolean }>('/api/network/registry/import', { format: registryFormat, kind: registryKind, text: registryText, entityId, dryRun: true });
+                setRegistryPreview(`${preview.projects} projects, ${preview.tasks} tasks, formation ${preview.formationStatus}, written ${preview.written ? 'yes' : 'no'}`);
+              })}>Preview</Button>
+              <Button disabled={!registryPreview} onClick={() => act(async () => {
+                const imported = await api.post<{ projects: number; tasks: number }>('/api/network/registry/import', { format: registryFormat, kind: registryKind, text: registryText, entityId, dryRun: false });
+                setRegistryPreview(`Imported ${imported.projects} projects and ${imported.tasks} tasks.`);
+              })}>Import</Button>
+            </div>
+            {registryPreview && <p className="text-sm mt-2">{registryPreview}</p>}
+          </Card>
           </div>
         )}
 

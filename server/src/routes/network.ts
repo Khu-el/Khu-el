@@ -173,3 +173,8 @@ networkRouter.get('/ledger/verify', (req: AuthedRequest, res) => {
 networkRouter.post('/samples', (req: AuthedRequest, res) => {
   send(res, 201, () => store.loadSamples(req.user!));
 });
+
+networkRouter.post('/registry/import', (req: AuthedRequest, res) => {
+  const dryRun = (req.body ?? {}).dryRun !== false;
+  send(res, dryRun ? 200 : 201, () => store.importRegistry(req.user!, req.body ?? {}));
+});
