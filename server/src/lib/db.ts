@@ -177,6 +177,23 @@ db.exec(`
     FOREIGN KEY (owner_id) REFERENCES users(id)
   );
 
+  CREATE TABLE IF NOT EXISTS network_revenue (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    lane TEXT NOT NULL,
+    entity_id TEXT NOT NULL DEFAULT 'NETWORK',
+    period TEXT NOT NULL,
+    product TEXT NOT NULL,
+    gross REAL NOT NULL,
+    refunds REAL NOT NULL,
+    net REAL NOT NULL,
+    evidence_link TEXT NOT NULL,
+    recorded_by TEXT NOT NULL,
+    draft INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+  );
+
   CREATE TABLE IF NOT EXISTS network_events (
     seq INTEGER PRIMARY KEY AUTOINCREMENT,
     ts TEXT NOT NULL,

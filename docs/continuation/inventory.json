@@ -253,6 +253,7 @@
         "network-doctrine.test.ts",
         "network-entities.test.ts",
         "network-registry.test.ts",
+        "network-revenue.test.ts",
         "network.test.ts",
         "robustness.test.ts",
         "roles.test.ts"
@@ -296,9 +297,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-22T18:47:21.696Z",
+  "generated_at": "2026-10-22T18:48:48.584Z",
   "branch": "cursor/nte-network-desk-b973",
-  "commit": "cee4fdef35420e23766702a2a69cd66297663786",
+  "commit": "bb9823e13f877f9f5e0b6e3f54e5c516b1c916e3",
   "working_tree_clean": false,
-  "tracked_file_count": 497
+  "tracked_file_count": 499
 }

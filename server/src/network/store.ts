@@ -1061,3 +1061,110 @@ export function importRegistry(user: UserRef, body: Record<string, unknown>) {
     taskIds: createdTasks.map((row) => row.id),
   };
 }
+
+function recordedMoney(value: unknown, field: string) {
+  if (value === undefined || value === null || value === '') {
+    throw new DeskError(400, `${field} is required. This desk does not estimate.`);
+  }
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    throw new DeskError(400, `${field} must be a recorded number. This desk does not estimate.`);
+  }
+  if (value < 0) throw new DeskError(400, `${field} cannot be negative`);
+  return value;
+}
+
+function mapRevenue(row: Record<string, unknown>) {
+  return {
+    id: String(row.id),
+    ownerId: String(row.owner_id),
+    lane: String(row.lane),
+    period: String(row.period),
+    product: String(row.product),
+    gross: row.gross as number,
+    refunds: row.refunds as number,
+    net: row.net as number,
+    evidenceLink: String(row.evidence_link),
+    recordedBy: String(row.recorded_by),
+    draft: true,
+    createdAt: String(row.created_at),
+    ...formationFields(row),
+  };
+}
+
+export function listRevenue(user: UserRef, entity?: DeskEntity) {
+  const scope = owns(user);
+  const entitySql = entity ? ' AND entity_id = ?' : '';
+  const rows = scope
+    ? db.prepare(`SELECT * FROM network_revenue WHERE owner_id = ? AND lane = ?${entitySql} ORDER BY created_at DESC`).all(
+        ...(entity ? [scope, LANE, entity] : [scope, LANE]),
+      )
+    : db.prepare(`SELECT * FROM network_revenue WHERE lane = ?${entitySql} ORDER BY created_at DESC`).all(
+        ...(entity ? [LANE, entity] : [LANE]),
+      );
+  return (rows as Record<string, unknown>[]).map(mapRevenue);
+}
+
+export function revenueSummary(user: UserRef, entity?: DeskEntity) {
+  const rows = listRevenue(user, entity);
+  if (rows.length === 0) {
+    return {
+      evidence: 'no evidence recorded' as const,
+      gross: null,
+      refunds: null,
+      net: null,
+      count: 0,
+      draft: true,
+    };
+  }
+  return {
+    evidence: 'recorded' as const,
+    gross: rows.reduce((sum, row) => sum + row.gross, 0),
+    refunds: rows.reduce((sum, row) => sum + row.refunds, 0),
+    net: rows.reduce((sum, row) => sum + row.net, 0),
+    count: rows.length,
+    draft: true,
+  };
+}
+
+export function createRevenue(user: UserRef, body: Record<string, unknown>) {
+  writer(user);
+  assertMinistryLane(body.lane);
+  if (body.estimate === true || body.estimated === true) {
+    throw new DeskError(400, 'This desk does not record estimates.');
+  }
+  const entityId = chosenEntity(body);
+  const period = requireText(body.period, 'period', 20);
+  if (!/^\d{4}-\d{2}(-\d{2})?$/.test(period)) throw new DeskError(400, 'period must be YYYY-MM or YYYY-MM-DD');
+  const product = requireText(body.product, 'product');
+  const gross = recordedMoney(body.gross, 'gross');
+  const refunds = recordedMoney(body.refunds, 'refunds');
+  const net = recordedMoney(body.net, 'net');
+  if (Math.abs(net - (gross - refunds)) > 0.001) {
+    throw new DeskError(400, 'net must equal gross minus refunds. This desk does not estimate a correction.');
+  }
+  const evidenceLink = requireText(body.evidenceLink ?? body.evidence_link, 'evidenceLink', 500);
+  if (body.recordedBy !== undefined && body.recordedBy !== user.sub) {
+    throw new DeskError(400, 'recordedBy is taken from the signed-in account');
+  }
+  const id = newId('rev');
+  const now = nowIso();
+  withWrite(() => {
+    db.prepare(
+      `INSERT INTO network_revenue
+        (id, owner_id, lane, entity_id, period, product, gross, refunds, net, evidence_link, recorded_by, draft, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`,
+    ).run(id, user.sub, LANE, entityId, period, product, gross, refunds, net, evidenceLink, user.sub, now);
+    appendEvent(user.sub, user.sub, 'revenue.recorded', 'revenue', id, {
+      period,
+      product,
+      gross,
+      refunds,
+      net,
+      evidenceLink,
+      recordedBy: user.sub,
+      draft: true,
+      estimated: false,
+    }, entityId);
+  });
+  return listRevenue(user).find((row) => row.id === id);
+}

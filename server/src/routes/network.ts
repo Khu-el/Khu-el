@@ -178,3 +178,15 @@ networkRouter.post('/registry/import', (req: AuthedRequest, res) => {
   const dryRun = (req.body ?? {}).dryRun !== false;
   send(res, dryRun ? 200 : 201, () => store.importRegistry(req.user!, req.body ?? {}));
 });
+
+networkRouter.get('/revenue/summary', (req: AuthedRequest, res) => {
+  send(res, 200, () => store.revenueSummary(req.user!, queryEntity(req)));
+});
+
+networkRouter.get('/revenue', (req: AuthedRequest, res) => {
+  send(res, 200, () => ({ entries: store.listRevenue(req.user!, queryEntity(req)) }));
+});
+
+networkRouter.post('/revenue', (req: AuthedRequest, res) => {
+  send(res, 201, () => ({ entry: store.createRevenue(req.user!, req.body ?? {}) }));
+});

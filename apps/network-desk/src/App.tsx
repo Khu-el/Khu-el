@@ -81,6 +81,7 @@ interface Integration {
 }
 interface Queue { id: string; domain: string; title: string; status: string }
 interface DeskEvent { seq: number; event: string; entityId: string; orgEntity: string; formationStatus: string; hash: string }
+interface RevenueSummary { evidence: string; gross: number | null; refunds: number | null; net: number | null; count: number; draft: boolean }
 
 interface Rollup {
   ownerId: string;
@@ -198,6 +199,8 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
   const [registryKind, setRegistryKind] = useState<'systems' | 'actions'>('systems');
   const [registryFormat, setRegistryFormat] = useState<'csv' | 'json'>('csv');
   const [registryPreview, setRegistryPreview] = useState<string>('');
+  const [revenue, setRevenue] = useState<RevenueSummary | null>(null);
+  const [revenueForm, setRevenueForm] = useState({ period: '', product: '', gross: '', refunds: '', net: '', evidenceLink: '' });
 
   const entityQuery = entityFilter ? `?entity=${encodeURIComponent(entityFilter)}` : '';
 
@@ -207,6 +210,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
       if (next === 'home') {
         setHealth(await api.get<Health>('/api/network/health'));
         setRepo(await api.get<RepoStatus>('/api/network/repository-status'));
+        setRevenue(await api.get<RevenueSummary>(`/api/network/revenue/summary${entityQuery}`));
       }
       if (next === 'command') {
         const body = await api.get<{ projects: Project[] }>(`/api/network/projects${entityQuery}`);
@@ -301,6 +305,35 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
               <Button onClick={() => act(async () => { await api.post('/api/network/samples', {}); }, 'home')}>Load labeled sample records</Button>
             </div>
             <p className="text-xs text-neutral-500 mt-3">The eight-branch shell (Home, Command, GodMode, Sales, Invest, Mind, Deploy, Brand) is not in this repository. This desk does not invent it. Command, pipeline, leads, brand, integrations, and the ledger are the sections that exist.</p>
+          </Card>
+        )}
+        {tab === 'home' && revenue && (
+          <Card title="Revenue ledger" subtitle="Draft only. A figure is stored only with an evidence link. Nothing here is an estimate or a send.">
+            <p className="text-sm">{revenue.evidence === 'no evidence recorded' ? 'no evidence recorded' : `Recorded draft net ${revenue.net} from ${revenue.count} evidenced rows.`}</p>
+            <form className="mt-3 grid gap-2 md:grid-cols-2" onSubmit={(e) => {
+              e.preventDefault();
+              const amount = (value: string) => value.trim() === '' ? null : Number(value);
+              void act(async () => {
+                await api.post('/api/network/revenue', {
+                  period: revenueForm.period,
+                  product: revenueForm.product,
+                  gross: amount(revenueForm.gross),
+                  refunds: amount(revenueForm.refunds),
+                  net: amount(revenueForm.net),
+                  evidenceLink: revenueForm.evidenceLink,
+                  entityId,
+                });
+                setRevenueForm({ period: '', product: '', gross: '', refunds: '', net: '', evidenceLink: '' });
+              }, 'home');
+            }}>
+              <Field label="Period"><TextInput placeholder="YYYY-MM" value={revenueForm.period} onChange={(e) => setRevenueForm({ ...revenueForm, period: e.target.value })} required /></Field>
+              <Field label="Product"><TextInput value={revenueForm.product} onChange={(e) => setRevenueForm({ ...revenueForm, product: e.target.value })} required /></Field>
+              <Field label="Gross"><TextInput value={revenueForm.gross} onChange={(e) => setRevenueForm({ ...revenueForm, gross: e.target.value })} required /></Field>
+              <Field label="Refunds"><TextInput value={revenueForm.refunds} onChange={(e) => setRevenueForm({ ...revenueForm, refunds: e.target.value })} required /></Field>
+              <Field label="Net"><TextInput value={revenueForm.net} onChange={(e) => setRevenueForm({ ...revenueForm, net: e.target.value })} required /></Field>
+              <Field label="Evidence link"><TextInput value={revenueForm.evidenceLink} onChange={(e) => setRevenueForm({ ...revenueForm, evidenceLink: e.target.value })} required /></Field>
+              <Button type="submit">Record draft</Button>
+            </form>
           </Card>
         )}
         {tab === 'home' && repo && (
