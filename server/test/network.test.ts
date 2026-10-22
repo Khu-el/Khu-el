@@ -60,6 +60,20 @@ describe('network desk', () => {
     assert.deepEqual(hidden.body.projects, []);
   });
 
+  test('csv export neutralizes a formula in a title', async () => {
+    const user = await tokenFor('network-csv@example.test');
+    const created = await call(server.url, '/api/network/projects', {
+      method: 'POST',
+      token: user.token,
+      body: JSON.stringify({ title: '=SUM(1,1)' }),
+    });
+    assert.equal(created.status, 201);
+    const csv = await call(server.url, '/api/network/export?format=csv', { token: user.token });
+    assert.equal(csv.status, 200);
+    assert.match(String(csv.body), /'=SUM\(1,1\)/);
+    assert.doesNotMatch(String(csv.body), /(^|,)=SUM\(1,1\)(,|\n)/);
+  });
+
   test('reports repository packages without claiming they are running', async () => {
     const user = await tokenFor('network-manifest@example.test');
     const status = await call(server.url, '/api/network/repository-status', { token: user.token });

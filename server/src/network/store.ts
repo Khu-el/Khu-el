@@ -864,7 +864,9 @@ export function listEvents(user: UserRef, entity?: DeskEntity) {
 }
 
 function csvCell(value: unknown) {
-  const text = value === null || value === undefined ? '' : String(value);
+  let text = value === null || value === undefined ? '' : String(value);
+  // A leading = + - or @ is a formula when the file is opened in a spreadsheet.
+  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
   if (/[",\n]/.test(text)) return `"${text.replace(/"/g, '""')}"`;
   return text;
 }
