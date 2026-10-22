@@ -9,6 +9,7 @@ Opus 5 (Claude Code) on `claude/neterverse-continuation-audit-k0meuw`.
 | [`SOURCE_CONFLICTS.md`](SOURCE_CONFLICTS.md) | Six recorded contradictions, which source controls, and which need a human |
 | [`HUMAN_ACTION_REQUIRED.md`](HUMAN_ACTION_REQUIRED.md) | Seven blockers, each with the exact action, where to do it, and how to verify |
 | [`SECURITY_FINDINGS.md`](SECURITY_FINDINGS.md) | Two fixed authorization defects, with before/after evidence; plus what was reviewed and accepted |
+| [`LANE_B_DECISION.md`](LANE_B_DECISION.md) | 2026-10-22 code inspection: legacy-estate and `FAMILY_COUNCIL_MEMBER` can hold Lane B. Decision for Chaz. No records opened. |
 | [`inventory.json`](inventory.json) | Machine-readable workspace inventory — **generated, not hand-written** (`npm run inventory`) |
 
 ## How to read this
