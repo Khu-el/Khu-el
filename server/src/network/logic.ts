@@ -16,7 +16,7 @@ export const AUTHORITY = {
   lane: LANE,
   trustee: 'Equity of the Divine Ministries',
   representative: 'Chaz Khu El',
-  nte: 'irrevocable non-grantor',
+  nte: 'No tax classification is asserted for NTE; working position held pending written counsel confirmation.',
   assertionStatus: 'CURRENT_INTERNAL_MODEL' as const,
   legalStatusVerified: false,
   excluded: ['House of Ransom', 'Living Trust', 'private family records'],

@@ -6,7 +6,7 @@ The desk is `apps/network-desk` plus `/api/network` on the shared Express server
 
 ## Lane and authority
 
-Records are stored in lane `NTE_MINISTRY`. The internal model names Equity of the Divine Ministries as trustee for NTE affairs and Chaz Khu El as Minister / authorized representative. NTE is recorded as irrevocable non-grantor. That model is `CURRENT_INTERNAL_MODEL` and is not marked legally verified by this software.
+Records are stored in lane `NTE_MINISTRY`. The internal model names Equity of the Divine Ministries as trustee for NTE affairs and Chaz Khu El as Minister / authorized representative. No tax classification is asserted for NTE; working position held pending written counsel confirmation. That model is `CURRENT_INTERNAL_MODEL` and is not marked legally verified by this software.
 
 House of Ransom, the Living Trust, and private family records are refused. Sample rows are labeled `SAMPLE` and use `@example.test` addresses.
 
