@@ -13,8 +13,10 @@
     "dev:financial-services-crm",
     "dev:legacy-estate",
     "dev:member-portal",
+    "dev:network-desk",
     "dev:notes-underwriting",
     "dev:server",
+    "gate",
     "inventory",
     "inventory:check",
     "lint",
@@ -123,6 +125,21 @@
       "dependency_count": 4
     },
     {
+      "path": "apps/network-desk",
+      "name": "nte-network-desk",
+      "private": true,
+      "scripts": [
+        "build",
+        "dev",
+        "preview"
+      ],
+      "has_typecheck": true,
+      "has_build": true,
+      "test_runner": null,
+      "test_files": [],
+      "dependency_count": 3
+    },
+    {
       "path": "apps/notes-underwriting",
       "name": "nte-notes-underwriting",
       "private": true,
@@ -214,6 +231,7 @@
       "scripts": [
         "build",
         "dev",
+        "ledger:verify",
         "start",
         "test"
       ],
@@ -221,18 +239,33 @@
       "has_build": true,
       "test_runner": "node --test",
       "test_files": [
+        "auth-bootstrap-secret-unset.test.ts",
+        "auth-bootstrap-secret.test.ts",
         "auth-bootstrap.test.ts",
+        "auth-canonical-email.test.ts",
+        "auth-email-fold.test.ts",
         "auth-hardening.test.ts",
+        "auth-ministry-operator.test.ts",
+        "auth-production-boot.test.ts",
         "auth-query-token.test.ts",
         "auth-roles.test.ts",
         "digest-crm.test.ts",
         "digest-staleness.test.ts",
-        "robustness.test.ts"
+        "network-checkpoint.test.ts",
+        "network-doctrine.test.ts",
+        "network-entities.test.ts",
+        "network-registry.test.ts",
+        "network-revenue.test.ts",
+        "network.test.ts",
+        "robustness.test.ts",
+        "roles.test.ts"
       ],
       "dependency_count": 7
     }
   ],
-  "untested_workspaces": [],
+  "untested_workspaces": [
+    "apps/network-desk"
+  ],
   "non_workspace_projects": [
     {
       "path": "nte-command-center",
@@ -266,9 +299,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-21T12:39:37.208Z",
-  "branch": "claude/nvs-agent-desk",
-  "commit": "09c499e82149d37fce243c926b08733a89b82e45",
+  "generated_at": "2026-10-22T19:43:25.238Z",
+  "branch": "cursor/nte-network-desk-b973",
+  "commit": "35e9ae57772f6de4db07b0b964a40d6ea2178958",
   "working_tree_clean": false,
-  "tracked_file_count": 470
+  "tracked_file_count": 505
 }

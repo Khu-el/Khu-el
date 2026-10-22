@@ -270,7 +270,19 @@ npm run dev:notes-underwriting  # terminal 4
 npm run dev:legacy-estate       # terminal 5
 npm run dev:financial-services-crm  # terminal 6
 npm run dev:member-portal       # no server/ needed — it talks to Supabase
+npm run dev:network-desk        # NTE ministry desk — prototype, same server as the planning tools
 ```
+
+### NTE Network Desk
+
+Prototype for the NTE ministry lane only. House of Ransom, the Living Trust, and private family records are refused. Sample rows are labeled. The desk does not publish, send, spend, or call Activepieces, Composio, Zapier, or a native connector. `AGENTS.md` is the operating guide.
+
+Roles come from the deployment, not from the request. Unset registration is `FAMILY_COUNCIL_MEMBER`. `BOOTSTRAP_ADMIN_EMAIL` registers as `SYSTEM_ADMIN`. `MINISTRY_OPERATOR_EMAILS` registers as `NTE_SYSTEMS_OPERATOR`. `PATCH /api/auth/me` rejects a role.
+
+Evidence a person may record is `USER_REPORTED`, `DOCUMENT_STATED`, `INFERRED`, or `UNKNOWN`. The proposer cannot approve their own release. Approval does not publish. Regulated finance, insurance, legal, and debt items stay drafts.
+
+Set `INVITE_CODE` in the environment, start the server and `npm run dev:network-desk`, and open `http://127.0.0.1:5179/`. Load the labeled samples, propose the sample pipeline, and use the SAMPLE actor for that item only. A second registered account approves a non-sample proposal. `GET /api/network/ledger/verify` and `npm run ledger:verify --workspace=server` compare the append-only checkpoint file with the chain. Desk routes live under `/api/network` and require a bearer header: health, repository-status, rollups, export, projects, tasks, pipeline, leads, assets, campaigns, integrations, queues, events, ledger checkpoint and verify, and samples.
+
 
 Register a separate account per app the first time you open it (accounts are shared across apps —
 registering once and logging in again elsewhere works the same way), or reuse the same login on

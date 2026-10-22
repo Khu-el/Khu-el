@@ -33,7 +33,7 @@ describe('role assignment at registration', () => {
 
   test('with no BOOTSTRAP_ADMIN_EMAIL set, no registration can produce an admin', async () => {
     assert.equal(process.env.BOOTSTRAP_ADMIN_EMAIL, undefined);
-    for (const role of ['SYSTEM_ADMIN', 'NTE_TRUSTEE_OFFICE', 'HOUSE_TRUSTEE_OFFICE']) {
+    for (const role of ['SYSTEM_ADMIN', 'NTE_SYSTEMS_OPERATOR', 'NTE_TRUSTEE_OFFICE', 'HOUSE_TRUSTEE_OFFICE']) {
       const res = await register(server.url, `wants-${role}@example.test`, { role });
       assert.equal(res.body.user.role, 'FAMILY_COUNCIL_MEMBER', `${role} must not be self-assignable`);
     }
@@ -128,6 +128,6 @@ describe('GET /api/auth/users', () => {
     assert.ok(res.body.users.length >= 2);
     assert.equal('email' in res.body.users[0], false);
     assert.equal(typeof res.body.users[0].displayName, 'string');
-    assert.equal(typeof res.body.users[0].role, 'string');
+    assert.equal('role' in res.body.users[0], false);
   });
 });

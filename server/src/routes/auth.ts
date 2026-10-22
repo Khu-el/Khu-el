@@ -19,19 +19,37 @@ function isValidInviteCode(submitted: unknown): boolean {
 }
 
 /**
- * Everyone registers as a FAMILY_COUNCIL_MEMBER. The single exception is the
- * bootstrap address named by BOOTSTRAP_ADMIN_EMAIL, which is set alongside
- * JWT_SECRET on the deployment platform and is not something an invitee can
- * choose. Unset -- the default -- means no registration can ever produce an
- * admin, which is the fail-closed reading.
+ * Everyone registers as a FAMILY_COUNCIL_MEMBER. Two deployment settings are
+ * the only exceptions, and both are matched on the address, never on a role
+ * field in the request:
  *
- * Promoting anyone else is deliberately not an API operation. It is a database
- * change made by whoever operates the deployment.
+ * - BOOTSTRAP_ADMIN_EMAIL registers as SYSTEM_ADMIN.
+ * - MINISTRY_OPERATOR_EMAILS registers as NTE_SYSTEMS_OPERATOR.
+ *
+ * Unset means registration cannot produce either role. Promoting anyone else
+ * is not an API operation. PATCH /api/auth/me refuses a role field.
  */
 function assignRoleAtRegistration(email: string): Role {
+  const normalized = email.trim().toLowerCase();
   const bootstrap = env.bootstrapAdminEmail;
-  if (bootstrap && email.trim().toLowerCase() === bootstrap) return 'SYSTEM_ADMIN';
+  if (bootstrap && normalized === bootstrap) return 'SYSTEM_ADMIN';
+  if (env.ministryOperatorEmails.includes(normalized)) return 'NTE_SYSTEMS_OPERATOR';
   return 'FAMILY_COUNCIL_MEMBER';
+}
+
+/** The invite code is shared. Admin registration also needs this deployment secret. */
+function isValidBootstrapSecret(submitted: unknown): boolean {
+  const expected = env.bootstrapAdminSecret;
+  if (!expected || typeof submitted !== 'string' || !submitted) return false;
+  const a = Buffer.from(submitted);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
+function canonicalEmail(email: string): string | null {
+  if (email !== email.trim()) return null;
+  return email.toLowerCase();
 }
 
 /**
@@ -88,18 +106,28 @@ authRouter.post('/register', asyncHandler(async (req, res) => {
     return res.status(403).json({ error: 'Invalid or missing invite code' });
   }
   if (typeof email !== 'string' || !email.includes('@')) return res.status(400).json({ error: 'A valid email is required' });
+  const canonical = canonicalEmail(email);
+  if (!canonical) return res.status(400).json({ error: 'Email must not include leading or trailing spaces' });
   if (typeof password !== 'string' || password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
   if (typeof displayName !== 'string' || !displayName.trim()) return res.status(400).json({ error: 'Display name is required' });
 
   // The role is assigned here, never taken from the request. It used to be
   // read from the body, which made the invite code an admin credential: a
   // SYSTEM_ADMIN sees and can delete every user's records in every app, and
-  // the invite code is deliberately the shareable one -- printed to the logs
-  // on first boot and short enough to read out loud. Authority comes from
+  // the invite code is deliberately the shareable one. Authority comes from
   // whoever sets the deployment's environment, not from whoever was invited.
-  const chosenRole: Role = assignRoleAtRegistration(email);
+  // The bootstrap address also needs BOOTSTRAP_ADMIN_SECRET. Unset, missing,
+  // or wrong fails closed and inserts nothing. A second admin is a conflict.
+  const chosenRole: Role = assignRoleAtRegistration(canonical);
+  if (chosenRole === 'SYSTEM_ADMIN') {
+    if (!isValidBootstrapSecret(req.body?.bootstrapAdminSecret)) {
+      return res.status(403).json({ error: 'Bootstrap admin secret is missing or wrong' });
+    }
+    const existingAdmin = db.prepare(`SELECT id FROM users WHERE role = 'SYSTEM_ADMIN'`).get();
+    if (existingAdmin) return res.status(409).json({ error: 'A system admin already exists' });
+  }
 
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase());
+  const existing = db.prepare('SELECT id FROM users WHERE lower(trim(email)) = ?').get(canonical);
   if (existing) return res.status(409).json({ error: 'An account with that email already exists' });
 
   const id = newId('user');
@@ -108,7 +136,7 @@ authRouter.post('/register', asyncHandler(async (req, res) => {
   try {
     db.prepare('INSERT INTO users (id, email, password_hash, display_name, role, created_at) VALUES (?, ?, ?, ?, ?, ?)').run(
       id,
-      email.toLowerCase(),
+      canonical,
       passwordHash,
       displayName.trim(),
       chosenRole,
@@ -124,20 +152,26 @@ authRouter.post('/register', asyncHandler(async (req, res) => {
     throw err;
   }
 
-  const token = signToken({ sub: id, email: email.toLowerCase(), role: chosenRole });
-  res.status(201).json({ token, user: { id, email: email.toLowerCase(), displayName: displayName.trim(), role: chosenRole, createdAt } });
+  const token = signToken({ sub: id, email: canonical, role: chosenRole });
+  res.status(201).json({ token, user: { id, email: canonical, displayName: displayName.trim(), role: chosenRole, createdAt } });
 }));
 
 authRouter.post('/login', asyncHandler(async (req, res) => {
   const { email, password } = req.body ?? {};
   if (typeof email !== 'string' || typeof password !== 'string') return res.status(400).json({ error: 'Email and password are required' });
+  const canonical = canonicalEmail(email);
+  if (!canonical) return res.status(400).json({ error: 'Email must not include leading or trailing spaces' });
 
-  const emailKey = `email:${email.toLowerCase()}`;
+  const emailKey = `email:${canonical}`;
   const ipKey = `ip:${req.ip}`;
   const wait = Math.max(loginByEmail.retryAfterMs(emailKey), loginByIp.retryAfterMs(ipKey));
   if (wait > 0) return tooMany(res, wait);
 
-  const row = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase()) as UserRow | undefined;
+  const matches = db.prepare('SELECT * FROM users WHERE lower(trim(email)) = ?').all(canonical) as unknown as UserRow[];
+  if (matches.length > 1) {
+    return res.status(409).json({ error: 'More than one account matches that email' });
+  }
+  const row = matches[0];
   // Always run bcrypt, so an unknown address takes as long as a wrong password.
   const valid = await verifyPassword(password, row?.password_hash ?? DUMMY_HASH);
   if (!row || !valid) {
@@ -147,6 +181,10 @@ authRouter.post('/login', asyncHandler(async (req, res) => {
   }
   loginByEmail.reset(emailKey);
   loginByIp.reset(ipKey);
+  if (row.email !== canonical) {
+    db.prepare('UPDATE users SET email = ? WHERE id = ?').run(canonical, row.id);
+    row.email = canonical;
+  }
 
   const user = toPublicUser(row);
   const token = signToken({ sub: row.id, email: row.email, role: user.role });
@@ -183,13 +221,17 @@ authRouter.patch('/me', requireAuth, (req: AuthedRequest, res) => {
   res.json({ user: toPublicUser({ ...row, display_name: nextDisplayName }) });
 });
 
-authRouter.get('/users', requireAuth, (_req: AuthedRequest, res) => {
-  // Lightweight roster so a shared (Lane B) workspace can show "who's who" -- no emails beyond your own account's need.
+authRouter.get('/users', requireAuth, (req: AuthedRequest, res) => {
+  // Lightweight roster so a shared workspace can show "who's who". Email stays
+  // off this list. Role is an authority claim, so only SYSTEM_ADMIN receives it.
   const rows = db.prepare('SELECT id, display_name, role FROM users').all() as { id: string; display_name: string; role: string }[];
+  const admin = req.user!.role === 'SYSTEM_ADMIN';
   res.json({
     users: rows.map((r) => {
       if (!isRole(r.role)) throw new Error(`User ${r.id} has unrecognized role ${JSON.stringify(r.role)}`);
-      return { id: r.id, displayName: r.display_name, role: r.role };
+      return admin
+        ? { id: r.id, displayName: r.display_name, role: r.role }
+        : { id: r.id, displayName: r.display_name };
     }),
   });
 });

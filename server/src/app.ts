@@ -8,6 +8,7 @@ import { recordsRouter } from './routes/records.js';
 import { attachmentsRouter } from './routes/attachments.js';
 import { memoRouter } from './routes/memo.js';
 import { digestRouter } from './routes/digest.js';
+import { networkRouter } from './routes/network.js';
 
 /**
  * The wired app, with no port bound to it. index.ts starts it; the tests take
@@ -34,6 +35,7 @@ export function createApp() {
   app.use('/api', attachmentsRouter);
   app.use('/api', memoRouter);
   app.use('/api/digest', digestRouter);
+  app.use('/api/network', networkRouter);
 
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     // A file over the upload limit is the client's error, not ours.
