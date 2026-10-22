@@ -82,6 +82,15 @@ export const env = {
    * able to confer authority over everyone else's records.
    */
   bootstrapAdminEmail: (process.env.BOOTSTRAP_ADMIN_EMAIL ?? '').trim().toLowerCase(),
+  /**
+   * Addresses that register as NTE_SYSTEMS_OPERATOR. Comma-separated. Unset
+   * means registration cannot produce that role. This is not a self-serve
+   * promotion, and it does not grant SYSTEM_ADMIN.
+   */
+  ministryOperatorEmails: (process.env.MINISTRY_OPERATOR_EMAILS ?? '')
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean),
   // Trimmed, because "https://a.example, https://b.example" is the natural way
   // to write a list and the untrimmed " https://b.example" matches no origin.
   // Vite on 127.0.0.1 and a page opened as localhost are different origins.

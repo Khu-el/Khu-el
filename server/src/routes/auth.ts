@@ -19,18 +19,21 @@ function isValidInviteCode(submitted: unknown): boolean {
 }
 
 /**
- * Everyone registers as a FAMILY_COUNCIL_MEMBER. The single exception is the
- * bootstrap address named by BOOTSTRAP_ADMIN_EMAIL, which is set alongside
- * JWT_SECRET on the deployment platform and is not something an invitee can
- * choose. Unset -- the default -- means no registration can ever produce an
- * admin, which is the fail-closed reading.
+ * Everyone registers as a FAMILY_COUNCIL_MEMBER. Two deployment settings are
+ * the only exceptions, and both are matched on the address, never on a role
+ * field in the request:
  *
- * Promoting anyone else is deliberately not an API operation. It is a database
- * change made by whoever operates the deployment.
+ * - BOOTSTRAP_ADMIN_EMAIL registers as SYSTEM_ADMIN.
+ * - MINISTRY_OPERATOR_EMAILS registers as NTE_SYSTEMS_OPERATOR.
+ *
+ * Unset means registration cannot produce either role. Promoting anyone else
+ * is not an API operation. PATCH /api/auth/me refuses a role field.
  */
 function assignRoleAtRegistration(email: string): Role {
+  const normalized = email.trim().toLowerCase();
   const bootstrap = env.bootstrapAdminEmail;
-  if (bootstrap && email.trim().toLowerCase() === bootstrap) return 'SYSTEM_ADMIN';
+  if (bootstrap && normalized === bootstrap) return 'SYSTEM_ADMIN';
+  if (env.ministryOperatorEmails.includes(normalized)) return 'NTE_SYSTEMS_OPERATOR';
   return 'FAMILY_COUNCIL_MEMBER';
 }
 
