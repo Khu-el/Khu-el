@@ -203,7 +203,9 @@
         "context.test.ts",
         "inbox-browse-video.test.ts",
         "ledger.test.ts",
-        "research.test.ts"
+        "nodefetch.test.ts",
+        "research.test.ts",
+        "site.test.ts"
       ],
       "dependency_count": 0
     },
@@ -266,9 +268,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-21T12:39:37.208Z",
-  "branch": "claude/nvs-agent-desk",
-  "commit": "09c499e82149d37fce243c926b08733a89b82e45",
+  "generated_at": "2026-10-22T23:03:13.113Z",
+  "branch": "claude/nvs-site-audit",
+  "commit": "e1d22ce7f37b90d1d580e495f0e5eda1d3c47666",
   "working_tree_clean": false,
   "tracked_file_count": 470
 }

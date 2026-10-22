@@ -18,6 +18,7 @@ export interface ExportMeta {
   currency: string | null;
   window: { start: string; end: string } | null; // ISO dates. Required for any time-dependent claim.
   source: string; // file name or description of the export
+  kind?: 'ad-account' | 'website'; // default ad-account
 }
 
 export interface CheckResult {

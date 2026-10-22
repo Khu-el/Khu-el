@@ -1,7 +1,7 @@
 import { checkUrl, HostRateLimiter, isPrivateAddress, parseRobots, robotsAllows } from './policy.ts';
 
 export type FetchOutcome =
-  | { ok: true; status: number; url: string; text: string; truncated: boolean }
+  | { ok: true; status: number; url: string; text: string; truncated: boolean; contentType: string | null }
   | { ok: false; refused: true; reasons: string[] };
 
 export interface FetcherDeps {
@@ -52,5 +52,5 @@ export async function fetchPage(rawUrl: string, d: FetcherDeps): Promise<FetchOu
   }
   const text = await res.text();
   const max = d.maxChars ?? 200_000;
-  return { ok: true, status: res.status, url: rawUrl, text: text.slice(0, max), truncated: text.length > max };
+  return { ok: true, status: res.status, url: rawUrl, text: text.slice(0, max), truncated: text.length > max, contentType: res.headers.get('content-type') };
 }
