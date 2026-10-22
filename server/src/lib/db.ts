@@ -51,6 +51,7 @@ db.exec(`
     lane TEXT NOT NULL,
     title TEXT NOT NULL,
     status TEXT NOT NULL,
+    entity_id TEXT NOT NULL DEFAULT 'NETWORK',
     sample INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
@@ -68,6 +69,7 @@ db.exec(`
     depends_on TEXT NOT NULL,
     evidence_json TEXT NOT NULL,
     lane TEXT NOT NULL,
+    entity_id TEXT NOT NULL DEFAULT 'NETWORK',
     sample INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
@@ -86,6 +88,7 @@ db.exec(`
     approved_hash TEXT,
     content_handoff TEXT,
     marketing_handoff TEXT,
+    entity_id TEXT NOT NULL DEFAULT 'NETWORK',
     sample INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
@@ -114,6 +117,7 @@ db.exec(`
     consent INTEGER NOT NULL,
     consent_text TEXT NOT NULL,
     consent_at TEXT NOT NULL,
+    entity_id TEXT NOT NULL DEFAULT 'NETWORK',
     sample INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES users(id)
@@ -129,6 +133,7 @@ db.exec(`
     kind TEXT NOT NULL,
     status TEXT NOT NULL,
     note TEXT NOT NULL DEFAULT '',
+    entity_id TEXT NOT NULL DEFAULT 'NETWORK',
     sample INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES users(id)
@@ -142,6 +147,7 @@ db.exec(`
     title TEXT NOT NULL,
     scheduled_on TEXT NOT NULL,
     status TEXT NOT NULL,
+    entity_id TEXT NOT NULL DEFAULT 'NETWORK',
     sample INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES users(id)
@@ -165,6 +171,7 @@ db.exec(`
     domain TEXT NOT NULL,
     title TEXT NOT NULL,
     status TEXT NOT NULL,
+    entity_id TEXT NOT NULL DEFAULT 'NETWORK',
     sample INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES users(id)
@@ -178,6 +185,7 @@ db.exec(`
     event TEXT NOT NULL,
     entity_type TEXT NOT NULL,
     entity_id TEXT NOT NULL,
+    org_entity TEXT,
     detail TEXT NOT NULL,
     prev_hash TEXT NOT NULL,
     hash TEXT NOT NULL
@@ -192,6 +200,28 @@ for (const [table, column] of [
   const cols = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
   if (!cols.some((col) => col.name === column)) {
     db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} TEXT`);
+  }
+}
+
+for (const table of [
+  'network_projects',
+  'network_tasks',
+  'network_pipeline',
+  'network_leads',
+  'network_assets',
+  'network_campaigns',
+  'network_queues',
+]) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+  if (!cols.some((col) => col.name === 'entity_id')) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN entity_id TEXT NOT NULL DEFAULT 'NETWORK'`);
+  }
+}
+
+{
+  const cols = db.prepare('PRAGMA table_info(network_events)').all() as { name: string }[];
+  if (!cols.some((col) => col.name === 'org_entity')) {
+    db.exec('ALTER TABLE network_events ADD COLUMN org_entity TEXT');
   }
 }
 

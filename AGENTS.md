@@ -10,6 +10,8 @@ Records are stored in lane `NTE_MINISTRY`. The internal model names Equity of th
 
 House of Ransom, the Living Trust, and private family records are refused. Sample rows are labeled `SAMPLE` and use `@example.test` addresses.
 
+Desk records carry `entityId`: `VEI`, `OPS`, `NPE`, `MFG`, `GHC`, `TFS`, `IPI`, `QVI`, or `NETWORK`. The server filters `?entity=` and refuses any other id. Every entity is `unformed`. Formation status is read-only. The desk does not record legal existence.
+
 ## Roles
 
 Registration assigns a role from deployment configuration. A `role` field on `POST /api/auth/register` is ignored. `PATCH /api/auth/me` returns 403 when a role is present.

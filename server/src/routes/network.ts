@@ -3,7 +3,7 @@ import type { Response } from 'express';
 import { requireAuth, type AuthedRequest } from '../lib/auth.js';
 import { appendCheckpoint, verifyOwner } from '../network/checkpoint.js';
 import { repositoryStatus } from '../network/manifest.js';
-import { DeskError } from '../network/logic.js';
+import { DeskError, entityFromQuery } from '../network/logic.js';
 import * as store from '../network/store.js';
 
 /**
@@ -34,8 +34,12 @@ networkRouter.get('/repository-status', (_req, res) => {
   send(res, 200, () => repositoryStatus());
 });
 
+function queryEntity(req: AuthedRequest) {
+  return entityFromQuery(req.query.entity);
+}
+
 networkRouter.get('/projects', (req: AuthedRequest, res) => {
-  send(res, 200, () => ({ projects: store.listProjects(req.user!) }));
+  send(res, 200, () => ({ projects: store.listProjects(req.user!, queryEntity(req)) }));
 });
 
 networkRouter.post('/projects', (req: AuthedRequest, res) => {
@@ -59,7 +63,7 @@ networkRouter.patch('/tasks/:id', (req: AuthedRequest, res) => {
 });
 
 networkRouter.get('/pipeline', (req: AuthedRequest, res) => {
-  send(res, 200, () => ({ items: store.listPipeline(req.user!) }));
+  send(res, 200, () => ({ items: store.listPipeline(req.user!, queryEntity(req)) }));
 });
 
 networkRouter.post('/pipeline', (req: AuthedRequest, res) => {
@@ -83,7 +87,7 @@ networkRouter.post('/pipeline/:id/approve-sample', (req: AuthedRequest, res) => 
 });
 
 networkRouter.get('/leads', (req: AuthedRequest, res) => {
-  send(res, 200, () => ({ leads: store.listLeads(req.user!) }));
+  send(res, 200, () => ({ leads: store.listLeads(req.user!, queryEntity(req)) }));
 });
 
 networkRouter.post('/leads', (req: AuthedRequest, res) => {
@@ -91,7 +95,7 @@ networkRouter.post('/leads', (req: AuthedRequest, res) => {
 });
 
 networkRouter.get('/assets', (req: AuthedRequest, res) => {
-  send(res, 200, () => ({ assets: store.listAssets(req.user!) }));
+  send(res, 200, () => ({ assets: store.listAssets(req.user!, queryEntity(req)) }));
 });
 
 networkRouter.post('/assets', (req: AuthedRequest, res) => {
@@ -99,7 +103,7 @@ networkRouter.post('/assets', (req: AuthedRequest, res) => {
 });
 
 networkRouter.get('/campaigns', (req: AuthedRequest, res) => {
-  send(res, 200, () => ({ campaigns: store.listCampaigns(req.user!) }));
+  send(res, 200, () => ({ campaigns: store.listCampaigns(req.user!, queryEntity(req)) }));
 });
 
 networkRouter.post('/campaigns', (req: AuthedRequest, res) => {
@@ -119,7 +123,7 @@ networkRouter.post('/integrations/:provider/check', (req: AuthedRequest, res) =>
 });
 
 networkRouter.get('/queues', (req: AuthedRequest, res) => {
-  send(res, 200, () => ({ queues: store.listQueues(req.user!) }));
+  send(res, 200, () => ({ queues: store.listQueues(req.user!, queryEntity(req)) }));
 });
 
 networkRouter.post('/queues', (req: AuthedRequest, res) => {
@@ -155,7 +159,7 @@ networkRouter.get('/export', (req: AuthedRequest, res) => {
 });
 
 networkRouter.get('/events', (req: AuthedRequest, res) => {
-  send(res, 200, () => ({ events: store.listEvents(req.user!) }));
+  send(res, 200, () => ({ events: store.listEvents(req.user!, queryEntity(req)) }));
 });
 
 networkRouter.post('/ledger/checkpoint', (req: AuthedRequest, res) => {

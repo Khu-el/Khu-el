@@ -52,7 +52,9 @@ interface Health {
   counts: { projects: number; leads: number; events: number };
 }
 
-interface Project { id: string; title: string; status: string; sample: boolean }
+const DESK_ENTITIES = ['VEI', 'OPS', 'NPE', 'MFG', 'GHC', 'TFS', 'IPI', 'QVI', 'NETWORK'] as const;
+
+interface Project { id: string; title: string; status: string; sample: boolean; entityId: string; formationStatus: string }
 interface Evidence { status: string; source: string; asOf?: string; note?: string }
 interface Task { id: string; title: string; status: string; assignee: string; dependsOn: string[]; evidence: Evidence[]; sample: boolean }
 interface Handoff { audience: string; channel: string; draft: string; status: string; sent: boolean }
@@ -67,8 +69,8 @@ interface Pipe {
   marketingHandoff: Handoff | null;
   sample: boolean;
 }
-interface Lead { id: string; name: string; email: string; phone: string; consent: boolean; sample: boolean }
-interface Asset { id: string; brand: string; name: string; kind: string; status: string; sample: boolean }
+interface Lead { id: string; name: string; email: string; phone: string; consent: boolean; sample: boolean; entityId: string; formationStatus: string }
+interface Asset { id: string; brand: string; name: string; kind: string; status: string; sample: boolean; entityId: string; formationStatus: string }
 interface Campaign { id: string; brand: string; title: string; scheduledOn?: string; scheduled_on?: string; status: string; sample: boolean }
 interface Integration {
   provider: string;
@@ -78,7 +80,7 @@ interface Integration {
   adapter?: { transport: string; mountsOutbound: boolean; credentialsAccepted: boolean; summary: string };
 }
 interface Queue { id: string; domain: string; title: string; status: string }
-interface DeskEvent { seq: number; event: string; entityId: string; hash: string }
+interface DeskEvent { seq: number; event: string; entityId: string; orgEntity: string; formationStatus: string; hash: string }
 
 interface Rollup {
   ownerId: string;
@@ -133,6 +135,15 @@ function message(err: unknown) {
   return err instanceof ApiError ? err.message : err instanceof Error ? err.message : 'Request failed';
 }
 
+function EntitySelect({ value, onChange, allowAll = false }: { value: string; onChange: (value: string) => void; allowAll?: boolean }) {
+  return (
+    <select className="border border-neutral-300 rounded-md px-2 py-1.5 text-sm bg-white" value={value} onChange={(e) => onChange(e.target.value)} aria-label={allowAll ? 'Filter by entity' : 'Entity for new records'}>
+      {allowAll && <option value="">All entities</option>}
+      {DESK_ENTITIES.map((id) => <option key={id} value={id}>{id}</option>)}
+    </select>
+  );
+}
+
 function Sample({ on }: { on: boolean }) {
   if (!on) return null;
   return <span className="ml-2 text-xs uppercase tracking-wide text-amber-800 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5">Sample</span>;
@@ -181,6 +192,10 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
   const [campaign, setCampaign] = useState({ brand: 'TED', title: '', scheduledOn: '' });
   const [queueTitle, setQueueTitle] = useState('');
   const [domain, setDomain] = useState('legal');
+  const [entityFilter, setEntityFilter] = useState('');
+  const [entityId, setEntityId] = useState<(typeof DESK_ENTITIES)[number]>('NETWORK');
+
+  const entityQuery = entityFilter ? `?entity=${encodeURIComponent(entityFilter)}` : '';
 
   const refresh = useCallback(async (next: Tab, selected?: string) => {
     setError(null);
@@ -190,7 +205,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
         setRepo(await api.get<RepoStatus>('/api/network/repository-status'));
       }
       if (next === 'command') {
-        const body = await api.get<{ projects: Project[] }>('/api/network/projects');
+        const body = await api.get<{ projects: Project[] }>(`/api/network/projects${entityQuery}`);
         setProjects(body.projects);
         const id = selected ?? (projectIdRef.current || body.projects[0]?.id || '');
         if (id !== projectIdRef.current) setProjectId(id);
@@ -201,20 +216,20 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
         setRollups((await api.get<{ rollups: Rollup[] }>('/api/network/rollups')).rollups);
       }
       if (next === 'pipeline') setPipeline((await api.get<{ items: Pipe[] }>('/api/network/pipeline')).items);
-      if (next === 'leads') setLeads((await api.get<{ leads: Lead[] }>('/api/network/leads')).leads);
+      if (next === 'leads') setLeads((await api.get<{ leads: Lead[] }>(`/api/network/leads${entityQuery}`)).leads);
       if (next === 'brand') {
-        setAssets((await api.get<{ assets: Asset[] }>('/api/network/assets')).assets);
+        setAssets((await api.get<{ assets: Asset[] }>(`/api/network/assets${entityQuery}`)).assets);
         setCampaigns((await api.get<{ campaigns: Campaign[] }>('/api/network/campaigns')).campaigns);
       }
       if (next === 'integrations') {
         setIntegrations((await api.get<{ integrations: Integration[] }>('/api/network/integrations')).integrations);
         setQueues((await api.get<{ queues: Queue[] }>('/api/network/queues')).queues);
       }
-      if (next === 'ledger') setEvents((await api.get<{ events: DeskEvent[] }>('/api/network/events')).events);
+      if (next === 'ledger') setEvents((await api.get<{ events: DeskEvent[] }>(`/api/network/events${entityQuery}`)).events);
     } catch (err) {
       setError(message(err));
     }
-  }, []);
+  }, [entityQuery]);
 
   useEffect(() => {
     void refresh(tab);
@@ -254,6 +269,11 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
             </button>
           ))}
         </nav>
+        <div className="max-w-5xl mx-auto px-4 pb-3 flex flex-wrap items-center gap-3 text-sm text-neutral-600">
+          <label className="flex items-center gap-2">Show <EntitySelect allowAll value={entityFilter} onChange={setEntityFilter} /></label>
+          <label className="flex items-center gap-2">New records <EntitySelect value={entityId} onChange={(value) => setEntityId(value as typeof entityId)} /></label>
+          <span>Formation: unformed. Legal existence is not recorded.</span>
+        </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-4">
         <NoAutonomousExecutionBanner>
@@ -311,7 +331,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
             <Graph tasks={visibleTasks} />
           <div className="grid gap-4 md:grid-cols-2">
             <Card title="Projects" subtitle="Owner, status, and lane are stored on the server.">
-              <form onSubmit={(e) => { e.preventDefault(); void act(async () => { await api.post('/api/network/projects', { title }); setTitle(''); }); }}>
+              <form onSubmit={(e) => { e.preventDefault(); void act(async () => { await api.post('/api/network/projects', { title, entityId }); setTitle(''); }); }}>
                 <Field label="Title"><TextInput value={title} onChange={(e) => setTitle(e.target.value)} required /></Field>
                 <Button type="submit">Add project</Button>
               </form>
@@ -320,7 +340,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
                   <li key={project.id}>
                     <button className={`text-left w-full text-sm border rounded-md px-3 py-2 ${project.id === projectId ? 'border-neutral-900' : 'border-neutral-200'}`} onClick={() => { setProjectId(project.id); void refresh('command', project.id); }}>
                       {project.title}<Sample on={project.sample} />
-                      <span className="block text-xs text-neutral-500">Owner: this account · {project.status}</span>
+                      <span className="block text-xs text-neutral-500">Owner: this account · {project.status} · {project.entityId} · {project.formationStatus}</span>
                     </button>
                     {project.id === projectId && (
                       <label className="block text-xs text-neutral-500 mt-1">
@@ -426,7 +446,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
 
         {tab === 'leads' && (
           <Card title="NVS lead intake" subtitle="Consent is required. A duplicate email or phone is refused, not merged. Nothing is sent.">
-            <form onSubmit={(e) => { e.preventDefault(); void act(async () => { await api.post('/api/network/leads', lead); setLead({ name: '', email: '', phone: '', consent: false, consentText: '' }); }); }}>
+            <form onSubmit={(e) => { e.preventDefault(); void act(async () => { await api.post('/api/network/leads', { ...lead, entityId }); setLead({ name: '', email: '', phone: '', consent: false, consentText: '' }); }); }}>
               <Field label="Name"><TextInput value={lead.name} onChange={(e) => setLead({ ...lead, name: e.target.value })} required /></Field>
               <Field label="Email"><TextInput type="email" value={lead.email} onChange={(e) => setLead({ ...lead, email: e.target.value })} required /></Field>
               <Field label="Phone"><TextInput value={lead.phone} onChange={(e) => setLead({ ...lead, phone: e.target.value })} /></Field>
@@ -436,7 +456,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
             </form>
             <ul className="mt-4 space-y-2 text-sm">
               {leads.map((row) => (
-                <li key={row.id} className="border border-neutral-200 rounded-md px-3 py-2">{row.name} · {row.email}{row.phone ? ` · ${row.phone}` : ''} · consent {row.consent ? 'yes' : 'no'}<Sample on={row.sample} /></li>
+                <li key={row.id} className="border border-neutral-200 rounded-md px-3 py-2">{row.name} · {row.email}{row.phone ? ` · ${row.phone}` : ''} · consent {row.consent ? 'yes' : 'no'} · {row.entityId} · {row.formationStatus}<Sample on={row.sample} /></li>
               ))}
             </ul>
           </Card>
@@ -445,12 +465,12 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
         {tab === 'brand' && (
           <div className="grid gap-4 md:grid-cols-2">
             <Card title="TED / NVS assets" subtitle="Draft registry. No files are uploaded to a publisher.">
-              <form onSubmit={(e) => { e.preventDefault(); void act(async () => { await api.post('/api/network/assets', asset); setAsset({ ...asset, name: '' }); }); }}>
+              <form onSubmit={(e) => { e.preventDefault(); void act(async () => { await api.post('/api/network/assets', { ...asset, entityId }); setAsset({ ...asset, name: '' }); }); }}>
                 <Field label="Brand"><TextInput value={asset.brand} onChange={(e) => setAsset({ ...asset, brand: e.target.value })} /></Field>
                 <Field label="Name"><TextInput value={asset.name} onChange={(e) => setAsset({ ...asset, name: e.target.value })} required /></Field>
                 <Button type="submit">Add draft asset</Button>
               </form>
-              <ul className="mt-3 text-sm space-y-2">{assets.map((row) => <li key={row.id}>{row.brand} · {row.name} · {row.kind} · {row.status}<Sample on={row.sample} /></li>)}</ul>
+              <ul className="mt-3 text-sm space-y-2">{assets.map((row) => <li key={row.id}>{row.brand} · {row.name} · {row.kind} · {row.status} · {row.entityId} · {row.formationStatus}<Sample on={row.sample} /></li>)}</ul>
             </Card>
             <Card title="Draft campaign calendar" subtitle="Status stays draft. This does not schedule a send.">
               <form onSubmit={(e) => { e.preventDefault(); void act(async () => { await api.post('/api/network/campaigns', campaign); setCampaign({ ...campaign, title: '' }); }); }}>
@@ -505,7 +525,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
               {events.map((event) => (
                 <li key={event.seq} className="border border-neutral-200 rounded-md px-3 py-2">
                   <span className="font-medium">{event.event}</span>
-                  <span className="block text-xs text-neutral-500 break-all">{event.entityId} · {event.hash}</span>
+                  <span className="block text-xs text-neutral-500 break-all">{event.orgEntity} · {event.formationStatus} · {event.entityId} · {event.hash}</span>
                 </li>
               ))}
             </ol>

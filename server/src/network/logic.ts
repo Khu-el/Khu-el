@@ -12,6 +12,35 @@ import { createHash } from 'node:crypto';
 
 export const LANE = 'NTE_MINISTRY' as const;
 
+/** Working labels only. None of these is a formed legal entity. */
+export const DESK_ENTITIES = ['VEI', 'OPS', 'NPE', 'MFG', 'GHC', 'TFS', 'IPI', 'QVI', 'NETWORK'] as const;
+export type DeskEntity = (typeof DESK_ENTITIES)[number];
+export const FORMATION_STATUS = 'unformed' as const;
+export const FORMATION_NOTE = 'Unformed. This record does not assert that a legal entity exists.';
+
+export function resolveEntity(value: unknown): DeskEntity {
+  if (value === undefined || value === null || value === '') return 'NETWORK';
+  if (typeof value !== 'string' || !(DESK_ENTITIES as readonly string[]).includes(value)) {
+    throw new DeskError(400, `entityId must be one of ${DESK_ENTITIES.join(', ')}`);
+  }
+  return value as DeskEntity;
+}
+
+export function entityFromQuery(value: unknown): DeskEntity | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string' || !value) {
+    throw new DeskError(400, `entity must be one of ${DESK_ENTITIES.join(', ')}`);
+  }
+  return resolveEntity(value);
+}
+
+/** Formation is read from the server, never written by a client. */
+export function refuseFormationClaim(body: Record<string, unknown>) {
+  if (body.formationStatus !== undefined || body.formed !== undefined || body.legalExistence !== undefined) {
+    throw new DeskError(400, 'Formation status is read-only. Every desk entity is unformed; this software does not record legal existence.');
+  }
+}
+
 export const AUTHORITY = {
   lane: LANE,
   trustee: 'Equity of the Divine Ministries',
