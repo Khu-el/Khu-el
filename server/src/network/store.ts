@@ -310,6 +310,10 @@ export function updateTask(user: UserRef, id: string, body: Record<string, unkno
     | { id: string; owner_id: string; project_id: string; depends_on: string; assignee: string; evidence_json: string; entity_id: string }
     | undefined;
   if (!row || row.owner_id !== user.sub) throw new DeskError(404, 'Task not found');
+  if (body.entityId !== undefined && body.entityId !== row.entity_id) {
+    throw new DeskError(400, 'entityId cannot be changed');
+  }
+  refuseFormationClaim(body);
   const assignee = body.assignee === undefined ? row.assignee : requireText(body.assignee, 'assignee', 80);
   const evidence = body.evidence === undefined ? row.evidence_json : JSON.stringify(validateEvidence(body.evidence));
   const status = body.status === undefined
@@ -434,6 +438,10 @@ export function advancePipeline(user: UserRef, id: string, body: Record<string, 
   writer(user);
   assertMinistryLane(body.lane);
   const row = pipelineForWrite(user, id);
+  if (body.entityId !== undefined && body.entityId !== row.entity_id) {
+    throw new DeskError(400, 'entityId cannot be changed');
+  }
+  refuseFormationClaim(body);
   const to = oneOf(body.toStage, ['brief', 'artifact', 'qa', 'release_review', 'content_handoff', 'marketing_handoff'] as const, 'toStage');
   const current = payloadHash(releasePayload({ id: row.id, name: row.name, artifactNote: row.artifact_note, qaNote: row.qa_note }));
   assertAdvance(row.stage, to, row.approved_hash, current);
@@ -550,6 +558,7 @@ function proposedApproval(id: string, approvalId: string, submitted: string) {
 
 export function approveRelease(user: UserRef, id: string, body: Record<string, unknown>) {
   writer(user);
+  refuseFormationClaim(body);
   const row = db.prepare('SELECT * FROM network_pipeline WHERE id = ? AND lane = ?').get(id, LANE) as
     | { id: string; owner_id: string; name: string; artifact_note: string; qa_note: string }
     | undefined;
@@ -562,6 +571,7 @@ export function approveRelease(user: UserRef, id: string, body: Record<string, u
 /** Records the labeled sample account as approver. It refuses anything that is not a sample item. */
 export function approveAsSampleActor(user: UserRef, id: string, body: Record<string, unknown>) {
   writer(user);
+  refuseFormationClaim(body);
   const row = pipelineForWrite(user, id);
   if (!row.sample) throw new DeskError(403, 'The sample approver only acts on labeled sample pipeline items.');
   const actor = ensureSampleApprover();

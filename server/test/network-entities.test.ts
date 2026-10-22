@@ -94,3 +94,38 @@ test('unknown entities are refused and known ones stay on the owning account', a
   assert.ok(events.body.events.length >= 2);
   assert.ok(events.body.events.every((event: { orgEntity: string; formationStatus: string }) => event.orgEntity === 'OPS' && event.formationStatus === 'unformed'));
 });
+
+test('task and pipeline updates refuse a formation claim', async () => {
+  const created = await call(server.url, '/api/network/projects', {
+    method: 'POST',
+    token,
+    body: JSON.stringify({ title: 'SAMPLE · formation guard', entityId: 'MFG' }),
+  });
+  assert.equal(created.status, 201);
+  const projectId = created.body.project.id as string;
+  const task = await call(server.url, `/api/network/projects/${projectId}/tasks`, {
+    method: 'POST',
+    token,
+    body: JSON.stringify({ title: 'SAMPLE · task', assignee: 'Sample operator' }),
+  });
+  assert.equal(task.status, 201);
+  const formed = await call(server.url, `/api/network/tasks/${task.body.task.id}`, {
+    method: 'PATCH',
+    token,
+    body: JSON.stringify({ status: 'queued', formationStatus: 'formed' }),
+  });
+  assert.equal(formed.status, 400);
+
+  const pipe = await call(server.url, '/api/network/pipeline', {
+    method: 'POST',
+    token,
+    body: JSON.stringify({ name: 'SAMPLE · formation pipeline', entityId: 'MFG' }),
+  });
+  assert.equal(pipe.status, 201);
+  const advanced = await call(server.url, `/api/network/pipeline/${pipe.body.item.id}/advance`, {
+    method: 'POST',
+    token,
+    body: JSON.stringify({ toStage: 'artifact', note: 'SAMPLE note', formed: true }),
+  });
+  assert.equal(advanced.status, 400);
+});
