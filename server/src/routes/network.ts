@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import type { Response } from 'express';
 import { requireAuth, type AuthedRequest } from '../lib/auth.js';
+import { appendCheckpoint, verifyOwner } from '../network/checkpoint.js';
 import { DeskError } from '../network/logic.js';
 import * as store from '../network/store.js';
 
@@ -126,6 +127,14 @@ networkRouter.post('/queues/:id/act', (_req, res) => {
 
 networkRouter.get('/events', (req: AuthedRequest, res) => {
   send(res, 200, () => ({ events: store.listEvents(req.user!) }));
+});
+
+networkRouter.post('/ledger/checkpoint', (req: AuthedRequest, res) => {
+  send(res, 201, () => ({ checkpoint: appendCheckpoint(req.user!.sub) }));
+});
+
+networkRouter.get('/ledger/verify', (req: AuthedRequest, res) => {
+  send(res, 200, () => verifyOwner(req.user!.sub));
 });
 
 networkRouter.post('/samples', (req: AuthedRequest, res) => {

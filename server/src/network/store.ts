@@ -4,6 +4,7 @@ import { db } from '../lib/db.js';
 import { newId, nowIso } from '../lib/id.js';
 import type { AuthTokenPayload } from '../lib/auth.js';
 import { canWrite } from '../lib/roles.js';
+import { appendCheckpoint } from './checkpoint.js';
 import {
   AUTHORITY,
   LANE,
@@ -45,13 +46,19 @@ function owns(user: UserRef) {
   return user.role === 'SYSTEM_ADMIN' ? null : user.sub;
 }
 
+const checkpointOwners = new Set<string>();
+
 function withWrite<T>(fn: () => T): T {
   db.exec('BEGIN IMMEDIATE');
   try {
     const result = fn();
     db.exec('COMMIT');
+    const owners = [...checkpointOwners];
+    checkpointOwners.clear();
+    for (const ownerId of owners) appendCheckpoint(ownerId);
     return result;
   } catch (err) {
+    checkpointOwners.clear();
     try {
       db.exec('ROLLBACK');
     } catch {
@@ -72,6 +79,7 @@ function appendEvent(ownerId: string, actorId: string, event: string, entityType
     `INSERT INTO network_events (ts, owner_id, actor_id, event, entity_type, entity_id, detail, prev_hash, hash)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(nowIso(), ownerId, actorId, event, entityType, entityId, JSON.stringify(detail), prevHash, hash);
+  checkpointOwners.add(ownerId);
   return { prevHash, hash, ...body, ts: nowIso() };
 }
 
