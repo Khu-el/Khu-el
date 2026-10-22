@@ -127,7 +127,7 @@ authRouter.post('/register', asyncHandler(async (req, res) => {
     if (existingAdmin) return res.status(409).json({ error: 'A system admin already exists' });
   }
 
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(canonical);
+  const existing = db.prepare('SELECT id FROM users WHERE lower(trim(email)) = ?').get(canonical);
   if (existing) return res.status(409).json({ error: 'An account with that email already exists' });
 
   const id = newId('user');
@@ -167,7 +167,11 @@ authRouter.post('/login', asyncHandler(async (req, res) => {
   const wait = Math.max(loginByEmail.retryAfterMs(emailKey), loginByIp.retryAfterMs(ipKey));
   if (wait > 0) return tooMany(res, wait);
 
-  const row = db.prepare('SELECT * FROM users WHERE email = ?').get(canonical) as UserRow | undefined;
+  const matches = db.prepare('SELECT * FROM users WHERE lower(trim(email)) = ?').all(canonical) as unknown as UserRow[];
+  if (matches.length > 1) {
+    return res.status(409).json({ error: 'More than one account matches that email' });
+  }
+  const row = matches[0];
   // Always run bcrypt, so an unknown address takes as long as a wrong password.
   const valid = await verifyPassword(password, row?.password_hash ?? DUMMY_HASH);
   if (!row || !valid) {
@@ -177,6 +181,10 @@ authRouter.post('/login', asyncHandler(async (req, res) => {
   }
   loginByEmail.reset(emailKey);
   loginByIp.reset(ipKey);
+  if (row.email !== canonical) {
+    db.prepare('UPDATE users SET email = ? WHERE id = ?').run(canonical, row.id);
+    row.email = canonical;
+  }
 
   const user = toPublicUser(row);
   const token = signToken({ sub: row.id, email: row.email, role: user.role });

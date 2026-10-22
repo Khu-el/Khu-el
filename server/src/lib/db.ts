@@ -242,4 +242,35 @@ for (const table of [
   }
 }
 
+/**
+ * Registration stores a trimmed lowercase address. Rows written before that
+ * rule still have the older spelling, and a lookup of the canonical form
+ * would miss them. Fold those rows in place. A collision is left untouched
+ * and reported by user id only — the address is not logged.
+ */
+export function foldUserEmails() {
+  const rows = db.prepare('SELECT id, email FROM users').all() as { id: string; email: string }[];
+  const update = db.prepare('UPDATE users SET email = ? WHERE id = ?');
+  const taken = db.prepare('SELECT id FROM users WHERE lower(trim(email)) = ? AND id != ?');
+  for (const row of rows) {
+    const next = row.email.trim().toLowerCase();
+    if (next === row.email) continue;
+    if (!next.includes('@')) {
+      console.error('[db] leaving a stored email unchanged because the folded form is not an address', { userId: row.id });
+      continue;
+    }
+    const clash = taken.get(next, row.id) as { id: string } | undefined;
+    if (clash) {
+      console.error('[db] leaving a stored email unchanged because another account already uses that address', {
+        userId: row.id,
+        otherUserId: clash.id,
+      });
+      continue;
+    }
+    update.run(next, row.id);
+  }
+}
+
+foldUserEmails();
+
 console.log(`[db] SQLite database ready at ${env.dbPath}`);
