@@ -72,6 +72,10 @@ networkRouter.post('/pipeline/:id/approve', (req: AuthedRequest, res) => {
   send(res, 200, () => store.approveRelease(req.user!, String(req.params.id), req.body ?? {}));
 });
 
+networkRouter.post('/pipeline/:id/approve-sample', (req: AuthedRequest, res) => {
+  send(res, 200, () => store.approveAsSampleActor(req.user!, String(req.params.id), req.body ?? {}));
+});
+
 networkRouter.get('/leads', (req: AuthedRequest, res) => {
   send(res, 200, () => ({ leads: store.listLeads(req.user!) }));
 });

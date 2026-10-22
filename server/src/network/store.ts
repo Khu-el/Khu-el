@@ -1,3 +1,5 @@
+import { randomBytes } from 'node:crypto';
+import bcrypt from 'bcryptjs';
 import { db } from '../lib/db.js';
 import { newId, nowIso } from '../lib/id.js';
 import type { AuthTokenPayload } from '../lib/auth.js';
@@ -355,6 +357,7 @@ function pipelineForWrite(user: UserRef, id: string) {
         approved_hash: string | null;
         content_handoff: string | null;
         marketing_handoff: string | null;
+        sample: number;
       }
     | undefined;
   if (!row || row.owner_id !== user.sub) throw new DeskError(404, 'Pipeline item not found');
@@ -418,32 +421,88 @@ export function proposeRelease(user: UserRef, id: string) {
   return { approvalId, payloadHash: hash, status: 'proposed' as const, executes: false };
 }
 
-export function approveRelease(user: UserRef, id: string, body: Record<string, unknown>) {
-  writer(user);
-  const row = pipelineForWrite(user, id);
-  const approvalId = requireText(body.approvalId, 'approvalId', 80);
-  const submitted = requireText(body.payloadHash, 'payloadHash', 80);
-  const approval = db.prepare('SELECT * FROM network_approvals WHERE id = ? AND owner_id = ? AND pipeline_id = ?').get(
-    approvalId,
-    user.sub,
-    id,
-  ) as { id: string; payload_hash: string; status: string } | undefined;
-  if (!approval || approval.status !== 'proposed') throw new DeskError(404, 'Proposed approval not found');
+const SAMPLE_APPROVER_EMAIL = 'sample.approver@example.test';
+const SAMPLE_APPROVER_LABEL = 'SAMPLE · Approver (prototype)';
+
+/** A local account with no known password. It exists so a demo can show a second actor. */
+export function ensureSampleApprover() {
+  const existing = db.prepare('SELECT id, display_name FROM users WHERE email = ?').get(SAMPLE_APPROVER_EMAIL) as
+    | { id: string; display_name: string }
+    | undefined;
+  if (existing) return { id: existing.id, label: existing.display_name, email: SAMPLE_APPROVER_EMAIL, sample: true as const };
+  const id = newId('user');
+  const passwordHash = bcrypt.hashSync(randomBytes(32).toString('hex'), 10);
+  db.prepare(
+    'INSERT INTO users (id, email, password_hash, display_name, role, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+  ).run(id, SAMPLE_APPROVER_EMAIL, passwordHash, SAMPLE_APPROVER_LABEL, 'FAMILY_COUNCIL_MEMBER', nowIso());
+  return { id, label: SAMPLE_APPROVER_LABEL, email: SAMPLE_APPROVER_EMAIL, sample: true as const };
+}
+
+function finishApproval(
+  row: { id: string; owner_id: string; name: string; artifact_note: string; qa_note: string },
+  approval: { id: string; payload_hash: string; proposed_by: string },
+  approverId: string,
+  sampleActor: boolean,
+) {
+  if (approval.proposed_by === approverId) {
+    throw new DeskError(403, 'The proposer cannot approve their own release.');
+  }
   const current = payloadHash(releasePayload({ id: row.id, name: row.name, artifactNote: row.artifact_note, qaNote: row.qa_note }));
-  if (submitted !== approval.payload_hash || submitted !== current) {
+  if (approval.payload_hash !== current) {
     throw new DeskError(409, 'Approval hash does not match the artifact. Propose again.');
   }
   withWrite(() => {
-    db.prepare(`UPDATE network_approvals SET status = 'approved', approved_by = ? WHERE id = ?`).run(user.sub, approval.id);
-    db.prepare('UPDATE network_pipeline SET approved_hash = ?, updated_at = ? WHERE id = ?').run(current, nowIso(), id);
-    appendEvent(user.sub, user.sub, 'release.approved', 'pipeline', id, {
-      approvalId,
+    db.prepare(`UPDATE network_approvals SET status = 'approved', approved_by = ? WHERE id = ?`).run(approverId, approval.id);
+    db.prepare('UPDATE network_pipeline SET approved_hash = ?, updated_at = ? WHERE id = ?').run(current, nowIso(), row.id);
+    appendEvent(row.owner_id, approverId, 'release.approved', 'pipeline', row.id, {
+      approvalId: approval.id,
       payloadHash: current,
+      approvedBy: approverId,
+      sampleActor,
       published: false,
       note: 'Approval records a human gate. It does not publish, send, or deploy.',
     });
   });
-  return { approvalId, status: 'approved' as const, published: false, payloadHash: current };
+  return {
+    approvalId: approval.id,
+    status: 'approved' as const,
+    published: false,
+    payloadHash: current,
+    approvedBy: approverId,
+    sampleActor,
+  };
+}
+
+function proposedApproval(id: string, approvalId: string, submitted: string) {
+  const approval = db.prepare('SELECT * FROM network_approvals WHERE id = ? AND pipeline_id = ?').get(approvalId, id) as
+    | { id: string; payload_hash: string; status: string; proposed_by: string }
+    | undefined;
+  if (!approval || approval.status !== 'proposed') throw new DeskError(404, 'Proposed approval not found');
+  if (submitted !== approval.payload_hash) throw new DeskError(409, 'Approval hash does not match the artifact. Propose again.');
+  return approval;
+}
+
+export function approveRelease(user: UserRef, id: string, body: Record<string, unknown>) {
+  writer(user);
+  const row = db.prepare('SELECT * FROM network_pipeline WHERE id = ? AND lane = ?').get(id, LANE) as
+    | { id: string; owner_id: string; name: string; artifact_note: string; qa_note: string }
+    | undefined;
+  if (!row) throw new DeskError(404, 'Pipeline item not found');
+  const approval = proposedApproval(id, requireText(body.approvalId, 'approvalId', 80), requireText(body.payloadHash, 'payloadHash', 80));
+  if (approval.proposed_by === user.sub) throw new DeskError(403, 'The proposer cannot approve their own release.');
+  return finishApproval(row, approval, user.sub, false);
+}
+
+/** Records the labeled sample account as approver. It refuses anything that is not a sample item. */
+export function approveAsSampleActor(user: UserRef, id: string, body: Record<string, unknown>) {
+  writer(user);
+  const row = pipelineForWrite(user, id);
+  if (!row.sample) throw new DeskError(403, 'The sample approver only acts on labeled sample pipeline items.');
+  const actor = ensureSampleApprover();
+  const approval = proposedApproval(id, requireText(body.approvalId, 'approvalId', 80), requireText(body.payloadHash, 'payloadHash', 80));
+  if (approval.proposed_by !== user.sub) throw new DeskError(403, 'Only the proposer can hand a sample item to the sample approver.');
+  const result = finishApproval(row, approval, actor.id, true);
+  return { ...result, approverLabel: actor.label };
 }
 
 export function listLeads(user: UserRef) {

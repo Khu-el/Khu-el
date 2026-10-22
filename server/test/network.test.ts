@@ -137,13 +137,31 @@ describe('network desk', () => {
     });
     assert.equal(proposed.status, 200);
     assert.equal(proposed.body.executes, false);
-    const approved = await call(server.url, `/api/network/pipeline/${id}/approve`, {
+    const self = await call(server.url, `/api/network/pipeline/${id}/approve`, {
       method: 'POST',
       token: user.token,
       body: JSON.stringify({ approvalId: proposed.body.approvalId, payloadHash: proposed.body.payloadHash }),
     });
+    assert.equal(self.status, 403);
+    const sampleShortcut = await call(server.url, `/api/network/pipeline/${id}/approve-sample`, {
+      method: 'POST',
+      token: user.token,
+      body: JSON.stringify({ approvalId: proposed.body.approvalId, payloadHash: proposed.body.payloadHash }),
+    });
+    assert.equal(sampleShortcut.status, 403);
+    const approver = await tokenFor('network-approver@example.test');
+    const approved = await call(server.url, `/api/network/pipeline/${id}/approve`, {
+      method: 'POST',
+      token: approver.token,
+      body: JSON.stringify({ approvalId: proposed.body.approvalId, payloadHash: proposed.body.payloadHash }),
+    });
     assert.equal(approved.status, 200);
     assert.equal(approved.body.published, false);
+    assert.equal(approved.body.sampleActor, false);
+    assert.equal(approved.body.approvedBy, approver.id);
+    assert.notEqual(approved.body.approvedBy, user.id);
+    const hidden = await call(server.url, '/api/network/projects', { token: approver.token });
+    assert.deepEqual(hidden.body.projects, []);
     const missingHandoff = await call(server.url, `/api/network/pipeline/${id}/advance`, {
       method: 'POST',
       token: user.token,
@@ -173,6 +191,49 @@ describe('network desk', () => {
     assert.equal(marketed.status, 200);
     assert.equal(marketed.body.item.stage, 'marketing_handoff');
     assert.equal(marketed.body.item.marketingHandoff.sent, false);
+  });
+
+  test('the labeled sample actor approves a sample item and is not the proposer', async () => {
+    const user = await tokenFor('network-sample-gate@example.test');
+    const seeded = await call(server.url, '/api/network/samples', { method: 'POST', token: user.token, body: '{}' });
+    assert.equal(seeded.status, 201);
+    const listed = await call(server.url, '/api/network/pipeline', { token: user.token });
+    const item = listed.body.items.find((row: { sample: boolean }) => row.sample);
+    assert.ok(item);
+    const steps: { toStage: string; note?: string }[] = [
+      { toStage: 'artifact', note: 'Sample artifact' },
+      { toStage: 'qa', note: 'Sample QA' },
+      { toStage: 'release_review' },
+    ];
+    for (const step of steps) {
+      const advanced = await call(server.url, `/api/network/pipeline/${item.id}/advance`, {
+        method: 'POST',
+        token: user.token,
+        body: JSON.stringify(step),
+      });
+      assert.equal(advanced.status, 200, JSON.stringify(advanced.body));
+    }
+    const proposed = await call(server.url, `/api/network/pipeline/${item.id}/propose-release`, {
+      method: 'POST',
+      token: user.token,
+      body: '{}',
+    });
+    const self = await call(server.url, `/api/network/pipeline/${item.id}/approve`, {
+      method: 'POST',
+      token: user.token,
+      body: JSON.stringify({ approvalId: proposed.body.approvalId, payloadHash: proposed.body.payloadHash }),
+    });
+    assert.equal(self.status, 403);
+    const approved = await call(server.url, `/api/network/pipeline/${item.id}/approve-sample`, {
+      method: 'POST',
+      token: user.token,
+      body: JSON.stringify({ approvalId: proposed.body.approvalId, payloadHash: proposed.body.payloadHash }),
+    });
+    assert.equal(approved.status, 200);
+    assert.equal(approved.body.sampleActor, true);
+    assert.equal(approved.body.published, false);
+    assert.match(approved.body.approverLabel, /SAMPLE/);
+    assert.notEqual(approved.body.approvedBy, user.id);
   });
 
   test('does not mark an integration verified when nothing was contacted', async () => {

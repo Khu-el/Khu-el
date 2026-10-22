@@ -287,7 +287,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
               <Field label="Handoff channel"><TextInput value={handoff.channel} onChange={(e) => setHandoff({ ...handoff, channel: e.target.value })} /></Field>
               <Field label="Handoff draft"><TextInput value={handoff.draft} onChange={(e) => setHandoff({ ...handoff, draft: e.target.value })} /></Field>
             </div>
-            <p className="text-xs text-neutral-500">A handoff stays a draft. Approval does not publish, send, or deploy.</p>
+            <p className="text-xs text-neutral-500">A handoff stays a draft. The proposer cannot approve their own release. The SAMPLE actor is a different local account and only applies to sample items. Approval does not publish, send, or deploy.</p>
             <ul className="space-y-3">
               {pipeline.map((item) => (
                 <li key={item.id} className="border border-neutral-200 rounded-md p-3 text-sm">
@@ -308,7 +308,10 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
                       })}>Propose release</Button>
                     )}
                     {item.stage === 'release_review' && proposal?.id === item.id && (
-                      <Button onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/approve`, proposal); })}>Approve shown hash</Button>
+                      <Button onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/approve`, proposal); })}>Approve as this account</Button>
+                    )}
+                    {item.stage === 'release_review' && item.sample && proposal?.id === item.id && (
+                      <Button variant="secondary" onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/approve-sample`, proposal); })}>Approve as SAMPLE actor</Button>
                     )}
                     {item.stage === 'release_review' && <Button variant="secondary" onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/advance`, { toStage: 'content_handoff', handoff }); })}>Content handoff</Button>}
                     {item.stage === 'content_handoff' && <Button variant="secondary" onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/advance`, { toStage: 'marketing_handoff', handoff }); })}>Marketing handoff</Button>}
