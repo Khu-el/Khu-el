@@ -163,6 +163,9 @@ export function validateLead(input: {
   };
 }
 
+/** Statuses a person may type on this desk. VERIFIED and SYSTEM_RECORDED are not self-assigned. */
+export const DESK_EVIDENCE = ['USER_REPORTED', 'DOCUMENT_STATED', 'INFERRED', 'UNKNOWN'] as const;
+
 export function validateEvidence(value: unknown): EvidenceRef[] {
   if (value === undefined || value === null) return [];
   if (!Array.isArray(value)) throw new DeskError(400, 'evidence must be a list');
@@ -170,12 +173,55 @@ export function validateEvidence(value: unknown): EvidenceRef[] {
     if (!item || typeof item !== 'object') throw new DeskError(400, `evidence[${index}] must be an object`);
     const row = item as Record<string, unknown>;
     const status = oneOf(row.status, EVIDENCE, `evidence[${index}].status`);
+    if (!(DESK_EVIDENCE as readonly string[]).includes(status)) {
+      throw new DeskError(
+        400,
+        `evidence[${index}].status cannot be ${status}. This desk records ${DESK_EVIDENCE.join(', ')}.`,
+      );
+    }
     const source = requireText(row.source, `evidence[${index}].source`, 200);
     const asOf = requireText(row.asOf, `evidence[${index}].asOf`, 40);
     if (Number.isNaN(Date.parse(asOf))) throw new DeskError(400, `evidence[${index}].asOf is not a readable date`);
     const note = row.note === undefined || row.note === null || row.note === '' ? undefined : requireText(row.note, `evidence[${index}].note`, 300);
     return note ? { status, source, asOf, note } : { status, source, asOf };
   });
+}
+
+export interface DraftHandoff {
+  audience: string;
+  channel: string;
+  draft: string;
+  status: 'draft';
+  sent: false;
+}
+
+/** A handoff is a draft packet. It does not send, publish, or schedule delivery. */
+export function validateHandoff(value: unknown): DraftHandoff {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new DeskError(400, 'handoff must include audience, channel, and draft');
+  }
+  const row = value as Record<string, unknown>;
+  return {
+    audience: requireText(row.audience, 'handoff.audience', 120),
+    channel: requireText(row.channel, 'handoff.channel', 80),
+    draft: requireText(row.draft, 'handoff.draft', 2000),
+    status: 'draft',
+    sent: false,
+  };
+}
+
+/**
+ * Adapter boundary for a provider this process does not call.
+ * verified and error stay unreachable until a probe sets contacted to true.
+ */
+export function adapterBoundary(provider: Provider) {
+  return {
+    provider,
+    transport: 'none' as const,
+    credentialsAccepted: false,
+    mountsOutbound: false,
+    summary: `Closed boundary for ${provider}. A local label can be saved. This process does not call the provider, store a credential, or treat a check as verified or failed.`,
+  };
 }
 
 export function nextStage(stage: PipelineStage): PipelineStage | null {

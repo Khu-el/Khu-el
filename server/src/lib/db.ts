@@ -84,6 +84,8 @@ db.exec(`
     artifact_note TEXT NOT NULL,
     qa_note TEXT NOT NULL,
     approved_hash TEXT,
+    content_handoff TEXT,
+    marketing_handoff TEXT,
     sample INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
@@ -182,5 +184,15 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_network_events_owner ON network_events(owner_id, seq);
 `);
+
+for (const [table, column] of [
+  ['network_pipeline', 'content_handoff'],
+  ['network_pipeline', 'marketing_handoff'],
+] as const) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+  if (!cols.some((col) => col.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} TEXT`);
+  }
+}
 
 console.log(`[db] SQLite database ready at ${env.dbPath}`);

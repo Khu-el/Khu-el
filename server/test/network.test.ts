@@ -144,13 +144,35 @@ describe('network desk', () => {
     });
     assert.equal(approved.status, 200);
     assert.equal(approved.body.published, false);
-    const handed = await call(server.url, `/api/network/pipeline/${id}/advance`, {
+    const missingHandoff = await call(server.url, `/api/network/pipeline/${id}/advance`, {
       method: 'POST',
       token: user.token,
       body: JSON.stringify({ toStage: 'content_handoff' }),
     });
+    assert.equal(missingHandoff.status, 400);
+    const handed = await call(server.url, `/api/network/pipeline/${id}/advance`, {
+      method: 'POST',
+      token: user.token,
+      body: JSON.stringify({
+        toStage: 'content_handoff',
+        handoff: { audience: 'Prototype readers', channel: 'draft page', draft: 'Content handoff text. Not sent.' },
+      }),
+    });
     assert.equal(handed.status, 200);
     assert.equal(handed.body.item.stage, 'content_handoff');
+    assert.equal(handed.body.item.contentHandoff.sent, false);
+    assert.equal(handed.body.item.contentHandoff.status, 'draft');
+    const marketed = await call(server.url, `/api/network/pipeline/${id}/advance`, {
+      method: 'POST',
+      token: user.token,
+      body: JSON.stringify({
+        toStage: 'marketing_handoff',
+        handoff: { audience: 'Prototype list', channel: 'draft calendar', draft: 'Marketing handoff text. Not scheduled.' },
+      }),
+    });
+    assert.equal(marketed.status, 200);
+    assert.equal(marketed.body.item.stage, 'marketing_handoff');
+    assert.equal(marketed.body.item.marketingHandoff.sent, false);
   });
 
   test('does not mark an integration verified when nothing was contacted', async () => {
@@ -168,6 +190,9 @@ describe('network desk', () => {
     });
     assert.equal(configured.status, 200);
     assert.equal(configured.body.integration.state, 'configured');
+    assert.equal(configured.body.integration.adapter.transport, 'none');
+    assert.equal(configured.body.integration.adapter.mountsOutbound, false);
+    assert.equal(configured.body.integration.adapter.credentialsAccepted, false);
     const checked = await call(server.url, '/api/network/integrations/zapier/check', {
       method: 'POST',
       token: user.token,
@@ -284,5 +309,24 @@ describe('network desk', () => {
       body: JSON.stringify({ dependsOn: [second.body.task.id] }),
     });
     assert.equal(cycle.status, 409);
+    const claimed = await call(server.url, `/api/network/tasks/${first.body.task.id}`, {
+      method: 'PATCH',
+      token: user.token,
+      body: JSON.stringify({
+        evidence: [{ status: 'VERIFIED', source: 'self', asOf: '2026-10-22' }],
+      }),
+    });
+    assert.equal(claimed.status, 400);
+    const recorded = await call(server.url, `/api/network/tasks/${first.body.task.id}`, {
+      method: 'PATCH',
+      token: user.token,
+      body: JSON.stringify({
+        assignee: 'Desk operator',
+        evidence: [{ status: 'USER_REPORTED', source: 'prototype note', asOf: '2026-10-22', note: 'Not externally verified' }],
+      }),
+    });
+    assert.equal(recorded.status, 200);
+    assert.equal(recorded.body.task.assignee, 'Desk operator');
+    assert.equal(recorded.body.task.evidence[0].status, 'USER_REPORTED');
   });
 });

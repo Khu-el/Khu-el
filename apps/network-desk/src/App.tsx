@@ -43,12 +43,30 @@ interface Health {
 }
 
 interface Project { id: string; title: string; status: string; sample: boolean }
-interface Task { id: string; title: string; status: string; assignee: string; dependsOn: string[]; evidence: { status: string; source: string }[]; sample: boolean }
-interface Pipe { id: string; name: string; stage: string; artifactNote: string; qaNote: string; sample: boolean }
+interface Evidence { status: string; source: string; asOf?: string; note?: string }
+interface Task { id: string; title: string; status: string; assignee: string; dependsOn: string[]; evidence: Evidence[]; sample: boolean }
+interface Handoff { audience: string; channel: string; draft: string; status: string; sent: boolean }
+interface Pipe {
+  id: string;
+  name: string;
+  stage: string;
+  artifactNote: string;
+  qaNote: string;
+  approvedHash: string | null;
+  contentHandoff: Handoff | null;
+  marketingHandoff: Handoff | null;
+  sample: boolean;
+}
 interface Lead { id: string; name: string; email: string; phone: string; consent: boolean; sample: boolean }
 interface Asset { id: string; brand: string; name: string; kind: string; status: string; sample: boolean }
 interface Campaign { id: string; brand: string; title: string; scheduledOn?: string; scheduled_on?: string; status: string; sample: boolean }
-interface Integration { provider: string; state: string; detail: string; contacted?: boolean }
+interface Integration {
+  provider: string;
+  state: string;
+  detail: string;
+  contacted?: boolean;
+  adapter?: { transport: string; mountsOutbound: boolean; credentialsAccepted: boolean; summary: string };
+}
 interface Queue { id: string; domain: string; title: string; status: string }
 interface DeskEvent { seq: number; event: string; entityId: string; hash: string }
 
@@ -89,6 +107,11 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
   const [events, setEvents] = useState<DeskEvent[]>([]);
   const [title, setTitle] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
+  const [assignee, setAssignee] = useState('Desk operator');
+  const [dependsOn, setDependsOn] = useState('');
+  const [evidence, setEvidence] = useState({ status: 'UNKNOWN', source: '', asOf: '2026-10-22' });
+  const [proposal, setProposal] = useState<{ id: string; approvalId: string; payloadHash: string } | null>(null);
+  const [handoff, setHandoff] = useState({ audience: '', channel: '', draft: '' });
   const [pipeName, setPipeName] = useState('');
   const [note, setNote] = useState('');
   const [lead, setLead] = useState({ name: '', email: '', phone: '', consent: false, consentText: '' });
@@ -201,15 +224,30 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
                   <li key={project.id}>
                     <button className={`text-left w-full text-sm border rounded-md px-3 py-2 ${project.id === projectId ? 'border-neutral-900' : 'border-neutral-200'}`} onClick={() => { setProjectId(project.id); void refresh('command', project.id); }}>
                       {project.title}<Sample on={project.sample} />
-                      <span className="block text-xs text-neutral-500">{project.status}</span>
+                      <span className="block text-xs text-neutral-500">Owner: this account · {project.status}</span>
                     </button>
+                    {project.id === projectId && (
+                      <label className="block text-xs text-neutral-500 mt-1">
+                        Status
+                        <select className="mt-1 w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm" value={project.status} onChange={(e) => { const status = e.target.value; void act(async () => { await api.patch(`/api/network/projects/${project.id}`, { status }); }); }}>
+                          {['draft', 'active', 'blocked', 'done'].map((status) => <option key={status}>{status}</option>)}
+                        </select>
+                      </label>
+                    )}
                   </li>
                 ))}
               </ul>
             </Card>
-            <Card title="Tasks" subtitle="Dependencies and evidence stay on the selected project.">
-              <form onSubmit={(e) => { e.preventDefault(); if (!projectId) return; void act(async () => { await api.post(`/api/network/projects/${projectId}/tasks`, { title: taskTitle, assignee: 'Desk operator', evidence: [] }); setTaskTitle(''); }); }}>
+            <Card title="Tasks" subtitle="Dependencies and evidence stay on the selected project. Verified status is not self-assigned.">
+              <form onSubmit={(e) => { e.preventDefault(); if (!projectId) return; void act(async () => { await api.post(`/api/network/projects/${projectId}/tasks`, { title: taskTitle, assignee, dependsOn: dependsOn ? [dependsOn] : [], evidence: [] }); setTaskTitle(''); setDependsOn(''); }); }}>
                 <Field label="Task"><TextInput value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} required /></Field>
+                <Field label="Assignee"><TextInput value={assignee} onChange={(e) => setAssignee(e.target.value)} required /></Field>
+                <Field label="Depends on">
+                  <select className="w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm" value={dependsOn} onChange={(e) => setDependsOn(e.target.value)}>
+                    <option value="">None</option>
+                    {tasks.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
+                  </select>
+                </Field>
                 <Button type="submit" disabled={!projectId}>Add task</Button>
               </form>
               <ul className="mt-4 space-y-2 text-sm">
@@ -223,6 +261,16 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
                   </li>
                 ))}
               </ul>
+              <form className="mt-4" onSubmit={(e) => { e.preventDefault(); const task = tasks.find((item) => item.title.includes('Confirm evidence')) ?? tasks[0]; if (!task || !evidence.source.trim()) return; void act(async () => { await api.patch(`/api/network/tasks/${task.id}`, { evidence: [{ ...evidence, note: 'Recorded on the desk. Not externally verified.' }] }); setEvidence({ ...evidence, source: '' }); }); }}>
+                <Field label={`Evidence for ${tasks.find((item) => item.title.includes('Confirm evidence'))?.title ?? tasks[0]?.title ?? 'a task'}`}>
+                  <select className="w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm" value={evidence.status} onChange={(e) => setEvidence({ ...evidence, status: e.target.value })}>
+                    {['UNKNOWN', 'USER_REPORTED', 'DOCUMENT_STATED', 'INFERRED'].map((status) => <option key={status}>{status}</option>)}
+                  </select>
+                </Field>
+                <Field label="Evidence source"><TextInput value={evidence.source} onChange={(e) => setEvidence({ ...evidence, source: e.target.value })} /></Field>
+                <Field label="As of"><TextInput value={evidence.asOf} onChange={(e) => setEvidence({ ...evidence, asOf: e.target.value })} /></Field>
+                <Button type="submit" variant="secondary" disabled={!tasks[0]}>Save evidence</Button>
+              </form>
             </Card>
           </div>
         )}
@@ -234,23 +282,36 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
               <Button type="submit">Open brief</Button>
             </form>
             <Field label="Note for the next artifact or QA step"><TextInput value={note} onChange={(e) => setNote(e.target.value)} /></Field>
+            <div className="grid gap-2 md:grid-cols-3">
+              <Field label="Handoff audience"><TextInput value={handoff.audience} onChange={(e) => setHandoff({ ...handoff, audience: e.target.value })} /></Field>
+              <Field label="Handoff channel"><TextInput value={handoff.channel} onChange={(e) => setHandoff({ ...handoff, channel: e.target.value })} /></Field>
+              <Field label="Handoff draft"><TextInput value={handoff.draft} onChange={(e) => setHandoff({ ...handoff, draft: e.target.value })} /></Field>
+            </div>
+            <p className="text-xs text-neutral-500">A handoff stays a draft. Approval does not publish, send, or deploy.</p>
             <ul className="space-y-3">
               {pipeline.map((item) => (
                 <li key={item.id} className="border border-neutral-200 rounded-md p-3 text-sm">
                   <div className="font-medium">{item.name}<Sample on={item.sample} /></div>
                   <div className="text-neutral-500">Stage: {item.stage}</div>
+                  {item.approvedHash && <div className="text-xs text-neutral-500 break-all">Approved hash: {item.approvedHash}</div>}
+                  {item.contentHandoff && <div className="text-xs text-neutral-500">Content draft · sent {item.contentHandoff.sent ? 'yes' : 'no'} · {item.contentHandoff.audience}</div>}
+                  {item.marketingHandoff && <div className="text-xs text-neutral-500">Marketing draft · sent {item.marketingHandoff.sent ? 'yes' : 'no'} · {item.marketingHandoff.channel}</div>}
+                  {proposal?.id === item.id && <div className="text-xs text-neutral-500 break-all">Proposed hash: {proposal.payloadHash}</div>}
                   <div className="mt-2 flex flex-wrap gap-2">
                     {item.stage === 'brief' && <Button onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/advance`, { toStage: 'artifact', note }); })}>Move to artifact</Button>}
                     {item.stage === 'artifact' && <Button onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/advance`, { toStage: 'qa', note }); })}>Move to QA</Button>}
                     {item.stage === 'qa' && <Button onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/advance`, { toStage: 'release_review' }); })}>Request release review</Button>}
                     {item.stage === 'release_review' && (
-                      <Button onClick={() => act(async () => {
+                      <Button variant="secondary" onClick={() => act(async () => {
                         const proposed = await api.post<{ approvalId: string; payloadHash: string }>(`/api/network/pipeline/${item.id}/propose-release`, {});
-                        await api.post(`/api/network/pipeline/${item.id}/approve`, proposed);
-                      })}>Approve current artifact</Button>
+                        setProposal({ id: item.id, approvalId: proposed.approvalId, payloadHash: proposed.payloadHash });
+                      })}>Propose release</Button>
                     )}
-                    {item.stage === 'release_review' && <Button variant="secondary" onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/advance`, { toStage: 'content_handoff' }); })}>Content handoff</Button>}
-                    {item.stage === 'content_handoff' && <Button variant="secondary" onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/advance`, { toStage: 'marketing_handoff' }); })}>Marketing handoff</Button>}
+                    {item.stage === 'release_review' && proposal?.id === item.id && (
+                      <Button onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/approve`, proposal); })}>Approve shown hash</Button>
+                    )}
+                    {item.stage === 'release_review' && <Button variant="secondary" onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/advance`, { toStage: 'content_handoff', handoff }); })}>Content handoff</Button>}
+                    {item.stage === 'content_handoff' && <Button variant="secondary" onClick={() => act(async () => { await api.post(`/api/network/pipeline/${item.id}/advance`, { toStage: 'marketing_handoff', handoff }); })}>Marketing handoff</Button>}
                   </div>
                 </li>
               ))}
@@ -306,6 +367,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
                   <li key={row.provider} className="border border-neutral-200 rounded-md p-3">
                     <div className="font-medium">{row.provider} · {row.state}</div>
                     <p className="text-neutral-500">{row.detail}</p>
+                    {row.adapter && <p className="text-neutral-500">{row.adapter.summary} Transport: {row.adapter.transport}. Outbound mounted: {row.adapter.mountsOutbound ? 'yes' : 'no'}.</p>}
                     <div className="mt-2 flex gap-2">
                       <Button variant="secondary" onClick={() => act(async () => { await api.post(`/api/network/integrations/${row.provider}/configure`, { label: 'local desk' }); })}>Save local label</Button>
                       <Button variant="secondary" onClick={() => act(async () => { await api.post(`/api/network/integrations/${row.provider}/check`, {}); })}>Run check</Button>

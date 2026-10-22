@@ -9,7 +9,9 @@ import {
   DeskError,
   applyIntegrationCheck,
   assertAdvance,
+  adapterBoundary,
   assertMinistryLane,
+  validateHandoff,
   eventHash,
   introducesCycle,
   localCheckProbe,
@@ -245,9 +247,11 @@ export function updateTask(user: UserRef, id: string, body: Record<string, unkno
   writer(user);
   assertMinistryLane(body.lane);
   const row = db.prepare('SELECT * FROM network_tasks WHERE id = ? AND lane = ?').get(id, LANE) as
-    | { id: string; owner_id: string; project_id: string; depends_on: string }
+    | { id: string; owner_id: string; project_id: string; depends_on: string; assignee: string; evidence_json: string }
     | undefined;
   if (!row || row.owner_id !== user.sub) throw new DeskError(404, 'Task not found');
+  const assignee = body.assignee === undefined ? row.assignee : requireText(body.assignee, 'assignee', 80);
+  const evidence = body.evidence === undefined ? row.evidence_json : JSON.stringify(validateEvidence(body.evidence));
   const status = body.status === undefined
     ? (db.prepare('SELECT status FROM network_tasks WHERE id = ?').get(id) as { status: 'queued' | 'in_progress' | 'blocked' | 'done' }).status
     : oneOf(body.status, ['queued', 'in_progress', 'blocked', 'done'] as const, 'status');
@@ -275,13 +279,10 @@ export function updateTask(user: UserRef, id: string, body: Record<string, unkno
     }
   }
   withWrite(() => {
-    db.prepare('UPDATE network_tasks SET status = ?, depends_on = ?, updated_at = ? WHERE id = ?').run(
-      status,
-      JSON.stringify(dependsOn),
-      nowIso(),
-      id,
-    );
-    appendEvent(user.sub, user.sub, 'task.updated', 'task', id, { status, dependsOn });
+    db.prepare(
+      'UPDATE network_tasks SET status = ?, assignee = ?, depends_on = ?, evidence_json = ?, updated_at = ? WHERE id = ?',
+    ).run(status, assignee, JSON.stringify(dependsOn), evidence, nowIso(), id);
+    appendEvent(user.sub, user.sub, 'task.updated', 'task', id, { status, assignee, dependsOn });
   });
   return listTasks(user, row.project_id).find((task) => task.id === id);
 }
@@ -302,6 +303,11 @@ export function listPipeline(user: UserRef) {
   return (rows as Record<string, unknown>[]).map(mapPipeline);
 }
 
+function parseJson(value: unknown) {
+  if (value === null || value === undefined || value === '') return null;
+  return JSON.parse(String(value));
+}
+
 function mapPipeline(row: Record<string, unknown>) {
   return {
     id: String(row.id),
@@ -312,6 +318,8 @@ function mapPipeline(row: Record<string, unknown>) {
     artifactNote: row.artifact_note,
     qaNote: row.qa_note,
     approvedHash: row.approved_hash,
+    contentHandoff: parseJson(row.content_handoff),
+    marketingHandoff: parseJson(row.marketing_handoff),
     sample: Boolean(row.sample),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -345,6 +353,8 @@ function pipelineForWrite(user: UserRef, id: string) {
         artifact_note: string;
         qa_note: string;
         approved_hash: string | null;
+        content_handoff: string | null;
+        marketing_handoff: string | null;
       }
     | undefined;
   if (!row || row.owner_id !== user.sub) throw new DeskError(404, 'Pipeline item not found');
@@ -360,16 +370,34 @@ export function advancePipeline(user: UserRef, id: string, body: Record<string, 
   assertAdvance(row.stage, to, row.approved_hash, current);
   let artifactNote = row.artifact_note;
   let qaNote = row.qa_note;
+  let contentHandoff = row.content_handoff;
+  let marketingHandoff = row.marketing_handoff;
   if (to === 'artifact') artifactNote = requireText(body.note ?? body.artifactNote, 'note', 2000);
   if (to === 'qa') qaNote = requireText(body.note ?? body.qaNote, 'note', 2000);
+  if (to === 'content_handoff') contentHandoff = JSON.stringify(validateHandoff(body.handoff));
+  if (to === 'marketing_handoff') marketingHandoff = JSON.stringify(validateHandoff(body.handoff));
   const approvedHash = to === 'release_review' ? null : row.approved_hash;
   withWrite(() => {
     db.prepare(
       `UPDATE network_pipeline
-       SET stage = ?, artifact_note = ?, qa_note = ?, approved_hash = ?, updated_at = ?
+       SET stage = ?, artifact_note = ?, qa_note = ?, approved_hash = ?, content_handoff = ?, marketing_handoff = ?, updated_at = ?
        WHERE id = ?`,
-    ).run(to, artifactNote, qaNote, to === 'artifact' || to === 'qa' ? null : approvedHash, nowIso(), id);
-    appendEvent(user.sub, user.sub, 'pipeline.advanced', 'pipeline', id, { from: row.stage, to, published: false });
+    ).run(
+      to,
+      artifactNote,
+      qaNote,
+      to === 'artifact' || to === 'qa' ? null : approvedHash,
+      contentHandoff,
+      marketingHandoff,
+      nowIso(),
+      id,
+    );
+    appendEvent(user.sub, user.sub, 'pipeline.advanced', 'pipeline', id, {
+      from: row.stage,
+      to,
+      published: false,
+      sent: false,
+    });
   });
   return listPipeline(user).find((item) => item.id === id);
 }
@@ -566,6 +594,7 @@ export function listIntegrations(user: UserRef) {
     provider: row.provider as Provider,
     state: row.state as IntegrationState,
     detail: row.detail,
+    adapter: adapterBoundary(row.provider as Provider),
     updatedAt: row.updated_at,
   }));
 }
@@ -680,13 +709,24 @@ export function loadSamples(user: UserRef) {
     return { created: false, projectId: existing.id };
   }
   const project = createProject(user, { title: marker, status: 'active' }, true);
-  createTask(
+  const evidenceTask = createTask(
     user,
     project!.id,
     {
       title: 'SAMPLE · Confirm evidence on the ministry brief (prototype)',
       assignee: 'Sample operator',
       evidence: [{ status: 'UNKNOWN', source: 'prototype seed', asOf: '2026-10-22', note: 'Not a real observation' }],
+    },
+    true,
+  );
+  createTask(
+    user,
+    project!.id,
+    {
+      title: 'SAMPLE · Follow-on task waiting on evidence (prototype)',
+      assignee: 'Sample operator',
+      dependsOn: [evidenceTask!.id],
+      evidence: [],
     },
     true,
   );
