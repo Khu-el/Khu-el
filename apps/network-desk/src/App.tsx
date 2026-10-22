@@ -10,6 +10,8 @@ import {
   ROLE_LABELS,
   TextInput,
   api,
+  getApiBaseUrl,
+  getToken,
 } from '@nte/governance-core';
 
 const TABS = [
@@ -70,6 +72,55 @@ interface Integration {
 interface Queue { id: string; domain: string; title: string; status: string }
 interface DeskEvent { seq: number; event: string; entityId: string; hash: string }
 
+interface Rollup {
+  ownerId: string;
+  projectCount: number;
+  taskCount: number;
+  blockedProjects: { id: string; title: string }[];
+  blockedTasks: { id: string; title: string }[];
+  atRiskTasks: { id: string; title: string; reasons: string[] }[];
+  evidenceCounts: Record<string, number>;
+}
+
+function Graph({ tasks }: { tasks: Task[] }) {
+  const rowHeight = 56;
+  const height = Math.max(tasks.length, 1) * rowHeight + 8;
+  return (
+    <svg viewBox={`0 0 640 ${height}`} className="w-full bg-white border border-neutral-200 rounded-md" role="img" aria-label="Task dependency graph">
+      {tasks.map((task, index) => {
+        const y = 8 + index * rowHeight;
+        return (
+          <g key={task.id}>
+            {task.dependsOn.map((dep) => {
+              const from = tasks.findIndex((item) => item.id === dep);
+              if (from < 0) return null;
+              const y1 = 8 + from * rowHeight + 22;
+              return <line key={dep} x1={28} y1={y1} x2={28} y2={y + 22} stroke="#737373" strokeWidth={1.5} />;
+            })}
+            <rect x={48} y={y} width={576} height={40} rx={6} fill="#fafafa" stroke="#d4d4d4" />
+            <text x={60} y={y + 25} fontSize={12} fill="#171717">{task.title.slice(0, 72)}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+async function downloadExport(format: 'json' | 'csv') {
+  const token = getToken();
+  const res = await fetch(`${getApiBaseUrl()}/api/network/export?format=${format}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new ApiError(res.status, `Export failed (${res.status})`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = format === 'csv' ? 'network-desk.csv' : 'network-desk.json';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 function message(err: unknown) {
   return err instanceof ApiError ? err.message : err instanceof Error ? err.message : 'Request failed';
 }
@@ -105,6 +156,8 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
   const [integrations, setIntegrations] = useState<Integration[]>([]);
   const [queues, setQueues] = useState<Queue[]>([]);
   const [events, setEvents] = useState<DeskEvent[]>([]);
+  const [rollups, setRollups] = useState<Rollup[]>([]);
+  const [evidenceFilter, setEvidenceFilter] = useState('all');
   const [title, setTitle] = useState('');
   const [taskTitle, setTaskTitle] = useState('');
   const [assignee, setAssignee] = useState('Desk operator');
@@ -133,6 +186,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
           const taskBody = await api.get<{ tasks: Task[] }>(`/api/network/projects/${id}/tasks`);
           setTasks(taskBody.tasks);
         } else setTasks([]);
+        setRollups((await api.get<{ rollups: Rollup[] }>('/api/network/rollups')).rollups);
       }
       if (next === 'pipeline') setPipeline((await api.get<{ items: Pipe[] }>('/api/network/pipeline')).items);
       if (next === 'leads') setLeads((await api.get<{ leads: Lead[] }>('/api/network/leads')).leads);
@@ -163,6 +217,8 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
       setError(message(err));
     }
   }
+
+  const visibleTasks = tasks.filter((task) => evidenceFilter === 'all' || (evidenceFilter === 'none' ? task.evidence.length === 0 : task.evidence.some((item) => item.status === evidenceFilter)));
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -213,6 +269,22 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
         )}
 
         {tab === 'command' && (
+          <div className="space-y-4">
+            <Card title="Owner rollup" subtitle="Blocked means that status. At risk means an open dependency, missing evidence, or UNKNOWN evidence. This is not a score.">
+              {rollups.map((row) => (
+                <div key={row.ownerId} className="text-sm">
+                  <div>{row.projectCount} projects · {row.taskCount} tasks · {row.blockedProjects.length} blocked projects · {row.blockedTasks.length} blocked tasks · {row.atRiskTasks.length} at risk</div>
+                  <ul className="mt-2 space-y-1">
+                    {row.atRiskTasks.map((task) => <li key={task.id}>{task.title}: {task.reasons.join(', ')}</li>)}
+                  </ul>
+                </div>
+              ))}
+              <div className="mt-3 flex gap-2">
+                <Button variant="secondary" onClick={() => act(async () => { await downloadExport('json'); })}>Export JSON</Button>
+                <Button variant="secondary" onClick={() => act(async () => { await downloadExport('csv'); })}>Export CSV</Button>
+              </div>
+            </Card>
+            <Graph tasks={visibleTasks} />
           <div className="grid gap-4 md:grid-cols-2">
             <Card title="Projects" subtitle="Owner, status, and lane are stored on the server.">
               <form onSubmit={(e) => { e.preventDefault(); void act(async () => { await api.post('/api/network/projects', { title }); setTitle(''); }); }}>
@@ -239,6 +311,11 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
               </ul>
             </Card>
             <Card title="Tasks" subtitle="Dependencies and evidence stay on the selected project. Verified status is not self-assigned.">
+              <Field label="Evidence filter">
+                <select className="w-full border border-neutral-300 rounded-md px-2 py-1.5 text-sm" value={evidenceFilter} onChange={(e) => setEvidenceFilter(e.target.value)}>
+                  {['all', 'none', 'UNKNOWN', 'USER_REPORTED', 'DOCUMENT_STATED', 'INFERRED'].map((status) => <option key={status} value={status}>{status}</option>)}
+                </select>
+              </Field>
               <form onSubmit={(e) => { e.preventDefault(); if (!projectId) return; void act(async () => { await api.post(`/api/network/projects/${projectId}/tasks`, { title: taskTitle, assignee, dependsOn: dependsOn ? [dependsOn] : [], evidence: [] }); setTaskTitle(''); setDependsOn(''); }); }}>
                 <Field label="Task"><TextInput value={taskTitle} onChange={(e) => setTaskTitle(e.target.value)} required /></Field>
                 <Field label="Assignee"><TextInput value={assignee} onChange={(e) => setAssignee(e.target.value)} required /></Field>
@@ -251,7 +328,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
                 <Button type="submit" disabled={!projectId}>Add task</Button>
               </form>
               <ul className="mt-4 space-y-2 text-sm">
-                {tasks.map((task) => (
+                {visibleTasks.map((task) => (
                   <li key={task.id} className="border border-neutral-200 rounded-md px-3 py-2">
                     {task.title}<Sample on={task.sample} />
                     <span className="block text-xs text-neutral-500">{task.status} · {task.assignee} · deps {task.dependsOn.length} · evidence {task.evidence.map((item) => item.status).join(', ') || 'none'}</span>
@@ -272,6 +349,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
                 <Button type="submit" variant="secondary" disabled={!tasks[0]}>Save evidence</Button>
               </form>
             </Card>
+          </div>
           </div>
         )}
 

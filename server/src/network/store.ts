@@ -766,6 +766,107 @@ export function listEvents(user: UserRef) {
   }));
 }
 
+function csvCell(value: unknown) {
+  const text = value === null || value === undefined ? '' : String(value);
+  if (/[",\n]/.test(text)) return `"${text.replace(/"/g, '""')}"`;
+  return text;
+}
+
+export function rollups(user: UserRef) {
+  const ownerIds = user.role === 'SYSTEM_ADMIN'
+    ? (db.prepare('SELECT DISTINCT owner_id AS id FROM network_projects WHERE lane = ?').all(LANE) as { id: string }[]).map((row) => row.id)
+    : [user.sub];
+  return ownerIds.map((ownerId) => {
+    const projects = db.prepare('SELECT * FROM network_projects WHERE owner_id = ? AND lane = ?').all(ownerId, LANE) as {
+      id: string;
+      title: string;
+      status: string;
+      sample: number;
+    }[];
+    const tasks = db.prepare('SELECT * FROM network_tasks WHERE owner_id = ? AND lane = ? ORDER BY created_at').all(ownerId, LANE) as {
+      id: string;
+      title: string;
+      status: string;
+      depends_on: string;
+      evidence_json: string;
+      sample: number;
+    }[];
+    const byId = new Map(tasks.map((task) => [task.id, task]));
+    const evidenceCounts: Record<string, number> = { none: 0 };
+    const atRiskTasks: { id: string; title: string; reasons: string[]; sample: boolean }[] = [];
+    const blockedTasks = tasks.filter((task) => task.status === 'blocked').map((task) => ({
+      id: task.id,
+      title: task.title,
+      sample: Boolean(task.sample),
+    }));
+    for (const task of tasks) {
+      const evidence = JSON.parse(task.evidence_json) as { status: string }[];
+      const dependsOn = JSON.parse(task.depends_on) as string[];
+      const reasons: string[] = [];
+      if (dependsOn.some((dep) => byId.get(dep)?.status !== 'done')) reasons.push('dependency open');
+      if (evidence.length === 0) {
+        reasons.push('no evidence');
+        evidenceCounts.none += 1;
+      }
+      for (const item of evidence) evidenceCounts[item.status] = (evidenceCounts[item.status] ?? 0) + 1;
+      if (evidence.some((item) => item.status === 'UNKNOWN')) reasons.push('evidence UNKNOWN');
+      if (reasons.length > 0) atRiskTasks.push({ id: task.id, title: task.title, reasons, sample: Boolean(task.sample) });
+    }
+    return {
+      ownerId,
+      projectCount: projects.length,
+      taskCount: tasks.length,
+      blockedProjects: projects.filter((project) => project.status === 'blocked').map((project) => ({
+        id: project.id,
+        title: project.title,
+        sample: Boolean(project.sample),
+      })),
+      blockedTasks,
+      atRiskTasks,
+      evidenceCounts,
+    };
+  });
+}
+
+export function exportDesk(user: UserRef, format: 'json' | 'csv') {
+  const scope = owns(user);
+  const taskRows = (scope
+    ? db.prepare('SELECT * FROM network_tasks WHERE owner_id = ? AND lane = ? ORDER BY created_at').all(scope, LANE)
+    : db.prepare('SELECT * FROM network_tasks WHERE lane = ? ORDER BY created_at').all(LANE)) as Record<string, unknown>[];
+  const projects = listProjects(user);
+  const tasks = taskRows.map(mapTask);
+  const leads = listLeads(user);
+  const events = listEvents(user);
+  if (format === 'json') {
+    return { prototype: true, projects, tasks, leads, events };
+  }
+  const header = ['recordType', 'id', 'ownerId', 'title', 'status', 'detail', 'sample'];
+  const lines = [header.join(',')];
+  const push = (recordType: string, id: string, ownerId: string, title: string, status: string, detail: string, sample: boolean) => {
+    lines.push([recordType, id, ownerId, title, status, detail, sample ? 'true' : 'false'].map(csvCell).join(','));
+  };
+  for (const project of projects) push('project', project.id, project.ownerId, project.title, project.status, project.lane, project.sample);
+  for (const task of tasks) {
+    const evidence = task.evidence as { status: string }[];
+    push(
+      'task',
+      task.id,
+      String(task.ownerId),
+      String(task.title),
+      String(task.status),
+      `deps:${task.dependsOn.length}; evidence:${evidence.map((item) => item.status).join('|') || 'none'}`,
+      task.sample,
+    );
+  }
+  for (const lead of leads) {
+    push('lead', lead.id, String(lead.ownerId), String(lead.name), lead.consent ? 'consent' : 'no-consent', String(lead.email), lead.sample);
+  }
+  for (const event of events) {
+    push('ledger', String(event.seq), String(event.ownerId), String(event.event), 'recorded', String(event.hash), false);
+  }
+  return `${lines.join('\n')}\n`;
+}
+
 export function loadSamples(user: UserRef) {
   writer(user);
   const marker = 'SAMPLE · Network command center (prototype)';

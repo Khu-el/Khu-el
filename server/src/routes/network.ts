@@ -125,6 +125,30 @@ networkRouter.post('/queues/:id/act', (_req, res) => {
   send(res, 200, () => store.actOnQueue());
 });
 
+networkRouter.get('/rollups', (req: AuthedRequest, res) => {
+  send(res, 200, () => ({ rollups: store.rollups(req.user!) }));
+});
+
+networkRouter.get('/export', (req: AuthedRequest, res) => {
+  const format = req.query.format === 'csv' ? 'csv' : 'json';
+  try {
+    const body = store.exportDesk(req.user!, format);
+    if (format === 'csv') {
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="network-desk.csv"');
+      res.send(body);
+      return;
+    }
+    res.json(body);
+  } catch (err) {
+    if (err instanceof DeskError) {
+      res.status(err.status).json({ error: err.message });
+      return;
+    }
+    throw err;
+  }
+});
+
 networkRouter.get('/events', (req: AuthedRequest, res) => {
   send(res, 200, () => ({ events: store.listEvents(req.user!) }));
 });

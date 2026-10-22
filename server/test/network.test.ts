@@ -28,6 +28,38 @@ async function tokenFor(email: string) {
 }
 
 describe('network desk', () => {
+  test('rolls up risk for the owner and exports only that account', async () => {
+    const user = await tokenFor('network-rollup@example.test');
+    const other = await tokenFor('network-rollup-other@example.test');
+    const seeded = await call(server.url, '/api/network/samples', { method: 'POST', token: user.token, body: '{}' });
+    assert.equal(seeded.status, 201);
+    const projects = await call(server.url, '/api/network/projects', { token: user.token });
+    const projectId = projects.body.projects[0].id as string;
+    const blocked = await call(server.url, `/api/network/projects/${projectId}`, {
+      method: 'PATCH',
+      token: user.token,
+      body: JSON.stringify({ status: 'blocked' }),
+    });
+    assert.equal(blocked.status, 200);
+    const rollup = await call(server.url, '/api/network/rollups', { token: user.token });
+    assert.equal(rollup.status, 200);
+    assert.equal(rollup.body.rollups.length, 1);
+    assert.equal(rollup.body.rollups[0].ownerId, user.id);
+    assert.equal(rollup.body.rollups[0].blockedProjects.length, 1);
+    const reasons = rollup.body.rollups[0].atRiskTasks.flatMap((task: { reasons: string[] }) => task.reasons);
+    assert.ok(reasons.includes('dependency open'));
+    assert.ok(reasons.includes('evidence UNKNOWN'));
+    const exported = await call(server.url, '/api/network/export?format=json', { token: user.token });
+    assert.equal(exported.body.prototype, true);
+    assert.equal(exported.body.projects.length, 1);
+    const csv = await call(server.url, '/api/network/export?format=csv', { token: user.token });
+    assert.equal(csv.status, 200);
+    assert.match(String(csv.body), /recordType,id,ownerId/);
+    assert.match(String(csv.body), /SAMPLE/);
+    const hidden = await call(server.url, '/api/network/export?format=json', { token: other.token });
+    assert.deepEqual(hidden.body.projects, []);
+  });
+
   test('requires the bearer header and ignores a query token', async () => {
     const open = await call(server.url, '/api/network/projects');
     assert.equal(open.status, 401);
