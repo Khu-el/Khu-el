@@ -220,7 +220,9 @@
         "context.test.ts",
         "inbox-browse-video.test.ts",
         "ledger.test.ts",
-        "research.test.ts"
+        "nodefetch.test.ts",
+        "research.test.ts",
+        "site.test.ts"
       ],
       "dependency_count": 0
     },
@@ -299,9 +301,9 @@
     "tracked_file_count, commit, branch and generated_at are snapshot facts and are not gated on.",
     "non_workspace_projects are in this repo but outside the workspaces globs: root npm test and typecheck do not reach them."
   ],
-  "generated_at": "2026-10-22T19:43:25.238Z",
-  "branch": "cursor/nte-network-desk-b973",
-  "commit": "35e9ae57772f6de4db07b0b964a40d6ea2178958",
+  "generated_at": "2026-10-23T00:12:19.663Z",
+  "branch": "claude/nvs-site-audit",
+  "commit": "12c44e38235bfa7675081aee575ceb11f69fd310",
   "working_tree_clean": false,
-  "tracked_file_count": 505
+  "tracked_file_count": 514
 }

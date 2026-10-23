@@ -7,6 +7,8 @@
 // This checks the timeline BEFORE a render or a paid generation is queued. Anything it cannot resolve is a WARNING
 // ("not checked"), never a pass and never a false error. The renderer itself is upstream's.
 
+import { scanTags, type Tag } from '../html/scan.ts';
+
 export interface LintIssue {
   level: 'error' | 'warn';
   message: string;
@@ -17,43 +19,6 @@ export interface LintResult {
   issues: LintIssue[];
   rootDuration: number; // NaN when not authored
   clips: number;
-}
-
-interface Tag {
-  name: string;
-  a: Record<string, string>;
-}
-
-/** Quote-aware scan of opening tags, so a '>' inside an attribute value does not end the tag early. */
-function scanTags(html: string): Tag[] {
-  const tags: Tag[] = [];
-  const src = html.replace(/<!--[\s\S]*?-->/g, '').replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, (m) => m.slice(0, m.indexOf('>') + 1));
-  let i = 0;
-  while (i < src.length) {
-    const lt = src.indexOf('<', i);
-    if (lt < 0) break;
-    const nm = src.slice(lt).match(/^<([a-zA-Z][\w-]*)/);
-    if (!nm) {
-      i = lt + 1;
-      continue;
-    }
-    let j = lt + nm[0].length;
-    let quote: string | null = null;
-    for (; j < src.length; j++) {
-      const c = src[j]!;
-      if (quote) {
-        if (c === quote) quote = null;
-      } else if (c === '"' || c === "'") quote = c;
-      else if (c === '>') break;
-    }
-    const a: Record<string, string> = {};
-    for (const m of src.slice(lt + nm[0].length, j).matchAll(/([a-zA-Z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)) {
-      a[m[1]!.toLowerCase()] = m[2] ?? m[3] ?? '';
-    }
-    tags.push({ name: nm[1]!.toLowerCase(), a });
-    i = j + 1;
-  }
-  return tags;
 }
 
 const MEDIA = new Set(['video', 'audio', 'img']);

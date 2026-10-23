@@ -66,7 +66,7 @@ Spend caps default to **0**, so nothing that costs money runs until the principa
 
 1. Home: new workspace `packages/nvs-agent-desk` in Khu-el (branch `claude/nvs-agent-desk`, uncommitted). Lane NVS_DELIVERY confirmed.
 2. Browser evasion: **legal review first.** No evasion code. Brief: [LEGAL_REVIEW_BRIEF.md](LEGAL_REVIEW_BRIEF.md).
-3. First pilot: ad-export audit + draft change plan, one consenting client, no live account access. CLI: `node bin/audit.ts` (synthetic fixture included).
+3. First pilot: ad-export audit + draft change plan for a consenting client (`node bin/audit.ts`, synthetic fixture included). The Excellence District, as the test client, runs no paid ads, so its pilot is a **public-website audit** instead: `node bin/site-audit.ts <site> --contact <url>` (live, compliant fetcher) or `--from-dir` (saved pages). Read-only; it only requests public pages, one at a time, honouring robots.txt.
 4. Live trading: **in scope**, behind a gate. See [LIVE_TRADING_GATE.md](LIVE_TRADING_GATE.md). No broker adapter exists until the gate is met and the exact adapter is authorized in writing.
 
 ## Roadmap — each phase needs the principal's go-ahead

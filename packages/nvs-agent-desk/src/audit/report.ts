@@ -29,8 +29,11 @@ const ICON = { pass: '✅', fail: '🔴', unknown: '❓', not_applicable: '➖' 
 
 export function renderMarkdown(r: AuditReport): string {
   const L: string[] = [];
-  L.push(`# Ad account audit — ${r.meta.platform}`);
-  L.push(`Source: ${r.meta.source} · Window: ${r.meta.window ? `${r.meta.window.start} to ${r.meta.window.end}` : '❓ not stated'} · Currency: ${r.meta.currency ?? '❓ not stated'}`);
+  const site = r.meta.kind === 'website';
+  L.push(`# ${site ? 'Website' : 'Ad account'} audit — ${r.meta.platform}`);
+  L.push(site
+    ? `Source: ${r.meta.source} · Fetched: ${r.meta.window ? r.meta.window.start : '❓ not stated'}`
+    : `Source: ${r.meta.source} · Window: ${r.meta.window ? `${r.meta.window.start} to ${r.meta.window.end}` : '❓ not stated'} · Currency: ${r.meta.currency ?? '❓ not stated'}`);
   L.push('');
   L.push(`**Result:** ${r.counts.pass} passed · ${r.counts.fail} failed · ${r.counts.unknown} unknown · ${r.counts.not_applicable} n/a`);
   L.push(`**Score:** ${r.score === null ? '—' : r.score} — ${r.scoreNote}`);
@@ -38,10 +41,10 @@ export function renderMarkdown(r: AuditReport): string {
   for (const c of r.results) {
     L.push(`## ${ICON[c.status]} ${c.title} (${c.severity})`);
     for (const f of c.findings) L.push(`- ${f}`);
-    if (c.why) L.push(`- Missing: ${c.why}`);
+    if (c.why) L.push(`- ${c.status === 'fail' ? 'Why it matters' : c.status === 'pass' ? 'Note' : 'Not measured'}: ${c.why}`);
     L.push('');
   }
-  L.push('_Read-only audit. No account was changed. Any change below is a draft needing named human approval._');
+  L.push(site ? '_Read-only audit of public pages. Nothing on the site was changed. Any fix is a recommendation for a named human to act on._' : '_Read-only audit. No account was changed. Any change below is a draft needing named human approval._');
   return L.join('\n');
 }
 

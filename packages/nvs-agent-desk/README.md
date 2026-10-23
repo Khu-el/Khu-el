@@ -18,10 +18,10 @@ npm run typecheck                               # root sweep includes this packa
 |---|---|---|
 | Ledger | `src/core` | propose → human approves exact hash → execute once; caps; halt; hash-chained audit |
 | Research | `src/research` | no-lookahead backtester, NaN-safe metrics, deterministic risk gate, **paper** broker only |
-| Audit | `src/audit` | ad-export checks (pass/fail/unknown/n.a.), unscored while unknown, drafts as ledger proposals |
+| Audit | `src/audit` | ad-export checks and public-website checks (pass/fail/unknown/n.a.), unscored while unknown, ad drafts as ledger proposals |
 | Context | `src/context` | FTS5/bm25 store + restricted think-in-code runner (clean-room) |
 | Inbox | `src/inbox` | per-mailbox ACL, injection pre-screen, draft-first, send bound to approved payload |
-| Browse | `src/browse` | honest-UA, robots.txt, rate-limited, SSRF-safe fetch. No evasion |
+| Browse | `src/browse` | honest-UA, robots.txt, rate-limited, SSRF-safe fetch with the connection pinned to the validated IP. No evasion |
 | Video | `src/video` | timeline lint; metered generation as a capped, approved spend action |
 
 ## Rules that hold in every module
