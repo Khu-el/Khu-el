@@ -104,11 +104,9 @@ export async function apiPostBlob(path: string, body: unknown): Promise<Blob> {
   return res.blob();
 }
 
-export function apiDownloadUrl(path: string) {
-  // Downloads happen via <a href>, which can't set an Authorization header, so
-  // the token goes in the query string. The server accepts it on the file
-  // download route and nowhere else -- `npm run check:query-token` enforces
-  // that -- so do not reach for this helper to reach any other endpoint.
-  const token = getToken();
-  return `${getApiBaseUrl()}${path}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+export function apiDownloadUrl(path: string, grantToken: string) {
+  // The query value is a short download grant from POST /api/attachments/:id/grant,
+  // not the session token. The server accepts ?token= on the file download
+  // route and nowhere else -- `npm run check:query-token` enforces that.
+  return `${getApiBaseUrl()}${path}?token=${encodeURIComponent(grantToken)}`;
 }

@@ -79,9 +79,22 @@ export function AttachmentsPanel({ recordId }: { recordId: string }) {
           {attachments.map((a) => (
             <li key={a.id} className="flex items-center justify-between py-2 text-sm">
               <div>
-                <a href={apiDownloadUrl(`/api/attachments/${a.id}/download`)} className="font-medium text-neutral-800 hover:underline" target="_blank" rel="noreferrer">
+                <button
+                  type="button"
+                  className="font-medium text-neutral-800 hover:underline"
+                  onClick={() => {
+                    void (async () => {
+                      try {
+                        const grant = await api.post<{ token: string }>(`/api/attachments/${a.id}/grant`);
+                        window.open(apiDownloadUrl(`/api/attachments/${a.id}/download`, grant.token), '_blank', 'noopener');
+                      } catch (e) {
+                        setError(e instanceof ApiError ? e.message : 'Could not open that file');
+                      }
+                    })();
+                  }}
+                >
                   {a.originalName}
-                </a>
+                </button>
                 <p className="text-xs text-neutral-400">
                   {fmtBytes(a.sizeBytes)} · uploaded {new Date(a.uploadedAt).toLocaleDateString()}
                 </p>

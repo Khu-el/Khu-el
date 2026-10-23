@@ -5,7 +5,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { db } from '../lib/db.js';
 import { env } from '../lib/env.js';
-import { requireAuth, requireAuthAllowingQueryToken, type AuthedRequest } from '../lib/auth.js';
+import { requireAuth, requireAuthAllowingQueryToken, signDownloadGrant, type AuthedRequest } from '../lib/auth.js';
 import { newId, nowIso } from '../lib/id.js';
 import { canWrite, isSharedApp } from '../lib/roles.js';
 
@@ -96,6 +96,14 @@ attachmentsRouter.get('/records/:recordId/attachments', requireAuth, (req: Authe
   res.json({
     attachments: rows.map((r) => ({ id: r.id, recordId: r.record_id, originalName: r.original_name, mimeType: r.mime_type, sizeBytes: r.size_bytes, uploadedAt: r.uploaded_at })),
   });
+});
+
+attachmentsRouter.post('/attachments/:id/grant', requireAuth, (req: AuthedRequest, res) => {
+  const att = db.prepare('SELECT * FROM attachments WHERE id = ?').get(req.params.id) as unknown as AttachmentRow | undefined;
+  if (!att) return res.status(404).json({ error: 'Attachment not found' });
+  const record = getRecordOr404(att.record_id);
+  if (!record || !canAccessRecord(record, req.user!)) return res.status(403).json({ error: 'Not permitted to download this file' });
+  res.json({ token: signDownloadGrant(req.user!.sub, att.id), expiresInSeconds: 60, attachmentId: att.id });
 });
 
 attachmentsRouter.get('/attachments/:id/download', requireAuthAllowingQueryToken, (req: AuthedRequest, res) => {

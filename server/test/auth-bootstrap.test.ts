@@ -7,7 +7,10 @@
  */
 import { configureTestEnv } from './helpers.ts';
 
-const env = configureTestEnv({ bootstrapAdminEmail: 'Owner@Example.Test' });
+const env = configureTestEnv({
+  bootstrapAdminEmail: 'Owner@Example.Test',
+  bootstrapAdminSecret: 'test-admin-secret',
+});
 
 const { test, after, describe } = await import('node:test');
 const assert = (await import('node:assert/strict')).default;
@@ -23,7 +26,7 @@ after(async () => {
 
 describe('BOOTSTRAP_ADMIN_EMAIL', () => {
   test('the named address registers as SYSTEM_ADMIN', async () => {
-    const res = await register(server.url, 'owner@example.test');
+    const res = await register(server.url, 'owner@example.test', { bootstrapAdminSecret: 'test-admin-secret' });
     assert.equal(res.status, 201);
     assert.equal(res.body.user.role, 'SYSTEM_ADMIN');
   });
@@ -40,11 +43,12 @@ describe('BOOTSTRAP_ADMIN_EMAIL', () => {
       'owner@example.test.attacker.example',
       'xowner@example.test',
       'owner@example.tes',
-      ' owner@example.test.evil',
     ]) {
       const res = await register(server.url, lookalike);
       assert.equal(res.body.user.role, 'FAMILY_COUNCIL_MEMBER', `${lookalike} must not match the bootstrap address`);
     }
+    const spaced = await register(server.url, ' owner@example.test.evil');
+    assert.equal(spaced.status, 400);
   });
 
   test('everyone else is still a FAMILY_COUNCIL_MEMBER even asking for admin', async () => {
