@@ -26,7 +26,7 @@ Registration assigns a role from deployment configuration. A `role` field on `PO
 | `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_SECRET` | `SYSTEM_ADMIN` for that one address, once |
 | `MINISTRY_OPERATOR_EMAILS` | `NTE_SYSTEMS_OPERATOR` for each listed address |
 
-`PROFESSIONAL_REVIEWER` is the writable non-admin invite role. The label is a stand-in and should be confirmed before merge. It does not read another account's records.
+`PROFESSIONAL_REVIEWER` is the writable non-admin invite role. Chaz confirmed it on Oct 23, 2026. It does not read another account's records.
 
 The invite code alone cannot create `SYSTEM_ADMIN`. A missing or wrong `BOOTSTRAP_ADMIN_SECRET` returns 403 and inserts no row. A second admin returns 409. An unset secret fails closed. Registration rejects an untrimmed email and stores the trimmed lowercase form. `GET /api/auth/users` includes `role` only for `SYSTEM_ADMIN`.
 

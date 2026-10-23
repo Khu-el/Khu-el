@@ -1,7 +1,7 @@
 # Command Center
 
 A private, local-first command center covering every section of the operating
-portfolio. Eleven modules across three firewalled surfaces.
+portfolio. Ten modules across three firewalled surfaces. Module 07 was removed with the estate surface.
 
 Document code: `NTE-TECH-2026-CCENTER-001` · Status: DRAFT · No event ID
 assigned · 9-Point Release Gate not run.

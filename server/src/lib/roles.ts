@@ -14,8 +14,7 @@ export type Role = (typeof ROLES)[number];
 /**
  * Invited account that is not the bootstrap admin and not on the ministry
  * operator list. Writable, and it does not read another account's records.
- * The label is a stand-in: it is not a claim that the person is a licensed
- * professional. Confirm the label before this branch merges.
+ * Chaz confirmed this label on Oct 23, 2026.
  */
 export const DEFAULT_INVITE_ROLE: Role = 'PROFESSIONAL_REVIEWER';
 

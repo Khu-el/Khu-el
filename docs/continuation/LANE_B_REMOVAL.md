@@ -1,10 +1,10 @@
 # Lane B estate removal
 
-**As of:** 2026-10-22 (America/New_York) · **Branch:** `cursor/remove-lane-b-estate` · **Base:** `origin/main` at `d25416f` · **Status:** draft. Do not merge.
+**As of:** 2026-10-23 (America/New_York) · **Branch:** `cursor/remove-lane-b-estate` · **Base:** `origin/main` at `d25416f` · **Status:** draft. Do not merge.
 
 Khu-el/Khu-el is public and is NTE / Lane A only. Estate administration now lives in the private repository `House-of-Ransom/house-of-ransom-estate` at commit `335d84d`. This file is the inventory of what left this repository, what stayed, and why.
 
-This session did not open `server/data`, any database, or any record body. It did not edit `fly.toml` or `.github/workflows/`. It did not rewrite git history.
+This work did not open `server/data`, any database, or any record body. It did not edit `fly.toml`, `fly-deploy.yml`, or any workflow other than the estate steps in `deploy-pages.yml` and the estate mention in `verify.yml`. It did not rewrite git history.
 
 ## Git history
 
@@ -76,7 +76,7 @@ Removed from the role catalogue (`server/src/lib/roles.ts` and the matching labe
 
 `HOUSE_TRUSTEE_EMAILS` and `HOUSE_AUTHORIZED_REP_EMAILS` were not present in application code or in `fly.toml`. Nothing in this branch had to delete a live env binding. `fly.toml` was not edited.
 
-Unset registration now assigns `PROFESSIONAL_REVIEWER` (`DEFAULT_INVITE_ROLE`). It can write its own records and cannot read another account. The label is a stand-in. It is not a claim that the person is a licensed professional. Confirm the label before any merge.
+Unset registration assigns `PROFESSIONAL_REVIEWER` (`DEFAULT_INVITE_ROLE`). It can write its own records and cannot read another account. Chaz confirmed this default on Oct 23, 2026.
 
 `server/src/lib/db.ts` sets the SQLite column default to `PROFESSIONAL_REVIEWER`. That default applies to new databases created with this schema. It does not migrate an existing database.
 
@@ -116,17 +116,14 @@ These files are the only allowed matches. This inventory is one of them, because
 | `server/src/network/logic.ts` | Refusal list and error text. `AUTHORITY.excluded` names the house, the living trust, and private family records. `REFUSED_LANES` includes `CCRLT` and `CCRLT_HOR`. `assertMinistryLane` refuses those lanes. |
 | `server/test/network.test.ts` | Asserts lane `House of Ransom` is 403 and brand `House of Ransom` is 400. |
 | `nte-command-center/src/core/firewall-terms.mjs` | `ENTERPRISE_TERMS` includes `CCRLT` and `House of Ransom` so the practice surface cannot render them. |
-| `.github/workflows/deploy-pages.yml` | Still builds and copies `apps/legacy-estate`. Not edited, by instruction. Merging this branch would fail the Pages deploy until a later change updates the workflow. |
-| `.github/workflows/verify.yml` | Comment still says `legacy-estate` has no test runner. Not edited, by instruction. |
-
-`FAMILY_COUNCIL`, `HOUSE_TRUSTEE`, and `HOUSE_AUTHORIZED_REP` appear only in this file.
+`FAMILY_COUNCIL`, `HOUSE_TRUSTEE`, and `HOUSE_AUTHORIZED_REP` appear only in this file. After Chaz's Oct 23, 2026 approval, `.github/workflows/deploy-pages.yml` and `.github/workflows/verify.yml` no longer name the removed app. `fly.toml` and `fly-deploy.yml` were not edited.
 
 ## Before this can merge
 
-1. Export estate rows from any deployed database first. This branch deletes the app and the estate digest path. It does not migrate or delete rows. This session did not open the database.
-2. Accounts stored as `FAMILY_COUNCIL_MEMBER`, `HOUSE_TRUSTEE_OFFICE`, or `HOUSE_AUTHORIZED_REP` fail closed. `toPublicUser` and `authenticate` reject a role that is no longer in the catalogue, so those sessions cannot sign in until a human migrates the role. This session did not read or update those rows.
-3. Leave the pull request in draft. `.github/workflows/deploy-pages.yml` still builds the removed app. `fly.toml` was not changed. A green local `npm run gate` does not deploy and does not show that `FLY_API_TOKEN` is set.
-4. Confirm whether `PROFESSIONAL_REVIEWER` is the right label for an invited account that is not an operator and not an admin.
+1. No estate export is required. Chaz confirmed on Oct 23, 2026 that there is no estate data in production. This branch still does not migrate or delete rows, and this work did not open a database.
+2. Accounts stored as `FAMILY_COUNCIL_MEMBER`, `HOUSE_TRUSTEE_OFFICE`, or `HOUSE_AUTHORIZED_REP` fail closed. `toPublicUser` and `authenticate` reject a role that is no longer in the catalogue. This work did not read or update those rows.
+3. The pull request stays a draft until Chaz says to merge. `fly.toml` was not changed. A green local `npm run gate` does not deploy and does not show that `FLY_API_TOKEN` is set.
+4. `PROFESSIONAL_REVIEWER` is the confirmed default registration role (Chaz, Oct 23, 2026).
 
 ## Rollback
 
