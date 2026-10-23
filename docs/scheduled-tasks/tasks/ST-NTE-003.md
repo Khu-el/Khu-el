@@ -26,7 +26,7 @@ most consequential of the five migrated tasks.
 and funding education.
 
 ⚠️ **This assignment is provisional and the capacity question is open.** The source prompt keeps
-**three** firewalled sections in one output — `LANE A — NTE`, `LANE B — CCRLT` and `PERSONAL` —
+**three** firewalled sections in one output — `LANE A — NTE`, `LANE B — estate-capacity` and `PERSONAL` —
 which SPEC v2's "**Do not blend capacities**" rule does not permit in a single task. Lane A is
 recorded as the owner because the task is named, framed and primarily scoped to NTE, and because
 the firewalling is explicit rather than accidental. That is a reading, not a resolution. The
@@ -235,19 +235,19 @@ Surfaced, never hidden. Where sources conflict, the briefing shows the conflict 
 gate decide rather than averaging the two.
 
 **Standing contradiction — the capacity blend.** The source prompt runs `LANE A — NTE`,
-`LANE B — CCRLT` and `PERSONAL` sections in one output. SPEC v2 forbids blending capacities in one
+`LANE B — estate-capacity` and `PERSONAL` sections in one output. SPEC v2 forbids blending capacities in one
 task. The two resolutions, with their costs:
 
 | Option | What it means | Cost |
 |---|---|---|
-| **A — split** | `ST-NTE-003` keeps markets and Lane A. A new `ST-CCRLT-001` takes the CCRLT section and a new `ST-PERS-003` the personal section. | Three briefings to read instead of one; the cross-lane view that makes the structure section useful is lost; strictly SPEC-compliant. |
-| **B — keep, declare** | One task owned by `NTE`, with the other two sections retained as explicitly firewalled read-only subsections that may state no CCRLT or personal conclusion. | One coherent briefing; relies on in-run firewalling rather than structural separation, so it is a documented exception to the one-capacity rule, not compliance with it. |
+| **A — split** | `ST-NTE-003` keeps markets and Lane A. A separate task, outside this repository, takes the estate section, and a new `ST-PERS-003` takes the personal section. | Three briefings to read instead of one; the cross-lane view that makes the structure section useful is lost; strictly SPEC-compliant. |
+| **B — keep, declare** | One task owned by `NTE`, with the other two sections retained as explicitly firewalled read-only subsections that may state no estate-capacity or personal conclusion. | One coherent briefing; relies on in-run firewalling rather than structural separation, so it is a documented exception to the one-capacity rule, not compliance with it. |
 
 **No option is adopted here.** This is a finding for the principal, exactly as SPEC v2 intends by
 listing capacity contamination as an escalation condition rather than something a task resolves for
 itself.
 
-**Standing contradiction — Lane B capacity facts.** Where the briefing's CCRLT section states
+**Standing contradiction — Lane B capacity facts.** Where the briefing's estate-capacity section states
 trustee identity, trust date or revocability, those are `DOCUMENT-STATED` and the governing chain is
 not externally certified. They are never rendered as settled external fact.
 
@@ -307,7 +307,7 @@ no write path to one and must not acquire one.
 ## 🤝 HANDOFF
 
 The action queue hands to the principal. Lane A evidence and control actions hand to the NTE IP and
-ownership work; any Lane B item hands to `ST-HOR-001` as a reference only, never as an action.
+ownership work; any Lane B item is a reference only and hands to the private estate repository, never as an action in this repository.
 Items needing counsel or a CPA hand to the professional review packets (the `PR-` series). If
 Option A is adopted, the two new tasks become the named downstream owners of their sections.
 

@@ -3,10 +3,11 @@
  * to remember.
  *
  * Lane A (NTE / Equity of the Divine Ministries - enterprise, technology,
- * commerce) and Lane B (CCRLT / House of Ransom - family estate, beneficiaries,
- * succession) are separate by design. The same human participating in both
- * structures is not authority to merge them: capacity travels with the act, not
- * with the person.
+ * commerce) and Lane B (private, non-enterprise) are separate by design. The
+ * same human participating in both structures is not authority to merge them:
+ * capacity travels with the act, not with the person. Lane B stays in this
+ * type so a merge into Lane A still requires a declared bridge. This
+ * repository does not store Lane B records.
  *
  * A cross-lane relationship is legitimate, but never implicit. It requires a
  * declared bridge that records a *reference* between two records - never a

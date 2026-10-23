@@ -5,8 +5,8 @@ import { RECORD_TYPES, type EntityDataMap, type EntityKind } from './types';
 /**
  * Every CRM record is a GovernedRecord in Lane A: The Excellence District
  * Financial Services is an enterprise operation (the principal's decision,
- * 2026-10-02). It shares nothing with Lane B -- a family-estate reference to
- * this business would be a reference, never a merge.
+ * 2026-10-02). It shares nothing with Lane B. A cross-lane reference would be
+ * a reference, never a merge. Lane B records are not stored in this repository.
  */
 export function createRecord<K extends EntityKind>(
   kind: K,

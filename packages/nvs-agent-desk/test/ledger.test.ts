@@ -102,7 +102,7 @@ test('editing the stored payload after approval blocks execution', async () => {
 
 test('an executor is refused outside the lanes it declares', async () => {
   const { l, calls } = make();
-  const a = l.propose({ kind: 'note.save', context: ctx({ lane: 'FAMILY' }), payload: {}, actor: bot });
+  const a = l.propose({ kind: 'note.save', context: ctx({ lane: 'LICENSED_PRACTICE' }), payload: {}, actor: bot });
   await rejects(l.execute(a.id, bot), 'lane');
   assert.equal(calls.length, 0);
 });

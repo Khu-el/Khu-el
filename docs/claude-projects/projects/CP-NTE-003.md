@@ -25,18 +25,17 @@ discipline it needs most.
 
 ## 🧑‍💼 CAPACITY
 
-`NTE` — Lane A. The DAO is the public face of the Neterverse Administration Trust. Not `HOR`,
-which is the Lane B family church, and not `MM`. The repository is public and every source below
+`NTE` — Lane A. The DAO is the public face of the Neterverse Administration Trust. Not `HOR`
+(reserved; estate work is not in this repository) and not `MM`. The repository is public and every source below
 is already world-readable, so the classification is `PUBLIC` — but note that low *classification*
 and high *sensitivity* are different axes here. Nothing in this project is secret; several things
 in it could be consequential if published carelessly.
 
 ## 🚫 WHAT THIS PROJECT MUST NOT ABSORB
 
-- **Lane B estate material.** `CLAUDE.md` in the DAO repo is explicit: this repo is public-facing
-  while the estate app is deliberately private Lane B — **do not move content from there to here.**
-  This is the single most consequential boundary in this project, because a leak here is a
-  publication.
+- **Lane B estate material.** Estate administration lives in a private repository and is not loaded
+  into this project. Do not copy it here. This is the single most consequential boundary in this
+  project, because a leak here is a publication.
 - **Application source from the Lane A tools.** Unrelated, and it would crowd out the material
   that matters.
 - **Any real counterparty, agency or case reference that has not been verified.** See the citation
@@ -106,10 +105,10 @@ ordinary anchor href to another site is a link, not a subresource. A GREEN CHECK
 that a jurisdictional claim is sound, that a cited authority is real, or that a placeholder is
 still honest — and it is not authorization to publish.
 
-CROSS-REPO CONSISTENCY. Trust, estate and lane concepts are also modeled in Khu-el/Khu-el
-(packages/governance-core) and surfaced in its legacy-estate app. Keep terminology consistent
-across repos, and surface conflicts rather than silently reconciling them. Do not move content
-from the private Lane B estate app into this public repository.
+CROSS-REPO CONSISTENCY. Trust and lane concepts are also modeled in Khu-el/Khu-el
+(packages/governance-core). Keep terminology consistent across repos, and surface conflicts rather
+than silently reconciling them. Do not move estate content into this public repository. Estate
+records live in a separate private repository.
 ```
 
 ## 📚 SOURCES
@@ -139,8 +138,8 @@ from the private Lane B estate app into this public repository.
 
 ### 🚫 Deliberately excluded
 
-- **Everything from `apps/legacy-estate/`** — Lane B, private, and this repository is public. The
-  DAO repo's own `CLAUDE.md` states the rule; this manifest enforces it.
+- **Estate records** — private, and this repository is public. The DAO repo's own `CLAUDE.md`
+  states the rule; this manifest enforces it.
 - **The Lane A app source and the control-plane kernel** — unrelated to public-facing drafting,
   and volume here costs attention where attention is the safeguard.
 - **Any draft notice naming a specific agency, person or matter** — a template is general by

@@ -180,8 +180,8 @@ honestly.** See `SOURCE_CONFLICTS.md` SC-02.
 | **Address designated** | ✅ `khuel@excellencedistrict.org` — chosen by the principal, 2026-09-21. `USER-REPORTED`: a decision about intent, so no external verification applies. |
 | **Exact action** | `fly secrets set BOOTSTRAP_ADMIN_EMAIL=khuel@excellencedistrict.org`, alongside `JWT_SECRET`, **then** register with that address. |
 | **Where** | The deployment platform's secrets, **never a committed file.** Recording the address here is not setting it — `server/src/lib/env.ts` reads `process.env` at boot and nothing else. |
-| **Afterwards** | That one account registers as `SYSTEM_ADMIN`; everyone else is a `FAMILY_COUNCIL_MEMBER`. |
-| **Verify** | `GET /api/auth/me` returns `"role": "SYSTEM_ADMIN"` for that account and `FAMILY_COUNCIL_MEMBER` for a second test registration. |
+| **Afterwards** | That one account registers as `SYSTEM_ADMIN`; everyone else is a `the former default invite role`. |
+| **Verify** | `GET /api/auth/me` returns `"role": "SYSTEM_ADMIN"` for that account and `the former default invite role` for a second test registration. |
 
 ⏳ **Cannot be done yet, and not for want of the value.** The backend has never been deployed —
 `fly.toml` still carries its placeholder app name, and `docs/DOMAIN_NETWORK.md` records
@@ -192,7 +192,7 @@ waiting on that, not on a decision.
 ✅ **Verified against this exact address**, by probe on the built server: registering
 `khuel@excellencedistrict.org` returns `SYSTEM_ADMIN`, and matching is case-insensitive on both
 sides — the address was supplied as `Khuel@…` and resolves identically. Four near misses all
-return `FAMILY_COUNCIL_MEMBER`: `khuel@excellencedistrict.org.attacker.example`,
+return `the former default invite role`: `khuel@excellencedistrict.org.attacker.example`,
 `xkhuel@excellencedistrict.org`, `khuel@excellencedistrict.com` and
 `someone.else@excellencedistrict.org`.
 
@@ -341,7 +341,7 @@ committed to a repository outlives the session that wrote it.
 | | |
 |---|---|
 | **Project** | Entity governance — SC-08 |
-| **Service** | Notion → `04.01 Entities Registry — NTE/CCRLT`, `04.02 Roles & Capacities Registry` |
+| **Service** | Notion → `04.01 Entities Registry — NTE/estate-capacity`, `04.02 Roles & Capacities Registry` |
 | **Exact blocker** | Two things. **(a)** `docs/CONNECTORS.md` records Notion as `write_authorized: false` — reads are authorized, writes are not. **(b)** Four of the nine entity names are not settled (item 12), so a row written today would record a provisional name as though it were a decision. |
 | **Why it matters most** | Both databases have complete, well-designed schemas and **zero rows.** That is the root cause of SC-08: four generations of entity names exist because the canonical list was never filled in, so every document re-typed one from memory. `04.01` even carries a `Source Basis` field whose options already encode this account's evidence discipline. |
 | **Exact action** | Grant write authorization for these two databases specifically — not a blanket Notion write — and settle item 12. Then a session can populate `04.01` from `nte-command-center/seed/governance.json`, carrying each entity's `nameStatus` into `Source Basis` (`CONFIRMED` → `Documented`, `PROVISIONAL` → `Requires verification`). |
@@ -406,7 +406,7 @@ of a narrower one.
 | **Verify** | No entity in `seed/governance.json` carries `nameStatus: PROVISIONAL`. |
 
 📎 **A second, smaller naming question rides along.** Sources disagree on whether the Lane B trust
-is the *Christopher Chaz Ransom **Living Trust*** or the *Christopher Chaz Ransom-**El** Living
+is the *Christopher Chaz Ransom **the private estate trust*** or the *Christopher Chaz Ransom-**El** Living
 Trust*. Only the trust instrument settles it, and no session has read one. On an instrument naming
 the trust as a party this is not cosmetic.
 

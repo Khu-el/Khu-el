@@ -44,7 +44,7 @@ function resolveJwtSecret(): string {
 /**
  * Registration is fail-closed: nobody can create an account without this
  * code, including the operator. Unlike the JWT secret, this one is *meant*
- * to be shared (with the family members you actually want to let in), so
+ * to be shared (with the people you actually want to let in), so
  * when we auto-generate one for local/dev convenience we record where it was
  * saved and never print the value. Production refuses to boot without one.
  */

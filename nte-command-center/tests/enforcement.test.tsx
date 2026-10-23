@@ -73,7 +73,7 @@ describe('2 · a module that is not build work is never locked', () => {
 
 describe('3 · assertSurface refuses an undeclared surface', () => {
   it('throws when the module does not declare the surface', () => {
-    expect(() => assertSurface('family-office', ['lane-b'], 'practice')).toThrow(
+    expect(() => assertSurface('household-only', ['lane-b'], 'practice')).toThrow(
       /not permitted on surface practice/,
     )
   })

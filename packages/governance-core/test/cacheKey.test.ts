@@ -67,7 +67,7 @@ describe('scopedCacheKey', () => {
   test('different apps stay separate for one account', () => {
     assert.notEqual(
       scopedCacheKey(DEALS, 'user_a'),
-      scopedCacheKey('ccrlt-legacy-estate:estates', 'user_a')
+      scopedCacheKey('financial-services-crm:contacts', 'user_a')
     );
   });
 });
@@ -88,7 +88,7 @@ describe('foreignCacheKeys', () => {
 
   test('leaves other apps alone', () => {
     const storage = new FakeStorage({
-      [scopedCacheKey('ccrlt-legacy-estate:estates', 'user_b')]: '[]',
+      [scopedCacheKey('financial-services-crm:contacts', 'user_b')]: '[]',
       [scopedCacheKey(DEALS, 'user_b')]: '[]',
     });
     assert.deepEqual(foreignCacheKeys(storage, DEALS, 'user_a'), [scopedCacheKey(DEALS, 'user_b')]);
@@ -140,7 +140,7 @@ describe('purgeForeignCaches', () => {
   });
 
   test('leaves every other app untouched', () => {
-    const estates = scopedCacheKey('ccrlt-legacy-estate:estates', 'user_b');
+    const estates = scopedCacheKey('financial-services-crm:contacts', 'user_b');
     const storage = new FakeStorage({ [estates]: '[]', 'unrelated': 'x' });
     purgeForeignCaches(storage, DEALS, 'user_a');
     assert.equal(storage.getItem(estates), '[]');

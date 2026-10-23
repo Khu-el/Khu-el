@@ -7,7 +7,7 @@ import { hashPassword, requireAuth, signToken, verifyPassword, type AuthedReques
 import { env } from '../lib/env.js';
 import { newId, nowIso } from '../lib/id.js';
 import { FailureLimiter } from '../lib/rateLimit.js';
-import { isRole, type Role } from '../lib/roles.js';
+import { DEFAULT_INVITE_ROLE, isRole, type Role } from '../lib/roles.js';
 
 /** Constant-time compare so a wrong guess can't be distinguished by response timing. */
 function isValidInviteCode(submitted: unknown): boolean {
@@ -19,7 +19,7 @@ function isValidInviteCode(submitted: unknown): boolean {
 }
 
 /**
- * Everyone registers as a FAMILY_COUNCIL_MEMBER. Two deployment settings are
+ * Everyone else registers as DEFAULT_INVITE_ROLE. Two deployment settings are
  * the only exceptions, and both are matched on the address, never on a role
  * field in the request:
  *
@@ -34,7 +34,7 @@ function assignRoleAtRegistration(email: string): Role {
   const bootstrap = env.bootstrapAdminEmail;
   if (bootstrap && normalized === bootstrap) return 'SYSTEM_ADMIN';
   if (env.ministryOperatorEmails.includes(normalized)) return 'NTE_SYSTEMS_OPERATOR';
-  return 'FAMILY_COUNCIL_MEMBER';
+  return DEFAULT_INVITE_ROLE;
 }
 
 /** The invite code is shared. Admin registration also needs this deployment secret. */

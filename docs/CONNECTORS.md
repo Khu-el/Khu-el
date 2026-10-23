@@ -172,7 +172,7 @@ listed here so the network map is complete, not because they are public.
 | [Deal Architect](https://claude.ai/code/artifact/c0aa02d6-93f7-4559-97bb-e0a334e813b0) | `apps/deal-architect` | Static snapshot of a build. |
 | [Capital Readiness](https://claude.ai/code/artifact/a62d3613-e2b7-4c94-90a1-93ef775cd061) | `apps/capital-readiness` | Static snapshot of a build. |
 | [Notes Underwriting](https://claude.ai/code/artifact/88a01535-2e71-44cb-8b35-d801f47999ae) | `apps/notes-underwriting` | Static snapshot of a build. |
-| [Legacy & Estate](https://claude.ai/code/artifact/ece6a9a8-e27e-4ff9-868f-45be6896aa1f) | `apps/legacy-estate` | Static snapshot of a build. Lane B — the link is private, like the workspace. |
+| Legacy and estate snapshot | private estate repository | Not hosted in this repository. The snapshot link is not recorded here. |
 | The Equity Ledger · Privateman Content Audit · Morning Brief | — | Standalone. Not part of the app network. |
 
 The four app snapshots carry no backend sync and no account; the repo apps are the live versions.

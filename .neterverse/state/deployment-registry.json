@@ -11,7 +11,7 @@
       "lane": "LANE_A"
     },
     {
-      "target": "Khu-el/Khu-el app builds (deal-architect, capital-readiness, notes-underwriting, legacy-estate, financial-services-crm)",
+      "target": "Khu-el/Khu-el app builds (deal-architect, capital-readiness, notes-underwriting, financial-services-crm)",
       "surface": "GitHub Pages project site, one directory per app under https://khu-el.github.io/Khu-el/",
       "state": "LIVE_VERIFIED",
       "evidence": "Fetched 2026-10-02T19:28Z from this session. All five apps return HTTP 200 with their own title, and each one's referenced script and stylesheet return 200 at the /Khu-el/<app>/assets/ path the HTML names. Previously DEPLOYED and not LIVE_VERIFIED: the served build referenced its assets one path level too high, so every app rendered blank. PR #19 corrected the base path, and run #26 on 2026-09-30T17:55Z was the first main deploy to carry it to the site.",

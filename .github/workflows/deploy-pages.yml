@@ -73,11 +73,6 @@ jobs:
         env:
           VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/notes-underwriting/
 
-      - name: Build legacy-estate
-        run: npm run build --workspace=apps/legacy-estate
-        env:
-          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/legacy-estate/
-
       - name: Build financial-services-crm
         run: npm run build --workspace=apps/financial-services-crm
         env:
@@ -108,7 +103,6 @@ jobs:
           cp -r apps/deal-architect/dist _site/deal-architect
           cp -r apps/capital-readiness/dist _site/capital-readiness
           cp -r apps/notes-underwriting/dist _site/notes-underwriting
-          cp -r apps/legacy-estate/dist _site/legacy-estate
           cp -r apps/financial-services-crm/dist _site/financial-services-crm
           cp -r apps/network-desk/dist _site/network-desk
           cp -r apps/member-portal/dist _site/member-portal

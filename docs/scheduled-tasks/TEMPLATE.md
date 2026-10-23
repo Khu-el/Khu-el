@@ -8,7 +8,7 @@
 |-----------------|-------|
 | 🏷️ Task ID      | `ST-XXXX-000` |
 | 🏷️ Name         | |
-| 🧑‍💼 Capacity    | one of `PERS` `HOPE` `VZB` `REPR` `DIGP` `NTE` `HOR` `CCRLT` `MM` `OTHER:<name>` |
+| 🧑‍💼 Capacity    | one of `PERS` `HOPE` `VZB` `REPR` `DIGP` `NTE` `HOR` `MM` `OTHER:<name>` |
 | 📆 Defined      | YYYY-MM-DD |
 | 🔧 Status       | `DRAFT` / `ACTIVE` / `PAUSED` / `MERGED` / `REPLACED` / `TERMINATED` |
 | 🔗 Routine ID   | `trig_…` (fill in after scheduling) |

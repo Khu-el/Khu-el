@@ -12,7 +12,6 @@ Search this file first for any new task request: **SEARCH → READ → REUSE →
 | `ST-NTE-002` | Job Runner Worker ⏸️ | `NTE` | Hourly (`35 * * * *` UTC) | `PAUSED` | [ST-NTE-002](tasks/ST-NTE-002.md) | `trig_015PsN5cjfDwgLDUq3oZzKrP` | Principal (approval gates) · ADR-0003 |
 | `ST-PERS-001` | GodMode Daily Bulletin | `PERS` | Daily · 05:35 ET (`35 9 * * *` UTC) | `DRAFT` | [ST-PERS-001](tasks/ST-PERS-001.md) | — not scheduled | `ST-PERS-002` · principal |
 | `ST-PERS-002` | S-05 Evening Ascension | `PERS` | Daily · 21:30 ET (`30 1 * * *` UTC) | `DRAFT` | [ST-PERS-002](tasks/ST-PERS-002.md) | — not scheduled | Paired with `ST-PERS-001` (terminal reflection) |
-| `ST-HOR-001` | S-08 House of Ransom Bulletin | `HOR` | Weekly · Sun 08:00 EDT / 07:00 EST (`0 12 * * 0` UTC) | `DRAFT` | [ST-HOR-001](tasks/ST-HOR-001.md) | — not scheduled | Sunday 09:00 Family Council · `PR-` packets |
 | `ST-NTE-003` | NTE Financial Briefing ⚠️ | `NTE` | Weekdays · 08:00 ET (`0 12 * * 1-5` UTC) | `DRAFT` | [ST-NTE-003](tasks/ST-NTE-003.md) | — not scheduled | Principal (action queue) · `PR-` packets |
 | `ST-NTE-004` | Email Authentication Watch (excellencedistrict.org) | `NTE` | Daily · 08:17 ET (`17 12 * * *` UTC while EDT) | `ACTIVE` | [ST-NTE-004](tasks/ST-NTE-004.md) | `trig_01QBEsHpCMMFRZkJxyePa5NL` | Principal (DMARC decision 2026-10-21) |
 
@@ -37,12 +36,13 @@ and in `../continuation/SOURCE_CONFLICTS.md` SC-12.
 ⚠️ `ST-NTE-004` stores **no MCP connectors**, like `ST-NTE-001`: the daily DNS check runs, but its Monday DMARC report
 review has no Gmail and reports itself skipped. See its KNOWN CONSTRAINT section.
 
-📋 **Four of the five active ChatGPT tasks in the migration kit are now defined** (`ST-PERS-001`,
-`ST-PERS-002`, `ST-HOR-001`, `ST-NTE-003`). The fifth — **Run Marketing Campaigns** — has no
-definition on purpose: it blends `HOPE`, `VZB` and `NTE`, and splitting it would break the
-cross-brand no-repeat ledger its prompt depends on. SC-12 records the conflict and what a human
-needs to decide. **All four are `DRAFT` and none is scheduled**; the matching ChatGPT tasks are
-untouched, per the kit's rule that a ChatGPT task is paused only at its own cutover.
+📋 **Three of the migration-kit drafts remain defined here** (`ST-PERS-001`,
+`ST-PERS-002`, `ST-NTE-003`). The estate bulletin task was removed from this repository; its id is
+not reused (`HOR` next id stays `ST-HOR-002`). **Run Marketing Campaigns** has no definition on
+purpose: it blends `HOPE`, `VZB` and `NTE`, and splitting it would break the cross-brand no-repeat
+ledger its prompt depends on. SC-12 records the conflict and what a human needs to decide. **The
+three drafts are not scheduled**; the matching ChatGPT tasks are untouched, per the kit's rule that
+a ChatGPT task is paused only at its own cutover.
 
 ## Status values
 
@@ -62,6 +62,5 @@ are never reused and their history is findable.
 | `DIGP`   | `ST-DIGP-001` |
 | `NTE`    | `ST-NTE-005` |
 | `HOR`    | `ST-HOR-002` |
-| `CCRLT`  | `ST-CCRLT-001` |
 | `MM`     | `ST-MM-001` |
 | `OTHER`  | `ST-OTHER-002` |

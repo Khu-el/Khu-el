@@ -10,10 +10,8 @@ export { crmFollowUpReason, ownerToday };
 export const digestRouter = Router();
 digestRouter.use(requireAuth);
 
-function rowsForUser(user: { sub: string; role: string }): RecordRow[] {
-  const shared = db.prepare(`SELECT id, app_id, owner_id, record_type, data_json FROM records WHERE app_id = 'legacy-estate'`).all() as unknown as RecordRow[];
-  const owned = db.prepare(`SELECT id, app_id, owner_id, record_type, data_json FROM records WHERE app_id != 'legacy-estate' AND owner_id = ?`).all(user.sub) as unknown as RecordRow[];
-  return [...shared, ...owned];
+function rowsForUser(user: { sub: string }): RecordRow[] {
+  return db.prepare(`SELECT id, app_id, owner_id, record_type, data_json FROM records WHERE owner_id = ?`).all(user.sub) as unknown as RecordRow[];
 }
 
 digestRouter.get('/', (req: AuthedRequest, res) => {
@@ -25,7 +23,7 @@ digestRouter.post('/email', asyncHandler(async (req: AuthedRequest, res) => {
   const items = computeDigest(rowsForUser(req.user!), ownerToday(req.body?.today));
   const text =
     items.length === 0
-      ? 'Nothing needs attention right now — all tracked checklists are complete and beneficiary designations are current.'
+      ? 'Nothing needs attention right now — tracked checklists are complete.'
       : items.map((i) => `[${i.appId}] ${i.recordLabel} — ${i.message}`).join('\n');
 
   const result = await sendSelfEmail({ to: req.user!.email, subject: '[NTE] Attention digest', text });

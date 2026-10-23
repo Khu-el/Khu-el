@@ -9,7 +9,8 @@ Opus 5 (Claude Code) on `claude/neterverse-continuation-audit-k0meuw`.
 | [`SOURCE_CONFLICTS.md`](SOURCE_CONFLICTS.md) | Six recorded contradictions, which source controls, and which need a human |
 | [`HUMAN_ACTION_REQUIRED.md`](HUMAN_ACTION_REQUIRED.md) | Seven blockers, each with the exact action, where to do it, and how to verify |
 | [`SECURITY_FINDINGS.md`](SECURITY_FINDINGS.md) | Two fixed authorization defects, with before/after evidence; plus what was reviewed and accepted |
-| [`LANE_B_DECISION.md`](LANE_B_DECISION.md) | 2026-10-22 code inspection: legacy-estate and `FAMILY_COUNCIL_MEMBER` can hold Lane B. Decision for Chaz. No records opened. |
+| [`LANE_B_DECISION.md`](LANE_B_DECISION.md) | Pointer only. The inspection moved to [`LANE_B_REMOVAL.md`](LANE_B_REMOVAL.md). |
+| [`LANE_B_REMOVAL.md`](LANE_B_REMOVAL.md) | Inventory of the estate surface removed from this public repository, what stayed, and why. Git history still has the code. No records opened. |
 | [`REVIEW-2026-10-22.md`](REVIEW-2026-10-22.md) | Adversarial review of `1fa7236..277c5a5` and the fixes that followed. |
 | [`MERGE_PLAN.md`](MERGE_PLAN.md) | Local steps to push a draft PR, and what a merge to `main` starts. |
 | [`ADMIN_BOOTSTRAP.md`](ADMIN_BOOTSTRAP.md) | How admin registration reads its environment variables. No secret values. |

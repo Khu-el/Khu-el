@@ -1,163 +1,26 @@
 /**
- * Modules 07 and 08 acceptance — the household surface.
+ * Module 08 acceptance — the household surface of the operating-system module.
+ * The lane-b-only office module was removed with the estate surface.
  */
 import React from 'react'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it, beforeEach } from 'vitest'
-import familyOffice from '../src/modules/family-office'
 import lifeops from '../src/modules/lifeops'
 import { ModuleBody } from '../src/App'
 import { freezeStatus } from '../src/core/build-freeze'
 import { modulesFor } from '../src/core/registry'
-import { save, setSurface } from '../src/core/storage'
-import {
-  CARRY_LIMIT,
-  attemptCarry,
-  canExport,
-  exportRows,
-  type Command,
-} from '../src/modules/family-office/ledger'
+import { setSurface } from '../src/core/storage'
 import { SLOT_CEILING, countSlots, slotsFor } from '../src/modules/lifeops/slots'
-import household from '../seed/family-office.json'
-import governance from '../seed/governance.json'
 import opsA from '../seed/lifeops-lane-a.json'
 import opsB from '../seed/lifeops-lane-b.json'
-import { render, click, weekWith } from './helpers'
+import { render, weekWith } from './helpers'
 
 beforeEach(() => {
   window.localStorage.clear()
   setSurface('lane-b')
 })
 
-// Both modules are buildWork: false. Zero contacts is the harder case.
 const status = freezeStatus(weekWith(0))
-
-const house = () =>
-  render(<ModuleBody module={familyOffice} surface="lane-b" status={status} />)
-
-// ── Module 07 ─────────────────────────────────────────────────────────────
-
-describe('the commands ledger refuses a third carry', () => {
-  const base: Command[] = [
-    { id: 'A', title: 'a', state: 'open', carries: 0, opened: '2026-01-01' },
-    { id: 'B', title: 'b', state: 'open', carries: 0, opened: '2026-01-01' },
-    { id: 'C', title: 'c', state: 'open', carries: 0, opened: '2026-01-01' },
-  ]
-
-  it('accepts two and refuses the third at the rule', () => {
-    const one = attemptCarry(base, 'A')
-    expect(one.ok).toBe(true)
-    const two = attemptCarry(one.commands, 'B')
-    expect(two.ok).toBe(true)
-    const three = attemptCarry(two.commands, 'C')
-
-    expect(three.ok).toBe(false)
-    // Refused, not warned: the ledger is unchanged.
-    expect(three.commands).toBe(two.commands)
-    expect(three.commands.find((c) => c.id === 'C')!.state).toBe('open')
-    expect(three.message).toContain('A third is not accepted')
-    expect(three.message).toContain('Close one or drop one on purpose')
-    expect(three.message).toContain('A, B')
-  })
-
-  it('accepts the third once one is closed', () => {
-    let commands = attemptCarry(base, 'A').commands
-    commands = attemptCarry(commands, 'B').commands
-    commands = commands.map((c) => (c.id === 'A' ? { ...c, state: 'closed' as const } : c))
-    expect(attemptCarry(commands, 'C').ok).toBe(true)
-  })
-
-  it('refuses in the UI with a message a person can act on', () => {
-    const v = house()
-    const carryButtons = () =>
-      Array.from(v.container.querySelectorAll('button')).filter(
-        (b) => b.textContent === 'Carry',
-      )
-    click(carryButtons()[0]!)
-    click(carryButtons()[0]!)
-    click(carryButtons()[0]!)
-
-    const message = v.container.querySelector('[data-carry-message="true"]')!
-    expect(message.textContent).toContain('A third is not accepted')
-    const carried = Array.from(v.container.querySelectorAll('.record')).filter(
-      (r) => (r.textContent ?? '').includes('CARRIED'),
-    )
-    expect(carried.length).toBe(CARRY_LIMIT)
-    v.unmount()
-  })
-})
-
-describe('youth records cannot be exported', () => {
-  it('disables the control at the component, not by styling', () => {
-    const v = house()
-    const controls = Array.from(
-      v.container.querySelectorAll<HTMLButtonElement>('[data-export-control="true"]'),
-    )
-    expect(controls.length).toBe(2)
-    const youthPanel = controls.find((c) =>
-      (c.closest('.panel')?.textContent ?? '').includes('Youth safeguards'),
-    )!
-    expect(youthPanel.hasAttribute('disabled')).toBe(true)
-    expect(youthPanel.disabled).toBe(true)
-    // Not display:none, not visibility:hidden, not opacity — present and off.
-    expect(youthPanel.style.display).not.toBe('none')
-    expect(youthPanel.textContent).toContain('Export disabled')
-    v.unmount()
-  })
-
-  it('refuses at the export function too, so a live button cannot leak one', () => {
-    expect(canExport([{ youth: false }])).toBe(true)
-    expect(canExport([{ youth: false }, { youth: true }])).toBe(false)
-    expect(() => exportRows(household.youth)).toThrow(/contains a youth record/)
-    expect(() => exportRows([{ youth: false }])).not.toThrow()
-  })
-})
-
-describe('the household surface carries nothing from the enterprise', () => {
-  it('shows no enterprise entity name, seal or document code', () => {
-    const v = house()
-    const text = `${v.text} ${v.html}`
-    for (const entity of governance.entities) {
-      expect(text, `entity ${entity.code}`).not.toContain(entity.name)
-    }
-    for (const instrument of governance.instruments) {
-      expect(text).not.toContain(instrument.docCode)
-    }
-    // No document code in the enterprise format at all.
-    expect(text).not.toMatch(/NTE-[A-Z]+-\d{4}/)
-    v.unmount()
-  })
-
-  it('holds no revenue field and no amount anywhere', () => {
-    // The prose says the rule out loud, which is correct. What must not exist
-    // is a field: a key that could hold a figure, or a figure in the data.
-    const keys = new Set<string>()
-    const numbers: string[] = []
-    const walk = (value: unknown, path: string): void => {
-      if (Array.isArray(value)) value.forEach((v, i) => walk(v, `${path}[${i}]`))
-      else if (value && typeof value === 'object')
-        for (const [k, v] of Object.entries(value)) {
-          keys.add(k.toLowerCase())
-          walk(v, `${path}.${k}`)
-        }
-      else if (typeof value === 'number' && path !== '.commands[0].carries')
-        numbers.push(`${path} = ${value}`)
-    }
-    walk(household, '')
-
-    for (const word of ['revenue', 'income', 'amount', 'gross', 'profit', 'value', 'balance']) {
-      expect([...keys].some((k) => k.includes(word)), `field named ${word}`).toBe(false)
-    }
-    // The only numbers in this module are carry counts, which are not money.
-    for (const n of numbers) expect(n, n).toMatch(/carries = \d+$/)
-  })
-
-  it('is reachable from the household surface only', () => {
-    expect(familyOffice.surfaces).toEqual(['lane-b'])
-    expect(modulesFor('lane-a').map((m) => m.id)).not.toContain('family-office')
-    expect(modulesFor('practice').map((m) => m.id)).not.toContain('family-office')
-  })
-})
 
 // ── Module 08 ─────────────────────────────────────────────────────────────
 

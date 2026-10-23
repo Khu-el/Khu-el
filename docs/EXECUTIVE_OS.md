@@ -55,7 +55,7 @@ Use them **consistently** — the same concept gets the same icon every time.
 | 🛡️ | protection / compliance | 🧾 | records / tax / receipts | 🧭 | direction / verdict |
 | 📁 | documents / artifacts | 📅 | schedule | ⏰ | deadline |
 | 🤝 | partnership | 👥 | team | 🎓 | education |
-| 📚 | knowledge | 🏠 | family / House of Ransom | 🌱 | growth / nutrition |
+| 📚 | knowledge | 🏠 | household | 🌱 | growth / nutrition |
 | 💪 | physical execution | 🧘 | mental / spiritual practice | 🕊️ | ministry / Lane A¹ |
 | 🛍️ | digital products | 📣 | marketing | 🎨 | creative asset |
 | 🖼️ | visual / graphic | 📑 | report | 🔐 | security |
@@ -546,7 +546,7 @@ existing ecosystem).
 
 ### Lanes
 
-`LANE_A` enterprise/technology · `LANE_B` family/estate · `PERSONAL` · `PHILANTHROPIC` ·
+`LANE_A` enterprise/technology · `LANE_B` private non-enterprise (records not hosted here) · `PERSONAL` · `PHILANTHROPIC` ·
 `UNCLASSIFIED`. **Nothing auto-connects Lane A and Lane B.** A "bridge" records a
 *reference*, never a merge.
 

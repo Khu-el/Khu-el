@@ -74,7 +74,7 @@ happen.
 > finding **A** in `docs/ai-council/AUDIT_LOG.md` (`AUD-KHU-002`).
 
 **3. Lanes do not merge.** Lane A (NTE, enterprise and technology) and Lane B
-(CCRLT and House of Ransom, family estate) stay separate. A crossing requires a
+(the private estate lane) stay separate. A crossing requires a
 declared bridge naming that exact pair and carrying an authority reference. A
 bridge records a *reference*, never a merge. The same human participating in both
 structures is not authority to join them.
@@ -181,7 +181,7 @@ and the prose is the record of judgement.
   systems of record. Record that a thing exists and what state it is in; retrieve
   the source when you need it. In a public repository, even the identifier stays
   out.
-- **Lane B private family records.** They stay in Lane B.
+- **Lane B private records.** They are not stored in this repository.
 - **Claims without evidence.** If a thing was not observed, its status is ❓
   UNKNOWN and it says so. A connector never looked at reports `NEVER_OBSERVED`,
   not "healthy".

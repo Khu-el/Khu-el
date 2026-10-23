@@ -231,35 +231,11 @@ Class D behind it) without naming the enterprise structure.
 
 ---
 
-## 07 · Family Office & Estate — `family-office`
+## 07 · Household office — removed from this repository
 
-**Surface** lane-b ONLY · **buildWork** false
-
-**Purpose** The Lane B rhythm: family council, legacy plan, instrument binder,
-youth safeguards.
-
-**Panels**
-1. `board` — Sunday rhythm: pre-bulletin prep checklist, bulletin, council.
-2. `ledger` — Family Commands ledger with the **two-carry limit enforced** — no
-   more than two commands may carry over; the third forces a close or a
-   deliberate drop, and the UI will not accept a third carry.
-3. `register` — Instrument binder: CCRLT and related governance documents,
-   Legacy Plan V2, each with revision and status.
-4. `gate` — Distribution interface. Lane B receives value only as a
-   trustee-approved distribution. Renders the rule and the approval state; it
-   does not model amounts.
-5. `register` — Youth safeguards, read-only.
-
-**Rules** Youth-protection rules from the bulletin format apply to every view
-that names a minor: no location, no schedule, no image, no third-party-shareable
-export. The export control is disabled for any panel containing a youth record.
-Revenue never routes to Lane B in this console — there is no revenue field.
-
-**Acceptance**
-- [ ] Third carry-over is rejected by the ledger with a clear message.
-- [ ] Any panel containing a youth record has export disabled at the component
-      level, not hidden by CSS.
-- [ ] No Lane A entity name, seal, or document code appears anywhere.
+The lane-b-only office module and its seed were removed. Estate records live in
+a separate private repository. This console does not recreate that module.
+Lane B remains a surface id so the firewall can still refuse a cross-surface import.
 
 ---
 

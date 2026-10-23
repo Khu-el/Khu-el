@@ -66,8 +66,7 @@ and is invisible at the point of use.
 | `REPR`  | REPRALLY                          |
 | `DIGP`  | DIGITAL PRODUCTS                  |
 | `NTE`   | LANE A — NTE                      |
-| `HOR`   | HOUSE OF RANSOM / LANE B          |
-| `CCRLT` | CCRLT                             |
+| `HOR`   | reserved; estate work is not in this repository |
 | `MM`    | MASTERMIND                        |
 | `OTHER` | OTHER VERIFIED CAPACITY (name it) |
 

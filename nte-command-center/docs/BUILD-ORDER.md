@@ -172,7 +172,7 @@ Shared code, separate data. Concretely:
 ## Step 8 — Modules 07 and 08, the household surface
 
 ```
-Build src/modules/family-office/ (§ 07) and src/modules/lifeops/ (§ 08).
+The lane-b-only office module (§ 07) was removed with the estate surface. Build src/modules/lifeops/ (§ 08).
 
 Module 07 has two hard behaviours:
   - The commands ledger rejects a third carry-over with a clear message. Not a

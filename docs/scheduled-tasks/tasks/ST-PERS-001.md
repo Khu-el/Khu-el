@@ -198,8 +198,7 @@ run's own record is the Run Log row below.
 ## 🤝 HANDOFF
 
 `ST-PERS-002` (S-05 Evening Ascension) closes the same day against this bulletin's 3-6-9 night
-checkpoint. Entity loops routed out of this task hand to `ST-NTE-003` (Lane A) or `ST-HOR-001`
-(Lane B) as a reference only — never as an action.
+checkpoint. Entity loops routed out of this task hand to `ST-NTE-003` (Lane A) or, for Lane B, to the private estate repository as a reference only — never as an action.
 
 ## 📏 SUCCESS METRIC
 

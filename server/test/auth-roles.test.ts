@@ -28,21 +28,21 @@ describe('role assignment at registration', () => {
   test('a role in the request body is not honoured', async () => {
     const res = await register(server.url, 'asks-for-admin@example.test', { role: 'SYSTEM_ADMIN' });
     assert.equal(res.status, 201);
-    assert.equal(res.body.user.role, 'FAMILY_COUNCIL_MEMBER');
+    assert.equal(res.body.user.role, 'PROFESSIONAL_REVIEWER');
   });
 
   test('with no BOOTSTRAP_ADMIN_EMAIL set, no registration can produce an admin', async () => {
     assert.equal(process.env.BOOTSTRAP_ADMIN_EMAIL, undefined);
-    for (const role of ['SYSTEM_ADMIN', 'NTE_SYSTEMS_OPERATOR', 'NTE_TRUSTEE_OFFICE', 'HOUSE_TRUSTEE_OFFICE']) {
+    for (const role of ['SYSTEM_ADMIN', 'NTE_SYSTEMS_OPERATOR', 'NTE_TRUSTEE_OFFICE', 'NTE_TREASURY_OPERATOR']) {
       const res = await register(server.url, `wants-${role}@example.test`, { role });
-      assert.equal(res.body.user.role, 'FAMILY_COUNCIL_MEMBER', `${role} must not be self-assignable`);
+      assert.equal(res.body.user.role, 'PROFESSIONAL_REVIEWER', `${role} must not be self-assignable`);
     }
   });
 
   test('the issued token carries the assigned role, not the requested one', async () => {
     const res = await register(server.url, 'token-role@example.test', { role: 'SYSTEM_ADMIN' });
     const claims = JSON.parse(Buffer.from(res.body.token.split('.')[1], 'base64url').toString());
-    assert.equal(claims.role, 'FAMILY_COUNCIL_MEMBER');
+    assert.equal(claims.role, 'PROFESSIONAL_REVIEWER');
   });
 });
 
@@ -59,7 +59,7 @@ describe('PATCH /api/auth/me', () => {
     assert.equal(patch.status, 403);
 
     const me = await call(server.url, '/api/auth/me', { token });
-    assert.equal(me.body.user.role, 'FAMILY_COUNCIL_MEMBER');
+    assert.equal(me.body.user.role, 'PROFESSIONAL_REVIEWER');
   });
 
   test('a role alongside a display name fails the whole request', async () => {
@@ -74,7 +74,7 @@ describe('PATCH /api/auth/me', () => {
     assert.equal(patch.status, 403);
 
     const me = await call(server.url, '/api/auth/me', { token });
-    assert.equal(me.body.user.role, 'FAMILY_COUNCIL_MEMBER');
+    assert.equal(me.body.user.role, 'PROFESSIONAL_REVIEWER');
     assert.equal(me.body.user.displayName, 'Test User', 'the name must not change on a refused request');
   });
 
@@ -87,7 +87,7 @@ describe('PATCH /api/auth/me', () => {
     });
     assert.equal(patch.status, 200);
     assert.equal(patch.body.user.displayName, 'Renamed');
-    assert.equal(patch.body.user.role, 'FAMILY_COUNCIL_MEMBER');
+    assert.equal(patch.body.user.role, 'PROFESSIONAL_REVIEWER');
   });
 });
 
