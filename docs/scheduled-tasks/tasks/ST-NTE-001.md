@@ -23,8 +23,7 @@ recorded blocker has actually been cleared so it stops being carried forward.
 ## 🧑‍💼 CAPACITY
 
 `NTE` — Lane A. The artifacts are the NTE monorepo's own CI, registries and audit documents.
-Not `CCRLT`/`HOR`: the audit covers `apps/legacy-estate` as a workspace, but reads only its code
-and test configuration, never estate record content. Not `PERS`: `Khu-el/Mental-Alchemy` is in
+Estate records are not in this repository, and this audit does not read them. Not `PERS`: `Khu-el/Mental-Alchemy` is in
 scope as a repository whose checks are run, not as personal practice content.
 
 ## ⏰ SCHEDULE / TRIGGER

@@ -50,15 +50,15 @@ describe('MINISTRY_OPERATOR_EMAILS', () => {
     assert.deepEqual(seen.body.projects, []);
   });
 
-  test('an unlisted address stays a family council member', async () => {
+  test('an unlisted address stays the default invite role', async () => {
     const res = await register(server.url, 'not-listed@example.test', { role: 'NTE_SYSTEMS_OPERATOR' });
     assert.equal(res.status, 201);
-    assert.equal(res.body.user.role, 'FAMILY_COUNCIL_MEMBER');
+    assert.equal(res.body.user.role, 'PROFESSIONAL_REVIEWER');
   });
 
   test('PATCH /api/auth/me still refuses a role change for everyone else', async () => {
     const reg = await register(server.url, 'minister-patch@example.test');
-    assert.equal(reg.body.user.role, 'FAMILY_COUNCIL_MEMBER');
+    assert.equal(reg.body.user.role, 'PROFESSIONAL_REVIEWER');
     const patch = await call(server.url, '/api/auth/me', {
       method: 'PATCH',
       token: reg.body.token,
@@ -66,6 +66,6 @@ describe('MINISTRY_OPERATOR_EMAILS', () => {
     });
     assert.equal(patch.status, 403);
     const me = await call(server.url, '/api/auth/me', { token: reg.body.token });
-    assert.equal(me.body.user.role, 'FAMILY_COUNCIL_MEMBER');
+    assert.equal(me.body.user.role, 'PROFESSIONAL_REVIEWER');
   });
 });

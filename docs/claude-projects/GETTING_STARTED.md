@@ -74,8 +74,7 @@ Not required, but this order front-loads the projects that make the others easie
 | 2 | `CP-NTE-002` Lane A Apps | The largest body of day-to-day work |
 | 3 | `CP-PERS-001` Mental Performance Playbook | Self-contained, and the easiest to verify you got the pattern right |
 | 4 | `CP-NTE-003` DAO Portal | Needs the DAO repo checked out |
-| 5 | `CP-CCRLT-001` Legacy & Estate | Lane B — create it in its own sitting, not alongside a Lane A project |
-| 6 | `CP-DIGP-001` Release Wave 1 | On `HOLD`. Create it when the hold lifts, or now as a placeholder |
+| 5 | `CP-DIGP-001` Release Wave 1 | On `HOLD`. Create it when the hold lifts, or now as a placeholder |
 
 ---
 

@@ -1,5 +1,3 @@
-import { stalenessMessage, stalenessReason } from './staleness.js';
-
 export interface RecordRow {
   id: string;
   app_id: string;
@@ -15,10 +13,8 @@ export interface DigestItem {
   message: string;
 }
 
-export const TWO_YEARS_MS = 2 * 365 * 24 * 60 * 60 * 1000;
-
 export function recordLabel(appId: string, data: Record<string, unknown>): string {
-  return String(data.address || data.entityName || data.obligorRef || data.familyName || data.displayName || 'Unlabeled record');
+  return String(data.address || data.entityName || data.obligorRef || data.displayName || 'Unlabeled record');
 }
 
 function safeJsonObject(json: string): Record<string, unknown> {
@@ -82,21 +78,6 @@ export function computeDigest(rows: RecordRow[], todayOrNow: string | number = D
     const body = safeJsonObject(row.data_json);
     const data = objectValue(body.data);
     const label = recordLabel(row.app_id, data);
-
-    if (row.app_id === 'legacy-estate') {
-      for (const beneficiary of arrayValue(data.beneficiaries)) {
-        const b = objectValue(beneficiary);
-        const reason = stalenessReason(b.lastVerified, undefined, timestamp);
-        if (reason) {
-          items.push({
-            appId: row.app_id,
-            recordId: row.id,
-            recordLabel: label,
-            message: `Beneficiary designation "${b.accountOrPolicy || 'unnamed'}" ${stalenessMessage(reason)}`,
-          });
-        }
-      }
-    }
 
     if (row.app_id === 'deal-architect') {
       const diligence = arrayValue(data.diligence);

@@ -122,10 +122,9 @@ packages/neterverse-kernel/ Control-plane kernel (@nte/neterverse-kernel) — ha
 apps/deal-architect/        Real-estate deal intelligence
 apps/capital-readiness/     Entity & offering-readiness diligence
 apps/notes-underwriting/    Distressed-debt / note underwriting
-apps/legacy-estate/         CCRLT / House of Ransom family estate (Lane B, shared workspace)
 apps/financial-services-crm/ The Excellence District Financial Services CRM (private per owner)
 apps/member-portal/         The Excellence District Member Portal — invite-only, Supabase, not server/
-server/                     Express + SQLite backend shared by the five above (not the portal)
+server/                     Express + SQLite backend shared by the planning apps and the desk (not the portal)
 web/landing/                Static landing page published to GitHub Pages
 .neterverse/                Claude Code ↔ Codex collaboration bus — read its README first
 .neterverse/live/           Connector observations — gitignored, never committed
@@ -139,7 +138,7 @@ JWT + PDFKit (server).
 ```bash
 npm install                     # repo root — installs every workspace
 npm run dev:server              # backend on :4000
-npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:legacy-estate / dev:financial-services-crm / dev:member-portal
+npm run dev:deal-architect      # and dev:capital-readiness / dev:notes-underwriting / dev:financial-services-crm / dev:member-portal
 npm run build                   # all apps + server
 npm run typecheck               # tsc sweep: six apps + server + kernel
 npm test                        # every workspace suite (test:kernel / test:server / test:apps run a subset)
@@ -185,13 +184,11 @@ also checked transitively through the apps that import it.
 | `apps/financial-services-crm` | ✅ `node --test` — 53 tests over `crm.ts` (consent gate, duplicates, follow-up dates, ratios) and the importer (xlsx/csv reading, upsert rules), also in `npm run test:apps` |
 | `apps/member-portal` | ✅ `node --test` — 35 tests over `src/logic` and `src/config.ts` (pathway matching, plan dates, idempotency keys, progress — including which record counts when a lesson moves track or is re-created — invite-code rules, error mapping, lesson-body parsing, URL safety, routes and the sign-in-link guard), also in `npm run test:apps`. **Its SQL is executed by `npm run test:sql`** — all eight migrations applied in order to a throwaway local PostgreSQL behind a Supabase stub, then 100+ assertions over RLS isolation, column-grant escalation, the invite trigger, staff seeding and `create_action_plan`. This is a *local stand-in*, not the live project: it proves the migrations run and the policies behave on stock Postgres, not that the deployed project matches them (GoTrue, PostgREST and real default privileges are stubbed). Needs PostgreSQL server binaries; not part of `npm test` |
 | `packages/governance-core` | ✅ `node --test` — 90 tests over the cache-key, staleness, pending-sync and number-field helpers plus `Badges.tsx` and `Gates.tsx` rendered with `react-dom/server`; ✅ `vitest` — 22 static-markup component tests (`test/components.test.tsx`, own `vitest.config.ts`) covering badges, gates, `SyncStatus`, UI primitives and `DecisionMemo` |
-| `apps/legacy-estate` | ✅ `vitest` — 1 test over `createEstate` in `src/store.test.ts`. The only workspace on vitest rather than `node --test`; root `vitest.config.ts` collects `src/**/*.test.ts` across the workspaces |
 
-`npm test` at the root runs every workspace that has a suite — **422 under `node --test` plus
-23 under vitest** (1 in `legacy-estate`, 22 in `governance-core`'s components). Two runners coexist:
+`npm test` at the root runs every workspace that has a suite. Root `vitest.config.ts` collects `src/**/*.test.ts` across the workspaces, including `server/src` and `packages`. Two runners coexist:
 pure-function suites use `node --test` with type stripping; `governance-core` also uses `tsx/esm`
-to load `.tsx` components in its node tests, while its broader component suite and `legacy-estate`
-run on vitest, a root devDependency. A workspace that adds a vitest suite needs no new config; one
+to load `.tsx` components in its node tests, while its broader component suite
+runs on vitest, a root devDependency. A workspace that adds a vitest suite needs no new config; one
 that adds a `node --test` suite needs its own `test` script. The root `vitest.config.ts` globs
 `src/**/*.test.ts`; `governance-core`'s additional component tests live under `test/` and use the
 workspace's own `vitest.config.ts`, so they run once, under that workspace's script.

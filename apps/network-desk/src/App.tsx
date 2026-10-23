@@ -285,7 +285,7 @@ function Desk({ label, onLogout }: { label: string; onLogout: () => void }) {
       </header>
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-4">
         <NoAutonomousExecutionBanner>
-          <p className="mt-1">Outbound adapters are off. Sample rows are fictional. House of Ransom, the Living Trust, and private family records are not stored here.</p>
+          <p className="mt-1">Outbound adapters are off. Sample rows are fictional. Records outside the ministry lane are not stored here.</p>
         </NoAutonomousExecutionBanner>
         {error && <p className="text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-md px-3 py-2">{error}</p>}
 

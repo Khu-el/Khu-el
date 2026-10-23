@@ -1,7 +1,7 @@
 /**
  * Mirror of packages/governance-core/src/verification.ts.
  *
- * The rule has to hold in both places: the estate app decides what to badge,
+ * The rule has to hold in both places: the client decides what to badge,
  * and this server decides what goes in the "Needs Attention" digest email. They
  * carried the same comparison and therefore the same defect -- an unparseable
  * date gives NaN, every comparison against NaN is false, and the designation

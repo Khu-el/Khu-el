@@ -36,10 +36,9 @@ useful without either one blending a capacity.
 
 ## 🚫 WHAT THIS PROJECT MUST NOT ABSORB
 
-- **`apps/legacy-estate/`.** It is the fourth app in the same monorepo and it is **Lane B**. It
-  shares the workspace, the backend and the component library — and none of that makes its records
-  Lane A. Its source belongs to `CP-CCRLT-001`. Sharing a repository is a hosting fact, not a data
-  relationship.
+- **Estate records.** They are not in this repository. Lane A and Lane B never auto-connect. A
+  cross-lane note is a reference, never a merge, and this project does not load the private estate
+  repository.
 - **Any real deal, entity, borrower or counterparty record.** This project holds the *tools*. The
   data those tools hold belongs to whoever is using them, in the app's own storage.
 - **Investor lists, accreditation records, or borrower contact information.** Loading them would
@@ -64,9 +63,9 @@ CLAUDE.md. Where they appear to disagree, the stricter reading wins. A task-spec
 from the principal overrides all of them.
 
 SCOPE. Four apps — deal-architect, capital-readiness, notes-underwriting and
-financial-services-crm — plus packages/governance-core and server/. The fourth app, legacy-estate, is Lane B and is NOT part of
-this project. If a request touches it, say so and stop rather than editing it here. Lane A and
-Lane B never auto-connect; the Business Interests registry records a reference, never a merge.
+financial-services-crm — plus packages/governance-core and server/. Estate records are not in this
+repository. If a request asks for them, say so and stop. Lane A and Lane B never auto-connect; a
+cross-lane note is a reference, never a merge.
 
 REUSE BEFORE WRITING. packages/governance-core/src/types.ts is the vocabulary for every record:
 AuthorityContext, AssertionStatus, ReconciliationStatus, Lane, EvidenceRef, GovernedRecord<T>.
@@ -170,7 +169,7 @@ JWT_SECRET, SMTP settings and CORS_ORIGINS are set on the platform and never com
 
 ### 🚫 Deliberately excluded
 
-- **`apps/legacy-estate/`** — Lane B. The one exclusion that matters most in this file.
+- **Estate records and the private estate repository** — not part of this project.
 - **`packages/neterverse-kernel/`** — control-plane machinery, not application code. It belongs to
   `CP-NTE-001` and would be ambient noise in a UI conversation.
 - **`.neterverse/`** — same reason.

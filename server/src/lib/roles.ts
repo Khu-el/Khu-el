@@ -5,25 +5,31 @@ export const ROLES = [
   'NTE_SYSTEMS_OPERATOR',
   'NTE_VIRTUAL_OPERATOR',
   'NTE_TREASURY_OPERATOR',
-  'HOUSE_TRUSTEE_OFFICE',
-  'HOUSE_AUTHORIZED_REP',
-  'FAMILY_COUNCIL_MEMBER',
   'PROFESSIONAL_REVIEWER',
   'READ_ONLY_AUDITOR',
 ] as const;
 
 export type Role = (typeof ROLES)[number];
 
-export const APP_IDS = ['deal-architect', 'capital-readiness', 'notes-underwriting', 'legacy-estate', 'financial-services-crm'] as const;
+/**
+ * Invited account that is not the bootstrap admin and not on the ministry
+ * operator list. Writable, and it does not read another account's records.
+ * The label is a stand-in: it is not a claim that the person is a licensed
+ * professional. Confirm the label before this branch merges.
+ */
+export const DEFAULT_INVITE_ROLE: Role = 'PROFESSIONAL_REVIEWER';
+
+export const APP_IDS = ['deal-architect', 'capital-readiness', 'notes-underwriting', 'financial-services-crm'] as const;
 export type AppId = (typeof APP_IDS)[number];
 
 export function isRole(role: string): role is Role {
   return (ROLES as readonly string[]).includes(role);
 }
 
-/** legacy-estate is a shared single-family workspace; every other app is private per user. */
+/** Every planning app is private per account. No app is a shared workspace. */
 export function isSharedApp(appId: string) {
-  return appId === 'legacy-estate';
+  void appId;
+  return false;
 }
 
 export function canWrite(role: Role) {

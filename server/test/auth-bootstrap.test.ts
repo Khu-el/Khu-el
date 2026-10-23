@@ -35,7 +35,7 @@ describe('BOOTSTRAP_ADMIN_EMAIL', () => {
     // The configured value is "Owner@Example.Test"; the address above registered
     // in lower case and still matched.
     const res = await register(server.url, 'OWNER2@example.test');
-    assert.equal(res.body.user.role, 'FAMILY_COUNCIL_MEMBER', 'a different address must not match');
+    assert.equal(res.body.user.role, 'PROFESSIONAL_REVIEWER', 'a different address must not match');
   });
 
   test('a lookalike address does not match', async () => {
@@ -45,15 +45,15 @@ describe('BOOTSTRAP_ADMIN_EMAIL', () => {
       'owner@example.tes',
     ]) {
       const res = await register(server.url, lookalike);
-      assert.equal(res.body.user.role, 'FAMILY_COUNCIL_MEMBER', `${lookalike} must not match the bootstrap address`);
+      assert.equal(res.body.user.role, 'PROFESSIONAL_REVIEWER', `${lookalike} must not match the bootstrap address`);
     }
     const spaced = await register(server.url, ' owner@example.test.evil');
     assert.equal(spaced.status, 400);
   });
 
-  test('everyone else is still a FAMILY_COUNCIL_MEMBER even asking for admin', async () => {
+  test('everyone else is still a PROFESSIONAL_REVIEWER even asking for admin', async () => {
     const res = await register(server.url, 'not-the-owner@example.test', { role: 'SYSTEM_ADMIN' });
-    assert.equal(res.body.user.role, 'FAMILY_COUNCIL_MEMBER');
+    assert.equal(res.body.user.role, 'PROFESSIONAL_REVIEWER');
   });
 
   test('the bootstrap admin does see other users records -- which is why the address is deployment-set', async () => {

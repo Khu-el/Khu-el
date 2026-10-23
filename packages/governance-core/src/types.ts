@@ -3,8 +3,9 @@
  *
  * These exist to keep a hard, visible line between what a document
  * or connector *claims* and what has actually been externally verified,
- * and to keep Lane A (enterprise/technology) and Lane B (family/estate)
- * data from silently merging.
+ * and to keep Lane A (enterprise/technology) from silently merging with
+ * Lane B. Lane B remains a lane id so a record cannot cross without a bridge.
+ * This repository does not host Lane B records.
  */
 
 export type Lane = 'LANE_A' | 'LANE_B' | 'PERSONAL' | 'PHILANTHROPIC' | 'UNCLASSIFIED';

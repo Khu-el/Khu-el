@@ -96,13 +96,13 @@ describe('digest data robustness', () => {
     db.prepare('INSERT INTO records (id, app_id, owner_id, record_type, lane, assertion_status, reconciliation_status, data_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
       .run(
         'rec_bad-shape',
-        'legacy-estate',
+        'deal-architect',
         reg.body.user.id,
-        'estate',
-        'LANE_B',
+        'deal',
+        'LANE_A',
         'CURRENT_INTERNAL_MODEL',
         'STAGED',
-        JSON.stringify({ data: { beneficiaries: { accountOrPolicy: 'not-an-array' } } }),
+        JSON.stringify({ data: { diligence: { done: false } } }),
         '2026-01-01T00:00:00.000Z',
         '2026-01-01T00:00:00.000Z'
       );

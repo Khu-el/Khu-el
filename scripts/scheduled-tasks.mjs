@@ -41,7 +41,7 @@ const REQUIRED_SECTIONS = [
   'HANDOFF', 'SUCCESS METRIC', 'KILL / MERGE RULE', 'SCALE CHECK', 'FINAL OUTPUT',
 ];
 
-const CAPACITIES = ['PERS', 'HOPE', 'VZB', 'REPR', 'DIGP', 'NTE', 'HOR', 'CCRLT', 'MM', 'OTHER'];
+const CAPACITIES = ['PERS', 'HOPE', 'VZB', 'REPR', 'DIGP', 'NTE', 'HOR', 'MM', 'OTHER'];
 const VALID_STATUS = ['DRAFT', 'ACTIVE', 'PAUSED', 'MERGED', 'REPLACED', 'TERMINATED'];
 // A status that means the task is meant to be firing right now.
 const LIVE_STATUS = ['ACTIVE'];

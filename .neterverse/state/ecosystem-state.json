@@ -13,11 +13,11 @@
       "assertion_note": "Structure and capacity are as stated in the controlling instruction set. Nothing here is externally verified, and no regulated status is implied by any internal name."
     },
     "LANE_B": {
-      "description": "Family estate, household, beneficiary and succession administration",
-      "controlling_structure": "Christopher Chaz Ransom-El Living Trust (CCRLT), revocable living trust; trustee House of Ransom / Family Church",
-      "human_capacity": "Minister / Authorized Representative unless a separate valid appointment establishes another capacity for the specific act",
+      "description": "Private non-enterprise lane. Records are not stored in this repository.",
+      "controlling_structure": "Not recorded here. Estate administration moved to a private repository.",
+      "human_capacity": "Not recorded here.",
       "assertion_status": "DOCUMENT_CLAIM",
-      "assertion_note": "Lane B data stays in Lane B and is not described in this public repository beyond the structure named above. A bridge records a reference, never a merge."
+      "assertion_note": "Lane B stays in the lane model so a merge into Lane A still requires a declared bridge. This public repository does not describe the private structure."
     }
   },
   "repositories_in_session_scope": [
@@ -72,7 +72,7 @@
   "observed_external_state": [
     {
       "system": "ClickUp",
-      "observation": "Three spaces. The enterprise and commercial folders are numbered and grouped; the family lane occupies a separate space. Several folders were retired or migrated on 2026-09-10 with the change labelled in the folder name rather than deleted.",
+      "observation": "Three spaces. The enterprise and commercial folders are numbered and grouped; the private lane occupies a separate space. Several folders were retired or migrated on 2026-09-10 with the change labelled in the folder name rather than deleted.",
       "assertion_status": "EXTERNALLY_VERIFIED",
       "evidence": "Workspace hierarchy call, this session"
     },

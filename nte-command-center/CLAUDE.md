@@ -42,13 +42,13 @@ aesthetic:
 - Eleven surfaces would also breach the LIFEOPS one-source-of-truth rule and
   reproduce the build-to-revenue inversion the Build Freeze Rule exists to stop.
 
-So: **three deployable surfaces, eleven modules.** Each portfolio section is a
+So: **three deployable surfaces, ten modules.** Each portfolio section is a
 module. Each module declares which surface may host it. `laneGuard()` enforces
 it at runtime and `npm run check:lanes` enforces it at build time.
 
 ```
 surfaces/lane-a       NTE enterprise           navy + gold
-surfaces/lane-b       House of Ransom / CCRLT  warm ink + brass
+surfaces/lane-b       private household        warm ink + brass
 surfaces/practice     Licensed practice / AGS  light slate + teal, zero NTE marks
 ```
 
@@ -61,9 +61,8 @@ shared type in `src/core`, not a cross-import.
 `laneGuard` blocks these strings from any component rendered under
 `surfaces/practice`. Do not work around it:
 
-NTE · Neterverse · lane · CCRLT · EDM · trustee · ministry · Private
-Administrator · Sui Generis · PMA · Event ID · Release Gate · House of Ransom ·
-GodMode · Lane A · Lane B
+The blocked words are the list in `src/core/firewall-terms.mjs`. Do not copy
+that list into a practice-surface file. GodMode · Lane A · Lane B are included.
 
 Conversely, `Primerica` must not appear in Lane A or Lane B surfaces. Use
 "the licensed practice."

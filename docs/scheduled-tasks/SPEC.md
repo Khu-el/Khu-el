@@ -44,8 +44,7 @@ Identify exactly which capacity owns the task. Choose only what actually applies
 | `REPR`  | REPRALLY                       |
 | `DIGP`  | DIGITAL PRODUCTS               |
 | `NTE`   | LANE A — NTE                   |
-| `HOR`   | HOUSE OF RANSOM / LANE B       |
-| `CCRLT` | CCRLT                          |
+| `HOR`   | reserved; estate work is not in this repository |
 | `MM`    | MASTERMIND                     |
 | `OTHER` | OTHER VERIFIED CAPACITY (name it) |
 

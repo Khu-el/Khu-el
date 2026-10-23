@@ -47,8 +47,7 @@ packages/governance-core/   Shared types + UI + API client: Lane, AssertionStatu
 apps/deal-architect/        App 1 — Real estate deal intelligence
 apps/capital-readiness/     App 2 — Entity & offering-readiness diligence
 apps/notes-underwriting/    App 3 — Distressed-debt / note underwriting analysis
-apps/legacy-estate/         App 4 — Family Workspace: shared family estate coordination (Lane B)
-apps/financial-services-crm/ App 5 — Relationship CRM (private per owner)
+apps/financial-services-crm/ Relationship CRM (private per owner)
 apps/member-portal/         The Excellence District Member Portal — invite-only, on Supabase,
                              not on server/ (see its README and ADR-0004)
 
@@ -77,7 +76,7 @@ One Node/Express server, shared by all four frontends, using SQLite (via Node's 
    in the client or server code; `sendSelfEmail()` on the backend hard-codes the recipient to
    `req.user.email`. If you don't configure SMTP, these actions return a clear "not configured"
    message instead of failing silently or doing nothing.
-4. **A "needs attention" digest** — stale beneficiary designations, incomplete checklists, etc.,
+4. **A "needs attention" digest** — incomplete checklists and overdue follow-ups,
    computed server-side across your records, viewable in-app or emailed to yourself on demand
    (never automatically — a human clicks the button every time).
 
@@ -86,12 +85,10 @@ One Node/Express server, shared by all four frontends, using SQLite (via Node's 
 - **Registration is invite-only and fail-closed.** Nobody — including you — can create an account
   without the current `INVITE_CODE`. There's no bypass; if you lose the code, read it back out of
   `server/data/.invite-code` on the machine running the server, or just set a new one.
-- **Deal Architect, Capital Readiness, Notes Underwriting**: records are private to the user who
-  created them.
-- **Family Workspace**: records are a *shared* workspace — every signed-in user can see
-  the same family records (this is the one app meant for multiple family members), but a
-  `READ_ONLY_AUDITOR` role can view without being able to edit. Role is self-selected at
-  registration in this version; there's no admin panel to manage other users' roles yet.
+- **Deal Architect, Capital Readiness, Notes Underwriting, and the Relationship CRM**: records are
+  private to the account that created them. `SYSTEM_ADMIN` can read across accounts.
+  `READ_ONLY_AUDITOR` can view without editing. A role is assigned by the deployment, never
+  chosen in the registration form. Unset registration is `PROFESSIONAL_REVIEWER`.
 
 ### Running the backend
 
@@ -103,7 +100,7 @@ npm run dev                # or: npm run build && npm start
 
 On first run without an `INVITE_CODE` set, the server generates one and prints it to the console —
 that's what you (and only you, since it's only in your terminal/logs) use to register the first
-account, and what you'd share with family members you want to let in. Set `INVITE_CODE` yourself in
+account, and what you'd share with the people you actually want to let in. Set `INVITE_CODE` yourself in
 `.env` to choose or change it.
 
 Defaults to `http://localhost:4000`. Each app talks to that by default; override per-app with a
@@ -174,7 +171,6 @@ if a custom domain is attached later:
 - `https://khu-el.github.io/Khu-el/deal-architect/`
 - `https://khu-el.github.io/Khu-el/capital-readiness/`
 - `https://khu-el.github.io/Khu-el/notes-underwriting/`
-- `https://khu-el.github.io/Khu-el/legacy-estate/`
 - `https://khu-el.github.io/Khu-el/financial-services-crm/`
 - `https://khu-el.github.io/Khu-el/member-portal/` — reads `ED_SUPABASE_URL` and
   `ED_SUPABASE_PUBLISHABLE_KEY` (repository Variables) at build time and says "not connected" until
@@ -215,8 +211,7 @@ static file server, and loaded every page in a real browser — landing page plu
 Pages actually being enabled on the repository first.
 
 **Registration is gated by an invite code** (see `INVITE_CODE` above) specifically so this Pages link
-is safe to hand out without opening the shared Family Workspace to strangers — share the
-code only with people who should actually see family records.
+is safe to hand out only to people who should have an account. Share the code only with them.
 
 ## Relationship CRM
 
@@ -254,10 +249,9 @@ Every record in every app carries an `AuthorityContext` and an `AssertionStatus`
 (`CURRENT_INTERNAL_MODEL` / `DOCUMENT_CLAIM` / `EXTERNALLY_VERIFIED` /
 `PROFESSIONAL_REVIEW_REQUIRED` / `SUPERSEDED` / `UNCLASSIFIED`), so the UI never conflates "I typed
 this in" with "a professional confirmed this." `Lane` (`LANE_A` enterprise/technology vs. `LANE_B`
-family/estate vs. `PERSONAL`/`UNCLASSIFIED`) keeps the four apps from silently assuming any given
-asset or entity belongs to a specific side. Nothing here auto-connects Lane A and Lane B — a
-"bridge" (like the Business Interests registry in the Family Workspace app) records a reference, not
-a merge.
+vs. `PERSONAL`/`UNCLASSIFIED`) keeps records from silently crossing lanes. Nothing here
+auto-connects Lane A and Lane B. A bridge records a reference, not a merge. Lane B records are
+not stored in this repository.
 
 ## Running everything locally
 
@@ -267,7 +261,6 @@ npm run dev:server             # terminal 1 — the shared backend
 npm run dev:deal-architect      # terminal 2
 npm run dev:capital-readiness   # terminal 3
 npm run dev:notes-underwriting  # terminal 4
-npm run dev:legacy-estate       # terminal 5
 npm run dev:financial-services-crm  # terminal 6
 npm run dev:member-portal       # no server/ needed — it talks to Supabase
 npm run dev:network-desk        # NTE ministry desk — prototype, same server as the planning tools
@@ -275,9 +268,9 @@ npm run dev:network-desk        # NTE ministry desk — prototype, same server a
 
 ### NTE Network Desk
 
-Prototype for the NTE ministry lane only. House of Ransom, the Living Trust, and private family records are refused. Sample rows are labeled. The desk does not publish, send, spend, or call Activepieces, Composio, Zapier, or a native connector. `AGENTS.md` is the operating guide.
+Prototype for the NTE ministry lane only. Records outside lane `NTE_MINISTRY` are refused. Sample rows are labeled. The desk does not publish, send, spend, or call Activepieces, Composio, Zapier, or a native connector. `AGENTS.md` is the operating guide.
 
-Roles come from the deployment, not from the request. Unset registration is `FAMILY_COUNCIL_MEMBER`. `BOOTSTRAP_ADMIN_EMAIL` registers as `SYSTEM_ADMIN`. `MINISTRY_OPERATOR_EMAILS` registers as `NTE_SYSTEMS_OPERATOR`. `PATCH /api/auth/me` rejects a role.
+Roles come from the deployment, not from the request. Unset registration is `PROFESSIONAL_REVIEWER`. `BOOTSTRAP_ADMIN_EMAIL` registers as `SYSTEM_ADMIN`. `MINISTRY_OPERATOR_EMAILS` registers as `NTE_SYSTEMS_OPERATOR`. `PATCH /api/auth/me` rejects a role.
 
 Evidence a person may record is `USER_REPORTED`, `DOCUMENT_STATED`, `INFERRED`, or `UNKNOWN`. The proposer cannot approve their own release. Approval does not publish. Regulated finance, insurance, legal, and debt items stay drafts.
 
@@ -286,8 +279,7 @@ Set `INVITE_CODE` in the environment, start the server and `npm run dev:network-
 
 Register a separate account per app the first time you open it (accounts are shared across apps —
 registering once and logging in again elsewhere works the same way), or reuse the same login on
-all four; family members sharing the Family Workspace should each register their own
-account so edits are attributable.
+all four. Each account's records stay private to that account.
 
 ## Building
 
@@ -307,7 +299,6 @@ those up like you would any real data.
 - No investor contact, accreditation verification, or offering-document generation
   (`apps/capital-readiness`)
 - No debt collection, borrower contact, or foreclosure action (`apps/notes-underwriting`)
-- No automatic trust amendment, asset retitling, or beneficiary change (`apps/legacy-estate`)
 - No calling, texting, emailing, or task-creation toward a contact, and no storage of regulated client data
   — SSNs, account or policy numbers, underwriting detail (`apps/financial-services-crm`)
 - No email, SMS, push or post sent from the member portal, no payments, and no sign-up without an

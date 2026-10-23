@@ -1,4 +1,4 @@
-export const APP_IDS = ['deal-architect', 'capital-readiness', 'notes-underwriting', 'legacy-estate', 'financial-services-crm'] as const;
+export const APP_IDS = ['deal-architect', 'capital-readiness', 'notes-underwriting', 'financial-services-crm'] as const;
 export type AppId = (typeof APP_IDS)[number];
 
 export const ROLES = [
@@ -8,9 +8,6 @@ export const ROLES = [
   'NTE_SYSTEMS_OPERATOR',
   'NTE_VIRTUAL_OPERATOR',
   'NTE_TREASURY_OPERATOR',
-  'HOUSE_TRUSTEE_OFFICE',
-  'HOUSE_AUTHORIZED_REP',
-  'FAMILY_COUNCIL_MEMBER',
   'PROFESSIONAL_REVIEWER',
   'READ_ONLY_AUDITOR',
 ] as const;
@@ -24,9 +21,6 @@ export const ROLE_LABELS: Record<Role, string> = {
   NTE_SYSTEMS_OPERATOR: 'NTE Systems Operator',
   NTE_VIRTUAL_OPERATOR: 'NTE Virtual Solutions Operator',
   NTE_TREASURY_OPERATOR: 'NTE Treasury Operator',
-  HOUSE_TRUSTEE_OFFICE: 'House Trustee Office',
-  HOUSE_AUTHORIZED_REP: 'House Authorized Representative',
-  FAMILY_COUNCIL_MEMBER: 'Family Council Member',
   PROFESSIONAL_REVIEWER: 'Professional Reviewer',
   READ_ONLY_AUDITOR: 'Read-Only Auditor',
 };

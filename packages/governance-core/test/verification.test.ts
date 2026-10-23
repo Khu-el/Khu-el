@@ -1,8 +1,8 @@
 /**
  * An unknown must never present as a confirmation.
  *
- * The estate app flags a beneficiary designation not verified in two years. The
- * original check compared Date.now() against new Date(str).getTime(), which is
+ * A verification date not confirmed in two years used to be checked by
+ * comparing Date.now() against new Date(str).getTime(), which is
  * NaN for anything unparseable -- and every comparison against NaN is false, so
  * the designation reported as current. "TBD", "unknown" and "31/12/2019" all
  * read as verified and stayed out of the "Needs Attention" digest.

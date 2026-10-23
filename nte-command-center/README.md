@@ -74,15 +74,16 @@ firewall, the storage namespacing and the proof gates all run in it.
 | 04 | Marketing & Content | Enterprise + Practice | Built — dual-hosted, two seeds |
 | 05 | Tech Stack | Enterprise | Built — carries the security hold |
 | 06 | Practice Desk | Practice | Built |
-| 07 | Household & Estate | Household | Built |
+| 07 | Household office | Household | Removed from this repository with the estate surface |
 | 08 | Operating System | Enterprise + Household | Built — dual-hosted, two seeds |
 | 09 | Capability & Services | Enterprise | Built |
 | 10 | Compliance & Conditions | Enterprise | Built — proof-gate pattern, plus the changes ledger |
 | 11 | Knowledge & Canon | Enterprise | Built |
 
-All eleven are implemented. Modules 01 and 10 arrived built and are the two
-shapes the other nine copy: 01 is the register-and-ledger shape, 10 is the
-shape where a control stays disabled until proof exists.
+Ten modules are implemented. Module 07 was removed with the estate surface.
+Modules 01 and 10 arrived built and are the two shapes the others copy: 01 is
+the register-and-ledger shape, 10 is the shape where a control stays disabled
+until proof exists.
 
 ## What is empty, and why
 

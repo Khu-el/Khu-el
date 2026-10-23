@@ -96,7 +96,7 @@ records.
 
 ### The fix
 
-Roles come from `assignRoleAtRegistration`: everyone is a `FAMILY_COUNCIL_MEMBER` except the
+Roles come from `assignRoleAtRegistration`: everyone is a `the former default invite role` except the
 single address named by `BOOTSTRAP_ADMIN_EMAIL`, **set on the deployment platform beside
 `JWT_SECRET`**. Unset — the default — means no registration can produce an admin at all, which is
 the fail-closed reading the rest of this server takes. Promotion beyond that is a database change
@@ -109,7 +109,7 @@ did nothing.
 
 ### Verified after
 
-Registration asking for `SYSTEM_ADMIN` returns `FAMILY_COUNCIL_MEMBER`; self-promotion returns
+Registration asking for `SYSTEM_ADMIN` returns `the former default invite role`; self-promotion returns
 `403` and leaves the role unchanged; display name still updates; and with `BOOTSTRAP_ADMIN_EMAIL`
 set, the named address registers as admin while lookalikes
 (`owner@example.test.attacker.example`, `xowner@example.test`) do not. Matching is
@@ -128,7 +128,7 @@ can be created. See `HUMAN_ACTION_REQUIRED.md` #5.
 
 `useSyncedRecords` mirrors the server's records into `localStorage` so the apps still render
 offline. The key was a **fixed string per app** — `nte-deal-architect:deals`,
-`ccrlt-legacy-estate:estates` — shared by everyone who signed in on that browser. All four apps
+`former-estate-cache:estates` — shared by everyone who signed in on that browser. All four apps
 passed a literal constant.
 
 `logout()` clears the token and the user. **It does not clear the cache.**
@@ -146,11 +146,11 @@ passed a literal constant.
 
 `deal-architect`, `capital-readiness` and `notes-underwriting` are **private per owner** — the
 server will not serve one user another's records, which is exactly what makes the local copy a
-leak. `legacy-estate` is a shared workspace, so much of it B may legitimately see; the other
+leak. `the former estate app` is a shared workspace, so much of it B may legitimately see; the other
 three are a straight cross-account exposure of private deal terms, cap tables and obligor
 records.
 
-📌 This needs no attacker — two family members sharing a laptop is the whole scenario.
+📌 This needs no attacker — two people sharing a laptop is the whole scenario.
 
 ### The fix
 
@@ -235,7 +235,7 @@ Recorded so the next reviewer does not re-open them.
 
 | Observation | Why it is not a finding |
 |---|---|
-| Any invited user can read **and overwrite** every `legacy-estate` record | Deliberate: `legacy-estate` is a documented shared family workspace (`roles.ts`, `CLAUDE.md`). Verified by probe; Lane A apps stay private per owner. Recorded as `SOURCE_CONFLICTS.md` SC-06 for **awareness**, since one invite code admits someone to all estate records. |
+| Any invited user can read **and overwrite** every former estate-app record | Historical. The shared estate workspace was removed on this branch. Lane A apps stay private per owner. See `LANE_B_REMOVAL.md` and `SOURCE_CONFLICTS.md` SC-06. |
 | `JWT_SECRET` and `INVITE_CODE` auto-generate and persist to disk when unset | Guarded, documented, and warned about on stdout. `.env.example` is explicit that both must be set for any real deployment. Files are written `0o600` under a gitignored `data/`. |
 | The invite-code comparison uses `timingSafeEqual` but returns early on length mismatch | Standard and acceptable: the length of an invite code is not the secret, and the constant-time compare covers the value. |
 | Uploaded files are stored under a random UUID with the extension truncated to 20 chars | Prevents path traversal and collision; the original name is kept in the database for display only. |

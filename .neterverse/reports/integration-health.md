@@ -35,8 +35,8 @@ America/New_York; the five classroom calendars run UTC. A scheduled task that
 assumes one timezone across all seven will place events an hour or more wrong,
 seasonally.
 
-**🗂️ ClickUp already enforces the lane split structurally.** House of Ransom
-(Lane B) is its own space, separate from Team Space. Retired and migrated folders
+**🗂️ ClickUp already enforces the lane split structurally.** The private lane
+is its own space, separate from Team Space. Retired and migrated folders
 carry the change in the folder name rather than being deleted — provenance
 preserved, which is the same instinct the event log encodes.
 
