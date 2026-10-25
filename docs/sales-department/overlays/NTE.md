@@ -2,7 +2,7 @@
 
 🔵 PROPOSED · Claude Code · 2026-10-25 · `PUBLIC` · **structure and open questions only — no facts.**
 
-Applies the shared method (`../README.md`) to **NTE Virtual Solutions (NVS) commercial delivery**,
+Applies the shared method (the private `Khu-el/nvs-sales-department` repository; its `NVS-CONTEXT.md` holds the NVS facts) to **NTE Virtual Solutions (NVS) commercial delivery**,
 the lane recorded in `packages/nvs-agent-desk/README.md`.
 
 ## What belongs to this capacity (held in the principal's NTE system of record, not here)

@@ -27,6 +27,7 @@ const REPO_ROOTS = {
   'Khu-el/Khu-el': REPO_ROOT,
   'Khu-el/Neterverse_DAO': process.env.NETERVERSE_DAO_ROOT || join(REPO_ROOT, '..', 'Neterverse_DAO'),
   'Khu-el/Mental-Alchemy': process.env.MENTAL_ALCHEMY_ROOT || join(REPO_ROOT, '..', 'Mental-Alchemy'),
+  'Khu-el/nvs-sales-department': process.env.NVS_SALES_DEPARTMENT_ROOT || join(REPO_ROOT, '..', 'nvs-sales-department'),
 };
 
 // Never loadable as project knowledge. Secrets, runtime data, the gitignored

@@ -2,7 +2,7 @@
 
 🔵 PROPOSED · Claude Code · 2026-10-25 · `PUBLIC` · **structure and open questions only — no facts.**
 
-Applies the shared method (`../README.md`) to **selling digital products**.
+Applies the shared method (the private `Khu-el/nvs-sales-department` repository, method folders only; its NVS-specific files are not loaded here) to **selling digital products**.
 
 ## ⚠️ Read before using
 `CP-DIGP-001` records the first product wave as **`HOLD`, blocked on evidence closure**, and its
