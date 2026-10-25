@@ -15,9 +15,9 @@
 
 A governed sales method for NTE Virtual Solutions (NVS) commercial delivery: define the ideal
 buyer, find and verify accounts and seats, score fit and timing, draft personalised outreach,
-plan discovery, track a pipeline and report weekly. The method is the 48-item playbook in
-`docs/sales-department/`, built from the *structure* of a third-party "Complete Claude Code Sales
-Department" graphic (a table of contents; its 48 files were not read — every item is original).
+plan discovery, track a pipeline and report weekly. The method is the 48-item playbook in the private repository
+`Khu-el/nvs-sales-department` (built from the *structure* of a third-party graphic; its content is original),
+run against the Notion NVS Revenue Pipeline as the system of record.
 
 This project exists so selling work starts from a written method and the principal's own records,
 not from a blank chat each time. It **prepares**; it never sends, books, posts, prices, contracts
@@ -60,11 +60,13 @@ docs/AI_COUNCIL.md governs how you treat work another contributor produced. CLAU
 repo layer. docs/scheduled-tasks/SPEC.md governs any recurring task. Where they appear to disagree,
 the stricter reading wins; a task-specific instruction from the principal overrides all of them.
 
-THE METHOD. docs/sales-department/README.md indexes 48 numbered items in six sections. Read the
-README rules and the item you are applying before you answer. Cite items by number. The overlay
-docs/sales-department/overlays/NTE.md lists the open questions only the principal can settle.
-Items are method, not facts about any buyer. The playbook was written from a table of contents;
-do not claim to know what any third-party "sales department" kit contains.
+THE METHOD. The Khu-el/nvs-sales-department repository holds 48 numbered items in six sections.
+Read its GOVERNANCE.md, COMPLIANCE.md and NVS-CONTEXT.md and the item you are applying before you
+answer. Cite items by number. NVS-CONTEXT.md carries the pre-filled run header, the offer ladder, the
+canonical pipeline stages and the approval gates (A3 is any external send; A4 is spend, price,
+billing or access). The overlay docs/sales-department/overlays/NTE.md lists the open questions only
+the principal can settle. Items are method, not facts about any buyer. Do not claim to know what
+any third-party sales kit contains.
 
 CAPACITY AND LANE. One capacity: NTE, NVS commercial delivery. Do not blend capacities. Do not pull
 in digital-product (DIGP) records, Excellence District / CRM contacts, Lane B estate material, or
@@ -115,13 +117,16 @@ still says the same. Where a conclusion turns on current text, re-read the sourc
 | Khu-el/Khu-el | docs/scheduled-tasks/SPEC.md | Required before any signal agent becomes a recurring task | `PUBLIC` |
 | Khu-el/Khu-el | docs/scheduled-tasks/REGISTRY.md | The task index to search before defining one | `PUBLIC` |
 | Khu-el/Khu-el | docs/claude-projects/SPEC.md | The standard governing this project's own knowledge base | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/README.md | Index of the 48 items, the rules, and the departures from the source graphic | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/01-find-buyers.md | Items 01-08 | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/02-run-the-pipeline.md | Items 09-16 | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/03-guides-and-playbooks.md | Items 17-24 | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/04-libraries-and-prompts.md | Items 25-32 | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/05-signal-agents.md | Items 33-40 — specifications, none live | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/06-templates-and-trackers.md | Items 41-48 | `PUBLIC` |
+| Khu-el/nvs-sales-department | README.md | Index of the 48 items | `INTERNAL` |
+| Khu-el/nvs-sales-department | GOVERNANCE.md | Context header, evidence tags, draft-only rule | `INTERNAL` |
+| Khu-el/nvs-sales-department | COMPLIANCE.md | Channel, opt-out and regulated-work notes | `INTERNAL` |
+| Khu-el/nvs-sales-department | 01-find-buyers | Items 01-08 | `INTERNAL` |
+| Khu-el/nvs-sales-department | 02-run-the-pipeline | Items 09-16 | `INTERNAL` |
+| Khu-el/nvs-sales-department | 03-guides | Items 17-24 | `INTERNAL` |
+| Khu-el/nvs-sales-department | 04-libraries | Items 25-32 | `INTERNAL` |
+| Khu-el/nvs-sales-department | 05-signal-agents | Items 33-40 — specifications, none live | `INTERNAL` |
+| Khu-el/nvs-sales-department | 06-templates | Items 41-48 | `INTERNAL` |
+| Khu-el/nvs-sales-department | NVS-CONTEXT.md | Pre-filled NVS header, offer ladder, ICP hypothesis, canonical stages, gates | `CONFIDENTIAL` |
 | Khu-el/Khu-el | docs/sales-department/overlays/NTE.md | This capacity's open questions and boundaries | `PUBLIC` |
 | Khu-el/Khu-el | packages/nvs-agent-desk/README.md | The existing NVS draft-first, human-approved send model to reuse | `INTERNAL` |
 
@@ -129,7 +134,7 @@ still says the same. Where a conclusion turns on current text, re-read the sourc
 
 | System | Scope | Why it is here | Class |
 |--------|-------|----------------|-------|
-| ⚪ UNKNOWN — the principal designates | The NVS ICP, offers, pricing, pipeline, watch-list and call notes | System of record for every selling fact. Attached per task by a human; never made ambient. ClickUp or Notion are candidates, not decisions | `CONFIDENTIAL` |
+| Notion | NVS Revenue Pipeline and the NVS Service Catalog | System of record, named by the principal on 2026-10-25. Pipeline records, pricing and call notes are attached per task by a human, never made ambient. Do not copy identifiers here | `CONFIDENTIAL` |
 
 ### 🚫 Deliberately excluded
 
@@ -139,11 +144,13 @@ still says the same. Where a conclusion turns on current text, re-read the sourc
   a second capacity's boundary text into this knowledge base.
 - **`apps/financial-services-crm/`.** Different capacity, holds real contacts.
 - **The third-party graphic's 48 files.** Not read; nothing is claimed about them.
+- **Root aggregate files and `prompts/` in `nvs-sales-department`.** Duplicates of the item folders; excluded to avoid two copies of one prompt set.
+- **Pricing.** Internal to Notion until the principal approves it for use.
 - **`packages/nvs-agent-desk/` source.** Only its README is here, to cite the model; the code is in the repo.
 
 ## 🔄 REBUILD TRIGGERS
 
-- Any change to a file under `docs/sales-department/` (except `overlays/DIGP.md`, which is not loaded here).
+- Any change to a loaded file in `Khu-el/nvs-sales-department`, or to `docs/sales-department/overlays/NTE.md`.
 - Any change to `EXECUTIVE_OS.md`, `AI_COUNCIL.md`, `scheduled-tasks/SPEC.md` or `claude-projects/SPEC.md`.
 - Any change to `CONNECTORS.md` or `packages/nvs-agent-desk/README.md`.
 - The principal naming the system of record for the NVS pipeline, or resolving an overlay question.
@@ -155,4 +162,4 @@ still says the same. Where a conclusion turns on current text, re-read the sourc
 |-------|-------|
 | Defined by | Claude Code, 2026-10-25 (session `01LrFNVevuPHZw9JoikkKgdo`) |
 | Reviewed by | ⚪ UNKNOWN — not yet reviewed by the principal or a peer contributor |
-| Evidence for the source list | Direct read of `docs/claude-projects/` SPEC, REGISTRY, TEMPLATE and `CP-NTE-001`/`CP-DIGP-001` in this repository, and `packages/nvs-agent-desk/README.md`, this session. The structure comes from a user-supplied graphic; the playbook's body is `CURRENT_INTERNAL_MODEL` (our own reasoning), not market evidence |
+| Evidence for the source list | Read of `Khu-el/nvs-sales-department` at commit `526b7ed` (plus a proposed local commit, not yet pushed) and the Notion pages named above, 2026-10-25. Direct read of `docs/claude-projects/` SPEC, REGISTRY, TEMPLATE and `CP-NTE-001`/`CP-DIGP-001` in this repository, and `packages/nvs-agent-desk/README.md`, this session. The structure comes from a user-supplied graphic; the playbook's body is `CURRENT_INTERNAL_MODEL` (our own reasoning), not market evidence |

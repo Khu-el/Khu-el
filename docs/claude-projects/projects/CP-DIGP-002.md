@@ -13,7 +13,7 @@
 
 ## 🎯 MISSION
 
-The same 48-item sales method as `CP-NTE-004` (`docs/sales-department/`), applied to **selling
+The same 48-item sales method as `CP-NTE-004` (the private `Khu-el/nvs-sales-department` repository, method folders only), applied to **selling
 digital products**, so that when the release hold lifts the selling work resumes from a written
 method rather than from memory.
 
@@ -62,8 +62,9 @@ CONTROLLING STANDARDS. docs/EXECUTIVE_OS.md and docs/AI_COUNCIL.md, with the rep
 CLAUDE.md; docs/scheduled-tasks/SPEC.md governs any recurring task. Where they appear to disagree,
 the stricter reading wins; a task-specific instruction from the principal overrides all of them.
 
-THE METHOD. docs/sales-department/README.md indexes 48 numbered items in six sections. Read its
-rules and the item you are applying before you answer; cite items by number. The overlay
+THE METHOD. The Khu-el/nvs-sales-department repository holds 48 numbered items in six sections.
+Read its GOVERNANCE.md, COMPLIANCE.md and the item you are applying before you answer; cite items
+by number. Its NVS-specific files (NVS-CONTEXT.md, the README) are NVS-lane and are not loaded here. The overlay
 docs/sales-department/overlays/DIGP.md lists the open questions only the principal can settle.
 Items are method, not facts about any buyer or product. The playbook was written from a table of
 contents; do not claim to know what any third-party kit contains.
@@ -122,13 +123,14 @@ on current text, re-read the source.
 | Khu-el/Khu-el | docs/claude-projects/SPEC.md | The standard governing this project's own knowledge base | `PUBLIC` |
 | Khu-el/Khu-el | docs/claude-projects/projects/CP-DIGP-001.md | The release project this one is paused behind — HOLD, entity unresolved | `PUBLIC` |
 | Khu-el/Khu-el | .neterverse/state/active-projects.json | The recorded status and blocker of the product wave | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/README.md | Index of the 48 items, the rules, and the departures from the source graphic | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/01-find-buyers.md | Items 01-08 | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/02-run-the-pipeline.md | Items 09-16 | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/03-guides-and-playbooks.md | Items 17-24 | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/04-libraries-and-prompts.md | Items 25-32 | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/05-signal-agents.md | Items 33-40 — specifications, none live | `PUBLIC` |
-| Khu-el/Khu-el | docs/sales-department/06-templates-and-trackers.md | Items 41-48 | `PUBLIC` |
+| Khu-el/nvs-sales-department | GOVERNANCE.md | Context header, evidence tags, draft-only rule | `INTERNAL` |
+| Khu-el/nvs-sales-department | COMPLIANCE.md | Channel, opt-out and regulated-work notes | `INTERNAL` |
+| Khu-el/nvs-sales-department | 01-find-buyers | Items 01-08 | `INTERNAL` |
+| Khu-el/nvs-sales-department | 02-run-the-pipeline | Items 09-16 | `INTERNAL` |
+| Khu-el/nvs-sales-department | 03-guides | Items 17-24 | `INTERNAL` |
+| Khu-el/nvs-sales-department | 04-libraries | Items 25-32 | `INTERNAL` |
+| Khu-el/nvs-sales-department | 05-signal-agents | Items 33-40 — specifications, none live | `INTERNAL` |
+| Khu-el/nvs-sales-department | 06-templates | Items 41-48 | `INTERNAL` |
 | Khu-el/Khu-el | docs/sales-department/overlays/DIGP.md | This capacity's open questions and boundaries | `PUBLIC` |
 
 ### 📎 Held elsewhere
@@ -141,8 +143,8 @@ on current text, re-read the source.
 ### 🚫 Deliberately excluded
 
 - **The gate checklist, product names, pricing and launch copy.** Same reasons as `CP-DIGP-001`.
-- **`CP-NTE-004`'s overlay** (`overlays/NTE.md`) and `packages/nvs-agent-desk/README.md` — the NVS
-  lane's material. The shared method *names* that package as a pointer; this project does not load it.
+- **`CP-NTE-004`'s overlay** (`overlays/NTE.md`), `NVS-CONTEXT.md`, the repo README and
+  `packages/nvs-agent-desk/README.md` — the NVS lane's material. The shared method *names* that package as a pointer; this project does not load it.
 - **Every contact, account list and transcript.** Records, not method.
 - **The third-party graphic's 48 files.** Not read; nothing claimed about them.
 
@@ -150,7 +152,7 @@ on current text, re-read the source.
 
 - The hold lifting, or `active-projects.json` changing from `BLOCKED` — **also flip this project's status.**
 - Resolution of operator attribution — it changes what every draft here may say.
-- Any change under `docs/sales-department/` (except `overlays/NTE.md`, not loaded here).
+- Any change to a loaded method folder in `Khu-el/nvs-sales-department`, or to `docs/sales-department/overlays/DIGP.md`.
 - Any change to the controlling standards, `CONNECTORS.md` or `CP-DIGP-001`.
 
 ## 🧑‍⚖️ PROVENANCE
