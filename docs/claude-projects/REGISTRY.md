@@ -13,6 +13,8 @@ Search this file first for any new project request: **SEARCH → READ → REUSE 
 | `CP-CCRLT-001` | Legacy & Estate — CCRLT (Lane B) | `CCRLT` | `LANE_B` | `CONFIDENTIAL` | `DRAFT` | [CP-CCRLT-001](projects/CP-CCRLT-001.md) | ❓ not yet created |
 | `CP-PERS-001` | The Mental Performance Playbook | `PERS` | `PERSONAL` | `CONFIDENTIAL` | `DRAFT` | [CP-PERS-001](projects/CP-PERS-001.md) | ❓ not yet created |
 | `CP-DIGP-001` | Digital Product Release — Wave 1 | `DIGP` | `LANE_A` | `CONFIDENTIAL` | `PAUSED` | [CP-DIGP-001](projects/CP-DIGP-001.md) | ❓ not yet created |
+| `CP-NTE-004` | NVS Sales Department — Find, Reach, Close | `NTE` | `LANE_A` | `CONFIDENTIAL` | `DRAFT` | [CP-NTE-004](projects/CP-NTE-004.md) | ❓ not yet created |
+| `CP-DIGP-002` | Digital Products Sales Department — Find, Reach, Close | `DIGP` | `LANE_A` | `CONFIDENTIAL` | `PAUSED` | [CP-DIGP-002](projects/CP-DIGP-002.md) | ❓ not yet created |
 
 ## Status values
 
@@ -31,7 +33,7 @@ The registry exists partly so this stays visible in one place:
 
 | Lane | Projects |
 |---|---|
-| `LANE_A` | `CP-NTE-001` · `CP-NTE-002` · `CP-NTE-003` · `CP-DIGP-001` |
+| `LANE_A` | `CP-NTE-001` · `CP-NTE-002` · `CP-NTE-003` · `CP-NTE-004` · `CP-DIGP-001` · `CP-DIGP-002` |
 | `LANE_B` | `CP-CCRLT-001` |
 | `PERSONAL` | `CP-PERS-001` |
 
@@ -47,8 +49,8 @@ reference — the Business Interests registry pattern — never a copy.
 | `HOPE`   | `CP-HOPE-001` |
 | `VZB`    | `CP-VZB-001` |
 | `REPR`   | `CP-REPR-001` |
-| `DIGP`   | `CP-DIGP-002` |
-| `NTE`    | `CP-NTE-004` |
+| `DIGP`   | `CP-DIGP-003` |
+| `NTE`    | `CP-NTE-005` |
 | `HOR`    | `CP-HOR-001` |
 | `CCRLT`  | `CP-CCRLT-002` |
 | `MM`     | `CP-MM-001` |
