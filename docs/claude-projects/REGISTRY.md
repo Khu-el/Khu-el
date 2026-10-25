@@ -13,7 +13,7 @@ Search this file first for any new project request: **SEARCH → READ → REUSE 
 | `CP-CCRLT-001` | Legacy & Estate — CCRLT (Lane B) | `CCRLT` | `LANE_B` | `CONFIDENTIAL` | `DRAFT` | [CP-CCRLT-001](projects/CP-CCRLT-001.md) | ❓ not yet created |
 | `CP-PERS-001` | The Mental Performance Playbook | `PERS` | `PERSONAL` | `CONFIDENTIAL` | `DRAFT` | [CP-PERS-001](projects/CP-PERS-001.md) | ❓ not yet created |
 | `CP-DIGP-001` | Digital Product Release — Wave 1 | `DIGP` | `LANE_A` | `CONFIDENTIAL` | `PAUSED` | [CP-DIGP-001](projects/CP-DIGP-001.md) | ❓ not yet created |
-| `CP-NTE-004` | NVS Sales Department — Find, Reach, Close | `NTE` | `LANE_A` | `CONFIDENTIAL` | `ACTIVE` | [CP-NTE-004](projects/CP-NTE-004.md) | [Claude Code project](https://claude.ai/code/project/chan_01W1zwrKuxZMqCT5DjCspn84) |
+| `CP-NTE-004` | NVS Sales Department — Find, Reach, Close | `NTE` | `LANE_A` | `CONFIDENTIAL` | `DRAFT` | [CP-NTE-004](projects/CP-NTE-004.md) | ❓ knowledge-base Project not yet created. A Claude Code project channel exists (a workspace, not a Project; id withheld, this repository is public) |
 | `CP-DIGP-002` | Digital Products Sales Department — Find, Reach, Close | `DIGP` | `LANE_A` | `CONFIDENTIAL` | `PAUSED` | [CP-DIGP-002](projects/CP-DIGP-002.md) | ❓ not yet created |
 
 ## Status values
@@ -23,11 +23,7 @@ Search this file first for any new project request: **SEARCH → READ → REUSE 
 Replaced, merged and archived projects stay in the table so their IDs are never reused and their
 history stays findable.
 
-**A row stays `DRAFT` until its project exists.** A definition is a reviewable draft; creating
-the project and uploading its bundle is a human act. Move a row to `ACTIVE` and fill in its URL at
-that point — see `GETTING_STARTED.md`. `CP-NTE-004` is the first `ACTIVE` row, and it is a Claude
-Code project (`claude.ai/code/project/…`) rather than a claude.ai Project; see SPEC.md, *Project
-type*.
+**Every row is `DRAFT` because none of these projects exists on `claude.ai` as a knowledge-base Project yet.** A definition is a reviewable draft; creating the project and uploading its bundle is a human act. Move a row to `ACTIVE` and fill in its URL at that point — see `GETTING_STARTED.md`. `CP-NTE-004` has a Claude Code project channel (recorded 2026-10-25), which is a workspace for working on it and holds no uploaded bundle, so the row stays `DRAFT`.
 
 ## Lane separation at a glance
 

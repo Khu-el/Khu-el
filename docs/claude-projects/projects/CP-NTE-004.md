@@ -7,9 +7,8 @@
 | 🧑‍💼 Capacity      | `NTE` |
 | 🛣️ Lane           | `LANE_A` |
 | 📆 Defined        | 2026-10-25 |
-| 🔧 Status         | `ACTIVE` |
-| 🧭 Project type   | `CLAUDE_CODE` — a Claude Code project, not a claude.ai Project |
-| 🔗 Project URL    | https://claude.ai/code/project/chan_01W1zwrKuxZMqCT5DjCspn84 (recorded 2026-10-25) |
+| 🔧 Status         | `DRAFT` |
+| 🔗 Project URL    | ❓ knowledge-base Project not yet created. A Claude Code project channel exists (recorded 2026-10-25; id withheld, this repository is public). It is a workspace, not this definition's knowledge base, and no bundle is uploaded to it |
 | 🧱 Highest class  | `CONFIDENTIAL` |
 
 ## 🎯 MISSION

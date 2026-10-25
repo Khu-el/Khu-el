@@ -12,7 +12,6 @@
 | 🛣️ Lane           | `LANE_A` / `LANE_B` / `PERSONAL` / `PHILANTHROPIC` / `UNCLASSIFIED` |
 | 📆 Defined        | YYYY-MM-DD |
 | 🔧 Status         | `DRAFT` / `ACTIVE` / `PAUSED` / `MERGED` / `REPLACED` / `ARCHIVED` |
-| 🧭 Project type   | `CLAUDE_AI` (a claude.ai Project, the default) / `CLAUDE_CODE` (a Claude Code project) |
 | 🔗 Project URL    | *(fill in after creating it on claude.ai)* |
 | 🧱 Highest class  | the strictest classification in the source manifest below |
 

@@ -1,6 +1,6 @@
 # 🗂️ Claude Project Specification v1
 
-**Status:** CANONICAL · **Version:** 1.2 · **Effective:** 2026-10-25 · **Owner:** Khu-el
+**Status:** CANONICAL · **Version:** 1.1 · **Effective:** 2026-09-21 · **Owner:** Khu-el
 **Supersedes:** none on record — no prior Claude Project definition exists in this or the sibling
 repositories as of the effective date.
 
@@ -89,13 +89,6 @@ after a project is archived.
 
 The **name** is what appears on `claude.ai`. Keep it identical in both places so the registry row
 and the live project are findable from each other.
-
-### Project type
-
-A definition records where the project lives. `CLAUDE_AI` is a claude.ai Project
-(`claude.ai/project/…`) and is the default this spec was written for. `CLAUDE_CODE` is a Claude
-Code project (`claude.ai/code/project/…`): the same rules apply, and its URL goes in the registry
-the same way. A definition with no type is read as `CLAUDE_AI`.
 
 ---
 
@@ -213,6 +206,5 @@ Status values, matching the scheduled-task registry: `DRAFT` · `ACTIVE` · `PAU
 
 | ARTIFACT | VERSION | DATE | WHAT CHANGED | WHY | SOURCE | DECISION AFFECTED | NEXT REVIEW |
 |---|---|---|---|---|---|---|---|
-| `docs/claude-projects/SPEC.md` | 1.2 | 2026-10-25 | Added *Project type* (`CLAUDE_AI` / `CLAUDE_CODE`) | `CP-NTE-004` was created as a Claude Code project, which the spec did not anticipate | Registration of `CP-NTE-004` | Where a project may live and how its URL is recorded | When a third project surface appears |
 | `docs/claude-projects/SPEC.md` | 1.1 | 2026-09-21 | Added source rule 4 — a fact with a canonical home is cited, never copied | `CP-NTE-002`'s instructions quoted a test count that went stale twice in one day as suites landed. A restated fact cannot know it is stale, and a copy inside a knowledge base is trusted more than the original because it is closer to hand | Two observed drifts against `CLAUDE.md`'s test table, and `SOURCE_CONFLICTS.md` SC-04 recording the same class of drift | Whether a project's instructions may restate a fact recorded elsewhere | When a project's instructions are next found to have drifted from a canonical source |
 | `docs/claude-projects/SPEC.md` | 1.0 | 2026-09-21 | Initial codification of the Claude Project standard | Project knowledge was assumed by Executive OS §10 but had no definition, no registry and no rule about what may be loaded into it — so every project's knowledge base was an undocumented, unreviewable judgment call | Executive OS §10 (project knowledge and the approval boundary); SPEC v2's capacity and SEARCH → READ → REUSE → UPDATE rules | What may be loaded into a Claude Project, and under which capacity | On the next material change to the capacity table, the classification levels, or Executive OS §10 |
