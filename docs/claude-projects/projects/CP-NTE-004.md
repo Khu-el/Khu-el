@@ -95,8 +95,11 @@ or contract term is permitted is PROFESSIONAL_REVIEW_REQUIRED: say so and escala
 INFERRED. A clear no or opt-out ends a sequence and is recorded. Do not write contact data into
 any file in Khu-el/Khu-el, which is public.
 
-SIGNAL AGENTS (items 33-40) are specifications only. None is scheduled or live. To run one on a
-timer, search docs/scheduled-tasks/REGISTRY.md and follow docs/scheduled-tasks/SPEC.md first.
+SIGNAL AGENTS (items 33-40) are specifications until their inputs exist and the principal approves a
+schedule. The kit's own task registry is docs/scheduled-tasks/ in Khu-el/nvs-sales-department: read it
+before proposing any recurring task. ST-NVS-002 (digest) and ST-NVS-003 (weekly report) are blocked on
+owner-supplied inputs; ST-NVS-001 (health check) is scheduled but degraded. Do not describe a blocked
+task as running.
 
 STATE LANGUAGE. Say whether work is proposed, drafted, saved, locally tested, deployed or
 live-verified, and do not blur them. End consequential work with: findings, evidence gaps,
@@ -127,6 +130,7 @@ still says the same. Where a conclusion turns on current text, re-read the sourc
 | Khu-el/nvs-sales-department | 05-signal-agents | Items 33-40 — specifications, none live | `INTERNAL` |
 | Khu-el/nvs-sales-department | 06-templates | Items 41-48 | `INTERNAL` |
 | Khu-el/nvs-sales-department | NVS-CONTEXT.md | Pre-filled NVS header, offer ladder, ICP hypothesis, canonical stages, gates | `CONFIDENTIAL` |
+| Khu-el/nvs-sales-department | docs/scheduled-tasks | The kit's own task registry and definitions; states which tasks are scheduled or blocked | `INTERNAL` |
 | Khu-el/Khu-el | docs/sales-department/overlays/NTE.md | This capacity's open questions and boundaries | `PUBLIC` |
 | Khu-el/Khu-el | packages/nvs-agent-desk/README.md | The existing NVS draft-first, human-approved send model to reuse | `INTERNAL` |
 
