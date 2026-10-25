@@ -7,8 +7,9 @@
 | 🧑‍💼 Capacity      | `NTE` |
 | 🛣️ Lane           | `LANE_A` |
 | 📆 Defined        | 2026-10-25 |
-| 🔧 Status         | `DRAFT` |
-| 🔗 Project URL    | ❓ not yet created — fill in after creating it on claude.ai |
+| 🔧 Status         | `ACTIVE` |
+| 🧭 Project type   | `CLAUDE_CODE` — a Claude Code project, not a claude.ai Project |
+| 🔗 Project URL    | https://claude.ai/code/project/chan_01W1zwrKuxZMqCT5DjCspn84 (recorded 2026-10-25) |
 | 🧱 Highest class  | `CONFIDENTIAL` |
 
 ## 🎯 MISSION
