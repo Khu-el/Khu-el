@@ -8,7 +8,7 @@
 | 🛣️ Lane           | `LANE_A` |
 | 📆 Defined        | 2026-10-25 |
 | 🔧 Status         | `DRAFT` |
-| 🔗 Project URL    | ❓ not yet created — fill in after creating it on claude.ai |
+| 🔗 Project URL    | ❓ knowledge-base Project not yet created. A Claude Code project channel exists (recorded 2026-10-25; id withheld, this repository is public). It is a workspace, not this definition's knowledge base, and no bundle is uploaded to it |
 | 🧱 Highest class  | `CONFIDENTIAL` |
 
 ## 🎯 MISSION
