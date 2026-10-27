@@ -12,6 +12,8 @@ Search this file first for any new project request: **SEARCH → READ → REUSE 
 | `CP-NTE-003` | Neterverse Administration Trust DAO — Public Portal | `NTE` | `LANE_A` | `PUBLIC` | `DRAFT` | [CP-NTE-003](projects/CP-NTE-003.md) | ❓ not yet created |
 | `CP-PERS-001` | The Mental Performance Playbook | `PERS` | `PERSONAL` | `CONFIDENTIAL` | `DRAFT` | [CP-PERS-001](projects/CP-PERS-001.md) | ❓ not yet created |
 | `CP-DIGP-001` | Digital Product Release — Wave 1 | `DIGP` | `LANE_A` | `CONFIDENTIAL` | `PAUSED` | [CP-DIGP-001](projects/CP-DIGP-001.md) | ❓ not yet created |
+| `CP-NTE-004` | NVS Sales Department — Find, Reach, Close | `NTE` | `LANE_A` | `CONFIDENTIAL` | `DRAFT` | [CP-NTE-004](projects/CP-NTE-004.md) | ❓ knowledge-base Project not yet created. A Claude Code project channel exists (a workspace, not a Project; id withheld, this repository is public) |
+| `CP-DIGP-002` | Digital Products Sales Department — Find, Reach, Close | `DIGP` | `LANE_A` | `CONFIDENTIAL` | `PAUSED` | [CP-DIGP-002](projects/CP-DIGP-002.md) | ❓ not yet created |
 
 ## Status values
 
@@ -20,9 +22,7 @@ Search this file first for any new project request: **SEARCH → READ → REUSE 
 Replaced, merged and archived projects stay in the table so their IDs are never reused and their
 history stays findable.
 
-**Every row is `DRAFT` because none of these projects exists on `claude.ai` yet.** A definition is
-a reviewable draft; creating the project and uploading its bundle is a human act. Move a row to
-`ACTIVE` and fill in its URL at that point — see `GETTING_STARTED.md`.
+**Every row is `DRAFT` because none of these projects exists on `claude.ai` as a knowledge-base Project yet.** A definition is a reviewable draft; creating the project and uploading its bundle is a human act. Move a row to `ACTIVE` and fill in its URL at that point — see `GETTING_STARTED.md`. `CP-NTE-004` has a Claude Code project channel (recorded 2026-10-25), which is a workspace for working on it and holds no uploaded bundle, so the row stays `DRAFT`.
 
 ## Lane separation at a glance
 
@@ -30,7 +30,7 @@ The registry exists partly so this stays visible in one place:
 
 | Lane | Projects |
 |---|---|
-| `LANE_A` | `CP-NTE-001` · `CP-NTE-002` · `CP-NTE-003` · `CP-DIGP-001` |
+| `LANE_A` | `CP-NTE-001` · `CP-NTE-002` · `CP-NTE-003` · `CP-NTE-004` · `CP-DIGP-001` · `CP-DIGP-002` |
 | `LANE_B` | none in this repository |
 | `PERSONAL` | `CP-PERS-001` |
 
@@ -46,8 +46,8 @@ reference — the Business Interests registry pattern — never a copy.
 | `HOPE`   | `CP-HOPE-001` |
 | `VZB`    | `CP-VZB-001` |
 | `REPR`   | `CP-REPR-001` |
-| `DIGP`   | `CP-DIGP-002` |
-| `NTE`    | `CP-NTE-004` |
+| `DIGP`   | `CP-DIGP-003` |
+| `NTE`    | `CP-NTE-005` |
 | `HOR`    | `CP-HOR-001` |
 | `MM`     | `CP-MM-001` |
 | `OTHER`  | `CP-OTHER-001` |

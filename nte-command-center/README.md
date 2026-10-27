@@ -25,7 +25,7 @@ npm run check            # everything below, in order
 npm run check:types
 npm run check:lanes      # firewall scan, source
 npm run check:network    # zero-external-origin scan, source
-npm test                 # 152 checks
+npm test                 # 193 checks (14 files)
 npm run build            # ends with check:bundle — the same scan on the output
 npm run single           # one-file outputs, for looking without a toolchain
 ```
@@ -33,7 +33,7 @@ npm run single           # one-file outputs, for looking without a toolchain
 ## What runs on a pull request
 
 `.github/workflows/command-center.yml` runs types, the lane firewall, the
-external-origin scan, the 152 tests, the production build and the bundle scan
+external-origin scan, the 193 tests, the production build and the bundle scan
 on every pull request touching `nte-command-center/**`, and checks that no
 generated file drifted during the build.
 

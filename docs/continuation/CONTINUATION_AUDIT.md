@@ -112,9 +112,9 @@ should be built** — most entries are ⚪ UNKNOWN provenance (see `SOURCE_CONFL
 | Project | Repository | Status | Evidence |
 |---|---|---|---|
 | Four NTE planning apps (Deal Architect, Capital Readiness, Notes Underwriting, Legacy & Estate) | `Khu-el/Khu-el` | **IN PROGRESS** | Build and typecheck pass; 61 tests cover `finance.ts` in three of them; **all UI untested** |
-| Shared Express/SQLite backend | `Khu-el/Khu-el` `server/` | **IN PROGRESS** | Builds; 23 tests pass; two authorization defects fixed this session; not deployed |
-| `@nte/governance-core` (shared types + UI) | `Khu-el/Khu-el` | **IN PROGRESS** | Typechecked transitively; no tests |
-| `@nte/neterverse-kernel` (control plane) | `Khu-el/Khu-el` | **IN PROGRESS** | 59 tests pass; registries valid; 0/6 connectors ever observed |
+| Shared Express/SQLite backend | `Khu-el/Khu-el` `server/` | **IN PROGRESS** | Builds; 23 tests pass *(2026-09-21; 129 on 2026-10-26, ST-NTE-001 run 1)*; two authorization defects fixed this session; not deployed |
+| `@nte/governance-core` (shared types + UI) | `Khu-el/Khu-el` | **IN PROGRESS** | Typechecked transitively; no tests *(2026-09-21; 90 `node --test` + 22 vitest on 2026-10-26, ST-NTE-001 run 1)* |
+| `@nte/neterverse-kernel` (control plane) | `Khu-el/Khu-el` | **IN PROGRESS** | 59 tests pass *(2026-09-21; 102 on 2026-10-26, ST-NTE-001 run 1)*; registries valid; 0/6 connectors ever observed |
 | Neterverse control-plane bus (`.neterverse/`) | `Khu-el/Khu-el` | **IN PROGRESS** | `validate` and `audit` pass; live observation layer empty by design |
 | Mental Performance Playbook | `Khu-el/Mental-Alchemy` | **IN PROGRESS** | `npm run check` passes; deliberately unpublished |
 | Neterverse DAO portal | `Khu-el/Neterverse_DAO` | **READY FOR HUMAN APPROVAL** | Page check passes; publishing is a §10 human decision, and this repo's purpose is public-facing material |
