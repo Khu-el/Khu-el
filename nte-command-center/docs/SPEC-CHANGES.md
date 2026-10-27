@@ -222,3 +222,36 @@ its own copy of the same calculation carrying the same bug, which is why no
 existing test caught it — the helper and the module agreed while both were
 wrong. It now calls `mondayOf`. The suite passes in `UTC`,
 `America/New_York`, `Asia/Kolkata` and `Pacific/Kiritimati`.
+
+---
+
+## SC-09 · Module 05 gains a GitHub desk (TED edition)
+
+**Changed** `src/modules/tech-stack/index.tsx`; **added**
+`src/modules/tech-stack/github-import.ts`, `src/modules/tech-stack/github-desk.tsx`,
+`tests/github-desk.test.tsx`.
+
+**Raised by** the principal, 2026-10-27: build a TED version of the GitHub
+working view, created by NTE Virtual Solutions. Drafted by Claude; not merged.
+
+The repository-health board had one observed row and three `UNKNOWN`s because
+nothing fed it. The desk is that feed, inside the rules already here:
+
+- **Paste only.** The operator runs `gh … --json` and pastes the output. No
+  request-capable call was added; `check:network` and `check:bundle` still
+  report no external origin.
+- **Provenance on every row** — `source` and `importedAt`, as ARCHITECTURE.md
+  "Data flow" requires of imports.
+- **A credential-shaped paste is refused whole** (§10, the SECURITY HOLD): token
+  prefixes, private-key headers, and `token`/`password`/`secret` keys.
+- **Links survive only to the GitHub host over https.** Anything else renders as
+  plain text.
+- **Repositories obey the firewall.** The household organisation's repos are
+  refused on `lane-a`; every other owner is refused on `lane-b`.
+- **Build status is derived, never typed.** `PASSING` only when the newest
+  completed run of every workflow on `main` succeeded; an empty paste is
+  `UNKNOWN`, not green.
+- **It is build work.** It sits under `buildWork: true` and closes with the
+  rest of the module under the freeze; the security hold still renders first.
+
+No sixth panel kind: the desk is a `register`. It writes nothing to GitHub.
