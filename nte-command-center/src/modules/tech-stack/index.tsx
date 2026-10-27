@@ -26,6 +26,7 @@ import { Panel, Empty, Flag, ProofForm, ProofLine } from '../../ui/components'
 import { load, save } from '../../core/storage'
 import seed from '../../../seed/tech-stack.json'
 import scan from '../../../seed/network-scan.json'
+import { GitHubDesk } from './github-desk'
 
 interface SecurityHold {
   id: string
@@ -366,6 +367,8 @@ function TechStackModule({ surface }: { surface: Surface }) {
         ))}
       </Panel>
 
+      <GitHubDesk surface={surface} />
+
       <Panel
         kind="gate"
         title="Open defects"
@@ -423,6 +426,7 @@ const definition: ModuleDefinition = {
     { id: 'applications', kind: 'register', title: 'Application register', purpose: 'What exists and what it reaches.' },
     { id: 'unified-os', kind: 'gate', title: 'Unified OS V2', purpose: 'Export and hash before deploy.' },
     { id: 'repo-health', kind: 'board', title: 'Repository health', purpose: 'Bi-weekly check.' },
+    { id: 'github-desk', kind: 'register', title: 'GitHub desk', purpose: 'Observed repository state, by paste.' },
     { id: 'defects', kind: 'gate', title: 'Open defects', purpose: 'Collision, seals, hold.' },
   ],
   Component: TechStackModule,
