@@ -12,7 +12,7 @@ The desk is `apps/network-desk` plus `/api/network` on the shared Express server
 
 Records are stored in lane `NTE_MINISTRY`. The internal model names Equity of the Divine Ministries as trustee for NTE affairs and Chaz Khu El as Minister / authorized representative. No tax classification is asserted for NTE; working position held pending written counsel confirmation. That model is `CURRENT_INTERNAL_MODEL` and is not marked legally verified by this software.
 
-House of Ransom, the Living Trust, and private family records are refused. Sample rows are labeled `SAMPLE` and use `@example.test` addresses.
+Records outside lane `NTE_MINISTRY` are refused. Sample rows are labeled `SAMPLE` and use `@example.test` addresses.
 
 Desk records carry `entityId`: `VEI`, `OPS`, `NPE`, `MFG`, `GHC`, `TFS`, `IPI`, `QVI`, or `NETWORK`. The server filters `?entity=` and refuses any other id. Every entity is `unformed`. Formation status is read-only. The desk does not record legal existence.
 
@@ -22,9 +22,11 @@ Registration assigns a role from deployment configuration. A `role` field on `PO
 
 | Setting | Role |
 |---|---|
-| Unset | `FAMILY_COUNCIL_MEMBER` |
+| Unset | `PROFESSIONAL_REVIEWER` |
 | `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_SECRET` | `SYSTEM_ADMIN` for that one address, once |
 | `MINISTRY_OPERATOR_EMAILS` | `NTE_SYSTEMS_OPERATOR` for each listed address |
+
+`PROFESSIONAL_REVIEWER` is the writable non-admin invite role. Chaz confirmed it on Oct 23, 2026. It does not read another account's records.
 
 The invite code alone cannot create `SYSTEM_ADMIN`. A missing or wrong `BOOTSTRAP_ADMIN_SECRET` returns 403 and inserts no row. A second admin returns 409. An unset secret fails closed. Registration rejects an untrimmed email and stores the trimmed lowercase form. `GET /api/auth/users` includes `role` only for `SYSTEM_ADMIN`.
 

@@ -12,7 +12,7 @@ db.exec(`
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     display_name TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'FAMILY_COUNCIL_MEMBER',
+    role TEXT NOT NULL DEFAULT 'PROFESSIONAL_REVIEWER',
     created_at TEXT NOT NULL
   );
 

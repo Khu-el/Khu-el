@@ -370,7 +370,7 @@ describe('network desk', () => {
       body: JSON.stringify({ title: 'no' }),
     });
     assert.equal(denied.status, 403);
-    db.prepare('UPDATE users SET role = ? WHERE id = ?').run('FAMILY_COUNCIL_MEMBER', user.id);
+    db.prepare('UPDATE users SET role = ? WHERE id = ?').run('PROFESSIONAL_REVIEWER', user.id);
     const samples = await call(server.url, '/api/network/samples', { method: 'POST', token: user.token, body: '{}' });
     assert.equal(samples.status, 201);
     assert.equal(samples.body.created, true);

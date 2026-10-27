@@ -32,9 +32,9 @@ export function isTransientFailure(err: unknown): boolean {
  * pending record's local version wins, and a pending record the server has
  * never seen is kept (first, as a newly created record is).
  *
- * The local version winning is last-write-wins by this browser. On the shared
- * estate workspace, an edit someone else saved while this one was offline is
- * overwritten when the pending edit is pushed. That is the same outcome as the
+ * The local version winning is last-write-wins by this browser. An edit
+ * someone else saved while this one was offline is overwritten when the
+ * pending edit is pushed. That is the same outcome as the
  * two edits arriving in the other order, and it is preferable to silently
  * discarding the edit the user was told was saved.
  */

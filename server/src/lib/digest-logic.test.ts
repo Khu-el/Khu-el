@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeDigest, recordLabel, TWO_YEARS_MS, type RecordRow } from './digest-logic.js';
+import { computeDigest, recordLabel, type RecordRow } from './digest-logic.js';
 
 const NOW = Date.parse('2026-06-15T12:00:00.000Z');
 
@@ -12,69 +12,12 @@ describe('recordLabel', () => {
     expect(recordLabel('deal-architect', { address: '12 Oak St' })).toBe('12 Oak St');
     expect(recordLabel('capital-readiness', { entityName: 'Acme LLC' })).toBe('Acme LLC');
     expect(recordLabel('notes-underwriting', { obligorRef: 'NOTE-004' })).toBe('NOTE-004');
-    expect(recordLabel('legacy-estate', { familyName: 'House of Ransom' })).toBe('House of Ransom');
+    expect(recordLabel('financial-services-crm', { displayName: 'Sample Person' })).toBe('Sample Person');
   });
 
   it('falls back to a placeholder rather than rendering undefined', () => {
     expect(recordLabel('deal-architect', {})).toBe('Unlabeled record');
     expect(recordLabel('deal-architect', { address: '' })).toBe('Unlabeled record');
-  });
-});
-
-describe('computeDigest - beneficiary staleness (legacy-estate)', () => {
-  it('flags a designation never verified', () => {
-    const items = computeDigest(
-      [row('legacy-estate', { familyName: 'Ransom', beneficiaries: [{ accountOrPolicy: 'Term life' }] })],
-      NOW
-    );
-    expect(items).toHaveLength(1);
-    expect(items[0].message).toContain('Term life');
-    expect(items[0].message).toContain('has never been verified');
-    expect(items[0].recordLabel).toBe('Ransom');
-  });
-
-  it('does not flag a designation verified within two years', () => {
-    const recent = new Date(NOW - TWO_YEARS_MS + 24 * 60 * 60 * 1000).toISOString();
-    const items = computeDigest(
-      [row('legacy-estate', { beneficiaries: [{ accountOrPolicy: 'IRA', lastVerified: recent }] })],
-      NOW
-    );
-    expect(items).toEqual([]);
-  });
-
-  it('flags a designation verified just over two years ago', () => {
-    const old = new Date(NOW - TWO_YEARS_MS - 24 * 60 * 60 * 1000).toISOString();
-    const items = computeDigest(
-      [row('legacy-estate', { beneficiaries: [{ accountOrPolicy: 'IRA', lastVerified: old }] })],
-      NOW
-    );
-    expect(items).toHaveLength(1);
-  });
-
-  it('treats the two-year mark itself as still current', () => {
-    // Boundary is strictly greater-than, so exactly 2 years old does not flag.
-    const exact = new Date(NOW - TWO_YEARS_MS).toISOString();
-    expect(
-      computeDigest([row('legacy-estate', { beneficiaries: [{ accountOrPolicy: 'IRA', lastVerified: exact }] })], NOW)
-    ).toEqual([]);
-  });
-
-  it('names an unlabeled designation rather than printing undefined', () => {
-    const items = computeDigest([row('legacy-estate', { beneficiaries: [{}] })], NOW);
-    expect(items[0].message).toContain('"unnamed"');
-  });
-
-  it('emits one item per stale beneficiary', () => {
-    const items = computeDigest(
-      [row('legacy-estate', { beneficiaries: [{ accountOrPolicy: 'A' }, { accountOrPolicy: 'B' }, { accountOrPolicy: 'C' }] })],
-      NOW
-    );
-    expect(items).toHaveLength(3);
-    expect(items.map((i) => i.message.match(/"([^"]+)"/)![1])).toEqual(['A', 'B', 'C']);
-  });
-
-  it('returns nothing for an estate with no beneficiaries recorded', () => {
-    expect(computeDigest([row('legacy-estate', { familyName: 'Ransom' })], NOW)).toEqual([]);
   });
 });
 
@@ -134,18 +77,12 @@ describe('computeDigest - aggregation', () => {
         row('deal-architect', { address: '12 Oak St', diligence: [{ done: false }] }, 'rec_a'),
         row('capital-readiness', { entityName: 'Acme', offeringReadiness: [{ status: 'PENDING' }] }, 'rec_b'),
         row('notes-underwriting', { obligorRef: 'N-1', lienChecklist: [{ done: false }] }, 'rec_c'),
-        row('legacy-estate', { familyName: 'Ransom', beneficiaries: [{ accountOrPolicy: 'IRA' }] }, 'rec_d'),
       ],
       NOW
     );
-    expect(items).toHaveLength(4);
-    expect(items.map((i) => i.appId)).toEqual([
-      'deal-architect',
-      'capital-readiness',
-      'notes-underwriting',
-      'legacy-estate',
-    ]);
-    expect(items.map((i) => i.recordId)).toEqual(['rec_a', 'rec_b', 'rec_c', 'rec_d']);
+    expect(items).toHaveLength(3);
+    expect(items.map((i) => i.appId)).toEqual(['deal-architect', 'capital-readiness', 'notes-underwriting']);
+    expect(items.map((i) => i.recordId)).toEqual(['rec_a', 'rec_b', 'rec_c']);
   });
 
   it('ignores an unknown app id instead of throwing', () => {

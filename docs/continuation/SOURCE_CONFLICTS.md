@@ -153,25 +153,26 @@ changed. Those sit in `HUMAN_ACTION_REQUIRED.md`.
 
 ## SC-06 — Lane A / Lane B separation versus a shared backend
 
+**Status on this branch:** the shared estate workspace described below was removed. `isSharedApp` returns false for every app. The probe text is historical. See `LANE_B_REMOVAL.md`. No database was opened.
+
 | | |
 |---|---|
 | **Source A** | `CLAUDE.md` hard boundary: *"Lane A and Lane B never auto-connect."* |
-| **Source B** | `server/src/lib/roles.ts`: `legacy-estate` (Lane B) is a **shared** workspace — any authenticated user reads and writes every record in it, while the three Lane A apps are private per owner |
+| **Source B** | `server/src/lib/roles.ts`: `the former estate app` (Lane B) is a **shared** workspace — any authenticated user reads and writes every record in it, while the three Lane A apps are private per owner |
 | **Conflict** | Not a contradiction: the lanes are not *merged*, and records stay distinct. But one invite code admits a user to **all** Lane B estate records, and the same login serves both lanes. |
-| **Which controls** | **Source B** — this is deliberate and documented (`legacy-estate` is described as a shared family workspace in `CLAUDE.md` itself). |
+| **Which controls** | **Historical.** Source B described the removed shared estate workspace. It no longer controls. |
 | **Human resolution required** | 🟡 **Awareness, not a decision.** |
 
 **Verified by probe, not by reading.** Two users registered with the same invite code, both
-with the default `FAMILY_COUNCIL_MEMBER` role. User A created a `legacy-estate` record; user B
+with the default `the former default invite role` role. User A created a `the former estate app` record; user B
 then listed it (`true`), and `PUT` overwrote its contents (`200`). For contrast, B saw `0` of
 A's `deal-architect` records — Lane A separation holds exactly as designed.
 
 **Worth surfacing because the consequence is easy to miss:** issuing the invite code to someone
-so they can use *Deal Architect* also gives them read **and write** access to every CCRLT /
-House of Ransom estate record. There is no per-app invitation, and the write is a silent
+so they can use *Deal Architect* also gives them read **and write** access to every estate-capacity /
+the private estate house estate record. There is no per-app invitation, and the write is a silent
 overwrite rather than an append. Whether that is the intent is the principal's call; **no change
-was made** — this is a documented design decision, not a defect, and changing it would alter how
-a shared family workspace behaves.
+was made** at the time of the audit. The shared estate workspace has since been removed from this repository.
 
 ---
 
@@ -249,7 +250,7 @@ are superseded wholesale (SC-03), not in need of patching.
 
 ### 🔑 Root cause — the registry built to prevent this is empty
 
-Notion holds **`04.01 Entities Registry — NTE/CCRLT`**, a database whose schema is purpose-built
+Notion holds **`04.01 Entities Registry — NTE/estate-capacity`**, a database whose schema is purpose-built
 for exactly this: `Short Code`, `Lane`, `Entity Type`, `Trustee / Controlling Authority`, `Status`,
 and a `Source Basis` field whose options are *Documented · Inferred · Strategic · User-asserted
 private framework · Speculative · Requires verification*.
@@ -266,7 +267,7 @@ Divine Ministries, trustee) and `MFG` (manufacturing, trading as the apparel bra
 **nine**, not seven. Any statement that Lane A has seven entities is a Source-A-through-C artifact.
 
 📎 **The trust's own name differs between sources.** Source B and Source A give *Christopher Chaz
-Ransom-**El** Living Trust*; Source C gives *Christopher Chaz Ransom Living Trust*. On an
+Ransom-**El** the private estate trust*; Source C gives *Christopher Chaz Ransom the private estate trust*. On an
 instrument naming the trust as a party that is not cosmetic. ⚪ UNKNOWN which is correct — only the
 trust instrument settles it, and it was not read.
 
@@ -327,7 +328,7 @@ defensible; the current state — unmapped and unmentioned — is the one that i
 
 | | |
 |---|---|
-| **Source A** | The Notion workspace read 2026-09-18: hub `🏛️ Neterverse Trust Enterprise — 2026 Command Center`, containing `04.01 Entities Registry — NTE/CCRLT` and `04.02 Roles & Capacities Registry`, **both with zero rows** |
+| **Source A** | The Notion workspace read 2026-09-18: hub `🏛️ Neterverse Trust Enterprise — 2026 Command Center`, containing `04.01 Entities Registry — NTE/estate-capacity` and `04.02 Roles & Capacities Registry`, **both with zero rows** |
 | **Source B** | The Notion workspace reachable 2026-10-02: hub `Chaz Executive OS — Knowledge Index`, containing `NTE Entity Registry` under `NTE Command OS — Executive Dashboard`, **populated with 12 rows and actively maintained** |
 | **Conflict** | Every page ID in Source A now returns `object_not_found`, and the workspace identifier differs. `04.01` and `04.02` do not exist in Source B. Source B's registry is not an empty schema waiting to be filled — it has brand assets attached, review dates, open-matter counts and eight configured views. |
 | **Which controls** | ✅ **Source B.** It is what this session can actually reach and read, and it is maintained. |
@@ -381,8 +382,8 @@ Solutions Inc. Flagged as an observation for the principal, not resolved here.
 
 ### ✅ One open question this closes
 
-The Lane B trust is **`Christopher Chaz Ransom-El Living Trust`** — with the `-El`. The system of
-record spells it that way, trustee `House of Ransom`, seal set `CCRLT`. SC-08's note that this was
+The Lane B trust is **`Christopher Chaz Ransom-El the private estate trust`** — with the `-El`. The system of
+record spells it that way, trustee `the private estate house`, seal set `estate-capacity`. SC-08's note that this was
 ⚪ UNKNOWN is resolved.
 
 ### 📋 What the registry says about its own reliability
@@ -574,9 +575,9 @@ this instrument are already telling the same story.
 >
 > | Entity | Instrument located |
 > |---|---|
-> | CCRLT | `Declaration of Trust Under Agreement`, dated **2021-04-14** — specific and dated |
+> | estate-capacity | `Declaration of Trust Under Agreement`, dated **2021-04-14** — specific and dated |
 > | EDM | Bylaws |
-> | House of Ransom | Bylaws (several revisions) |
+> | the private estate house | Bylaws (several revisions) |
 > | NTE | Bylaws (several versions), master trust indenture |
 > | GHC | Operating agreement **and** corporate bylaws, under *Neterverse Global Holdings* |
 > | NAT | Private trust agreement |
@@ -646,7 +647,7 @@ unambiguous: *"Identify exactly which capacity owns the task. Choose only what a
 
 | Task | Capacities present in the one prompt |
 |---|---|
-| NTE Financial Briefing | `NTE` (Lane A) · `CCRLT` (Lane B) · `PERS` — three firewalled sections in one output |
+| NTE Financial Briefing | `NTE` (Lane A) · `estate-capacity` (Lane B) · `PERS` — three firewalled sections in one output |
 | Run Marketing Campaigns | `HOPE` (Primerica H.O.P.E. Dealers) · `VZB` (Verizon Business) · `NTE` (Lane A) — brand rotated per run |
 
 ### 🟡 This is a conflict of standards, not a defect in anyone's work
@@ -655,7 +656,7 @@ Both prompts **are already capacity-aware**, which is why this is a conflict rat
 contamination finding. The financial briefing keeps three *explicitly firewalled* sections and
 instructs that accounts, assets, liabilities, income, expenses, tax treatment, authority and
 recommendations are never blended across them. The marketing prompt instructs *"keep one firewalled
-brand per run"* and *"never use CCRLT or House of Ransom assets in NTE marketing."*
+brand per run"* and *"never use estate-capacity or the private estate house assets in NTE marketing."*
 
 So the prompts firewall **within** a task. SPEC v2 firewalls **by** task. Those are two different
 mechanisms for the same goal, and the kit predates the spec by three weeks — the spec is dated
@@ -700,7 +701,7 @@ Picking one would be invention.
 
 ### What a human needs to decide
 
-1. **NTE Financial Briefing** — Option A (split into `ST-NTE-003` + `ST-CCRLT-001` + `ST-PERS-003`)
+1. **NTE Financial Briefing** — Option A (split into `ST-NTE-003`, a separate estate task outside this repository, and `ST-PERS-003`)
    or Option B (one `NTE` task, the other two sections retained as declared firewalled read-only
    subsections, recorded as a documented exception to the one-capacity rule). `ST-NTE-003` stays
    `DRAFT` until this is recorded in it.

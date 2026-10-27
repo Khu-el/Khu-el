@@ -42,8 +42,8 @@ jobs:
 
       # Every workspace suite: the kernel, the server (which starts the real app
       # on an ephemeral port and drives it over HTTP), the three apps'
-      # finance.ts, the CRM's rules and importer, and governance-core's helpers. legacy-estate has no runner,
-      # and no component anywhere is covered.
+      # finance.ts, the CRM's rules and importer, and governance-core's helpers.
+      # No component anywhere is covered.
       - name: Workspace test suites
         run: npm test
 

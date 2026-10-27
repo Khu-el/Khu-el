@@ -49,7 +49,7 @@ describe('box 3 · the freeze locks build work and only build work', () => {
   const open = freezeStatus(weekWith(40))
 
   it('covers every module in the registry', () => {
-    expect(MODULES.length).toBe(11)
+    expect(MODULES.length).toBe(10)
     expect(MODULES.filter((m) => m.buildWork).length).toBeGreaterThan(0)
     expect(MODULES.filter((m) => !m.buildWork).length).toBeGreaterThan(0)
   })

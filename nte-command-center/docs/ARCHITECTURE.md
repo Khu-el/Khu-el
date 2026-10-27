@@ -14,10 +14,10 @@
         │                           │                           │
 ┌───────▼────────┐        ┌─────────▼────────┐        ┌─────────▼────────┐
 │  SURFACE: A    │        │   SURFACE: B     │        │ SURFACE: PRACTICE│
-│  NTE Enterprise│        │  House of Ransom │        │ Licensed practice│
+│  NTE Enterprise│        │  Household       │        │ Licensed practice│
 │  navy + gold   │        │  warm ink + brass│        │ slate + teal     │
 ├────────────────┤        ├──────────────────┤        ├──────────────────┤
-│ 01 Governance  │        │ 07 Family Office │        │ 06 Practice Desk │
+│ 01 Governance  │        │ 07 removed       │        │ 06 Practice Desk │
 │ 02 Ventures    │        │ 08 LIFEOPS (B)   │        │ 04 Marketing*    │
 │ 03 Education   │        │                  │        │                  │
 │ 04 Marketing*  │        │                  │        │                  │

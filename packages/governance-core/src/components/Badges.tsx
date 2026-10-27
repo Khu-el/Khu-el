@@ -34,7 +34,7 @@ const laneStyles: Record<Lane, string> = {
 
 const laneLabels: Record<Lane, string> = {
   LANE_A: 'Lane A · Enterprise',
-  LANE_B: 'Lane B · Family/Estate',
+  LANE_B: 'Lane B',
   PERSONAL: 'Personal',
   PHILANTHROPIC: 'Philanthropic',
   UNCLASSIFIED: 'Unclassified',

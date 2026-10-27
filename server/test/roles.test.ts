@@ -1,14 +1,12 @@
 /**
- * Role and app catalogues. financial-services-crm is private per owner.
- * legacy-estate is the only shared workspace.
+ * Role and app catalogues. Every planning app is private per owner.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ROLES, APP_IDS, isSharedApp, canWrite, type Role } from '../dist/lib/roles.js';
 
-test('legacy-estate is the one shared workspace', () => {
-  assert.equal(isSharedApp('legacy-estate'), true);
-  assert.deepEqual(APP_IDS.filter(isSharedApp), ['legacy-estate']);
+test('no app is a shared workspace', () => {
+  assert.deepEqual(APP_IDS.filter(isSharedApp), []);
 });
 
 test('financial-services-crm and the other planning apps are private', () => {
@@ -19,8 +17,6 @@ test('financial-services-crm and the other planning apps are private', () => {
 
 test('an unknown app id is not shared', () => {
   assert.equal(isSharedApp(''), false);
-  assert.equal(isSharedApp('legacy_estate'), false);
-  assert.equal(isSharedApp('LEGACY-ESTATE'), false);
   assert.equal(isSharedApp('some-new-app'), false);
 });
 
@@ -39,7 +35,6 @@ test('catalogues have no duplicates and include the private CRM', () => {
     'capital-readiness',
     'deal-architect',
     'financial-services-crm',
-    'legacy-estate',
     'notes-underwriting',
   ]);
 });

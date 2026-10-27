@@ -42,7 +42,7 @@ Spend caps default to **0**, so nothing that costs money runs until the principa
 ## Lane boundaries (from the principal's standing rules)
 
 - `NVS_DELIVERY` is the only lane any executor is registered for. Registering one for another lane is an explicit code change.
-- Nothing here touches Excellence District, CCRLT/House of Ransom, H.O.P.E./Primerica, licensed practice, employer, family or client records. Do not load those into this tool's inputs.
+- Nothing here touches Excellence District, private-estate records, H.O.P.E./Primerica, licensed practice, employer, or client records. Do not load those into this tool's inputs. Estate records live in a separate private repository.
 - **Securities.** The research module is paper-only and for NVS's own R&D. Anything that trades, recommends, or manages money for another person needs licensed review and is outside this lane. The H.O.P.E./Primerica and licensed-practice lanes must never share a runtime or data with it.
 
 ## Known limits (stated, not hidden)

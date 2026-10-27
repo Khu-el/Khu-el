@@ -7,11 +7,9 @@ export type Lane =
   | 'NVS_DELIVERY' // NTE Virtual Solutions commercial delivery
   | 'NTE_PRIVATE'
   | 'EXCELLENCE_DISTRICT'
-  | 'CCRLT_HOR'
   | 'HOPE_PRIMERICA'
   | 'LICENSED_PRACTICE'
   | 'EMPLOYER'
-  | 'FAMILY'
   | 'UNCLASSIFIED';
 
 export type Confidentiality = 'PUBLIC' | 'INTERNAL' | 'CONFIDENTIAL' | 'RESTRICTED';

@@ -8,7 +8,7 @@
 |-------------------|-------|
 | 🏷️ Project ID     | `CP-XXXX-000` |
 | 🏷️ Name           | *(must match the project name on claude.ai exactly)* |
-| 🧑‍💼 Capacity      | one of `PERS` `HOPE` `VZB` `REPR` `DIGP` `NTE` `HOR` `CCRLT` `MM` `OTHER:<name>` |
+| 🧑‍💼 Capacity      | one of `PERS` `HOPE` `VZB` `REPR` `DIGP` `NTE` `HOR` `MM` `OTHER:<name>` |
 | 🛣️ Lane           | `LANE_A` / `LANE_B` / `PERSONAL` / `PHILANTHROPIC` / `UNCLASSIFIED` |
 | 📆 Defined        | YYYY-MM-DD |
 | 🔧 Status         | `DRAFT` / `ACTIVE` / `PAUSED` / `MERGED` / `REPLACED` / `ARCHIVED` |

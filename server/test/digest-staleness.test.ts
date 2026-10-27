@@ -1,8 +1,8 @@
 /**
  * The digest's copy of the staleness rule, and proof it agrees with the client's.
  *
- * The estate app badges a beneficiary designation; this server decides what
- * lands in the "Needs Attention" email. Both carried the same NaN comparison,
+ * The client badges a verification date; this server decides what lands in
+ * the "Needs Attention" email. Both carried the same NaN comparison,
  * so an unparseable date read as verified in the UI *and* was left out of the
  * digest -- the two places a person would have caught it.
  *

@@ -6,7 +6,8 @@
  * module is not in this array it does not exist to the app, which keeps the
  * firewall auditable from a single file.
  *
- * All eleven modules are built. `src/modules/stub.tsx` stays in the tree for
+ * Ten modules are built. The lane-b-only office module was removed with the
+ * estate surface. `src/modules/stub.tsx` stays in the tree for
  * the next one: a module with a spec and no implementation renders what it
  * needs rather than a blank panel, because an empty screen is
  * indistinguishable from a broken one.
@@ -20,7 +21,6 @@ import marketing from '../modules/marketing-content'
 import compliance from '../modules/compliance-cp'
 import techStack from '../modules/tech-stack'
 import practiceDesk from '../modules/practice-desk'
-import familyOffice from '../modules/family-office'
 import lifeops from '../modules/lifeops'
 import capability from '../modules/capability-services'
 import knowledge from '../modules/knowledge-canon'
@@ -38,7 +38,6 @@ export const MODULES: ModuleDefinition[] = [
   marketing,
   techStack,
   practiceDesk,
-  familyOffice,
   lifeops,
   capability,
   compliance,

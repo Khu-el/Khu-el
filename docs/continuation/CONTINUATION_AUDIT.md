@@ -62,7 +62,7 @@ report or from CI history.
 | `Khu-el/Mental-Alchemy` | `npm run check` (typecheck + 2 guards) | ✅ pass |
 | `Khu-el/Neterverse_DAO` | `python3 scripts/check_page.py` | ✅ tags balanced, no external subresource |
 
-**Where there is still nothing to run:** `apps/legacy-estate` has no test runner, and no repository has a linter. **The UI is untested everywhere** — components,
+**Where there is still nothing to run:** `the former estate app` has no test runner, and no repository has a linter. **The UI is untested everywhere** — components,
 tabs and stores have no coverage; the three app suites cover `finance.ts` only. A green run above
 is evidence for exactly the workspaces named and nothing wider.
 
@@ -202,5 +202,5 @@ the six is currently reachable.**
 4. Re-run PR #5 against current `main` — it has never been checked by CI.
 5. Extend the `server/` suite past the two authorization boundaries it now covers.
 6. Cover the UI — components, tabs and stores are now the largest untested surface, along with
-   `apps/legacy-estate`. `governance-core`'s React hooks are also untested; only its pure
+   `the former estate app`. `governance-core`'s React hooks are also untested; only its pure
    helpers are covered.

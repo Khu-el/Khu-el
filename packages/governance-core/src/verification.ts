@@ -2,8 +2,8 @@
  * "When was this last confirmed?" -- and what to do when the answer is not a
  * date.
  *
- * The estate app flags a beneficiary designation that has not been verified in
- * two years. That check used to read:
+ * A verification date that has not been confirmed in two years used to be
+ * checked with:
  *
  *     Date.now() - new Date(dateStr).getTime() > twoYearsMs
  *

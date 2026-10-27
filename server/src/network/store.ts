@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { db } from '../lib/db.js';
 import { newId, nowIso } from '../lib/id.js';
 import type { AuthTokenPayload } from '../lib/auth.js';
-import { canWrite } from '../lib/roles.js';
+import { canWrite, DEFAULT_INVITE_ROLE } from '../lib/roles.js';
 import { appendCheckpoint } from './checkpoint.js';
 import { planRegistry } from './registry.js';
 import {
@@ -508,7 +508,7 @@ export function ensureSampleApprover() {
   const passwordHash = bcrypt.hashSync(randomBytes(32).toString('hex'), 10);
   db.prepare(
     'INSERT INTO users (id, email, password_hash, display_name, role, created_at) VALUES (?, ?, ?, ?, ?, ?)',
-  ).run(id, SAMPLE_APPROVER_EMAIL, passwordHash, SAMPLE_APPROVER_LABEL, 'FAMILY_COUNCIL_MEMBER', nowIso());
+  ).run(id, SAMPLE_APPROVER_EMAIL, passwordHash, SAMPLE_APPROVER_LABEL, DEFAULT_INVITE_ROLE, nowIso());
   return { id, label: SAMPLE_APPROVER_LABEL, email: SAMPLE_APPROVER_EMAIL, sample: true as const };
 }
 

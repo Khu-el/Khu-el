@@ -27,8 +27,7 @@ a partial one.
 Capacity Firewall. The task maintains navigation: which page links to which. It reads registry
 metadata (titles, links, lane labels, status, review dates) across lanes **because the index spans
 lanes**, but it never reads, copies or reasons over the *contents* of a Lane A, Lane B, licensed or
-employment record. Not `NTE`: most of the command centers it checks are not Lane A. Not `HOR` /
-`CCRLT`: it never touches estate records, only a navigation link to the CCRLT command center.
+employment record. Not `NTE`: most of the command centers it checks are not Lane A. Not the private estate repository: it never touches estate records.
 Navigation does not transfer authority between capacities, and this task must never act as if it did.
 
 ## ⏰ SCHEDULE / TRIGGER

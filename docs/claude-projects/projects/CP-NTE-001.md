@@ -35,8 +35,9 @@ why this project's highest classification is `PUBLIC` despite its subject being 
 
 ## 🚫 WHAT THIS PROJECT MUST NOT ABSORB
 
-- **Lane B estate material.** The control plane models that Lane B *exists* and that CCRLT is its
-  controlling structure. It never holds Lane B records. `CP-CCRLT-001` is where that lives.
+- **Lane B estate material.** The control plane models that Lane B exists so a merge into Lane A
+  still requires a bridge. It never holds Lane B records. Those records live in a separate private
+  repository, not in a project in this registry.
 - **`.neterverse/live/`.** Gitignored connector observations carrying account, workspace and file
   identifiers. They are not in the repository and must not be uploaded from a local checkout.
 - **The two private command-center repositories** (`NTE-Command-Center`, `StructureGen`). Their
@@ -158,7 +159,7 @@ proof the repository still says it. Where a conclusion turns on current text, re
 - **`.neterverse/events/events.jsonl`** — an append-only event log. Useful to query in the repo,
   poor as ambient knowledge: it grows without bound and its oldest rows are the least relevant.
 - **`package-lock.json`** — 185 KB of resolved dependency metadata with no governance content.
-- **The five apps' source** — they belong to `CP-NTE-002` and `CP-CCRLT-001`. The control plane
+- **The planning apps' source** — they belong to `CP-NTE-002`. The control plane
   needs the governance *vocabulary* (`types.ts`), not every screen that renders it.
 - **`server/`** — same reason. The backend's approval boundary is described in `CLAUDE.md` and
   Executive OS §14, which are both here; the implementation belongs with the apps it serves.
