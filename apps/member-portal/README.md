@@ -108,6 +108,12 @@ before step 1**. Until the hardening migration runs, the live project has no sig
      Business Systems lessons (a 90-day founder sequence) and one **inactive** pathway that points
      at them. Run it only if you want them; publish and activate them in the Content Studio after
      review.
+     - ✅ **Applied to the live project on 2026-10-29** at the principal's instruction, as live
+       migration `founder_90_day_lessons` (DML only). Verified live the same day: the four lesson
+       bodies match this file byte for byte, and an anonymous visitor and a signed-in non-staff
+       member each see none of the five rows. The live Business Systems track is itself unpublished
+       (live migration `hold_empty_catalog`), so publishing these lessons also means publishing
+       that track.
 2. **Deploy the corrected `delete-account` function.**
    - Go to **Edge Functions → delete-account**, replace its source with
      `supabase/functions/delete-account/index.ts`, and deploy.
