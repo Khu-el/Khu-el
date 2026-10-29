@@ -341,10 +341,16 @@ begin
   select count(*) into drafts from public.learning_modules where not is_published;
   perform t.eq(drafts > 0, true, 'starter lessons exist as drafts');
   perform t.eq((select count(*) from public.learning_modules where is_published), 0::bigint, 'seed publishes nothing');
+  perform t.eq((select count(*) from public.learning_modules
+                 where id in ('bs-04-one-priority-for-90-days', 'bs-05-describe-your-offer',
+                              'bs-06-what-your-plan-needs', 'bs-07-three-30-day-plans')
+                   and track_id = 'business-systems' and not is_published), 4::bigint, 'founder lessons exist as drafts');
+  perform t.eq((select count(*) from public.opportunity_pathways where id = 'founder-90-days' and not is_active), 1::bigint, 'founder pathway seeded inactive');
 
   perform t.as_user(null);
   perform t.eq(t.count('select 1 from public.learning_tracks'), 4::bigint, 'anon sees 4 published tracks');
   perform t.eq(t.count('select 1 from public.learning_modules'), 0::bigint, 'anon sees no draft lessons');
+  perform t.eq(t.count($q$select 1 from public.opportunity_pathways where id = 'founder-90-days'$q$), 0::bigint, 'anon cannot see the inactive founder pathway');
   perform t.eq(t.count('select 1 from public.integration_status'), 11::bigint, 'anon sees integration status');
   perform t.fails($q$select * from public.profiles$q$, '42501');
   perform t.fails($q$insert into public.learning_tracks(id,title,pillar) values ('x','x','x')$q$, '42501');
@@ -353,6 +359,7 @@ begin
 
   perform t.as_user(member);
   perform t.eq(t.count('select 1 from public.learning_modules'), 0::bigint, 'member sees no draft lessons');
+  perform t.eq(t.count($q$select 1 from public.opportunity_pathways where id = 'founder-90-days'$q$), 0::bigint, 'member cannot see the inactive founder pathway');
   perform t.fails($q$insert into public.learning_tracks(id,title,pillar) values ('x','x','x')$q$, '42501');
   perform t.eq(t.affects($q$update public.learning_tracks set title = 'x'$q$), 0::bigint, 'member cannot edit tracks');
   perform t.fails($q$insert into public.resources(id,title,resource_type) values ('x','x','link')$q$, '42501');

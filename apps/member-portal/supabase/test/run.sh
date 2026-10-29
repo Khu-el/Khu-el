@@ -27,6 +27,7 @@ for f in "$mig"/*.sql; do
 done
 # Re-applying the idempotent ones must not fail (the owner may re-run a migration).
 echo "re-run: starter_lessons"; psql_ -1 -f "$mig/20261003031000_starter_lessons.sql"
+echo "re-run: founder_90_day_lessons"; psql_ -1 -f "$mig/20261029160000_founder_90_day_lessons.sql"
 for f in "$here"/10_*.sql; do
   echo "assertions: $(basename "$f")"
   psql_ -f "$f"

@@ -28,7 +28,7 @@ src/
   pages/             Member pages
   staff/             Staff console: invites · support triage · content studio
 supabase/
-  migrations/        The baseline schema (2026-09-21) + hardening + draft starter lessons
+  migrations/        The baseline schema (2026-09-21) + hardening + draft starter and founder lessons
   functions/         delete-account (corrected source)
 test/                node --test, type-stripped, over src/logic and src/config
 ```
@@ -104,6 +104,10 @@ before step 1**. Until the hardening migration runs, the live project has no sig
    - It moves the twenty `neterverse_*` tables into `legacy_neterverse` and deletes no rows.
    - Read `20261003031000_starter_lessons.sql` too. It adds twelve **unpublished** draft lessons.
      Run it if you want them as a starting point.
+   - Read `20261029160000_founder_90_day_lessons.sql` as well. It adds four more **unpublished**
+     Business Systems lessons (a 90-day founder sequence) and one **inactive** pathway that points
+     at them. Run it only if you want them; publish and activate them in the Content Studio after
+     review.
 2. **Deploy the corrected `delete-account` function.**
    - Go to **Edge Functions → delete-account**, replace its source with
      `supabase/functions/delete-account/index.ts`, and deploy.
