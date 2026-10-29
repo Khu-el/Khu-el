@@ -257,7 +257,10 @@ a ✅ (§1).
 work. This raises its ceiling; it does not unblock it. **The run must report the connector-dependent
 steps as ⚪ UNKNOWN rather than as passing** — that rule is written into the definition.
 
-## 9. ~~Attach connectors to the ST-OTHER-001 Routine~~ — worked around 2026-10-02; optional hardening remains
+## 9. ~~Attach connectors to the ST-OTHER-001 Routine~~ — closed 2026-10-29: task replaced, nothing remains
+
+> **Update 2026-10-29.** `ST-OTHER-001` is `REPLACED` by live Notion views, and its Routine is disabled.
+> The optional hardening below no longer applies. The original record follows, unchanged.
 
 | | |
 |---|---|
@@ -368,7 +371,9 @@ committed to a repository outlives the session that wrote it.
 ⚠️ **Do not let this be done as a bulk paste of the April 2026 Notion names.** Those are the third
 of four generations — see SC-08's table. `seed/governance.json` is the controlling source.
 
-📎 **Related but not the same task — do not merge them.** `ST-OTHER-001` (Executive OS Network
+📎 **Related but not the same task — do not merge them.** *(Update 2026-10-29: `ST-OTHER-001` is
+now `REPLACED` by live Notion views and no longer runs. The weekly "notice `04.01` is empty"
+opportunity below has gone with it.)* `ST-OTHER-001` (Executive OS Network
 Integrity Watch) already runs weekly against Notion and already holds the connectors. It maintains
 the **navigation layer** — which index page links to which command center — and its definition is
 explicit that it reads registry *metadata* only and never reasons over record contents. Populating

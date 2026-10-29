@@ -8,8 +8,18 @@
 | 🏷️ Name         | Executive OS Network Integrity Watch |
 | 🧑‍💼 Capacity    | `OTHER:SYSTEMS` |
 | 📆 Defined      | 2026-10-02 |
-| 🔧 Status       | `ACTIVE` |
+| 🔧 Status       | `REPLACED` |
 | 🔗 Routine ID   | `trig_01QcstfQGZxqqARauciMntX8` |
+
+> **🔁 REPLACED on 2026-10-29 by the principal's decision.** Run 4 reached the Executive OS Review Rule:
+> four runs in a row with no edit and no escalation. The principal chose the end state that the SCALE CHECK
+> below anticipated. The task is replaced by **live linked database views** over both dashboard
+> registries, plus an **overdue-reviews view** of the Executive OS Knowledge Registry. All three sit
+> in a "🛰️ Network Watch" section on the Knowledge Index. The Routine is **disabled**, not deleted, so its
+> history stays readable. The same decision says that overdue reviews **escalate to ClickUp**, one task
+> per row, once a review has been reported overdue three times. The six rows overdue at retirement each
+> got a task in the 00 DO NOW list on 2026-10-29. With this task retired, nothing raises that escalation
+> automatically any more: the overdue view surfaces the rows, and a person opens the task.
 
 ## 🎯 MISSION
 
@@ -302,3 +312,7 @@ Exactly one of: 🎯 DO NOW · ⚖️ DECISION REQUIRED · ⏳ WAITING ON · �
 | Run | Date | Registry rows (Core / Ecosystem) | Links added | Escalations | Final output |
 |---|---|---|---|---|---|
 | 0 | 2026-10-02 | 16 / 8 | Manual baseline: 9 Figure Vision hub created; Complete Command Center Map added to the index; NTE & Equity and H.O.P.E. Dealers hubs completed | — | ✅ NO ACTION REQUIRED (baseline, run by hand before scheduling) |
+| 1 | 2026-10-04 | 16 / 8 | 0 (24/24 covered) | — (overdue reviews reported only) | Recorded in the Notion run row |
+| 2 | 2026-10-11 | 16 / 8 | 0 (24/24 covered) | Asked whether overdue reviews should escalate to ClickUp | Recorded in the Notion run row (processed about 21h late) |
+| 3 | 2026-10-18 | 16 / 8 | 0 (24/24 covered) | Same question, still unanswered | Recorded in the Notion run row (about 15.5h late; re-run on request) |
+| 4 | 2026-10-25 | 16 / 8 | 0 (24/24 covered) | Review Rule reached; one ClickUp decision task | ⚖️ DECISION REQUIRED, decided 2026-10-29: `REPLACED` by linked views; overdue reviews escalate to ClickUp |
