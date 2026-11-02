@@ -9,6 +9,7 @@ Search this file first for any new task request: **SEARCH → READ → REUSE →
 |---------|------|----------|---------|--------|------------|------------|-----------|
 | `ST-NTE-001` | Continuation Audit Drift Watch ⚠️ | `NTE` | Weekly · Mon 08:00 ET (`0 12 * * 1` UTC) | `ACTIVE` | [ST-NTE-001](tasks/ST-NTE-001.md) | `trig_012vVNu9cbBucVpWHAxYnQAe` | `SECURITY_FINDINGS.md` · `HUMAN_ACTION_REQUIRED.md` · principal |
 | `ST-OTHER-001` | ~~Executive OS Network Integrity Watch~~ 🔁 | `OTHER` | ~~Weekly · Sun 15:46 ET (`46 19 * * 0` UTC)~~ | `REPLACED` | [ST-OTHER-001](tasks/ST-OTHER-001.md) | `trig_01QcstfQGZxqqARauciMntX8` | Executive OS Knowledge Registry · ClickUp 00 DO NOW · Sunday War Council |
+| `ST-OTHER-002` | Executive OS Overdue Review Escalation ⚠️ | `OTHER` | Monthly · 3rd, 16:43 ET (`43 21 3 * *` UTC while EST) | `ACTIVE` | [ST-OTHER-002](tasks/ST-OTHER-002.md) | `trig_01DyQn7mmhgwchqNPVzqwizY` | ClickUp 00 DO NOW · principal |
 | `ST-NTE-002` | Job Runner Worker ⏸️ | `NTE` | Hourly (`35 * * * *` UTC) | `PAUSED` | [ST-NTE-002](tasks/ST-NTE-002.md) | `trig_015PsN5cjfDwgLDUq3oZzKrP` | Principal (approval gates) · ADR-0003 |
 | `ST-PERS-001` | GodMode Daily Bulletin | `PERS` | Daily · 05:35 ET (`35 9 * * *` UTC) | `DRAFT` | [ST-PERS-001](tasks/ST-PERS-001.md) | — not scheduled | `ST-PERS-002` · principal |
 | `ST-PERS-002` | S-05 Evening Ascension | `PERS` | Daily · 21:30 ET (`30 1 * * *` UTC) | `DRAFT` | [ST-PERS-002](tasks/ST-PERS-002.md) | — not scheduled | Paired with `ST-PERS-001` (terminal reflection) |
@@ -21,8 +22,9 @@ section in its definition. The task is genuinely scheduled; it is not fully equi
 
 🔁 `ST-OTHER-001` was `REPLACED` on 2026-10-29. The principal's decision replaced it with live linked
 Notion views over both dashboard registries, plus an overdue-reviews view, all on the Knowledge Index. Its
-session-bound Routine is **disabled**, not deleted. Overdue reviews now escalate to ClickUp by
-decision, not by schedule. The definition records the details.
+session-bound Routine is **disabled**, not deleted. Overdue reviews escalate to ClickUp through
+`ST-OTHER-002`, which runs monthly and is session-bound for the same connector reason. The two
+definitions record the details.
 
 ⏸️ `ST-NTE-002` is `PAUSED` (2026-10-03). Its first scheduled run passed. It was then paused because a second worker fleet,
 recorded as `chatgpt`, now shares the job runner's queue, and the rewritten claim function would hand this worker that
@@ -64,4 +66,4 @@ are never reused and their history is findable.
 | `NTE`    | `ST-NTE-005` |
 | `HOR`    | `ST-HOR-002` |
 | `MM`     | `ST-MM-001` |
-| `OTHER`  | `ST-OTHER-002` |
+| `OTHER`  | `ST-OTHER-003` |
