@@ -241,6 +241,15 @@ a ✅ (§1).
 
 ## 8. Re-create the ST-NTE-001 Routine with connectors attached
 
+> **Update 2026-11-16 (ST-NTE-001 run 4) — narrowed, not closed.** The session this Routine fired
+> on 2026-11-16 **held the GitHub MCP tools** (`mcp__github__*`) and used them: open-PR lists for all
+> three repositories and `main`'s workflow runs were read directly (`VERIFIED` — the calls returned).
+> Same Routine ID, so how the connector came to be attached is ⚪ UNKNOWN. **Step 7's PR/CI half now
+> runs.** **Step 5 still does not:** no Routines-listing tool was present (the `claude-code-remote`
+> connector exposed only PR subscription), so the Routine reconciliation stays ⚪ UNKNOWN and SC-07's
+> count is still unverified. The remaining ask is the Routines connector only. Run 4 of this blocker
+> being open — it is carried under the 2026-10-03 standing instruction, not re-raised.
+
 | | |
 |---|---|
 | **Project** | Scheduled task `ST-NTE-001` — Continuation Audit Drift Watch |

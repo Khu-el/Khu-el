@@ -19,6 +19,9 @@ Search this file first for any new task request: **SEARCH → READ → REUSE →
 ⚠️ `ST-NTE-001`'s Routine stores **no MCP connectors**, so its sessions run without GitHub and
 Routines tools. Two of its PROCESS steps are degraded as a result — see the KNOWN CONSTRAINT
 section in its definition. The task is genuinely scheduled; it is not fully equipped.
+*Update 2026-11-16:* the run that fired that day **did** hold the GitHub MCP tools, so its PR/CI
+re-checks ran; the Routines tools were still absent, so step 5 remains ⚪ UNKNOWN. See
+`HUMAN_ACTION_REQUIRED.md` #8.
 
 🔁 `ST-OTHER-001` was `REPLACED` on 2026-10-29. The principal's decision replaced it with live linked
 Notion views over both dashboard registries, plus an overdue-reviews view, all on the Knowledge Index. Its
