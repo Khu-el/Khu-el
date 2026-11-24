@@ -2,6 +2,10 @@
 
 **Status:** CANONICAL · **Version:** 2 · **Effective:** 2026-09-06 · **Owner:** Khu-el
 **Supersedes:** none on record (no v1 artifact exists in this or the sibling repos as of the effective date)
+**Amended:** 2026-11-24 — every section is written at the resolution set by
+`../TASK_DETAIL_STANDARD.md`, and three *(if applicable)* sections are added: ⚙️ SETTINGS,
+🔀 PLAN A / B / C and 🧪 ACCEPTANCE TESTS. No section is removed, and no existing definition is
+invalidated: the three new sections are not in the validator's required list.
 
 This is the standard every scheduled task (Routine, cron, trigger, recurring brief) must satisfy
 **before** it is scheduled. A task that does not have every section below filled in is not ready to
@@ -15,6 +19,11 @@ Companion files:
 
 Workflow for any new task: **SEARCH → READ → REUSE → UPDATE.** Search `REGISTRY.md` and `tasks/`
 first. Create a new task file only when no existing task covers the mission.
+
+**🔬 Resolution.** This spec says *what* a task covers; `../TASK_DETAIL_STANDARD.md` says *how
+precisely* each section is written. A section filled at a lower resolution — a step with no proof,
+a threshold with no named setting, a dependency with no failure response — is not filled. Run the
+standard's §14 checklist before scheduling.
 
 ---
 
@@ -118,6 +127,21 @@ For consequential analyses, actively search for evidence that could defeat the i
 
 Give the actual analytical workflow in sequence. Do not simply say "analyze."
 
+Write every step with the six fields of TASK_DETAIL_STANDARD §2: `STEP n · NAME` · blocking or not ·
+the exact actions · done when · proof · on failure. A run reports the highest state it can prove.
+
+## ⚙️ SETTINGS *(if applicable)*
+
+Every threshold, window, limit and default the task uses, as a named setting: default · unit ·
+min · max · who may change it (TASK_DETAIL_STANDARD §4). The task never changes a setting itself;
+it may propose a change, with the numbers behind it.
+
+## 🔀 PLAN A / B / C *(if applicable)*
+
+Where a connector, tool or source may not be available when the task fires, write each fallback in
+full and say what the output shows when it is used. A run states which plan ran. **Never pretend**
+(TASK_DETAIL_STANDARD §7).
+
 ## 🌳 SCENARIOS
 
 When applicable evaluate: `BEST` · `BASE` · `ALTERNATIVE` · `WORST` · `TAIL` · `UNKNOWN`
@@ -172,6 +196,12 @@ State prohibited actions and human-approval boundaries.
 ## 📌 PROOF REQUIRED
 
 Define what evidence proves successful execution or completion.
+
+## 🧪 ACCEPTANCE TESTS *(if applicable)*
+
+Numbered checks, each an exact input and the exact expected output — a boundary pair, a missing
+input, a forbidden action refused, a source down — run once before the task is set `ACTIVE`, with
+their output recorded in the Run Log (TASK_DETAIL_STANDARD §9).
 
 ## 🔄 STATE UPDATE
 

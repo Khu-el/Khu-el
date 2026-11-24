@@ -30,8 +30,11 @@ const DOCS = join(REPO_ROOT, 'docs', 'scheduled-tasks');
 const TASKS_DIR = join(DOCS, 'tasks');
 const REGISTRY = join(DOCS, 'REGISTRY.md');
 
-// Every section SPEC.md defines. The template ships all of them, so a file
+// Every section SPEC.md requires. The template ships all of them, so a file
 // copied from it starts complete and the check is about filling them in.
+// SPEC.md's three *(if applicable)* sections added 2026-11-24 -- SETTINGS,
+// PLAN A / B / C and ACCEPTANCE TESTS -- are deliberately absent: requiring
+// them would invalidate every definition written before they existed.
 const REQUIRED_SECTIONS = [
   'MISSION', 'CAPACITY', 'SCHEDULE / TRIGGER', 'INPUTS', 'CANONICAL ARTIFACTS',
   'PRIOR-RUN CONTINUITY', 'WEB RESEARCH MODE', 'RESEARCH QUESTIONS', 'SOURCE PRIORITY',

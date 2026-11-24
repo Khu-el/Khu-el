@@ -2,7 +2,8 @@
 
 > Copy to `tasks/<TASK-ID>.md`. Fill every section. Sections marked *(if applicable)* may be
 > set to `N/A` with a one-line reason. Everything else must be filled before scheduling.
-> Governing spec: `../SPEC.md` (v2).
+> Governing spec: `../SPEC.md` (v2). Resolution: `../../TASK_DETAIL_STANDARD.md` — run its §14
+> checklist before scheduling.
 
 | Field           | Value |
 |-----------------|-------|
@@ -76,9 +77,29 @@ Each run must report: what changed · what closed · what carried · what failed
 
 ## 🧠 PROCESS
 
-1. 
-2. 
-3. 
+<!-- One row per step. Do = exact actions, never "analyze". Proof = what a reviewer can check. -->
+
+| # · Step | Blocking | Do | Done when | Proof | On failure |
+|----------|----------|----|-----------|-------|------------|
+| 1 · | yes / no | | | | |
+| 2 · | | | | | |
+| 3 · | | | | | |
+
+## ⚙️ SETTINGS *(if applicable)*
+
+<!-- Every threshold is a named setting. The task never changes one itself. -->
+
+| Setting | Default | Unit | Min | Max | Who may change it |
+|---------|---------|------|-----|-----|-------------------|
+| | | | | | principal |
+
+## 🔀 PLAN A / B / C *(if applicable)*
+
+| Plan | Used when | What the output shows |
+|------|-----------|-----------------------|
+| A | | |
+| B | | |
+| C | | |
 
 ## 🌳 SCENARIOS *(if applicable)*
 
@@ -134,6 +155,14 @@ Task-specific rules:
 ## 📌 PROOF REQUIRED
 
 <!-- What evidence proves a run executed and completed correctly. -->
+
+## 🧪 ACCEPTANCE TESTS *(if applicable)*
+
+<!-- Exact input → exact expected output. Run once before ACTIVE; record the output in the Run Log. -->
+
+| # | Input | Expected output | Result |
+|---|-------|-----------------|--------|
+| 1 | | | |
 
 ## 🔄 STATE UPDATE
 

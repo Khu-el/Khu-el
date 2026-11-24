@@ -1,6 +1,6 @@
 # 🧭 CLAUDE.md — Khu-el/Khu-el (NTE Web Apps)
 
-**📌 Four controlling standards govern work here. Read them before starting.**
+**📌 Five controlling standards govern work here. Read them before starting.**
 
 | Standard | Governs | Read before |
 |---|---|---|
@@ -8,8 +8,9 @@
 | `docs/AI_COUNCIL.md` | How contributors treat each other's work — review, dissent, handoff, attribution, audit | Reviewing, extending, or auditing work another contributor produced |
 | `docs/scheduled-tasks/SPEC.md` | How a *scheduled* task (Routine, cron, trigger, recurring brief) is defined | Creating, editing, or scheduling any recurring task |
 | `docs/claude-projects/SPEC.md` | How a *Claude Project* is defined, and what may be loaded into its knowledge base | Creating or editing any Claude Project, or adding a source to one |
+| `docs/TASK_DETAIL_STANDARD.md` | The *resolution* every task is written and carried out at — four-line opening, gated steps with proof, named settings, failure rows, Plan A/B/C, dry run before live, acceptance tests with concrete numbers | Writing any task, spec, plan, prompt or custom instructions, and before starting any multi-step task |
 
-This file is the repo-specific layer on top of all four.
+This file is the repo-specific layer on top of all five.
 
 **🧭 Precedence:** a task-specific instruction from the principal wins. Otherwise, where
 these standards appear to disagree, **the stricter reading wins** — and no collaboration
